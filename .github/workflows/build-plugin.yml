@@ -63,20 +63,31 @@ jobs:
           hdiutil detach "/Volumes/HISE Installer" -quiet
           xattr -dr com.apple.quarantine HISE.app
 
-      - name: Configure HISE CLI
+      - name: Configure HISE CLI + export plugin (single step for persistence)
         run: |
+          set -e
           HISE_BIN="$GITHUB_WORKSPACE/hise-app/HISE.app/Contents/MacOS/HISE"
           PROJECT_DIR="$GITHUB_WORKSPACE/hise_project/ResearchFacility"
           HISE_SRC="$GITHUB_WORKSPACE/hise-source"
+          PRESET="$PROJECT_DIR/XmlPresetBackups/ResearchFacility.xml"
+
+          echo "=== Configure ==="
           "$HISE_BIN" set_hise_folder -p:"$HISE_SRC"
           "$HISE_BIN" set_project_folder -p:"$PROJECT_DIR"
           "$HISE_BIN" get_project_folder
 
-      - name: Export plugin (Instrument, VST3 + AU)
-        run: |
-          HISE_BIN="$GITHUB_WORKSPACE/hise-app/HISE.app/Contents/MacOS/HISE"
-          PRESET="$GITHUB_WORKSPACE/hise_project/ResearchFacility/XmlPresetBackups/ResearchFacility.xml"
-          "$HISE_BIN" export_ci "$PRESET" -t:instrument -p:VST_AU -a:x86x64
+          echo ""
+          echo "=== Verify HISE source structure ==="
+          ls "$HISE_SRC/" | head -20
+          test -f "$HISE_SRC/projects/standalone/HISE Standalone.jucer" || \
+            { echo "ERROR: HISE source missing projucer file"; exit 1; }
+
+          echo ""
+          echo "=== Export (plain mode + inline -h: path) ==="
+          # Use plain `export` (not export_ci) because export_ci IGNORES the
+          # global HISE path per docs and expects HISE.app to be inside the
+          # source tree. Plain export honors set_hise_folder OR -h: inline.
+          "$HISE_BIN" export "$PRESET" -h:"$HISE_SRC" -t:instrument -p:VST_AU -a:x86x64
 
       - name: Locate built bundles
         run: |
