@@ -6,7 +6,7 @@
   <Description value="A sonic research lab for musicians. Discover sounds for your music." type="TEXT" description="Project description"/>
   <BundleIdentifier value="com.researchfacility.plugin" type="TEXT" description="Bundle Identifier"/>
   <PluginCode value="Rfac" type="TEXT" description="a 4 character ID code"/>
-  <EmbedAudioFiles value="No" type="LIST" description="Embed Audio files in plugin"
+  <EmbedAudioFiles value="Yes" type="LIST" description="Embed Audio files in plugin"
                    options="Yes&#10;No"/>
   <AdditionalDspLibraries value="" type="TEXT"/>
   <WindowsStaticLibFolder value="" type="TEXT"/>
