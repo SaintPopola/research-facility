@@ -2,9 +2,25 @@
 
 > A sonic research lab for musicians. Discover sounds for your music.
 
+[![Build VST3/AU plugin](https://github.com/SaintPopola/research-facility/actions/workflows/build-plugin.yml/badge.svg)](https://github.com/SaintPopola/research-facility/actions/workflows/build-plugin.yml)
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL_3.0-blue.svg)](LICENSE)
+[![HISE 4.1.0](https://img.shields.io/badge/built_with-HISE_4.1.0-00D9A0.svg)](https://hise.dev)
+
 A hybrid sampler/synth VST3 + AU plugin inspired by Spectrasonics Omnisphere, built as **GPL-3 open source** with **paid pre-built binaries** for those who'd rather not compile from source. The Vital model.
 
-**Status:** Pre-alpha. Phase 1 working in HISE. Roadmap targets v1.0 commercial launch in 18-24 months.
+**Status:** Pre-alpha. Phase 1 audio engine + branded UI live. Cloud-build CI on GitHub Actions; binaries delivered via `scripts/download_build.sh`. Roadmap targets v1.0 commercial launch in 18-24 months.
+
+## How it ships
+
+This project compiles in the cloud — you don't need Xcode or HISE installed to use it:
+
+1. The user runs `gh workflow run build-plugin.yml` (or pushes a code change)
+2. A free GitHub-hosted macOS runner clones HISE source + downloads the VST3 SDK + runs HISE CLI export + xcodebuild
+3. Compiled `.vst3` and `.component` bundles upload as artifacts
+4. The user runs `scripts/download_build.sh` which auto-installs them to `~/Library/Audio/Plug-Ins/`
+5. The DAW (Ableton, Logic, Reaper, Cubase, FL Studio, Studio One, Bitwig) sees the plugin on next rescan
+
+See [`TAKE_CONTROL.md`](TAKE_CONTROL.md) for the full no-touch-HISE pipeline.
 
 ## What it is
 
