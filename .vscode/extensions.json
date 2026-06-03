@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "llvm-vs-code-extensions.vscode-clangd",
+    "ms-vscode.cmake-tools",
+    "twxs.cmake",
+    "ms-vscode.cpptools-extension-pack",
+    "vadimcn.vscode-lldb",
+    "github.copilot",
+    "anthropic.claude-code"
+  ],
+  "unwantedRecommendations": [
+    "ms-vscode.cpptools"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "folders": [
+    {
+      "name": "Research Facility",
+      "path": ".."
+    }
+  ],
+  "settings": {
+    "cmake.sourceDirectory": "${workspaceFolder:Research Facility}",
+    "cmake.buildDirectory": "${workspaceFolder:Research Facility}/build"
+  },
+  "extensions": {
+    "recommendations": [
+      "llvm-vs-code-extensions.vscode-clangd",
+      "ms-vscode.cmake-tools",
+      "anthropic.claude-code"
+    ]
+  }
+}

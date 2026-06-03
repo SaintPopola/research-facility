@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<UserSettings>
+  <Company value="Research Facility" type="TEXT" description="Company Name"/>
+  <CompanyCode value="Rfac" type="TEXT" description="Company Code (4 characters, first must be uppercase)"/>
+  <CompanyCopyright value="(c) 2026 Research Facility" type="TEXT" description="Company Copyright"/>
+  <CompanyURL value="https://researchfacility.audio" type="TEXT" description="Company Website"/>
+  <TeamDevelopmentID value="" type="TEXT" description="Apple Distribution ID"/>
+</UserSettings>

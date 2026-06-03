@@ -1,0 +1,29 @@
+{
+  "cmake.configureOnOpen": false,
+  "cmake.buildDirectory": "${workspaceFolder}/build",
+  "cmake.generator": "Ninja",
+  "clangd.arguments": [
+    "--background-index",
+    "--clang-tidy",
+    "--header-insertion=never",
+    "--compile-commands-dir=${workspaceFolder}/build"
+  ],
+  "C_Cpp.intelliSenseEngine": "disabled",
+  "files.associations": {
+    "*.h": "cpp",
+    "*.hpp": "cpp",
+    "*.mm": "objective-cpp"
+  },
+  "files.exclude": {
+    "build/": true,
+    "**/.DS_Store": true
+  },
+  "search.exclude": {
+    "third_party/": true,
+    "build/": true,
+    "assets/samples/": true
+  },
+  "editor.formatOnSave": false,
+  "editor.tabSize": 4,
+  "editor.insertSpaces": true
+}

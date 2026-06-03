@@ -1,0 +1,77 @@
+# Build
+build/
+build-*/
+cmake-build-*/
+out/
+*.o
+*.obj
+*.dylib
+*.so
+*.dll
+*.exp
+*.lib
+*.pdb
+*.dSYM/
+
+# JUCE generated
+JuceLibraryCode/
+Builds/
+
+# Plug-in bundles
+*.vst3/
+*.component/
+*.clap/
+*.aaxplugin/
+
+# IDE
+.vscode/ipch/
+.vscode/.cache/
+.vs/
+*.user
+*.suo
+*.sln.docstates
+.idea/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies (we use submodules)
+node_modules/
+
+# Logs / temp
+*.log
+*.tmp
+*.bak
+*~
+
+# Secrets — never commit
+.env
+.env.local
+secrets/
+*.p12
+*.cer
+*.provisionprofile
+
+# Large binary assets — track via Git LFS or external storage
+assets/samples/raw/
+assets/wavetables/raw/
+
+# HISE-specific
+hise_project/*/Binaries/
+hise_project/*/Presets/*.hip
+hise_project/*/LinkOSX
+hise_project/*/LinkWindows
+hise_project/*/LinkLinux
+*.hr1
+*.ch1
+*.ch2
+hise_project/**/.DS_Store
+
+# Downloads / installers
+Downloads/HISE*.dmg
+
+# Local-only research mirror
+docs/01_upstream_research.md
