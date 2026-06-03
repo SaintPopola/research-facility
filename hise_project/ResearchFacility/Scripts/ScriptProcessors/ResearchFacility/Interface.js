@@ -139,72 +139,222 @@ Main.setPaintRoutine(function(g)
 });
 
 // ============================================================================
-// CATALOG SECTION — placeholder preset grid
+// CATALOG SECTION — real preset browser wired to the sampler
 // ============================================================================
 
-const var CatalogPanel = Content.addPanel("CatalogPanel", 160, 116);
-Content.setPropertiesFromJSON("CatalogPanel", { "width": 844, "height": 504 });
+// Reference to the sampler we'll swap maps on
+const var VoiceA = Synth.getChildSynth("Voice A");
 
-CatalogPanel.data.presets = [
-    "Vellum|pad·dark|80 bpm",
-    "Slow Dawn|pad·warm|76 bpm",
-    "Vox Drift|texture·dark|82 bpm",
-    "Choir Ghost|pad·vocal|85 bpm",
-    "Owl Hymn|pad·warm|72 bpm",
-    "Mist|texture·cold|78 bpm",
-    "Old Tape|pad·vox|94 bpm",
-    "Solar Drift|pad·bright|88 bpm",
-    "Velvet|pad·warm|70 bpm"
-];
+// Load the catalog JSON shipped with the plugin (Samples/_catalog.json)
+const var catalogFile = FileSystem.getFolder(FileSystem.Samples).getChildFile("_catalog.json");
+reg catalog;
+if (catalogFile.isFile())
+{
+    catalog = catalogFile.loadAsObject();
+}
+else
+{
+    catalog = [];
+}
+
+// Card click handler — swap the sample on the Voice A sampler
+inline function loadPresetById(presetId)
+{
+    if (VoiceA != undefined)
+        VoiceA.asSampler().loadSampleMap(presetId);
+}
+
+const var CatalogPanel = Content.addPanel("CatalogPanel", 160, 116);
+Content.setPropertiesFromJSON("CatalogPanel", {
+    "width": 844, "height": 504,
+    "allowCallbacks": "Clicks & Hover"
+});
+
+CatalogPanel.data.categories = ["pads", "plucks", "basses", "leads", "textures"];
+CatalogPanel.data.activeCategory = 0;
+CatalogPanel.data.hoverCategoryIndex = -1;
+CatalogPanel.data.hoverCardIndex = -1;
+CatalogPanel.data.activeCardIndex = 0;
+CatalogPanel.data.cardW = 156;
+CatalogPanel.data.cardH = 96;
+CatalogPanel.data.cardGap = 16;
+CatalogPanel.data.cardsPerRow = 5;
+CatalogPanel.data.gridTopOffset = 64;
+
+// Helper — get presets filtered by current category
+inline function getVisiblePresets(panel)
+{
+    local cat = panel.data.categories[panel.data.activeCategory];
+    local out = [];
+    for (i = 0; i < catalog.length; i++)
+    {
+        if (catalog[i].category == cat)
+            out.push(catalog[i]);
+    }
+    return out;
+}
 
 CatalogPanel.setPaintRoutine(function(g)
 {
     g.setColour(0xFF8B8F96);
     g.setFont("Oxygen Bold", 11);
-    g.drawAlignedText("TOP RESULTS",  [0, 0, 200, 14], "left");
+    g.drawAlignedText("CATALOG", [0, 0, 200, 14], "left");
 
-    var cardW = 250;
-    var cardH = 110;
-    var gap = 18;
-    var perRow = 3;
+    g.setColour(0xFFE8EAED);
+    g.setFont("Oxygen", 11);
+    g.drawAlignedText("Click a preset to load it. " + catalog.length + " sounds available.",
+                      [0, 18, 600, 14], "left");
 
-    for (i = 0; i < this.data.presets.length; i++)
+    // Category tabs
+    var tabY = 42;
+    var tabX = 0;
+    for (i = 0; i < this.data.categories.length; i++)
+    {
+        var label = this.data.categories[i].toUpperCase();
+        var tabW = 110;
+
+        if (i == this.data.activeCategory)
+        {
+            g.setColour(0xFF00D9A0);
+            g.fillRect([tabX, tabY + 18, tabW - 8, 2]);
+            g.setColour(0xFFE8EAED);
+        }
+        else if (i == this.data.hoverCategoryIndex)
+        {
+            g.setColour(0xFFE8EAED);
+        }
+        else
+        {
+            g.setColour(0xFF8B8F96);
+        }
+        g.setFont("Oxygen Bold", 11);
+        g.drawAlignedText(label, [tabX, tabY, tabW - 8, 16], "left");
+        tabX += tabW;
+    }
+
+    // Grid of preset cards
+    var presets = getVisiblePresets(this);
+    var cardW = this.data.cardW;
+    var cardH = this.data.cardH;
+    var gap = this.data.cardGap;
+    var perRow = this.data.cardsPerRow;
+    var topY = this.data.gridTopOffset;
+
+    for (i = 0; i < presets.length; i++)
     {
         var col = i % perRow;
         var row = Math.floor(i / perRow);
         var x = col * (cardW + gap);
-        var y = 26 + row * (cardH + gap);
+        var y = topY + row * (cardH + gap);
+        var p = presets[i];
 
-        var parts = this.data.presets[i].split("|");
+        var isHover = (i == this.data.hoverCardIndex);
+        var isActive = (i == this.data.activeCardIndex);
 
         // Card background
-        g.setColour(0xFF1D2026);
+        if (isActive)
+            g.setColour(0xFF1D2026);
+        else if (isHover)
+            g.setColour(0xFF1A1D22);
+        else
+            g.setColour(0xFF14161A);
         g.fillRoundedRectangle([x, y, cardW, cardH], 6);
-        g.setColour(0xFF2A2E36);
-        g.drawRoundedRectangle([x + 0.5, y + 0.5, cardW - 1, cardH - 1], 6, 1);
 
-        // Preset name
+        // Card border (active = accent)
+        if (isActive)
+            g.setColour(0xFF00D9A0);
+        else
+            g.setColour(0xFF2A2E36);
+        g.drawRoundedRectangle([x + 0.5, y + 0.5, cardW - 1, cardH - 1], 6, isActive ? 2 : 1);
+
+        // Name
         g.setColour(0xFFE8EAED);
-        g.setFont("Oxygen Bold", 16);
-        g.drawAlignedText(parts[0], [x + 14, y + 14, cardW - 28, 22], "left");
+        g.setFont("Oxygen Bold", 13);
+        g.drawAlignedText(p.name, [x + 12, y + 12, cardW - 24, 18], "left");
 
-        // Tags
+        // Tag chip (first 2 tags)
+        var tagStr = "";
+        if (p.tags != undefined && p.tags.length > 0)
+        {
+            tagStr = p.tags[0];
+            if (p.tags.length > 1) tagStr = tagStr + " · " + p.tags[1];
+        }
         g.setColour(0xFF00D9A0);
-        g.setFont("Oxygen", 10);
-        g.drawAlignedText(parts[1], [x + 14, y + 38, cardW - 28, 14], "left");
+        g.setFont("Oxygen", 9);
+        g.drawAlignedText(tagStr, [x + 12, y + 34, cardW - 24, 12], "left");
 
-        // BPM
+        // Category badge
         g.setColour(0xFF8B8F96);
-        g.setFont("Oxygen", 10);
-        g.drawAlignedText(parts[2], [x + 14, y + 54, cardW - 28, 14], "left");
+        g.setFont("Oxygen", 9);
+        g.drawAlignedText(p.category, [x + 12, y + cardH - 18, cardW - 24, 12], "left");
 
-        // Audition bar
-        g.setColour(0xFF2A2E36);
-        g.fillRect([x + 14, y + 80, cardW - 28, 1]);
-        g.setColour(0xFF8B8F96);
-        g.setFont("Oxygen", 10);
-        g.drawAlignedText("hover to audition", [x + 14, y + 88, cardW - 28, 14], "left");
+        // Active indicator dot
+        if (isActive)
+        {
+            g.setColour(0xFF00D9A0);
+            g.fillEllipse([x + cardW - 18, y + 12, 6, 6]);
+        }
     }
+});
+
+CatalogPanel.setMouseCallback(function(event)
+{
+    var prevHoverCat = this.data.hoverCategoryIndex;
+    var prevHoverCard = this.data.hoverCardIndex;
+    this.data.hoverCategoryIndex = -1;
+    this.data.hoverCardIndex = -1;
+
+    if (event.hover)
+    {
+        // Tab hover check (Y 42-62)
+        if (event.y >= 42 && event.y < 62)
+        {
+            var col = Math.floor(event.x / 110);
+            if (col >= 0 && col < this.data.categories.length)
+                this.data.hoverCategoryIndex = col;
+        }
+        // Card hover check
+        else if (event.y >= this.data.gridTopOffset)
+        {
+            var cardW = this.data.cardW;
+            var cardH = this.data.cardH;
+            var gap = this.data.cardGap;
+            var topY = this.data.gridTopOffset;
+            var col = Math.floor(event.x / (cardW + gap));
+            var row = Math.floor((event.y - topY) / (cardH + gap));
+            if (col >= 0 && col < this.data.cardsPerRow && row >= 0)
+            {
+                var idx = row * this.data.cardsPerRow + col;
+                var presets = getVisiblePresets(this);
+                if (idx < presets.length) this.data.hoverCardIndex = idx;
+            }
+        }
+    }
+
+    if (event.clicked)
+    {
+        if (this.data.hoverCategoryIndex >= 0)
+        {
+            this.data.activeCategory = this.data.hoverCategoryIndex;
+            this.data.activeCardIndex = 0;
+            this.repaint();
+            return;
+        }
+        if (this.data.hoverCardIndex >= 0)
+        {
+            this.data.activeCardIndex = this.data.hoverCardIndex;
+            var presets = getVisiblePresets(this);
+            var preset = presets[this.data.hoverCardIndex];
+            if (preset != undefined)
+                loadPresetById(preset.samplemap);
+            this.repaint();
+            return;
+        }
+    }
+
+    if (prevHoverCat != this.data.hoverCategoryIndex ||
+        prevHoverCard != this.data.hoverCardIndex)
+        this.repaint();
 });
 
 // ============================================================================
