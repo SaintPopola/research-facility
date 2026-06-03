@@ -133,6 +133,14 @@ jobs:
           # what causes Projucer to emit `#define USE_IPP 1` in AppConfig.h
           # which is what makes hi_tools.h include the missing ipp.h.
           txt = re.sub(r'USE_IPP="1"', 'USE_IPP="0"', txt)
+          # Also disable VST2 backward-compat in JUCE's VST3 wrapper —
+          # JUCE defaults JUCE_VST3_CAN_REPLACE_VST2=1 which requires vst2.x
+          # headers that Steinberg removed from the public VST3 SDK.
+          if 'JUCE_VST3_CAN_REPLACE_VST2' in txt:
+              txt = re.sub(r'JUCE_VST3_CAN_REPLACE_VST2="[01]"', 'JUCE_VST3_CAN_REPLACE_VST2="0"', txt)
+          else:
+              # Inject the attribute into the <JUCEOPTIONS ...> opening tag
+              txt = re.sub(r'(<JUCEOPTIONS\s)', r'\1JUCE_VST3_CAN_REPLACE_VST2="0" ', txt, count=1)
           # NOTE: deliberately NOT touching extraDefs — that uses &#10; XML
           # entities and naive editing corrupts the XML.
           with open(path, 'w') as f:
