@@ -21,10 +21,25 @@
     <Processor Type="EffectChain" ID="FX" Bypassed="0">
       <ChildProcessors>
         <Processor Type="PolyphonicFilter" ID="Master Filter" Bypassed="0" Gain="0"
-                   Frequency="8000" Q="1.5" Mode="6" Quality="0" BipolarIntensity="0">
+                   Frequency="6000" Q="1.8" Mode="6" Quality="0" BipolarIntensity="0">
           <ChildProcessors>
             <Processor Type="ModulatorChain" ID="Frequency Modulation" Bypassed="0" Intensity="1">
-              <ChildProcessors/>
+              <ChildProcessors>
+                <Processor Type="LFO" ID="Movement LFO" Bypassed="0" Intensity="0.35"
+                           Bipolar="1" Frequency="0.3" FadeIn="500" WaveformType="1"
+                           Legato="0" TempoSync="0" SmoothingTime="80" LoopEnabled="1"
+                           PhaseOffset="0" SyncToMasterClock="0" IgnoreNoteOn="0"
+                           CustomWaveform="" StepData="4.......">
+                  <ChildProcessors>
+                    <Processor Type="ModulatorChain" ID="LFO Intensity Mod" Bypassed="0" Intensity="1">
+                      <ChildProcessors/>
+                    </Processor>
+                    <Processor Type="ModulatorChain" ID="LFO Frequency Mod" Bypassed="0" Intensity="1">
+                      <ChildProcessors/>
+                    </Processor>
+                  </ChildProcessors>
+                </Processor>
+              </ChildProcessors>
             </Processor>
             <Processor Type="ModulatorChain" ID="Gain Modulation" Bypassed="0" Intensity="1">
               <ChildProcessors/>
@@ -34,21 +49,41 @@
             </Processor>
           </ChildProcessors>
         </Processor>
-        <Processor Type="Chorus" ID="Chorus" Bypassed="0" Gain="0" Rate="0.25"
-                   Width="0.5" Feedback="0.3" Delay="0.5">
+        <Processor Type="Saturator" ID="Drive" Bypassed="0" Saturation="0.15" WetAmount="1" PreGain="0" PostGain="0">
+          <ChildProcessors>
+            <Processor Type="ModulatorChain" ID="Saturation Modulation" Bypassed="0" Intensity="1">
+              <ChildProcessors/>
+            </Processor>
+            <Processor Type="ModulatorChain" ID="Wet Amount Modulation" Bypassed="0" Intensity="1">
+              <ChildProcessors/>
+            </Processor>
+          </ChildProcessors>
+        </Processor>
+        <Processor Type="Chorus" ID="Chorus" Bypassed="0" Gain="0" Rate="0.5"
+                   Width="0.6" Feedback="0.35" Delay="0.5">
           <ChildProcessors/>
         </Processor>
-        <Processor Type="SimpleReverb" ID="Master Reverb" Bypassed="0" RoomSize="0.6"
-                   Damping="0.5" WetLevel="0.25" DryLevel="1" Width="1" FreezeMode="0">
+        <Processor Type="SimpleReverb" ID="Master Reverb" Bypassed="0" RoomSize="0.78"
+                   Damping="0.45" WetLevel="0.4" DryLevel="0.85" Width="1" FreezeMode="0">
           <ChildProcessors/>
           <RoutingMatrix NumSourceChannels="2" Channel0="0" Send0="-1" Channel1="1" Send1="-1"/>
         </Processor>
       </ChildProcessors>
     </Processor>
-    <Processor Type="SineSynth" ID="Voice A" Bypassed="0" Gain="0.5"
-               Balance="0" VoiceLimit="64" KillFadeTime="20" IconColour="0"
-               OctaveTranspose="0" SemiTones="0" UseFreqRatio="0" CoarseFreqRatio="1"
-               FineFreqRatio="0" SaturationAmount="0.1">
+    <Processor Type="StreamingSampler" ID="Voice A" Bypassed="0" Gain="1.0"
+               Balance="0" VoiceLimit="32" KillFadeTime="20" IconColour="0"
+               PreloadSize="8192" BufferSize="4096" VoiceAmount="32" SamplerRepeatMode="-2147483648"
+               RRGroupAmount="1" PitchTracking="1" OneShot="0" CrossfadeGroups="0"
+               Purged="0" Reversed="0" NumChannels="2"
+               Group0Table="24...............vO...f+....9C...vO"
+               Group1Table="24...............vO...f+....9C...vO"
+               Group2Table="24...............vO...f+....9C...vO"
+               Group3Table="24...............vO...f+....9C...vO"
+               Group4Table="24...............vO...f+....9C...vO"
+               Group5Table="24...............vO...f+....9C...vO"
+               Group6Table="24...............vO...f+....9C...vO"
+               Group7Table="24...............vO...f+....9C...vO"
+               SampleMapID="RF_pad">
       <ChildProcessors>
         <Processor Type="MidiProcessorChain" ID="Midi Processor" Bypassed="0">
           <ChildProcessors/>
@@ -57,8 +92,8 @@
           <ChildProcessors>
             <Processor Type="AHDSR" ID="Gain Envelope" Bypassed="0" Monophonic="0"
                        Retrigger="1" Intensity="1" AttackCurve="0" DecayCurve="0"
-                       Attack="20" AttackLevel="0" Hold="0" Decay="500" Sustain="-6"
-                       Release="800" EcoMode="1">
+                       Attack="600" AttackLevel="0" Hold="0" Decay="800" Sustain="-3"
+                       Release="2400" EcoMode="1">
               <ChildProcessors>
                 <Processor Type="ModulatorChain" ID="Attack Time" Bypassed="0" Intensity="1">
                   <ChildProcessors/>
