@@ -1,0 +1,112 @@
+name: Build VST3/AU plugin
+
+# Compile Research Facility into a VST3 + AU bundle on GitHub-hosted macOS
+# runners. No local Xcode required for the user — the cloud does the heavy
+# lifting. Output artifacts (.vst3 + .component) are downloaded back to the
+# user's machine via `scripts/download_build.sh`.
+#
+# Triggers:
+#   - push to main: runs automatically
+#   - manual via GitHub UI: Actions → Build VST3/AU plugin → Run workflow
+#   - via `gh workflow run build-plugin.yml` from local machine
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      # Only rebuild when these change — saves CI minutes
+      - 'hise_project/**'
+      - '.github/workflows/build-plugin.yml'
+
+jobs:
+  build_macos:
+    name: macOS Universal
+    runs-on: macos-14    # Apple Silicon runner; covers arm64 + x86_64 via universal
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          sw_vers
+          xcodebuild -version
+          xcode-select -p
+          echo "Available SDKs:"
+          xcodebuild -showsdks | head -20
+
+      - name: Cache HISE source
+        id: cache-hise
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/hise-source
+          key: hise-source-4.1.0
+
+      - name: Clone HISE source (4.1.0)
+        if: steps.cache-hise.outputs.cache-hit != 'true'
+        run: |
+          git clone --depth 1 --branch 4.1.0 https://github.com/christophhart/HISE.git "$GITHUB_WORKSPACE/hise-source" || \
+            git clone --depth 1 https://github.com/christophhart/HISE.git "$GITHUB_WORKSPACE/hise-source"
+          cd "$GITHUB_WORKSPACE/hise-source"
+          git submodule update --init --depth 1 JUCE
+
+      - name: Download HISE 4.1.0 binary
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/hise-app"
+          cd "$GITHUB_WORKSPACE/hise-app"
+          curl -L --retry 3 \
+            -o HISE.dmg \
+            "https://github.com/christophhart/HISE/releases/download/4.1.0/HISE.4.1.0.dmg.macOS.Universal.Binary.dmg"
+          yes Y | PAGER=cat hdiutil attach HISE.dmg -nobrowse
+          cp -R "/Volumes/HISE Installer/HISE.app" .
+          hdiutil detach "/Volumes/HISE Installer" -quiet
+          xattr -dr com.apple.quarantine HISE.app
+
+      - name: Configure HISE CLI
+        run: |
+          HISE_BIN="$GITHUB_WORKSPACE/hise-app/HISE.app/Contents/MacOS/HISE"
+          PROJECT_DIR="$GITHUB_WORKSPACE/hise_project/ResearchFacility"
+          HISE_SRC="$GITHUB_WORKSPACE/hise-source"
+          "$HISE_BIN" set_hise_folder -p:"$HISE_SRC"
+          "$HISE_BIN" set_project_folder -p:"$PROJECT_DIR"
+          "$HISE_BIN" get_project_folder
+
+      - name: Export plugin (Instrument, VST3 + AU)
+        run: |
+          HISE_BIN="$GITHUB_WORKSPACE/hise-app/HISE.app/Contents/MacOS/HISE"
+          PRESET="$GITHUB_WORKSPACE/hise_project/ResearchFacility/XmlPresetBackups/ResearchFacility.xml"
+          "$HISE_BIN" export_ci "$PRESET" -t:instrument -p:VST_AU -a:x86x64
+
+      - name: Locate built bundles
+        run: |
+          echo "Looking for build outputs..."
+          find "$GITHUB_WORKSPACE/hise_project/ResearchFacility/Binaries" -name "*.vst3" -o -name "*.component" 2>/dev/null | head -20
+          ls -la "$GITHUB_WORKSPACE/hise_project/ResearchFacility/Binaries/" 2>/dev/null || true
+
+      - name: Upload VST3 artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ResearchFacility-macOS-VST3
+          path: |
+            hise_project/ResearchFacility/Binaries/**/*.vst3
+          if-no-files-found: warn
+
+      - name: Upload AU artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ResearchFacility-macOS-AU
+          path: |
+            hise_project/ResearchFacility/Binaries/**/*.component
+          if-no-files-found: warn
+
+      - name: Upload full Binaries folder for debugging
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ResearchFacility-macOS-Binaries-debug
+          path: hise_project/ResearchFacility/Binaries/
+          if-no-files-found: warn
+          retention-days: 7
