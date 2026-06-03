@@ -51,6 +51,15 @@ jobs:
           cd "$GITHUB_WORKSPACE/hise-source"
           git submodule update --init --depth 1 JUCE
 
+      - name: Install VST3 SDK into HISE source tree
+        run: |
+          SDK_DST="$GITHUB_WORKSPACE/hise-source/tools/SDK/VST3 SDK"
+          mkdir -p "$GITHUB_WORKSPACE/hise-source/tools/SDK"
+          if [ ! -d "$SDK_DST" ]; then
+            git clone --depth 1 --recursive https://github.com/steinbergmedia/vst3sdk.git "$SDK_DST"
+          fi
+          ls "$SDK_DST" | head -10
+
       - name: Download HISE 4.1.0 binary
         run: |
           mkdir -p "$GITHUB_WORKSPACE/hise-app"
