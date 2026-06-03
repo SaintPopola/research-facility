@@ -50,6 +50,14 @@ jobs:
             git clone --depth 1 https://github.com/christophhart/HISE.git "$GITHUB_WORKSPACE/hise-source"
           cd "$GITHUB_WORKSPACE/hise-source"
           git submodule update --init --depth 1 JUCE
+          # Make Projucer available at the path batchCompileOSX expects
+          mkdir -p tools/Projucer
+          if [ -d "JUCE/projucer/Projucer.app" ] && [ ! -d "tools/Projucer/Projucer.app" ]; then
+            cp -R "JUCE/projucer/Projucer.app" "tools/Projucer/Projucer.app"
+          fi
+
+      - name: Install xcpretty (for batchCompileOSX)
+        run: gem install --user-install xcpretty || sudo gem install xcpretty
 
       - name: Install VST3 SDK into HISE source tree
         run: |
@@ -92,11 +100,36 @@ jobs:
             { echo "ERROR: HISE source missing projucer file"; exit 1; }
 
           echo ""
-          echo "=== Export (plain mode + inline -h: path) ==="
+          echo "=== Re-verify Projucer location ==="
+          ls -la "$HISE_SRC/tools/Projucer/" 2>&1 | head -5
+          test -d "$HISE_SRC/tools/Projucer/Projucer.app" || \
+            { echo "ERROR: Projucer.app not at expected path"; exit 1; }
+
+          echo ""
+          echo "=== Export (generates Xcode project + batchCompileOSX) ==="
           # Use plain `export` (not export_ci) because export_ci IGNORES the
           # global HISE path per docs and expects HISE.app to be inside the
           # source tree. Plain export honors set_hise_folder OR -h: inline.
           "$HISE_BIN" export "$PRESET" -h:"$HISE_SRC" -t:instrument -p:VST_AU -a:x86x64
+
+          echo ""
+          echo "=== Run batchCompileOSX (Projucer resave + xcodebuild) ==="
+          BINARIES_DIR="$PROJECT_DIR/Binaries"
+          ls -la "$BINARIES_DIR" | head -10
+          test -f "$BINARIES_DIR/batchCompileOSX" || \
+            { echo "ERROR: batchCompileOSX not generated"; exit 1; }
+          chmod +x "$BINARIES_DIR/batchCompileOSX"
+          cd "$BINARIES_DIR"
+          # Bypass xcpretty piping if it's not installed; raw xcodebuild output is fine in CI
+          if ! command -v xcpretty >/dev/null 2>&1; then
+            echo "xcpretty not on PATH — rewriting batchCompileOSX to skip it"
+            sed -i.bak 's| | xcpretty||g; s| | xcpretty ||g' batchCompileOSX || true
+          fi
+          ./batchCompileOSX
+
+          echo ""
+          echo "=== Find built plugins ==="
+          find "$BINARIES_DIR" -name "*.vst3" -o -name "*.component" 2>/dev/null | head -10
 
       - name: Locate built bundles
         run: |
