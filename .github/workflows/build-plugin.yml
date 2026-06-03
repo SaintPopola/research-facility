@@ -124,14 +124,17 @@ jobs:
           before = len(txt)
           # Strip IPP1ALibrary attribute that activates IPP-aware include paths
           txt = txt.replace(' IPP1ALibrary="Static_Library"', '')
-          # Clear any extraLinkerFlags that reference libipp* archives
+          # Clear extraLinkerFlags that reference libipp* archives
           txt = re.sub(r'extraLinkerFlags="[^"]*libipp[^"]*"', 'extraLinkerFlags=""', txt)
           # Strip /opt/intel/ipp paths from headerPath / libraryPath attributes
           txt = re.sub(r'headerPath="[^"]*intel/ipp[^"]*"', 'headerPath=""', txt)
           txt = re.sub(r'libraryPath="[^"]*intel/ipp[^"]*"', 'libraryPath=""', txt)
-          # Do NOT touch extraDefs — that uses &#10; XML entities and editing
-          # naively corrupts the XML. USE_IPP=0 is already the macOS default
-          # in hi_lac.h so stripping the include paths is sufficient.
+          # KEY: flip USE_IPP="1" → USE_IPP="0" in <JUCEOPTIONS> block — that's
+          # what causes Projucer to emit `#define USE_IPP 1` in AppConfig.h
+          # which is what makes hi_tools.h include the missing ipp.h.
+          txt = re.sub(r'USE_IPP="1"', 'USE_IPP="0"', txt)
+          # NOTE: deliberately NOT touching extraDefs — that uses &#10; XML
+          # entities and naive editing corrupts the XML.
           with open(path, 'w') as f:
               f.write(txt)
           print("Patched IPP refs:", before, "->", len(txt), "bytes")
