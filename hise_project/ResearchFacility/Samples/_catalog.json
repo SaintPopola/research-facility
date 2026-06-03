@@ -1,0 +1,851 @@
+[
+  {
+    "id": "RF_pad_vellum",
+    "name": "Vellum",
+    "category": "pads",
+    "tags": [
+      "pad",
+      "dark",
+      "warm",
+      "evolving"
+    ],
+    "mood": [
+      "calm",
+      "ethereal"
+    ],
+    "bpm": null,
+    "root_midi": 57,
+    "samplemap": "RF_pad_vellum"
+  },
+  {
+    "id": "RF_pad_slow_dawn",
+    "name": "Slow Dawn",
+    "category": "pads",
+    "tags": [
+      "pad",
+      "warm",
+      "bright",
+      "evolving"
+    ],
+    "mood": [
+      "hopeful",
+      "calm"
+    ],
+    "bpm": null,
+    "root_midi": 60,
+    "samplemap": "RF_pad_slow_dawn"
+  },
+  {
+    "id": "RF_pad_vox_drift",
+    "name": "Vox Drift",
+    "category": "pads",
+    "tags": [
+      "pad",
+      "dark",
+      "vocal",
+      "haunting"
+    ],
+    "mood": [
+      "melancholy"
+    ],
+    "bpm": null,
+    "root_midi": 53,
+    "samplemap": "RF_pad_vox_drift"
+  },
+  {
+    "id": "RF_pad_choir_ghost",
+    "name": "Choir Ghost",
+    "category": "pads",
+    "tags": [
+      "pad",
+      "vocal",
+      "ethereal",
+      "wide"
+    ],
+    "mood": [
+      "nostalgic"
+    ],
+    "bpm": null,
+    "root_midi": 55,
+    "samplemap": "RF_pad_choir_ghost"
+  },
+  {
+    "id": "RF_pad_owl_hymn",
+    "name": "Owl Hymn",
+    "category": "pads",
+    "tags": [
+      "pad",
+      "dark",
+      "deep",
+      "ambient"
+    ],
+    "mood": [
+      "melancholy"
+    ],
+    "bpm": null,
+    "root_midi": 52,
+    "samplemap": "RF_pad_owl_hymn"
+  },
+  {
+    "id": "RF_pad_mist",
+    "name": "Mist",
+    "category": "pads",
+    "tags": [
+      "pad",
+      "cold",
+      "thin",
+      "ambient"
+    ],
+    "mood": [
+      "calm"
+    ],
+    "bpm": null,
+    "root_midi": 62,
+    "samplemap": "RF_pad_mist"
+  },
+  {
+    "id": "RF_pad_old_tape",
+    "name": "Old Tape",
+    "category": "pads",
+    "tags": [
+      "pad",
+      "warm",
+      "lo-fi",
+      "wobbly"
+    ],
+    "mood": [
+      "nostalgic"
+    ],
+    "bpm": null,
+    "root_midi": 59,
+    "samplemap": "RF_pad_old_tape"
+  },
+  {
+    "id": "RF_pad_solar_drift",
+    "name": "Solar Drift",
+    "category": "pads",
+    "tags": [
+      "pad",
+      "bright",
+      "wide",
+      "shimmer"
+    ],
+    "mood": [
+      "hopeful"
+    ],
+    "bpm": null,
+    "root_midi": 72,
+    "samplemap": "RF_pad_solar_drift"
+  },
+  {
+    "id": "RF_pad_velvet",
+    "name": "Velvet",
+    "category": "pads",
+    "tags": [
+      "pad",
+      "warm",
+      "smooth",
+      "intimate"
+    ],
+    "mood": [
+      "calm"
+    ],
+    "bpm": null,
+    "root_midi": 65,
+    "samplemap": "RF_pad_velvet"
+  },
+  {
+    "id": "RF_pad_storm_eye",
+    "name": "Storm Eye",
+    "category": "pads",
+    "tags": [
+      "pad",
+      "dark",
+      "tense",
+      "movement"
+    ],
+    "mood": [
+      "anxious"
+    ],
+    "bpm": null,
+    "root_midi": 57,
+    "samplemap": "RF_pad_storm_eye"
+  },
+  {
+    "id": "RF_pad_frost",
+    "name": "Frost",
+    "category": "pads",
+    "tags": [
+      "pad",
+      "cold",
+      "crystal",
+      "bright"
+    ],
+    "mood": [
+      "calm"
+    ],
+    "bpm": null,
+    "root_midi": 69,
+    "samplemap": "RF_pad_frost"
+  },
+  {
+    "id": "RF_pad_marrow",
+    "name": "Marrow",
+    "category": "pads",
+    "tags": [
+      "pad",
+      "deep",
+      "sub",
+      "warm"
+    ],
+    "mood": [
+      "melancholy"
+    ],
+    "bpm": null,
+    "root_midi": 50,
+    "samplemap": "RF_pad_marrow"
+  },
+  {
+    "id": "RF_pad_veil",
+    "name": "Veil",
+    "category": "pads",
+    "tags": [
+      "pad",
+      "thin",
+      "shimmer",
+      "soft"
+    ],
+    "mood": [
+      "ethereal"
+    ],
+    "bpm": null,
+    "root_midi": 67,
+    "samplemap": "RF_pad_veil"
+  },
+  {
+    "id": "RF_pad_furnace",
+    "name": "Furnace",
+    "category": "pads",
+    "tags": [
+      "pad",
+      "warm",
+      "dirty",
+      "rich"
+    ],
+    "mood": [
+      "aggressive"
+    ],
+    "bpm": null,
+    "root_midi": 64,
+    "samplemap": "RF_pad_furnace"
+  },
+  {
+    "id": "RF_pad_halo",
+    "name": "Halo",
+    "category": "pads",
+    "tags": [
+      "pad",
+      "bright",
+      "spacious",
+      "wide"
+    ],
+    "mood": [
+      "hopeful"
+    ],
+    "bpm": null,
+    "root_midi": 60,
+    "samplemap": "RF_pad_halo"
+  },
+  {
+    "id": "RF_pluck_sparrow",
+    "name": "Sparrow",
+    "category": "plucks",
+    "tags": [
+      "pluck",
+      "bright",
+      "bell"
+    ],
+    "mood": [
+      "hopeful"
+    ],
+    "bpm": null,
+    "root_midi": 69,
+    "samplemap": "RF_pluck_sparrow"
+  },
+  {
+    "id": "RF_pluck_glass_bell",
+    "name": "Glass Bell",
+    "category": "plucks",
+    "tags": [
+      "pluck",
+      "bright",
+      "crystal",
+      "bell"
+    ],
+    "mood": [
+      "calm"
+    ],
+    "bpm": null,
+    "root_midi": 72,
+    "samplemap": "RF_pluck_glass_bell"
+  },
+  {
+    "id": "RF_pluck_music_box",
+    "name": "Music Box",
+    "category": "plucks",
+    "tags": [
+      "pluck",
+      "nostalgic",
+      "bell",
+      "small"
+    ],
+    "mood": [
+      "nostalgic"
+    ],
+    "bpm": null,
+    "root_midi": 67,
+    "samplemap": "RF_pluck_music_box"
+  },
+  {
+    "id": "RF_pluck_marimba_echo",
+    "name": "Marimba Echo",
+    "category": "plucks",
+    "tags": [
+      "pluck",
+      "wood",
+      "warm",
+      "rounded"
+    ],
+    "mood": [
+      "calm"
+    ],
+    "bpm": null,
+    "root_midi": 64,
+    "samplemap": "RF_pluck_marimba_echo"
+  },
+  {
+    "id": "RF_pluck_tine",
+    "name": "Tine",
+    "category": "plucks",
+    "tags": [
+      "pluck",
+      "metallic",
+      "soft",
+      "bell"
+    ],
+    "mood": [
+      "hopeful"
+    ],
+    "bpm": null,
+    "root_midi": 71,
+    "samplemap": "RF_pluck_tine"
+  },
+  {
+    "id": "RF_pluck_pizz",
+    "name": "Pizz",
+    "category": "plucks",
+    "tags": [
+      "pluck",
+      "string",
+      "short",
+      "bright"
+    ],
+    "mood": [
+      "playful"
+    ],
+    "bpm": null,
+    "root_midi": 62,
+    "samplemap": "RF_pluck_pizz"
+  },
+  {
+    "id": "RF_pluck_plinky",
+    "name": "Plinky",
+    "category": "plucks",
+    "tags": [
+      "pluck",
+      "bright",
+      "tiny",
+      "playful"
+    ],
+    "mood": [
+      "playful"
+    ],
+    "bpm": null,
+    "root_midi": 77,
+    "samplemap": "RF_pluck_plinky"
+  },
+  {
+    "id": "RF_pluck_mallet_soft",
+    "name": "Mallet Soft",
+    "category": "plucks",
+    "tags": [
+      "pluck",
+      "soft",
+      "wood",
+      "rounded"
+    ],
+    "mood": [
+      "calm"
+    ],
+    "bpm": null,
+    "root_midi": 60,
+    "samplemap": "RF_pluck_mallet_soft"
+  },
+  {
+    "id": "RF_pluck_crystal_drop",
+    "name": "Crystal Drop",
+    "category": "plucks",
+    "tags": [
+      "pluck",
+      "bright",
+      "tiny",
+      "glassy"
+    ],
+    "mood": [
+      "ethereal"
+    ],
+    "bpm": null,
+    "root_midi": 81,
+    "samplemap": "RF_pluck_crystal_drop"
+  },
+  {
+    "id": "RF_pluck_resonator",
+    "name": "Resonator",
+    "category": "plucks",
+    "tags": [
+      "pluck",
+      "dark",
+      "wood",
+      "deep"
+    ],
+    "mood": [
+      "melancholy"
+    ],
+    "bpm": null,
+    "root_midi": 55,
+    "samplemap": "RF_pluck_resonator"
+  },
+  {
+    "id": "RF_bass_deep_sub",
+    "name": "Deep Sub",
+    "category": "basses",
+    "tags": [
+      "bass",
+      "sub",
+      "deep",
+      "clean"
+    ],
+    "mood": [
+      "deep"
+    ],
+    "bpm": null,
+    "root_midi": 33,
+    "samplemap": "RF_bass_deep_sub"
+  },
+  {
+    "id": "RF_bass_round",
+    "name": "Round",
+    "category": "basses",
+    "tags": [
+      "bass",
+      "warm",
+      "round",
+      "smooth"
+    ],
+    "mood": [
+      "calm"
+    ],
+    "bpm": null,
+    "root_midi": 40,
+    "samplemap": "RF_bass_round"
+  },
+  {
+    "id": "RF_bass_cellar",
+    "name": "Cellar",
+    "category": "basses",
+    "tags": [
+      "bass",
+      "dark",
+      "deep",
+      "wide"
+    ],
+    "mood": [
+      "melancholy"
+    ],
+    "bpm": null,
+    "root_midi": 36,
+    "samplemap": "RF_bass_cellar"
+  },
+  {
+    "id": "RF_bass_pulse",
+    "name": "Pulse",
+    "category": "basses",
+    "tags": [
+      "bass",
+      "sub",
+      "tight",
+      "punchy"
+    ],
+    "mood": [
+      "aggressive"
+    ],
+    "bpm": null,
+    "root_midi": 31,
+    "samplemap": "RF_bass_pulse"
+  },
+  {
+    "id": "RF_bass_wool",
+    "name": "Wool",
+    "category": "basses",
+    "tags": [
+      "bass",
+      "warm",
+      "thick",
+      "soft"
+    ],
+    "mood": [
+      "calm"
+    ],
+    "bpm": null,
+    "root_midi": 38,
+    "samplemap": "RF_bass_wool"
+  },
+  {
+    "id": "RF_bass_glass_sub",
+    "name": "Glass Sub",
+    "category": "basses",
+    "tags": [
+      "bass",
+      "sub",
+      "crystal",
+      "bright"
+    ],
+    "mood": [
+      "calm"
+    ],
+    "bpm": null,
+    "root_midi": 35,
+    "samplemap": "RF_bass_glass_sub"
+  },
+  {
+    "id": "RF_bass_stone",
+    "name": "Stone",
+    "category": "basses",
+    "tags": [
+      "bass",
+      "dark",
+      "deep",
+      "rough"
+    ],
+    "mood": [
+      "aggressive"
+    ],
+    "bpm": null,
+    "root_midi": 41,
+    "samplemap": "RF_bass_stone"
+  },
+  {
+    "id": "RF_bass_moon_bass",
+    "name": "Moon Bass",
+    "category": "basses",
+    "tags": [
+      "bass",
+      "wide",
+      "smooth",
+      "dreamy"
+    ],
+    "mood": [
+      "ethereal"
+    ],
+    "bpm": null,
+    "root_midi": 45,
+    "samplemap": "RF_bass_moon_bass"
+  },
+  {
+    "id": "RF_bass_carve",
+    "name": "Carve",
+    "category": "basses",
+    "tags": [
+      "bass",
+      "mid",
+      "sharp",
+      "biting"
+    ],
+    "mood": [
+      "aggressive"
+    ],
+    "bpm": null,
+    "root_midi": 36,
+    "samplemap": "RF_bass_carve"
+  },
+  {
+    "id": "RF_bass_whisper_sub",
+    "name": "Whisper Sub",
+    "category": "basses",
+    "tags": [
+      "bass",
+      "sub",
+      "soft",
+      "deep"
+    ],
+    "mood": [
+      "calm"
+    ],
+    "bpm": null,
+    "root_midi": 28,
+    "samplemap": "RF_bass_whisper_sub"
+  },
+  {
+    "id": "RF_lead_vox_saw",
+    "name": "Vox Saw",
+    "category": "leads",
+    "tags": [
+      "lead",
+      "bright",
+      "synth",
+      "expressive"
+    ],
+    "mood": [
+      "hopeful"
+    ],
+    "bpm": null,
+    "root_midi": 69,
+    "samplemap": "RF_lead_vox_saw"
+  },
+  {
+    "id": "RF_lead_square_vintage",
+    "name": "Square Vintage",
+    "category": "leads",
+    "tags": [
+      "lead",
+      "retro",
+      "thin",
+      "playful"
+    ],
+    "mood": [
+      "nostalgic"
+    ],
+    "bpm": null,
+    "root_midi": 72,
+    "samplemap": "RF_lead_square_vintage"
+  },
+  {
+    "id": "RF_lead_cutter",
+    "name": "Cutter",
+    "category": "leads",
+    "tags": [
+      "lead",
+      "sharp",
+      "aggressive"
+    ],
+    "mood": [
+      "aggressive"
+    ],
+    "bpm": null,
+    "root_midi": 64,
+    "samplemap": "RF_lead_cutter"
+  },
+  {
+    "id": "RF_lead_mellow_saw",
+    "name": "Mellow Saw",
+    "category": "leads",
+    "tags": [
+      "lead",
+      "warm",
+      "soft",
+      "lead"
+    ],
+    "mood": [
+      "calm"
+    ],
+    "bpm": null,
+    "root_midi": 67,
+    "samplemap": "RF_lead_mellow_saw"
+  },
+  {
+    "id": "RF_lead_cassette",
+    "name": "Cassette",
+    "category": "leads",
+    "tags": [
+      "lead",
+      "lo-fi",
+      "warm",
+      "retro"
+    ],
+    "mood": [
+      "nostalgic"
+    ],
+    "bpm": null,
+    "root_midi": 71,
+    "samplemap": "RF_lead_cassette"
+  },
+  {
+    "id": "RF_lead_bright_square",
+    "name": "Bright Square",
+    "category": "leads",
+    "tags": [
+      "lead",
+      "bright",
+      "clean",
+      "thin"
+    ],
+    "mood": [
+      "playful"
+    ],
+    "bpm": null,
+    "root_midi": 65,
+    "samplemap": "RF_lead_bright_square"
+  },
+  {
+    "id": "RF_lead_acid",
+    "name": "Acid",
+    "category": "leads",
+    "tags": [
+      "lead",
+      "aggressive",
+      "biting"
+    ],
+    "mood": [
+      "aggressive"
+    ],
+    "bpm": null,
+    "root_midi": 62,
+    "samplemap": "RF_lead_acid"
+  },
+  {
+    "id": "RF_lead_choir_lead",
+    "name": "Choir Lead",
+    "category": "leads",
+    "tags": [
+      "lead",
+      "warm",
+      "vocal",
+      "smooth"
+    ],
+    "mood": [
+      "nostalgic"
+    ],
+    "bpm": null,
+    "root_midi": 69,
+    "samplemap": "RF_lead_choir_lead"
+  },
+  {
+    "id": "RF_lead_pinhole",
+    "name": "Pinhole",
+    "category": "leads",
+    "tags": [
+      "lead",
+      "thin",
+      "small",
+      "playful"
+    ],
+    "mood": [
+      "playful"
+    ],
+    "bpm": null,
+    "root_midi": 72,
+    "samplemap": "RF_lead_pinhole"
+  },
+  {
+    "id": "RF_lead_smoke",
+    "name": "Smoke",
+    "category": "leads",
+    "tags": [
+      "lead",
+      "dark",
+      "smoky",
+      "rich"
+    ],
+    "mood": [
+      "melancholy"
+    ],
+    "bpm": null,
+    "root_midi": 55,
+    "samplemap": "RF_lead_smoke"
+  },
+  {
+    "id": "RF_texture_static",
+    "name": "Static",
+    "category": "textures",
+    "tags": [
+      "texture",
+      "noise",
+      "ambient",
+      "neutral"
+    ],
+    "mood": [
+      "calm"
+    ],
+    "bpm": null,
+    "root_midi": 57,
+    "samplemap": "RF_texture_static"
+  },
+  {
+    "id": "RF_texture_wind_tunnel",
+    "name": "Wind Tunnel",
+    "category": "textures",
+    "tags": [
+      "texture",
+      "wind",
+      "moving",
+      "wide"
+    ],
+    "mood": [
+      "ethereal"
+    ],
+    "bpm": null,
+    "root_midi": 45,
+    "samplemap": "RF_texture_wind_tunnel"
+  },
+  {
+    "id": "RF_texture_hiss_pad",
+    "name": "Hiss Pad",
+    "category": "textures",
+    "tags": [
+      "texture",
+      "soft",
+      "ambient",
+      "tonal"
+    ],
+    "mood": [
+      "calm"
+    ],
+    "bpm": null,
+    "root_midi": 57,
+    "samplemap": "RF_texture_hiss_pad"
+  },
+  {
+    "id": "RF_texture_rain_wall",
+    "name": "Rain Wall",
+    "category": "textures",
+    "tags": [
+      "texture",
+      "wet",
+      "ambient",
+      "wide"
+    ],
+    "mood": [
+      "melancholy"
+    ],
+    "bpm": null,
+    "root_midi": 57,
+    "samplemap": "RF_texture_rain_wall"
+  },
+  {
+    "id": "RF_texture_furnace_drone",
+    "name": "Furnace Drone",
+    "category": "textures",
+    "tags": [
+      "texture",
+      "dark",
+      "drone",
+      "warm"
+    ],
+    "mood": [
+      "anxious"
+    ],
+    "bpm": null,
+    "root_midi": 57,
+    "samplemap": "RF_texture_furnace_drone"
+  }
+]
