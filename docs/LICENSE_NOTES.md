@@ -1,6 +1,20 @@
 # License notes — read before committing to a path
 
-> **Revised 2026-06-02** with verified JUCE 8 tier structure from upstream `01_upstream_research.md` §3.
+> **Revised 2026-06-03 (rev 2)** for the $0 path — see `FREE_PATH.md`. D2 reverted to GPL paid binaries (Vital model). Closed-source licensing costs no longer apply.
+
+## TL;DR for the $0 path
+
+Under the GPL paid binaries model:
+
+- **HISE is FREE.** No purchase ever needed. Free GPL path covers all dev + distribution.
+- **JUCE doesn't matter.** HISE wraps JUCE; their relationship is internal. You don't license JUCE separately when shipping via HISE.
+- **VST3 license is FREE.** Just registration paperwork with Steinberg.
+- **AU license is FREE.** Apple's terms.
+- **No license costs anywhere.** Total: **$0**.
+
+The only "cost" is the GPL obligation: your binary's source must be publicly available. You ship the source on GitHub, sell pre-built binaries on your store, customers pick how they want to consume the product.
+
+---
 
 License choice **dictates whether you can sell this, give it away, or both**.
 

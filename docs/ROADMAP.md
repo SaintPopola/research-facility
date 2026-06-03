@@ -130,21 +130,26 @@ HISE is faster than JUCE-from-scratch (no C++ to write for app logic), so the 6/
 | **Piracy** | Accept it. Don't over-engineer DRM. Focus on value such that buyers feel good paying. |
 | **HISE pricing changes** | Lock in annual Indie tier when revenue allows ($600/yr vs $50/mo monthly) |
 
-## Budget estimate (realistic)
+## Budget estimate — $0 PATH (revised 2026-06-03 rev 2)
+
+After reverting D2 to GPL paid binaries (see `FREE_PATH.md`), the budget collapses:
 
 | Item | Cost |
 |---|---|
-| HISE Starter Pack | €200 one-time |
-| HISE Indie license (once selling) | €50/mo = €600/yr |
-| JUCE Starter | Free under $20K/yr revenue |
-| Apple Developer Program | $99/yr |
-| Windows EV code-signing cert | ~$300/yr |
-| Cloudflare Workers (license server) | $5-20/mo |
-| S3 + CloudFront (downloads) | $10-50/mo depending on volume |
-| Stripe / LemonSqueezy fees | 3-5% of revenue |
-| Optional commissioned presets | $2-5K one-time |
-| Marketing site hosting | $10-20/mo |
-| **First-year run-rate before revenue** | ~$1,000-2,000 |
-| **First-year run-rate with $30K revenue** | ~$2,500-4,000 |
+| HISE in GPL mode | **$0** (free forever for GPL distribution) |
+| JUCE | **$0** (HISE wraps it internally) |
+| VST3 registration | **$0** (just paperwork) |
+| Apple Developer Program | **$0** day-1 (skip; users right-click to open); $99/yr later from sales |
+| Windows EV code cert | **$0** day-1 (accept SmartScreen warnings); $300/yr later from sales |
+| License server | **$0** (no DRM per D7) |
+| Download hosting | **$0** (GitHub Releases — unlimited free) |
+| Marketing site | **$0** (GitHub Pages or Netlify free tier) |
+| Payment processor (LemonSqueezy/Gumroad) | **$0** monthly; 5-10% of each sale only |
+| Sample content | **$0** (CC0 Freesound + your own recordings) |
+| **Total upfront before revenue** | **$0** |
+| **At $1K/month revenue** | ~5-10% paid out from sales |
+| **At $5K/month revenue** | upgrade to signed builds ($99 Apple Dev, $300 Windows cert — paid from sales) |
 
-Substantially cheaper than hiring even one part-time engineer. Time is the real cost.
+The product funds itself the moment the first customer pays. Nothing comes out of your pocket.
+
+Time is still the real cost: 18-24 months solo to v1 launch.

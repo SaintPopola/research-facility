@@ -1,16 +1,19 @@
 # Decisions — locked + open
 
-> **Updated 2026-06-03** after user confirmed commercial closed-source intent. Path A (Surge XT fork) is OFFICIALLY DEAD. HISE is primary.
+> **Updated 2026-06-03 (rev 2)** — D2 reverted to GPL paid binaries (Vital model) after user constraint: $0 upfront budget. See `FREE_PATH.md`.
 
 ## ✅ Locked decisions
 
 | ID | Decision | Locked |
 |---|---|---|
-| **D1** | Base path = **D (HISE)** primary; B (Pamplejuce/JUCE) backup if HISE UX hits limits | 2026-06-03 |
-| **D2** | Distribution = **fully commercial closed-source**, sold direct on user's online store | 2026-06-03 |
+| **D1** | Base path = **D (HISE)** primary in free GPL mode (no purchase needed); B (Pamplejuce/JUCE Starter free under $20K/yr) backup | 2026-06-03 |
+| **D2** | Distribution = **GPL-3 paid binaries (Vital model)** — sell on user's store, source on GitHub. **Total upfront cost: $0** | 2026-06-03 (rev 2) |
 | **D5a** | Differentiator = **killer browser** with AI semantic search + Quick/Expert dual UI | 2026-06-03 |
 | **D5b** | AI workflow v1 = **natural language preset search** (local embeddings, no cloud) | 2026-06-03 |
-| **D-UI** | UI design partner = **me (Claude)** producing mockups in this chat → iterating with user | 2026-06-03 |
+| **D6** | UI direction = current concept v1 (`07_ui_design_concept.md`) approved as working basis | 2026-06-03 |
+| **D7** | DRM = **none** (Vital model — trust the buyer) | 2026-06-03 (rev 2) |
+| **D11** | Repo = **public GitHub** required (GPL distribution makes source public) | 2026-06-03 (rev 2) |
+| **D-UI** | UI design partner = **me (Claude)** producing mockups in chat → iterating with user | 2026-06-03 |
 
 ## 🟨 Open decisions (need user input)
 
@@ -31,12 +34,12 @@
 - [ ] Tweak — give me feedback on what to change
 - [ ] Reset — different aesthetic entirely
 
-### D7 — DRM / license model
+### D7 — DRM / license model ✅ LOCKED to "No DRM"
 
-- [ ] **No DRM** (Vital-style trust; some piracy expected)
-- [ ] **Simple offline license key** (cheap, easy to crack but raises the bar)
-- [ ] **Server-validated key** with internet check on activation (industry standard for indie)
-- [ ] **PACE / iLok** (enterprise-grade, expensive, user-hated)
+- [x] **No DRM** (Vital-style trust; some piracy expected — that's fine, those weren't paying customers anyway)
+- ~~Simple offline license key~~ (not on $0 path)
+- ~~Server-validated key~~ (not on $0 path)
+- ~~PACE / iLok~~ (not on $0 path)
 
 ### D8 — Pricing
 
@@ -72,25 +75,24 @@
 
 ---
 
-## 📋 Recommendation summary — APPLIED AS WORKING DEFAULTS (2026-06-03)
+## 📋 $0-path applied state (2026-06-03 rev 2)
 
-User said "do all" → I've applied all my recommendations as the working state. These are the defaults the project operates under unless you override any of them in this chat:
+All decisions updated for the $0 path. See `FREE_PATH.md` for the full rationale.
 
-- **D3 = VST3 + AU + AAX day-1**, CLAP later — applied
-- **D4 = macOS + Windows day-1**, Linux on-demand — applied
-- **D6 = UI concept v1 approved as working direction** — applied (you can revise after seeing rendered HISE mockups)
-- **D7 = Server-validated license key** (~$10/mo Cloudflare Workers host; blocks casual piracy; user-friendly offline grace period) — applied
-- **D8 = $129 v1 price** — applied (mid-premium, room to discount during launch promos)
-- **D9 = 14-day trial, save-disabled after expiry** — applied
-- **D10 = 1,200 presets / 7 GB at launch minimum** — applied as target
-- **D11 = Private GitHub repo** — applied (will create when there's actual code to commit)
-- **D12 = Defer storefront integration** — applied (revisit at v0.5)
+- **D3 = VST3 + AU day-1** — applied. AAX requires Avid registration (free but paperwork); defer
+- **D4 = macOS + Windows day-1** — applied; Linux easy add later since HISE supports it free
+- **D6 = UI concept v1 approved** — applied
+- **D7 = No DRM** — applied (LOCKED — see above)
+- **D8 = $79 v1 price** (revised DOWN from $129 — GPL audience expects lower; still creates revenue) — applied
+- **D9 = No trial; free community version + paid binary with curated library** — applied (Vital-style tiering)
+- **D10 = 200 presets / 1-2 GB v0.1 launch** (revised DOWN from 1,200 — get to market faster, expand from sales) — applied
+- **D11 = Public GitHub** (forced by GPL — applied as LOCKED)
+- **D12 = LemonSqueezy or Gumroad storefront** (5-10% of sales, $0 monthly) — applied
 
-**To override any**: just say "change D7 to no DRM" / "drop to $99" / etc. I update.
+**To override any**: just say so in chat. I update.
 
 ## What's still genuinely blocking
 
-After applying defaults, the only remaining blocker is your reaction to:
-
-1. **The UI design concept** in `07_ui_design_concept.md` — does the Research Facility aesthetic land? Quick Tweak / Expert split feel right? Catalog mockup feel right?
-2. **The Phase 0 install guide** in `INSTALL.md` — do you want to do that now (CMake + HISE), or after more design iteration?
+1. **You open the project in HISE** and confirm what's there works (3 clicks per `hise_project/README.md`)
+2. **You react to the UI concept** — keep / tweak / reset
+3. **You decide free-public-alpha vs. paid-from-day-1** — both work; FREE_PATH.md explains the phased option
