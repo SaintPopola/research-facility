@@ -1,0 +1,436 @@
+/* Research Facility — marketing site styles.
+   Dark clinical aesthetic matching the plugin UI. */
+
+:root {
+    --bg:        #0A0B0D;
+    --surface-1: #14161A;
+    --surface-2: #1D2026;
+    --hairline:  #2A2E36;
+    --fg:        #E8EAED;
+    --fg-dim:    #8B8F96;
+    --accent:    #00D9A0;
+    --accent-2:  #1AEBB2;
+    --warn:      #FF8A4C;
+    --maxw:      1100px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-2); }
+
+/* ============================================================================
+   HERO
+   ============================================================================ */
+
+.hero {
+    border-bottom: 1px solid var(--hairline);
+    padding: 0 32px;
+    background:
+        radial-gradient(ellipse at top right, rgba(0, 217, 160, 0.06), transparent 60%),
+        var(--bg);
+}
+
+.hero__nav {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 22px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo__mark {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: 0.5px;
+}
+
+.logo__text {
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    color: var(--fg);
+}
+
+.topnav {
+    display: flex;
+    gap: 28px;
+}
+
+.topnav a {
+    color: var(--fg-dim);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.topnav a:hover {
+    color: var(--fg);
+}
+
+.topnav__github {
+    border: 1px solid var(--hairline);
+    padding: 6px 12px;
+    border-radius: 4px;
+}
+
+.hero__content {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 80px 0 120px;
+    text-align: left;
+}
+
+.hero__content h1 {
+    font-size: 64px;
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -1px;
+    max-width: 720px;
+}
+
+.accent {
+    color: var(--accent);
+}
+
+.hero__sub {
+    margin-top: 28px;
+    font-size: 18px;
+    color: var(--fg-dim);
+    max-width: 540px;
+    line-height: 1.55;
+}
+
+.hero__cta {
+    margin-top: 40px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.hero__meta {
+    margin-top: 32px;
+    font-size: 12px;
+    color: var(--fg-dim);
+    letter-spacing: 1px;
+    font-family: "JetBrains Mono", "SF Mono", Menlo, monospace;
+}
+
+/* ============================================================================
+   BUTTONS
+   ============================================================================ */
+
+.btn {
+    display: inline-block;
+    padding: 12px 22px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    transition: all 0.15s ease;
+    cursor: pointer;
+}
+
+.btn--primary {
+    background: var(--accent);
+    color: var(--bg);
+}
+
+.btn--primary:hover {
+    background: var(--accent-2);
+    color: var(--bg);
+}
+
+.btn--ghost {
+    background: transparent;
+    color: var(--fg);
+    border: 1px solid var(--hairline);
+}
+
+.btn--ghost:hover {
+    border-color: var(--fg-dim);
+    color: var(--fg);
+}
+
+.btn--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* ============================================================================
+   SECTIONS
+   ============================================================================ */
+
+.section {
+    padding: 100px 32px;
+    border-bottom: 1px solid var(--hairline);
+}
+
+.section--alt {
+    background: var(--surface-1);
+}
+
+.section__title {
+    max-width: var(--maxw);
+    margin: 0 auto 48px;
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+/* ============================================================================
+   GRIDS
+   ============================================================================ */
+
+.grid {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    display: grid;
+    gap: 20px;
+}
+
+.grid--four {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.grid--two {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+@media (max-width: 880px) {
+    .grid--four,
+    .grid--two {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================================================
+   CARDS
+   ============================================================================ */
+
+.card {
+    background: var(--surface-2);
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: 28px 24px;
+    transition: border-color 0.15s ease;
+}
+
+.card:hover {
+    border-color: var(--fg-dim);
+}
+
+.card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--fg);
+}
+
+.card p {
+    color: var(--fg-dim);
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.card--tier {
+    padding: 36px 28px;
+}
+
+.card--tier ul {
+    list-style: none;
+    margin: 24px 0;
+    padding: 0;
+}
+
+.card--tier li {
+    font-size: 14px;
+    color: var(--fg-dim);
+    padding: 6px 0 6px 24px;
+    position: relative;
+}
+
+.card--tier li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.card--featured {
+    border-color: var(--accent);
+    background: linear-gradient(180deg, var(--surface-2), var(--surface-1));
+}
+
+.card__price {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--fg);
+    margin: 12px 0 0;
+}
+
+.card__priceNote {
+    font-size: 12px;
+    color: var(--fg-dim);
+    font-weight: 400;
+    margin-left: 8px;
+}
+
+.finePrint {
+    max-width: var(--maxw);
+    margin: 28px auto 0;
+    font-size: 12px;
+    color: var(--fg-dim);
+    text-align: center;
+    line-height: 1.7;
+}
+
+/* ============================================================================
+   STATUS
+   ============================================================================ */
+
+.status {
+    max-width: var(--maxw);
+    margin: 0 auto;
+}
+
+.status__row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--hairline);
+}
+
+.status__row:last-child {
+    border-bottom: none;
+}
+
+.status__check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.status__check--done {
+    background: var(--accent);
+    color: var(--bg);
+}
+
+.status__check--working {
+    background: var(--warn);
+    color: var(--bg);
+}
+
+.status__check--queued {
+    background: var(--surface-2);
+    color: var(--fg-dim);
+    border: 1px solid var(--hairline);
+}
+
+.status__label {
+    color: var(--fg);
+    font-size: 14px;
+}
+
+/* ============================================================================
+   DOCS GRID
+   ============================================================================ */
+
+.docs {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+@media (max-width: 720px) {
+    .docs { grid-template-columns: 1fr; }
+}
+
+.doc {
+    background: var(--surface-2);
+    border: 1px solid var(--hairline);
+    padding: 16px 20px;
+    border-radius: 6px;
+    color: var(--fg);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    display: block;
+}
+
+.doc:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.doc::before {
+    content: "→  ";
+    color: var(--fg-dim);
+    font-family: "JetBrains Mono", monospace;
+}
+
+.doc:hover::before {
+    color: var(--accent);
+}
+
+/* ============================================================================
+   FOOTER
+   ============================================================================ */
+
+.footer {
+    padding: 40px 32px;
+    text-align: center;
+}
+
+.footer p {
+    font-size: 12px;
+    color: var(--fg-dim);
+    font-family: "JetBrains Mono", monospace;
+    letter-spacing: 0.5px;
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 720px) {
+    .hero__content h1 {
+        font-size: 42px;
+    }
+
+    .section {
+        padding: 64px 24px;
+    }
+
+    .section__title {
+        font-size: 26px;
+    }
+}

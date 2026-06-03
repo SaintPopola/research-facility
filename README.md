@@ -1,74 +1,113 @@
 # Research Facility
 
-A hybrid synthesizer plug-in inspired by Spectrasonics **Omnisphere 3** — built to run as **VST3 / AU / CLAP** in any major DAW (Ableton Live, Logic Pro, FL Studio, Studio One, Bitwig, Reaper, Cubase).
+> A sonic research lab for musicians. Discover sounds for your music.
 
-> **Status:** Pre-alpha. Research + scaffold complete; engine work pending architectural sign-off.
+A hybrid sampler/synth VST3 + AU plugin inspired by Spectrasonics Omnisphere, built as **GPL-3 open source** with **paid pre-built binaries** for those who'd rather not compile from source. The Vital model.
 
-## What it aims to be
+**Status:** Pre-alpha. Phase 1 working in HISE. Roadmap targets v1.0 commercial launch in 18-24 months.
 
-Four-layer hybrid synthesis architecture combining:
+## What it is
 
-1. **Sample-streaming** (Omnisphere's "Soundsources") — disk-streamed multi-samples
-2. **DSP wavetable** — morphing single-cycle + spectral-warp wavetables
-3. **Granular** — pitch, duration, envelope, stereo position
-4. **Classic DSP** — virtual-analog, FM, ring mod, waveshaping
+- **Hybrid engine**: sample-streaming + synthesis (wavetable, classic VA, FM coming)
+- **Quick Tweak / Expert dual UI**: 6 macros for musicians, full mod matrix for sound designers — same preset, two modes
+- **Killer browser**: tag-based + AI-powered semantic preset search (local-only — your queries never leave your machine)
+- **Research Facility theme**: dark clinical aesthetic, monospace data, scientific-lab feel
+- **Curated factory library**: hand-tagged CC0 sounds (no Omnisphere-clone library size — *smaller library, better organized*)
 
-With a Quadzone-style layer manager (splits / crossfades / velocity switches), modulation matrix, multi-FX rack, and a curated preset library.
+## Status — what works today
 
-## What it realistically WILL be (v0.1)
+This is a **work-in-progress** snapshot. Phase 0 + Phase 1 deliverables are live:
 
-Not a fantasy clone. The realistic path is to **fork the Surge Synth Team's open-source codebase** (Surge XT + ShortCircuit XT, both GPL-3.0), wrap it in the Research Facility identity, expand from 2-scene to 4-layer, integrate the sampler engine, and ship.
+- ✅ Branded UI shell with 4 navigable sections (Catalog / Lab / Field / Studio)
+- ✅ Working audio engine (sine voice + filter + chorus + reverb in current default patch)
+- ✅ 6 macro knobs bound to real DSP parameters
+- ✅ Quick Tweak / Expert mode toggle
+- ✅ 3 generated default samples + SampleMaps
+- ⏸ Real Sampler integration (Phase 2 — experimental patch in `ResearchFacility_v2_sampler.xml`)
+- ⏸ AI semantic search backend (Phase 3 — tag-based prototype Phase 2)
+- ⏸ Curated 200+ preset factory library (Phase 4)
+- ⏸ Commercial v1.0 release (Phase 7, target 18-24 months from start)
 
-See `docs/ROADMAP.md` for the phased plan.
+See [`docs/PHASE1_STATUS.md`](docs/PHASE1_STATUS.md) for the complete state.
 
-## Folder layout
+## Building from source
 
-```
-ResearchFacility/
-├── README.md              ← you are here
-├── docs/
-│   ├── RESEARCH.md        ← deep landscape research with sources
-│   ├── ARCHITECTURE.md    ← 4-layer engine design
-│   ├── ROADMAP.md         ← phased milestones (v0.1 → v1.0)
-│   ├── LICENSE_NOTES.md   ← GPL-3.0 implications, distribution path
-│   └── DECISIONS.md       ← open questions awaiting user input
-├── src/
-│   ├── engine/            ← voice manager, layer router, audio graph
-│   ├── oscillators/       ← sample / wavetable / granular / classic
-│   ├── fx/                ← per-layer + global FX
-│   ├── modulation/        ← LFOs, envelopes, mod matrix
-│   ├── ui/                ← JUCE editor, custom components
-│   └── preset/            ← patch format, browser, library
-├── assets/
-│   ├── wavetables/        ← .wav single-cycle + multi-frame
-│   ├── samples/           ← royalty-free multi-samples
-│   ├── presets/           ← .rfpreset (forward-compatible JSON)
-│   └── iconography/       ← UI art, logos
-├── third_party/           ← JUCE, sfizz, clap-juce-extensions (submodules)
-├── scripts/               ← bootstrap, build, sign, package
-└── .vscode/               ← clangd + CMake Tools workspace settings
-```
-
-## Quick start (once base path is chosen)
+You need [HISE 4.1.0+](https://hise.dev/) (free, GPL).
 
 ```bash
-cd ~/Desktop/ResearchFacility
-./scripts/bootstrap.sh        # fetch submodules + JUCE
-cmake -B build -G Xcode       # macOS
-cmake --build build --config Release
+git clone https://github.com/<user>/research-facility.git
+cd research-facility
 ```
 
-## Read this before writing any code (in order)
+Then in HISE:
+1. **File → Open Project** → `hise_project/ResearchFacility`
+2. **File → Load Preset** → `XmlPresetBackups/ResearchFacility.xml`
+3. **File → Export → Project as Plugin** to build VST3 / AU
 
-1. **`docs/01_upstream_research.md`** — the canonical deep-research report (25 sources, 22 verified)
-2. **`docs/RESEARCH.md`** — supplemental delta from my parallel pass
-3. **`docs/LICENSE_NOTES.md`** — GPL-3 reality + JUCE Starter free under $20K/year
-4. **`docs/DECISIONS.md`** — six open questions blocking code
-5. **`docs/ROADMAP.md`** — realistic 6/12/24-month phasing
-6. **`docs/ARCHITECTURE.md`** — engine + browser design
+For a step-by-step walkthrough see [`docs/INSTALL.md`](docs/INSTALL.md).
 
-## Honest scope reality
+## Pre-built binaries
 
-A 1:1 Omnisphere 3 clone is not realistic. Talented full-time C++ solo founders took 3-4 years to ship their first synths (Tytel/Vital, Santos/Imaginando). A non-coder + AI assistance should expect a comparable timeline with a much narrower v1.
+(Not yet available — early alpha.)
 
-The realistic positioning: fork an existing OSS synth engine, build a **killer browser and library** on top (the part where Omnisphere actually wins and where DSP skill isn't required), and ship a focused product.
+Once v0.1 ships, pre-built signed binaries with the curated factory library will be available for purchase via the project's online store. Free community binaries (unsigned, no curated library) will be available on GitHub Releases.
+
+## License
+
+**GPL-3.0** — see [`LICENSE`](LICENSE).
+
+You can:
+- Use, modify, and redistribute the source
+- Build your own binaries and use them in any work, commercial or otherwise
+- Sell pre-built binaries (Vital does — that's our model too)
+
+You must:
+- Make source available when you distribute binaries
+- License derivative work under GPL-3 too
+
+Sample content in `assets/samples/` and `hise_project/.../Samples/` carries individual licenses (CC0, CC-BY) tracked in per-file `.meta.json` sidecars. See [`docs/LICENSE_NOTES.md`](docs/LICENSE_NOTES.md) and [`docs/09_sample_sourcing_plan.md`](docs/09_sample_sourcing_plan.md).
+
+## Documentation map
+
+Read in this order if you want to understand the project:
+
+- [`docs/FREE_PATH.md`](docs/FREE_PATH.md) — the $0 commercial-distribution strategy
+- [`docs/06_product_requirements.md`](docs/06_product_requirements.md) — what we're building and why
+- [`docs/07_ui_design_concept.md`](docs/07_ui_design_concept.md) — UI design with ASCII mockups
+- [`docs/ROADMAP.md`](docs/ROADMAP.md) — phased plan over 18-24 months
+- [`docs/01_upstream_research.md`](docs/01_upstream_research.md) — deep research (107 agents, 25 sources, 22 verified claims)
+- [`docs/08_ai_search_architecture.md`](docs/08_ai_search_architecture.md) — local ONNX semantic search design
+- [`docs/09_sample_sourcing_plan.md`](docs/09_sample_sourcing_plan.md) — CC0 library curation strategy
+
+## Tools
+
+The `scripts/` directory has reproducible-build utilities:
+
+| Script | What it does |
+|---|---|
+| `generate_default_samples.py` | Generates the 3 default WAV samples (RF_pad, RF_pluck, RF_bass) |
+| `validate_library.py` | CI-ready validator — checks every sample has a license sidecar; rejects CC-BY-NC |
+| `freesound_harvest.py` | Bulk download CC0 samples from Freesound + auto-generate sidecars |
+| `build_tag_similarity.py` | Builds the preset similarity table for tag-based AI search |
+| `bootstrap.sh` | Initial environment setup (CMake, JUCE, etc.) |
+
+## Contributing
+
+Once this repo goes public:
+
+- Bug reports → GitHub Issues
+- Sound design contributions → see `docs/09_sample_sourcing_plan.md` for licensing requirements
+- Code contributions → DM or open a draft PR; small fixes welcome, big architectural changes please discuss first
+
+This is largely a solo project; pace of merging is slow but deliberate.
+
+## Credits
+
+- Built on [HISE](https://hise.dev/) by Christoph Hart (LGPL/GPL)
+- Inspired by [Spectrasonics Omnisphere 3](https://www.spectrasonics.net/) (we are NOT affiliated)
+- Reference architecture studied: [Surge XT](https://github.com/surge-synthesizer/surge), [Vital](https://github.com/mtytel/vital)
+- Sample sources tracked per-file in `.meta.json` sidecars
+
+## Status of this README
+
+This is the **public-facing** README intended for when the repo goes public. While the project is private-pre-v0.1, see also the internal `hise_project/README.md` for HISE-specific notes.

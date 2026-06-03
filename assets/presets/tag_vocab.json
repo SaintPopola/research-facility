@@ -1,0 +1,68 @@
+{
+  "vocab": [
+    "bass",
+    "basses",
+    "bell",
+    "bright",
+    "calm",
+    "deep",
+    "default",
+    "detuned",
+    "engine_testing",
+    "evolving",
+    "harmonic",
+    "pad",
+    "pads",
+    "placeholder",
+    "pluck",
+    "plucks",
+    "sine",
+    "sub"
+  ],
+  "preset_count": 3,
+  "presets": [
+    {
+      "id": "RF_pluck",
+      "name": "RF_pluck",
+      "tags": [
+        "bell",
+        "bright",
+        "default",
+        "engine_testing",
+        "harmonic",
+        "placeholder",
+        "pluck",
+        "plucks"
+      ]
+    },
+    {
+      "id": "RF_pad",
+      "name": "RF_pad",
+      "tags": [
+        "calm",
+        "default",
+        "detuned",
+        "engine_testing",
+        "evolving",
+        "pad",
+        "pads",
+        "placeholder",
+        "sine"
+      ]
+    },
+    {
+      "id": "RF_bass",
+      "name": "RF_bass",
+      "tags": [
+        "bass",
+        "basses",
+        "deep",
+        "default",
+        "engine_testing",
+        "harmonic",
+        "placeholder",
+        "sub"
+      ]
+    }
+  ]
+}
