@@ -171,42 +171,96 @@ Content.setPropertiesFromJSON("CatalogPanel", {
 });
 
 CatalogPanel.data.categories = ["pads", "plucks", "basses", "leads", "textures"];
+CatalogPanel.data.moodChips = ["calm", "warm", "dark", "bright", "aggressive", "melancholy", "hopeful", "ethereal"];
 CatalogPanel.data.activeCategory = 0;
+CatalogPanel.data.activeMoods = [];  // selected moods (intersection filter)
 CatalogPanel.data.hoverCategoryIndex = -1;
+CatalogPanel.data.hoverMoodIndex = -1;
 CatalogPanel.data.hoverCardIndex = -1;
 CatalogPanel.data.activeCardIndex = 0;
 CatalogPanel.data.cardW = 156;
 CatalogPanel.data.cardH = 96;
 CatalogPanel.data.cardGap = 16;
 CatalogPanel.data.cardsPerRow = 5;
-CatalogPanel.data.gridTopOffset = 64;
+CatalogPanel.data.tabsY = 42;
+CatalogPanel.data.moodChipsY = 70;
+CatalogPanel.data.gridTopOffset = 110;
 
-// Helper — get presets filtered by current category
+// Helper — get presets filtered by current category AND active moods
 inline function getVisiblePresets(panel)
 {
     local cat = panel.data.categories[panel.data.activeCategory];
+    local moods = panel.data.activeMoods;
     local out = [];
     for (i = 0; i < catalog.length; i++)
     {
-        if (catalog[i].category == cat)
-            out.push(catalog[i]);
+        local p = catalog[i];
+        if (p.category != cat) continue;
+        if (moods.length > 0)
+        {
+            // Must match ALL active moods (AND filter)
+            local pmoods = p.mood;
+            if (pmoods == undefined) continue;
+            local allMatch = true;
+            for (m = 0; m < moods.length; m++)
+            {
+                local found = false;
+                for (k = 0; k < pmoods.length; k++)
+                {
+                    if (pmoods[k] == moods[m]) { found = true; break; }
+                }
+                if (!found) { allMatch = false; break; }
+            }
+            if (!allMatch) continue;
+        }
+        out.push(p);
     }
     return out;
 }
 
+// Helper — count how many presets in category have a given mood (for chip badges)
+inline function countMoodInCategory(panel, mood)
+{
+    local cat = panel.data.categories[panel.data.activeCategory];
+    local cnt = 0;
+    for (i = 0; i < catalog.length; i++)
+    {
+        local p = catalog[i];
+        if (p.category != cat) continue;
+        if (p.mood == undefined) continue;
+        for (k = 0; k < p.mood.length; k++)
+        {
+            if (p.mood[k] == mood) { cnt = cnt + 1; break; }
+        }
+    }
+    return cnt;
+}
+
+// Helper — is a mood currently active?
+inline function isMoodActive(panel, mood)
+{
+    for (i = 0; i < panel.data.activeMoods.length; i++)
+    {
+        if (panel.data.activeMoods[i] == mood) return true;
+    }
+    return false;
+}
+
 CatalogPanel.setPaintRoutine(function(g)
 {
+    var visiblePresets = getVisiblePresets(this);
+
     g.setColour(0xFF8B8F96);
     g.setFont("Oxygen Bold", 11);
     g.drawAlignedText("CATALOG", [0, 0, 200, 14], "left");
 
     g.setColour(0xFFE8EAED);
     g.setFont("Oxygen", 11);
-    g.drawAlignedText("Click a preset to load it. " + catalog.length + " sounds available.",
+    g.drawAlignedText("Showing " + visiblePresets.length + " of " + catalog.length + " sounds. Click a card to load.",
                       [0, 18, 600, 14], "left");
 
     // Category tabs
-    var tabY = 42;
+    var tabY = this.data.tabsY;
     var tabX = 0;
     for (i = 0; i < this.data.categories.length; i++)
     {
@@ -230,6 +284,50 @@ CatalogPanel.setPaintRoutine(function(g)
         g.setFont("Oxygen Bold", 11);
         g.drawAlignedText(label, [tabX, tabY, tabW - 8, 16], "left");
         tabX += tabW;
+    }
+
+    // Mood filter chips (toggle-able)
+    var chipY = this.data.moodChipsY;
+    var chipX = 0;
+    var chipPadX = 12;
+    var chipH = 22;
+    g.setFont("Oxygen", 10);
+    for (i = 0; i < this.data.moodChips.length; i++)
+    {
+        var mood = this.data.moodChips[i];
+        var cnt = countMoodInCategory(this, mood);
+        if (cnt == 0) continue;  // skip moods with zero matches in current category
+        var label = mood + " (" + cnt + ")";
+        var chipW = label.length * 6 + chipPadX * 2;
+        var active = isMoodActive(this, mood);
+        var hover = (i == this.data.hoverMoodIndex);
+
+        if (active)
+        {
+            g.setColour(0xFF00D9A0);
+            g.fillRoundedRectangle([chipX, chipY, chipW, chipH], chipH / 2);
+            g.setColour(0xFF0A0B0D);
+        }
+        else
+        {
+            g.setColour(hover ? 0xFF2A2E36 : 0xFF1D2026);
+            g.fillRoundedRectangle([chipX, chipY, chipW, chipH], chipH / 2);
+            g.setColour(0xFF2A2E36);
+            g.drawRoundedRectangle([chipX + 0.5, chipY + 0.5, chipW - 1, chipH - 1], chipH / 2, 1);
+            g.setColour(hover ? 0xFFE8EAED : 0xFF8B8F96);
+        }
+        g.drawAlignedText(label, [chipX + chipPadX, chipY + 2, chipW - chipPadX * 2, chipH - 4], "left");
+        chipX += chipW + 8;
+    }
+    // Clear filters button if any active
+    if (this.data.activeMoods.length > 0)
+    {
+        var clearLabel = "× clear";
+        var clearW = clearLabel.length * 6 + chipPadX * 2;
+        g.setColour(0xFF1D2026);
+        g.fillRoundedRectangle([chipX, chipY, clearW, chipH], chipH / 2);
+        g.setColour(0xFFFF8A4C);
+        g.drawAlignedText(clearLabel, [chipX + chipPadX, chipY + 2, clearW - chipPadX * 2, chipH - 4], "left");
     }
 
     // Grid of preset cards
@@ -297,34 +395,67 @@ CatalogPanel.setPaintRoutine(function(g)
     }
 });
 
+// Compute mood chip hit-box (must match paint routine)
+inline function moodChipAt(panel, x, y)
+{
+    if (y < panel.data.moodChipsY || y > panel.data.moodChipsY + 22) return -1;
+    local cx = 0;
+    local chipPadX = 12;
+    for (i = 0; i < panel.data.moodChips.length; i++)
+    {
+        local mood = panel.data.moodChips[i];
+        local cnt = countMoodInCategory(panel, mood);
+        if (cnt == 0) continue;
+        local label = mood + " (" + cnt + ")";
+        local chipW = label.length * 6 + chipPadX * 2;
+        if (x >= cx && x < cx + chipW) return i;
+        cx = cx + chipW + 8;
+    }
+    // Clear-filters button area
+    if (panel.data.activeMoods.length > 0)
+    {
+        local clearW = 60;
+        if (x >= cx && x < cx + clearW) return -2;  // -2 = clear
+    }
+    return -1;
+}
+
 CatalogPanel.setMouseCallback(function(event)
 {
     var prevHoverCat = this.data.hoverCategoryIndex;
+    var prevHoverMood = this.data.hoverMoodIndex;
     var prevHoverCard = this.data.hoverCardIndex;
     this.data.hoverCategoryIndex = -1;
+    this.data.hoverMoodIndex = -1;
     this.data.hoverCardIndex = -1;
 
     if (event.hover)
     {
-        // Tab hover check (Y 42-62)
-        if (event.y >= 42 && event.y < 62)
+        // Tab hover (Y 42-62)
+        if (event.y >= this.data.tabsY && event.y < this.data.tabsY + 20)
         {
             var col = Math.floor(event.x / 110);
             if (col >= 0 && col < this.data.categories.length)
                 this.data.hoverCategoryIndex = col;
         }
-        // Card hover check
+        // Mood chip hover
+        else if (event.y >= this.data.moodChipsY && event.y < this.data.moodChipsY + 22)
+        {
+            var moodIdx = moodChipAt(this, event.x, event.y);
+            if (moodIdx >= 0) this.data.hoverMoodIndex = moodIdx;
+        }
+        // Card hover
         else if (event.y >= this.data.gridTopOffset)
         {
             var cardW = this.data.cardW;
             var cardH = this.data.cardH;
             var gap = this.data.cardGap;
             var topY = this.data.gridTopOffset;
-            var col = Math.floor(event.x / (cardW + gap));
+            var col2 = Math.floor(event.x / (cardW + gap));
             var row = Math.floor((event.y - topY) / (cardH + gap));
-            if (col >= 0 && col < this.data.cardsPerRow && row >= 0)
+            if (col2 >= 0 && col2 < this.data.cardsPerRow && row >= 0)
             {
-                var idx = row * this.data.cardsPerRow + col;
+                var idx = row * this.data.cardsPerRow + col2;
                 var presets = getVisiblePresets(this);
                 if (idx < presets.length) this.data.hoverCardIndex = idx;
             }
@@ -333,18 +464,48 @@ CatalogPanel.setMouseCallback(function(event)
 
     if (event.clicked)
     {
+        // Category tab click
         if (this.data.hoverCategoryIndex >= 0)
         {
             this.data.activeCategory = this.data.hoverCategoryIndex;
             this.data.activeCardIndex = 0;
+            this.data.activeMoods = [];  // clear mood filters when switching category
             this.repaint();
             return;
         }
+        // Mood chip click → toggle
+        if (event.y >= this.data.moodChipsY && event.y < this.data.moodChipsY + 22)
+        {
+            var moodIdx2 = moodChipAt(this, event.x, event.y);
+            if (moodIdx2 == -2)
+            {
+                this.data.activeMoods = [];  // clear all
+                this.repaint();
+                return;
+            }
+            if (moodIdx2 >= 0)
+            {
+                var mood = this.data.moodChips[moodIdx2];
+                var newMoods = [];
+                var wasActive = false;
+                for (m = 0; m < this.data.activeMoods.length; m++)
+                {
+                    if (this.data.activeMoods[m] == mood) { wasActive = true; }
+                    else newMoods.push(this.data.activeMoods[m]);
+                }
+                if (!wasActive) newMoods.push(mood);
+                this.data.activeMoods = newMoods;
+                this.data.activeCardIndex = 0;
+                this.repaint();
+                return;
+            }
+        }
+        // Card click → load
         if (this.data.hoverCardIndex >= 0)
         {
             this.data.activeCardIndex = this.data.hoverCardIndex;
-            var presets = getVisiblePresets(this);
-            var preset = presets[this.data.hoverCardIndex];
+            var presetsList = getVisiblePresets(this);
+            var preset = presetsList[this.data.hoverCardIndex];
             if (preset != undefined)
                 loadPresetById(preset.samplemap);
             this.repaint();
@@ -353,6 +514,7 @@ CatalogPanel.setMouseCallback(function(event)
     }
 
     if (prevHoverCat != this.data.hoverCategoryIndex ||
+        prevHoverMood != this.data.hoverMoodIndex ||
         prevHoverCard != this.data.hoverCardIndex)
         this.repaint();
 });
