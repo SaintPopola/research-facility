@@ -4,7 +4,7 @@
            CrossfadeGamma="1.0">
   <sample ID="0" FileName="{PROJECT_FOLDER}RF_lead_pinhole.wav" Root="72" HiKey="127"
           LoKey="0" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
-          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="88200"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="110250"
           SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0"
           LoopEnabled="0" LowerVelocityXFade="0" UpperVelocityXFade="0"
           SampleState="0" NormalizedPeak="-1" Duplicate="0"/>

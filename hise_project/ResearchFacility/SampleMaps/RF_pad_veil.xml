@@ -4,8 +4,8 @@
            CrossfadeGamma="1.0">
   <sample ID="0" FileName="{PROJECT_FOLDER}RF_pad_veil.wav" Root="67" HiKey="127"
           LoKey="0" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
-          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="220500"
-          SampleStartMod="0" LoopStart="44100" LoopEnd="176400" LoopXFade="2000"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="352800"
+          SampleStartMod="0" LoopStart="70560" LoopEnd="282240" LoopXFade="2000"
           LoopEnabled="1" LowerVelocityXFade="0" UpperVelocityXFade="0"
           SampleState="0" NormalizedPeak="-1" Duplicate="0"/>
 </samplemap>

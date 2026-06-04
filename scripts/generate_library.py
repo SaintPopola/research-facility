@@ -156,62 +156,134 @@ class Preset:
     extra: dict = field(default_factory=dict)
 
 
-def gen_pad(p: Preset, duration_s: float = 5.0) -> tuple[list[float], list[float]]:
-    """Detuned-partial pad with slow stereo motion."""
+def gen_pad(p: Preset, duration_s: float = 8.0) -> tuple[list[float], list[float]]:
+    """Lush detuned-partial pad with slow filter motion and rich harmonics."""
     n = int(duration_s * SAMPLE_RATE)
     f0 = 440.0 * (2 ** ((p.root_midi - 69) / 12))
-    detunes = p.extra.get("detunes", [-5.0, -2.0, 0.0, 2.0, 5.0])
-    harmonics = p.extra.get("harmonics", [1.0, 2.0, 3.0])
+    detunes = p.extra.get("detunes", [-7.0, -3.0, -1.0, 1.0, 3.0, 7.0])  # 6 voices
+    harmonics = p.extra.get("harmonics", [1.0, 2.0, 3.0, 5.0])  # added 5th
     cutoff = p.extra.get("cutoff", 4000.0)
+
+    # Slow LFO baked into the sample so each note has movement even before plugin LFO
+    def lfo(i, rate, depth, phase=0.0):
+        return depth * math.sin(2 * math.pi * rate * i / SAMPLE_RATE + phase)
 
     l_voices = []
     r_voices = []
-    for harm in harmonics:
+    for h_idx, harm in enumerate(harmonics):
+        # Higher harmonics are softer
+        harm_gain = 1.0 / (harm ** 0.7)
         for k, detune in enumerate(detunes):
             f = f0 * harm * (2 ** (detune / 1200.0))
-            phase_l = 0.3 * math.sin(2 * math.pi * 0.4 * k / 7)
+            # Each voice gets unique slow vibrato (random-but-deterministic)
+            phase_offset = (h_idx * 7 + k * 3) * 0.4
+            vib_rate = 0.3 + 0.15 * math.sin(phase_offset)
+
             sig_l = [
                 math.sin(2 * math.pi * f * i / SAMPLE_RATE
-                         + 0.3 * math.sin(2 * math.pi * 0.4 * i / SAMPLE_RATE + phase_l))
+                         + lfo(i, vib_rate, 0.4, phase_offset)
+                         + lfo(i, vib_rate * 1.7, 0.15, phase_offset + 1.3))
                 for i in range(n)
             ]
-            f_r = f * (2 ** (1.5 / 1200.0))
+            # Right channel gets slightly different detune + phase for stereo width
+            f_r = f * (2 ** (2.5 / 1200.0))
             sig_r = [
                 math.sin(2 * math.pi * f_r * i / SAMPLE_RATE
-                         + 0.3 * math.sin(2 * math.pi * 0.4 * i / SAMPLE_RATE + phase_l + 0.7))
+                         + lfo(i, vib_rate, 0.4, phase_offset + 0.7)
+                         + lfo(i, vib_rate * 1.7, 0.15, phase_offset + 2.0))
                 for i in range(n)
             ]
-            l_voices.append(scale(sig_l, 0.18 / harm))
-            r_voices.append(scale(sig_r, 0.18 / harm))
+            l_voices.append(scale(sig_l, 0.13 * harm_gain))
+            r_voices.append(scale(sig_r, 0.13 * harm_gain))
 
     l = add(*l_voices)
     r = add(*r_voices)
-    l = low_pass_one_pole(l, cutoff)
-    r = low_pass_one_pole(r, cutoff)
-    env = envelope(n, a=0.8, d=0.5, s=0.85, r=2.0)
+
+    # Slow filter sweep baked in — cuts brightness during sustain
+    l_swept = []
+    r_swept = []
+    chunk = SAMPLE_RATE // 16  # 62.5ms chunks (smooth enough)
+    for start in range(0, n, chunk):
+        end = min(start + chunk, n)
+        t = start / n
+        # Cutoff swells over the first 60%, then dips slightly
+        sweep_factor = 1.0 + 0.3 * math.sin(2 * math.pi * 0.08 * t * duration_s)
+        cut = cutoff * sweep_factor
+        l_swept.extend(low_pass_one_pole(l[start:end], cut))
+        r_swept.extend(low_pass_one_pole(r[start:end], cut))
+    l = l_swept[:n]
+    r = r_swept[:n]
+
+    # Slow attack, long release for true pad
+    env = envelope(n, a=1.2, d=0.8, s=0.78, r=3.0)
     return normalize_peak(mul(l, env)), normalize_peak(mul(r, env))
 
 
-def gen_pluck(p: Preset, duration_s: float = 1.5) -> tuple[list[float], list[float]]:
+def gen_pluck(p: Preset, duration_s: float = 2.0) -> tuple[list[float], list[float]]:
+    """Bell/pluck with FM-style brightness, harmonic decay, and stereo spread."""
     n = int(duration_s * SAMPLE_RATE)
     f0 = 440.0 * (2 ** ((p.root_midi - 69) / 12))
-    harmonics = p.extra.get("harmonics", [(1, 0.6), (2, 0.3), (3, 0.18), (4, 0.10), (5, 0.06)])
-    parts = [scale(sine(f0 * h, n), g) for h, g in harmonics]
-    sig = add(*parts)
-    env = envelope(n, a=0.005, d=0.5, s=0.05, r=0.8)
-    sig = mul(sig, env)
-    return normalize_peak(sig), normalize_peak(sig)
+    harmonics = p.extra.get("harmonics", [(1, 0.7), (2, 0.4), (3, 0.22), (4, 0.13),
+                                           (5, 0.08), (7, 0.05)])  # added 7th harmonic
+
+    # Each harmonic gets its own decay rate — higher harmonics fade first (real bell behavior)
+    parts_l = []
+    parts_r = []
+    for h, g in harmonics:
+        # Per-harmonic exponential-ish decay envelope
+        decay_speed = 1.0 + (h - 1) * 0.5  # higher = faster decay
+        harm_env = []
+        for i in range(n):
+            t = i / SAMPLE_RATE
+            v = math.exp(-t * decay_speed * 2.0)
+            harm_env.append(v)
+        # Slight FM brightness in attack
+        sig = []
+        for i in range(n):
+            t = i / SAMPLE_RATE
+            fm = 0.4 * math.exp(-t * 8.0) * math.sin(2 * math.pi * f0 * h * 2 * t)
+            sig.append(math.sin(2 * math.pi * f0 * h * t + fm))
+        sig = mul(sig, harm_env)
+        parts_l.append(scale(sig, g))
+        parts_r.append(scale(sig, g))  # mono for now, will stereo-widen below
+
+    sig_l = add(*parts_l)
+    sig_r = add(*parts_r)
+
+    # Stereo widen with sub-1ms delay
+    r_delay = int(0.0005 * SAMPLE_RATE)
+    sig_r = [0.0] * r_delay + sig_r[:-r_delay] if r_delay > 0 else sig_r
+
+    # Overall attack envelope (very fast click + body)
+    env = envelope(n, a=0.003, d=0.7, s=0.02, r=1.0)
+    return normalize_peak(mul(sig_l, env)), normalize_peak(mul(sig_r, env))
 
 
-def gen_bass(p: Preset, duration_s: float = 2.5) -> tuple[list[float], list[float]]:
+def gen_bass(p: Preset, duration_s: float = 3.0) -> tuple[list[float], list[float]]:
+    """Bass with sub octave + harmonics + slight saw character + dynamic envelope."""
     n = int(duration_s * SAMPLE_RATE)
     f0 = 440.0 * (2 ** ((p.root_midi - 69) / 12))
-    sub = scale(sine(f0, n), 0.55)
-    fund = scale(sine(f0 * 2, n), p.extra.get("h2", 0.22))
-    h3 = scale(sine(f0 * 3, n), p.extra.get("h3", 0.08))
-    sig = add(sub, fund, h3)
-    env = envelope(n, a=0.02, d=0.25, s=0.7, r=0.5)
+    h2 = p.extra.get("h2", 0.22)
+    h3 = p.extra.get("h3", 0.08)
+
+    # Sub-octave doubling for fullness
+    sub_octave = scale(sine(f0 * 0.5, n), 0.25)
+    fundamental = scale(sine(f0, n), 0.55)
+    second = scale(sine(f0 * 2, n), h2)
+    third = scale(sine(f0 * 3, n), h3)
+    # Optional saw-ish harmonic stack for "carve" preset behavior
+    saw_layer = scale(saw(f0, n), p.extra.get("saw_amount", 0.0))
+
+    sig = add(sub_octave, fundamental, second, third, saw_layer)
+
+    # Soft clipper for subtle drive (without explicit Drive knob doing it)
+    sig = [math.tanh(s * 1.4) for s in sig]
+
+    # Bass envelope: punch + sustain
+    env = envelope(n, a=0.008, d=0.35, s=0.65, r=0.5)
     sig = mul(sig, env)
+
+    # Bass stays mono (sub frequencies are mono in real mixes anyway)
     return normalize_peak(sig), normalize_peak(sig)
 
 
@@ -380,11 +452,11 @@ for name, key, tags, mood, extra in TEXTURE_CONFIGS:
 # ---------- pipeline ----------
 
 GEN_MAP = {
-    "pads":     (gen_pad,     5.0),
-    "plucks":   (gen_pluck,   1.5),
-    "basses":   (gen_bass,    2.5),
-    "leads":    (gen_lead,    2.0),
-    "textures": (gen_texture, 6.0),
+    "pads":     (gen_pad,     8.0),   # longer for proper looping pads
+    "plucks":   (gen_pluck,   2.0),   # extra decay tail
+    "basses":   (gen_bass,    3.0),   # extra sustain
+    "leads":    (gen_lead,    2.5),
+    "textures": (gen_texture, 8.0),   # longer atmosphere
 }
 
 
