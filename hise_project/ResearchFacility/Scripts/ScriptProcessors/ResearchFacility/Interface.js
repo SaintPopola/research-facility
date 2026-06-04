@@ -59,7 +59,43 @@ AIBtn.setPaintRoutine(function(g)
     g.setFont("Oxygen Bold", 12);
     g.drawAlignedText("AI  ASK", [0, 0, 76, 32], "centred");
 });
-AIBtn.setMouseCallback(function(event) { this.data.hover = event.hover; this.repaint(); });
+AIBtn.setMouseCallback(function(event)
+{
+    this.data.hover = event.hover;
+    if (event.clicked)
+    {
+        // "Surprise me" — load a random preset from the full catalog
+        if (catalog.length > 0)
+        {
+            var randIdx = Math.floor(Math.random() * catalog.length);
+            var preset = catalog[randIdx];
+            loadPresetById(preset.samplemap);
+            // Switch catalog UI to that preset's category + clear filters
+            var cp = Content.getComponent("CatalogPanel");
+            for (k = 0; k < cp.data.categories.length; k++)
+            {
+                if (cp.data.categories[k] == preset.category)
+                {
+                    cp.data.activeCategory = k;
+                    cp.data.activeMoods = [];
+                    // Find the card index of the random preset in its category
+                    var visibleList = getVisiblePresets(cp);
+                    for (kk = 0; kk < visibleList.length; kk++)
+                    {
+                        if (visibleList[kk].samplemap == preset.samplemap)
+                        {
+                            cp.data.activeCardIndex = kk;
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+            cp.repaint();
+        }
+    }
+    this.repaint();
+});
 
 // ============================================================================
 // LEFT RAIL
