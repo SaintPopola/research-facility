@@ -943,6 +943,8 @@ const var iRevDamp  = FX_Reverb.getAttributeIndex("Damping");
 const var iRevWidth = FX_Reverb.getAttributeIndex("Width");
 const var iDrvSat   = FX_Drive.getAttributeIndex("Saturation");
 const var iDrvWet   = FX_Drive.getAttributeIndex("WetAmount");
+const var Sub       = Synth.getChildSynth("Sub");         // sub-oscillator layer
+const var iSubGain  = Sub.getAttributeIndex("Gain");      // == 0; -1 if the id is wrong
 
 function rfClamp(v, lo, hi) { if (v < lo) return lo; if (v > hi) return hi; return v; }
 function rfMap(v, inLo, inHi, outLo, outHi) {
@@ -956,8 +958,9 @@ function applyAir(v)    { rfSet(FX_Filter, iFiltFreq, v);
 // MOTION — chorus rate (primary) + a touch more feedback as it speeds up
 function applyMotion(v) { rfSet(FX_Chorus, iChoRate, v);
                           rfSet(FX_Chorus, iChoFbk, rfMap(v, 0.05, 4.0, 0.15, 0.55)); }
-// BODY  — filter resonance, clamped so it never screeches
-function applyBody(v)   { rfSet(FX_Filter, iFiltQ, rfClamp(v, 0.3, 4.5)); }
+// BODY  — filter resonance (clamped, never screechy) + sub-oscillator weight
+function applyBody(v)   { rfSet(FX_Filter, iFiltQ, rfClamp(v, 0.3, 4.5));
+                          rfSet(Sub, iSubGain, rfMap(v, 0.3, 8.0, 0.18, 0.5)); }
 // WIDTH — chorus width (primary) + reverb stereo width tracks it
 function applyWidth(v)  { rfSet(FX_Chorus, iChoWidth, v);
                           rfSet(FX_Reverb, iRevWidth, rfMap(v, 0.0, 1.0, 0.5, 1.0)); }
