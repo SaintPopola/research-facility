@@ -301,6 +301,94 @@ inline function loadPresetById(presetId)
         VoiceA.asSampler().loadSampleMap(presetId);
 }
 
+// ============================================================================
+// AUDITION ENGINE — click a card and it plays a short, category-shaped phrase
+// on the just-loaded sound, at the host tempo. Pure UI-thread note injection
+// (playNoteFromUI / noteOffFromUI) driven by one timer object. The phrase bank
+// is EMBEDDED (no file I/O) so it is guaranteed present in the exported plugin.
+// Each template row is [semitoneOffsetFromRoot, startBeat, durationBeats, vel0to1].
+// ============================================================================
+const var AUD_ROOT = { "pads": 55, "plucks": 60, "basses": 40, "leads": 64, "textures": 50 };
+const var AUD_TPL = {
+    "pads":     [[0,0,4,0.6],[7,0,4,0.5],[12,0,4,0.45],[16,0.5,3.5,0.4]],
+    "plucks":   [[0,0,0.4,0.7],[4,0.5,0.4,0.7],[7,1,0.4,0.7],[12,1.5,0.4,0.7],[7,2,0.4,0.6],[4,2.5,0.4,0.6]],
+    "basses":   [[0,0,0.9,0.8],[0,1,0.4,0.7],[7,1.5,0.4,0.7],[0,2,0.9,0.8],[3,3,0.9,0.7]],
+    "leads":    [[0,0,0.5,0.75],[2,0.5,0.5,0.75],[3,1,0.5,0.75],[7,1.5,0.75,0.8],[5,2.5,0.5,0.7],[3,3,1,0.7]],
+    "textures": [[0,0,6,0.5],[7,0,6,0.4],[12,1,5,0.3]]
+};
+
+const var audEvents = [];   // time-ordered rows: [ms, type(1=on/0=off), note, vel]
+const var audActive = [];   // notes currently held, for panic-off
+reg audCursor;              // read position into audEvents
+audCursor = 0;
+const var audTimer = Engine.createTimerObject();
+
+function audAllOff()
+{
+    for (ai = 0; ai < audActive.length; ai++)
+        Synth.noteOffFromUI(1, audActive[ai]);
+    audActive.clear();
+}
+
+function auditionStop()
+{
+    audTimer.stopTimer();
+    audEvents.clear();
+    audCursor = 0;
+    audAllOff();
+}
+
+function audInsert(ms, type, note, vel)
+{
+    var pos = audEvents.length;
+    for (aj = 0; aj < audEvents.length; aj++)
+        if (audEvents[aj][0] > ms) { pos = aj; break; }
+    audEvents.insert(pos, [ms, type, note, vel]);
+}
+
+function auditionPlay(category)
+{
+    auditionStop();
+    var tpl = AUD_TPL[category];
+    if (tpl == undefined) return;
+    var root = AUD_ROOT[category];
+    if (root == undefined) root = 60;
+    var bpm = Engine.getHostBpm();
+    if (bpm <= 0.0) bpm = 100.0;   // no host transport -> phrase-bank default tempo
+    var mspb = 60000.0 / bpm;
+    for (ak = 0; ak < tpl.length; ak++)
+    {
+        var n = root + tpl[ak][0];
+        if (n < 0)   n = n + 12;
+        if (n > 127) n = n - 12;
+        var vel = Math.round(tpl[ak][3] * 127.0);
+        if (vel < 1)   vel = 1;
+        if (vel > 127) vel = 127;
+        audInsert(tpl[ak][1] * mspb, 1, n, vel);
+        audInsert((tpl[ak][1] + tpl[ak][2]) * mspb, 0, n, 0);
+    }
+    audCursor = 0;
+    audTimer.resetCounter();
+    audTimer.startTimer(15);
+}
+
+audTimer.setTimerCallback(function()
+{
+    var now = audTimer.getMilliSecondsSinceCounterReset();
+    while (audCursor < audEvents.length && audEvents[audCursor][0] <= now)
+    {
+        var e = audEvents[audCursor];
+        audCursor = audCursor + 1;
+        if (e[1] == 1) { Synth.playNoteFromUI(1, e[2], e[3]); audActive.push(e[2]); }
+        else Synth.noteOffFromUI(1, e[2]);
+    }
+    if (audCursor >= audEvents.length)
+    {
+        audTimer.stopTimer();
+        audActive.clear();   // every scheduled note-off has now been sent
+    }
+});
+
 const var CatalogPanel = Content.addPanel("CatalogPanel", 160, 116);
 Content.setPropertiesFromJSON("CatalogPanel", {
     "width": 844, "height": 504,
@@ -656,14 +744,17 @@ CatalogPanel.setMouseCallback(function(event)
                 return;
             }
         }
-        // Card click → load
+        // Card click → load the sound + audition a short phrase on it
         if (this.data.hoverCardIndex >= 0)
         {
             this.data.activeCardIndex = this.data.hoverCardIndex;
             var presetsList = getVisiblePresets(this);
             var preset = presetsList[this.data.hoverCardIndex];
             if (preset != undefined)
+            {
                 loadPresetById(preset.samplemap);
+                auditionPlay(this.data.categories[this.data.activeCategory]);
+            }
             this.repaint();
             return;
         }
