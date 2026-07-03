@@ -342,7 +342,10 @@ function audInsert(ms, type, note, vel)
 {
     var pos = audEvents.length;
     for (aj = 0; aj < audEvents.length; aj++)
-        if (audEvents[aj][0] > ms) { pos = aj; break; }
+    {
+        var rowj = audEvents[aj];
+        if (rowj[0] > ms) { pos = aj; break; }
+    }
     audEvents.insert(pos, [ms, type, note, vel]);
 }
 
@@ -351,21 +354,22 @@ function auditionPlay(category)
     auditionStop();
     var tpl = AUD_TPL[category];
     if (tpl == undefined) return;
-    var root = AUD_ROOT[category];
-    if (root == undefined) root = 60;
+    var baseNote = AUD_ROOT[category];
+    if (baseNote == undefined) baseNote = 60;
     var bpm = Engine.getHostBpm();
     if (bpm <= 0.0) bpm = 100.0;   // no host transport -> phrase-bank default tempo
     var mspb = 60000.0 / bpm;
     for (ak = 0; ak < tpl.length; ak++)
     {
-        var n = root + tpl[ak][0];
+        var r = tpl[ak];
+        var n = baseNote + r[0];
         if (n < 0)   n = n + 12;
         if (n > 127) n = n - 12;
-        var vel = Math.round(tpl[ak][3] * 127.0);
+        var vel = Math.round(r[3] * 127.0);
         if (vel < 1)   vel = 1;
         if (vel > 127) vel = 127;
-        audInsert(tpl[ak][1] * mspb, 1, n, vel);
-        audInsert((tpl[ak][1] + tpl[ak][2]) * mspb, 0, n, 0);
+        audInsert(r[1] * mspb, 1, n, vel);
+        audInsert((r[1] + r[2]) * mspb, 0, n, 0);
     }
     audCursor = 0;
     audTimer.resetCounter();
@@ -375,12 +379,15 @@ function auditionPlay(category)
 audTimer.setTimerCallback(function()
 {
     var now = audTimer.getMilliSecondsSinceCounterReset();
-    while (audCursor < audEvents.length && audEvents[audCursor][0] <= now)
+    var go = (audCursor < audEvents.length);
+    while (go)
     {
         var e = audEvents[audCursor];
+        if (e[0] > now) break;
         audCursor = audCursor + 1;
         if (e[1] == 1) { Synth.playNoteFromUI(1, e[2], e[3]); audActive.push(e[2]); }
         else Synth.noteOffFromUI(1, e[2]);
+        go = (audCursor < audEvents.length);
     }
     if (audCursor >= audEvents.length)
     {
