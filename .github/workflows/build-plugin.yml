@@ -12,11 +12,13 @@ name: Build VST3/AU plugin
 
 on:
   workflow_dispatch:
+  workflow_call:      # lets release.yml reuse this exact build + installer job
   push:
     branches: [main]
     paths:
       # Only rebuild when these change — saves CI minutes
       - 'hise_project/**'
+      - 'packaging/**'
       - '.github/workflows/build-plugin.yml'
 
 jobs:

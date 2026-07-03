@@ -1,0 +1,65 @@
+name: Release
+
+# Cut a release: push a version tag (e.g. `git tag v0.1.0 && git push --tags`)
+# and this builds the plugins + installer via the shared build workflow, then
+# publishes a GitHub Release with the .pkg attached. The installer is UNSIGNED
+# until Developer ID secrets are added (see packaging/SIGNING.md) — once they
+# exist, build-plugin.yml's installer step auto-signs and this ships a signed pkg.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v0.1.0)'
+        required: true
+
+permissions:
+  contents: write     # required to create the GitHub Release
+
+jobs:
+  build:
+    # Reuse the exact macOS build + installer job (no duplication).
+    uses: ./.github/workflows/build-plugin.yml
+    secrets: inherit
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download installer artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ResearchFacility-macOS-Installer-unsigned
+          path: dist
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          ls -lah dist/
+          {
+            echo "## Research Facility — macOS"
+            echo ""
+            echo "One-click installer: the **ResearchFacility-*.pkg** below installs the VST3 + AU"
+            echo "and the sound library — open your DAW and it's ready, no locate dialog."
+            echo ""
+            echo "> This build is **unsigned** (pre-release). macOS Gatekeeper will warn; if the"
+            echo "> plugin is blocked after installing, right-click the .pkg and choose Open, or"
+            echo "> clear quarantine. Signed + notarized builds ship once a Developer ID is"
+            echo "> configured (see packaging/SIGNING.md)."
+            echo ""
+            echo "Requires macOS 10.13+ (Intel or Apple Silicon), any VST3/AU host."
+            echo "See docs/MANUAL.md. Open source, GPL-3, perpetual, no license server."
+          } > notes.md
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/*.pkg --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create "$TAG" dist/*.pkg \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "Research Facility $TAG" \
+              --notes-file notes.md
+          fi
