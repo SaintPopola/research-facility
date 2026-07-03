@@ -63,9 +63,17 @@
             </Processor>
           </ChildProcessors>
         </Processor>
+        <Processor Type="CurveEq" ID="Air EQ" Bypassed="0" NumFilters="2" Band0="2.5" Band1="120.0" Band2="0.7" Band3="1.0" Band4="2.0" Band5="3.0" Band6="9000.0" Band7="0.7" Band8="1.0" Band9="3.0" FFTEnabled="0">
+          <ChildProcessors/>
+          <RoutingMatrix NumSourceChannels="2" Channel0="0" Send0="-1" Channel1="1" Send1="-1"/>
+        </Processor>
         <Processor Type="Chorus" ID="Chorus" Bypassed="0" Gain="0" Rate="0.5"
                    Width="0.6" Feedback="0.35" Delay="0.5">
           <ChildProcessors/>
+        </Processor>
+        <Processor Type="Delay" ID="Space Delay" Bypassed="0" DelayTimeLeft="375" DelayTimeRight="500" FeedbackLeft="0.32" FeedbackRight="0.28" LowPassFreq="9000" HiPassFreq="180" Mix="0.22" TempoSync="0">
+          <ChildProcessors/>
+          <RoutingMatrix NumSourceChannels="2" Channel0="0" Send0="-1" Channel1="1" Send1="-1"/>
         </Processor>
         <Processor Type="SimpleReverb" ID="Master Reverb" Bypassed="0" RoomSize="0.78"
                    Damping="0.45" WetLevel="0.4" DryLevel="0.85" Width="1" FreezeMode="0">
