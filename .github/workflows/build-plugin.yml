@@ -191,6 +191,27 @@ jobs:
             hise_project/ResearchFacility/Binaries/**/*.component
           if-no-files-found: warn
 
+      - name: Build unsigned installer .pkg
+        if: success()
+        run: |
+          set -e
+          export RF_VST3="$(find hise_project/ResearchFacility/Binaries -name 'ResearchFacility.vst3' -type d | head -1)"
+          export RF_AU="$(find hise_project/ResearchFacility/Binaries -name 'ResearchFacility.component' -type d | head -1)"
+          echo "vst3=$RF_VST3"
+          echo "au=$RF_AU"
+          # samples come from the checked-out project Samples/ (RF_SAMPLES default);
+          # no Developer ID on the runner -> produces a working UNSIGNED pkg.
+          bash packaging/build_installer.sh
+          ls -lah dist/*.pkg
+
+      - name: Upload installer (unsigned)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ResearchFacility-macOS-Installer-unsigned
+          path: dist/*.pkg
+          if-no-files-found: warn
+
       - name: Upload full Binaries folder for debugging
         if: always()
         uses: actions/upload-artifact@v4
