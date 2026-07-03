@@ -719,13 +719,15 @@ const var KNOB_X = [240, 480, 720]; // 3 column centers
 
 // Each knob is positioned absolutely on the interface
 
+// NOTE: none of the six dials carry a "processorId" binding. Each is in
+// script-callback mode so ONE dial can move several FX params at once (fan-out,
+// wired below). The min/max/mode/suffix here define only the dial's own display.
+
 const var BrightnessKnob = Content.addKnob("BrightnessKnob", KNOB_X[0] - 40, KNOB_Y1 - 40);
 Content.setPropertiesFromJSON("BrightnessKnob", {
     "text": "Air",
         "tooltip": "Opens the sound up — dark and closed to bright and airy.",
     "width": 80, "height": 80,
-    "processorId": "Master Filter",
-    "parameterId": "Frequency",
     "min": 80, "max": 20000,
     "mode": "Frequency",
     "defaultValue": 8000,
@@ -739,8 +741,6 @@ Content.setPropertiesFromJSON("MovementKnob", {
     "text": "Motion",
         "tooltip": "How much the sound shimmers and drifts.",
     "width": 80, "height": 80,
-    "processorId": "Chorus",
-    "parameterId": "Rate",
     "min": 0.05, "max": 4.0,
     "defaultValue": 0.25,
     "stepSize": 0.01,
@@ -752,8 +752,6 @@ Content.setPropertiesFromJSON("WarmthKnob", {
     "text": "Body",
         "tooltip": "Weight and focus — thin to full-bodied.",
     "width": 80, "height": 80,
-    "processorId": "Master Filter",
-    "parameterId": "Q",
     "min": 0.3, "max": 8.0,
     "defaultValue": 1.5,
     "stepSize": 0.01
@@ -764,8 +762,6 @@ Content.setPropertiesFromJSON("WidthKnob", {
     "text": "Width",
         "tooltip": "Narrow and centred to wide and stereo.",
     "width": 80, "height": 80,
-    "processorId": "Chorus",
-    "parameterId": "Width",
     "min": 0.0, "max": 1.0,
     "defaultValue": 0.5,
     "mode": "NormalizedPercentage",
@@ -778,8 +774,6 @@ Content.setPropertiesFromJSON("LengthKnob", {
     "text": "Space",
         "tooltip": "Dry and close to a long, spacious tail.",
     "width": 80, "height": 80,
-    "processorId": "Master Reverb",
-    "parameterId": "WetLevel",
     "min": 0.0, "max": 1.0,
     "defaultValue": 0.25,
     "mode": "NormalizedPercentage",
@@ -792,8 +786,6 @@ Content.setPropertiesFromJSON("DriveKnob", {
     "text": "Grit",
         "tooltip": "Clean to warm, driven grit.",
     "width": 80, "height": 80,
-    "processorId": "Voice A",
-    "parameterId": "SaturationAmount",
     "min": 0.0, "max": 1.0,
     "defaultValue": 0.1,
     "mode": "NormalizedPercentage",
@@ -806,6 +798,75 @@ const var LAB_KNOBS = [BrightnessKnob, MovementKnob, WarmthKnob,
                        WidthKnob, LengthKnob, DriveKnob];
 for (kn = 0; kn < LAB_KNOBS.length; kn++)
     LAB_KNOBS[kn].setLocalLookAndFeel(knobLaf);
+
+// ============================================================================
+// MACRO FAN-OUT — one dial moves the whole patch musically.
+// Each dial writes 1-3 clamped params across the real FX chain. Parameter
+// indices are resolved BY NAME through the HISE API (getAttributeIndex), never
+// hardcoded, and every write is -1 guarded so a missing param is a silent
+// no-op instead of a crash. This is what the storefront's "six honest macros"
+// promise; the direct one-to-one bindings above have been replaced by it.
+// ============================================================================
+const var FX_Filter = Synth.getEffect("Master Filter");   // PolyphonicFilter
+const var FX_Drive  = Synth.getEffect("Drive");           // Saturator
+const var FX_Chorus = Synth.getEffect("Chorus");          // Chorus
+const var FX_Reverb = Synth.getEffect("Master Reverb");   // SimpleReverb
+
+const var iFiltFreq = FX_Filter.getAttributeIndex("Frequency");
+const var iFiltQ    = FX_Filter.getAttributeIndex("Q");
+const var iChoRate  = FX_Chorus.getAttributeIndex("Rate");
+const var iChoWidth = FX_Chorus.getAttributeIndex("Width");
+const var iChoFbk   = FX_Chorus.getAttributeIndex("Feedback");
+const var iRevWet   = FX_Reverb.getAttributeIndex("WetLevel");
+const var iRevRoom  = FX_Reverb.getAttributeIndex("RoomSize");
+const var iRevDamp  = FX_Reverb.getAttributeIndex("Damping");
+const var iRevWidth = FX_Reverb.getAttributeIndex("Width");
+const var iDrvSat   = FX_Drive.getAttributeIndex("Saturation");
+const var iDrvWet   = FX_Drive.getAttributeIndex("WetAmount");
+
+function rfClamp(v, lo, hi) { if (v < lo) return lo; if (v > hi) return hi; return v; }
+function rfMap(v, inLo, inHi, outLo, outHi) {
+    return outLo + rfClamp((v - inLo) / (inHi - inLo), 0.0, 1.0) * (outHi - outLo);
+}
+function rfSet(fx, idx, v) { if (idx >= 0) fx.setAttribute(idx, v); }
+
+// AIR   — filter cutoff (primary) + reverb damping opens with brightness
+function applyAir(v)    { rfSet(FX_Filter, iFiltFreq, v);
+                          rfSet(FX_Reverb, iRevDamp, rfMap(v, 80.0, 20000.0, 0.70, 0.15)); }
+// MOTION — chorus rate (primary) + a touch more feedback as it speeds up
+function applyMotion(v) { rfSet(FX_Chorus, iChoRate, v);
+                          rfSet(FX_Chorus, iChoFbk, rfMap(v, 0.05, 4.0, 0.15, 0.55)); }
+// BODY  — filter resonance, clamped so it never screeches
+function applyBody(v)   { rfSet(FX_Filter, iFiltQ, rfClamp(v, 0.3, 4.5)); }
+// WIDTH — chorus width (primary) + reverb stereo width tracks it
+function applyWidth(v)  { rfSet(FX_Chorus, iChoWidth, v);
+                          rfSet(FX_Reverb, iRevWidth, rfMap(v, 0.0, 1.0, 0.5, 1.0)); }
+// SPACE — reverb wet (primary) + room size grows with it
+function applySpace(v)  { rfSet(FX_Reverb, iRevWet, v);
+                          rfSet(FX_Reverb, iRevRoom, rfMap(v, 0.0, 1.0, 0.35, 0.90)); }
+// GRIT  — drive saturation (primary) + wet amount so grit is audible
+function applyGrit(v)   { rfSet(FX_Drive, iDrvSat, v);
+                          rfSet(FX_Drive, iDrvWet, rfMap(v, 0.0, 1.0, 0.25, 1.0)); }
+
+BrightnessKnob.setControlCallback(function(component, value) { applyAir(value); });
+MovementKnob.setControlCallback(function(component, value)   { applyMotion(value); });
+WarmthKnob.setControlCallback(function(component, value)     { applyBody(value); });
+WidthKnob.setControlCallback(function(component, value)      { applyWidth(value); });
+LengthKnob.setControlCallback(function(component, value)     { applySpace(value); });
+DriveKnob.setControlCallback(function(component, value)      { applyGrit(value); });
+
+// Apply the default patch once at load (callbacks don't auto-fire on init).
+// NOTE: during onInit getValue() returns 0.0 (the runtime value member starts at
+// zero; "defaultValue" is a separate property never copied into it until a reset).
+// Read the property directly so the initial patch reflects each dial's real default.
+// If a UserPreset is loaded, its stored values override these right after onInit and
+// each knob's control callback re-fires the fan-out with the restored value.
+applyAir(BrightnessKnob.get("defaultValue"));
+applyMotion(MovementKnob.get("defaultValue"));
+applyBody(WarmthKnob.get("defaultValue"));
+applyWidth(WidthKnob.get("defaultValue"));
+applySpace(LengthKnob.get("defaultValue"));
+applyGrit(DriveKnob.get("defaultValue"));
 
 // ============================================================================
 // FIELD SECTION — sample import drop zone (visual stub)
