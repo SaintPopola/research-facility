@@ -294,9 +294,31 @@ else
     catalog = [];
 }
 
-// Card click handler — swap the sample on the Voice A sampler
+// Hidden specimen selector. HISE presets serialise only front-interface control
+// values, not a sampler's loaded map — so this saveInPreset Label carries the
+// loaded samplemap id INTO factory/user presets. Defined before loadPresetById
+// so that inline function can reference it. On preset restore its callback fires
+// and re-loads the specimen.
+const var SpecimenId = Content.addLabel("SpecimenId", 0, 0);
+Content.setPropertiesFromJSON("SpecimenId", {
+    "saveInPreset": true,
+    "visible": false,
+    "text": "RF_pad",
+    "width": 1, "height": 1
+});
+SpecimenId.setControlCallback(function(component, value)
+{
+    var id = component.get("text");
+    if (id != "" && VoiceA != undefined)
+        VoiceA.asSampler().loadSampleMap(id);
+});
+
+// Card click handler — swap the sample on Voice A and record it in SpecimenId
+// so a saved preset captures the specimen. Direct load here is authoritative;
+// the SpecimenId callback covers the preset-restore path.
 inline function loadPresetById(presetId)
 {
+    SpecimenId.set("text", presetId);
     if (VoiceA != undefined)
         VoiceA.asSampler().loadSampleMap(presetId);
 }
