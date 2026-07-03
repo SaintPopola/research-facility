@@ -6,9 +6,9 @@
     <Control type="ScriptSlider" id="MovementKnob" value="0.1"/>
     <Control type="ScriptSlider" id="WarmthKnob" value="2.5"/>
     <Control type="ScriptSlider" id="WidthKnob" value="0.2"/>
-    <Control type="ScriptSlider" id="LengthKnob" value="0.15"/>
-    <Control type="ScriptSlider" id="DriveKnob" value="0.3"/>
-    <Control type="ScriptLabel" id="SpecimenId" value="RF_bass_deep_sub"/>
+    <Control type="ScriptSlider" id="LengthKnob" value="0.03"/>
+    <Control type="ScriptSlider" id="DriveKnob" value="0.52"/>
+    <Control type="ScriptLabel" id="SpecimenId" value="RF_bass_pulse"/>
   </Content>
   <MidiAutomation/>
 </Preset>

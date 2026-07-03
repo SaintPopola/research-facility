@@ -2,13 +2,13 @@
 
 <Preset Version="1.0.0">
   <Content Processor="Interface">
-    <Control type="ScriptSlider" id="BrightnessKnob" value="3000"/>
-    <Control type="ScriptSlider" id="MovementKnob" value="0.1"/>
+    <Control type="ScriptSlider" id="BrightnessKnob" value="4050"/>
+    <Control type="ScriptSlider" id="MovementKnob" value="0.06"/>
     <Control type="ScriptSlider" id="WarmthKnob" value="2.5"/>
     <Control type="ScriptSlider" id="WidthKnob" value="0.2"/>
     <Control type="ScriptSlider" id="LengthKnob" value="0.15"/>
     <Control type="ScriptSlider" id="DriveKnob" value="0.3"/>
-    <Control type="ScriptLabel" id="SpecimenId" value="RF_bass_deep_sub"/>
+    <Control type="ScriptLabel" id="SpecimenId" value="RF_bass_glass_sub"/>
   </Content>
   <MidiAutomation/>
 </Preset>

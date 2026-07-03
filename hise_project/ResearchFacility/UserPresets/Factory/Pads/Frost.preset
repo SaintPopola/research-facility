@@ -2,13 +2,13 @@
 
 <Preset Version="1.0.0">
   <Content Processor="Interface">
-    <Control type="ScriptSlider" id="BrightnessKnob" value="1.033e+04"/>
+    <Control type="ScriptSlider" id="BrightnessKnob" value="12150"/>
     <Control type="ScriptSlider" id="MovementKnob" value="0.12"/>
     <Control type="ScriptSlider" id="WarmthKnob" value="2"/>
     <Control type="ScriptSlider" id="WidthKnob" value="0.8"/>
-    <Control type="ScriptSlider" id="LengthKnob" value="0.68"/>
+    <Control type="ScriptSlider" id="LengthKnob" value="0.5"/>
     <Control type="ScriptSlider" id="DriveKnob" value="0.1"/>
-    <Control type="ScriptLabel" id="SpecimenId" value="RF_pad_slow_dawn"/>
+    <Control type="ScriptLabel" id="SpecimenId" value="RF_pad_frost"/>
   </Content>
   <MidiAutomation/>
 </Preset>

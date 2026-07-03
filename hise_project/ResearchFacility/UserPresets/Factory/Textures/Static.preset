@@ -3,12 +3,12 @@
 <Preset Version="1.0.0">
   <Content Processor="Interface">
     <Control type="ScriptSlider" id="BrightnessKnob" value="6000"/>
-    <Control type="ScriptSlider" id="MovementKnob" value="0.24"/>
+    <Control type="ScriptSlider" id="MovementKnob" value="0.09"/>
     <Control type="ScriptSlider" id="WarmthKnob" value="1"/>
     <Control type="ScriptSlider" id="WidthKnob" value="1"/>
-    <Control type="ScriptSlider" id="LengthKnob" value="0.88"/>
+    <Control type="ScriptSlider" id="LengthKnob" value="0.7"/>
     <Control type="ScriptSlider" id="DriveKnob" value="0.1"/>
-    <Control type="ScriptLabel" id="SpecimenId" value="RF_texture_wind_tunnel"/>
+    <Control type="ScriptLabel" id="SpecimenId" value="RF_texture_static"/>
   </Content>
   <MidiAutomation/>
 </Preset>

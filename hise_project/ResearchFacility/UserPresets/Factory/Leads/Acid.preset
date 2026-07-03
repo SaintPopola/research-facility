@@ -8,7 +8,7 @@
     <Control type="ScriptSlider" id="WidthKnob" value="0.4"/>
     <Control type="ScriptSlider" id="LengthKnob" value="0.35"/>
     <Control type="ScriptSlider" id="DriveKnob" value="0.47"/>
-    <Control type="ScriptLabel" id="SpecimenId" value="RF_lead_cutter"/>
+    <Control type="ScriptLabel" id="SpecimenId" value="RF_lead_acid"/>
   </Content>
   <MidiAutomation/>
 </Preset>
