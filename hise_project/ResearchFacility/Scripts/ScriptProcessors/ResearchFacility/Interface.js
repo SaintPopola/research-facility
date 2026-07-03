@@ -800,7 +800,12 @@ CatalogPanel.setMouseCallback(function(event)
 // ============================================================================
 
 const var LabPanel = Content.addPanel("LabPanel", 160, 116);
-Content.setPropertiesFromJSON("LabPanel", { "width": 844, "height": 504 });
+Content.setPropertiesFromJSON("LabPanel", { "width": 844, "height": 504, "allowCallbacks": "Clicks & Hover" });
+LabPanel.data.abA = [];        // stored macro snapshot A
+LabPanel.data.abB = [];        // stored macro snapshot B
+LabPanel.data.abActive = 0;    // 0 = none recalled, 1 = A live, 2 = B live
+LabPanel.data.abBtnY = 296; LabPanel.data.abBtnH = 34; LabPanel.data.abBtnW = 110;
+LabPanel.data.abBtnGap = 20; LabPanel.data.abBtnX0 = 257;
 LabPanel.setPaintRoutine(function(g)
 {
     g.setColour(0xFFE8EAED);
@@ -816,6 +821,25 @@ LabPanel.setPaintRoutine(function(g)
     g.setColour(0xFF2A2E36);
     g.fillRect([0, 56, 844, 1]);
 
+    // A/B macro compare buttons
+    var abLabels = ["STORE A", "STORE B", "A / B"];
+    for (bi = 0; bi < 3; bi++)
+    {
+        var bx = this.data.abBtnX0 + bi * (this.data.abBtnW + this.data.abBtnGap);
+        var lit = (bi == 0 && this.data.abActive == 1) || (bi == 1 && this.data.abActive == 2);
+        g.setColour(lit ? 0xFF3A4048 : 0xFF23262D);
+        g.fillRoundedRectangle([bx, this.data.abBtnY, this.data.abBtnW, this.data.abBtnH], 6);
+        g.setColour(0xFF4A4F5A);
+        g.drawRoundedRectangle([bx, this.data.abBtnY, this.data.abBtnW, this.data.abBtnH], 6, 1);
+        g.setColour(0xFFE8EAED);
+        g.setFont("Oxygen Bold", 11);
+        g.drawAlignedText(abLabels[bi], [bx, this.data.abBtnY, this.data.abBtnW, this.data.abBtnH], "centred");
+    }
+    g.setColour(0xFF8B8F96);
+    g.setFont("Oxygen", 10);
+    g.drawAlignedText("A/B — store two macro states, then click A / B to flip between them",
+                      [this.data.abBtnX0, this.data.abBtnY + 42, 500, 14], "left");
+
     // Engine info footer
     g.setColour(0xFF2A2E36);
     g.fillRect([0, 380, 844, 1]);
@@ -824,11 +848,11 @@ LabPanel.setPaintRoutine(function(g)
     g.drawAlignedText("SIGNAL FLOW", [0, 396, 844, 14], "left");
     g.setColour(0xFFE8EAED);
     g.setFont("Oxygen", 12);
-    g.drawAlignedText("Voice A (sine + saturation)  →  Master Filter  →  Chorus  →  Master Reverb  →  Out",
+    g.drawAlignedText("Voice A + Sub  →  Drive  →  Filter  →  Air EQ  →  Chorus  →  Delay  →  Reverb",
                       [0, 416, 844, 16], "left");
     g.setColour(0xFF8B8F96);
     g.setFont("Oxygen", 10);
-    g.drawAlignedText("Phase 1 engine. Sampler module + multi-engine architecture lands in Phase 2.",
+    g.drawAlignedText("Moog-ladder filter with per-voice drift and a tempo delay. The six macros fan out across the chain.",
                       [0, 436, 844, 14], "left");
 });
 
@@ -990,6 +1014,50 @@ applyBody(WarmthKnob.get("defaultValue"));
 applyWidth(WidthKnob.get("defaultValue"));
 applySpace(LengthKnob.get("defaultValue"));
 applyGrit(DriveKnob.get("defaultValue"));
+
+// ============================================================================
+// A/B MACRO COMPARE — store two macro snapshots and flip between them. The
+// buttons are drawn in the LabPanel paint (so they show/hide with the view);
+// this handles their clicks. setValue moves a dial WITHOUT firing its callback,
+// so changed() is called after to re-run the fan-out with the recalled value.
+// ============================================================================
+function abCapture()
+{
+    var out = [];
+    for (i = 0; i < LAB_KNOBS.length; i++)
+        out.push(LAB_KNOBS[i].getValue());
+    return out;
+}
+function abRecall(s)
+{
+    if (s.length != LAB_KNOBS.length) return;   // slot never stored yet
+    for (i = 0; i < LAB_KNOBS.length; i++)
+    {
+        LAB_KNOBS[i].setValue(s[i]);
+        LAB_KNOBS[i].changed();
+    }
+}
+LabPanel.setMouseCallback(function(event)
+{
+    if (!event.clicked) return;
+    var by = this.data.abBtnY;
+    if (event.y < by || event.y > by + this.data.abBtnH) return;
+    for (bi = 0; bi < 3; bi++)
+    {
+        var bx = this.data.abBtnX0 + bi * (this.data.abBtnW + this.data.abBtnGap);
+        if (event.x >= bx && event.x <= bx + this.data.abBtnW)
+        {
+            if (bi == 0)      { this.data.abA = abCapture(); this.data.abActive = 1; }
+            else if (bi == 1) { this.data.abB = abCapture(); this.data.abActive = 2; }
+            else {
+                if (this.data.abActive == 1) { abRecall(this.data.abB); this.data.abActive = 2; }
+                else                         { abRecall(this.data.abA); this.data.abActive = 1; }
+            }
+            this.repaint();
+            return;
+        }
+    }
+});
 
 // ============================================================================
 // FIELD SECTION — sample import drop zone (visual stub)
