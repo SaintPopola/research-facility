@@ -433,4 +433,225 @@ a:hover { color: var(--accent-2); }
     .section__title {
         font-size: 26px;
     }
+
+    .rf-hit { grid-template-columns: 22px 1fr auto 88px; }
+    .rf-hit__tags { display: none; }
 }
+
+/* ============================================================================
+   LIVE SEMANTIC SEARCH DEMO
+   ============================================================================ */
+.rf-search {
+    max-width: 640px;
+    margin: 8px 0 34px;
+}
+.rf-search__bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface-1);
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    padding: 4px 16px;
+    transition: border-color .18s ease, box-shadow .18s ease;
+}
+.rf-search__bar:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0, 217, 160, .12);
+}
+.rf-search__icon { color: var(--accent); font-size: 20px; }
+#rf-query {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--fg);
+    font-size: 17px;
+    padding: 14px 0;
+    font-family: inherit;
+}
+#rf-query::placeholder { color: var(--fg-dim); }
+.rf-search__badge {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 10.5px;
+    letter-spacing: .08em;
+    color: var(--fg-dim);
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    padding: 4px 9px;
+    white-space: nowrap;
+}
+.rf-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+.rf-chip {
+    background: transparent;
+    border: 1px solid var(--hairline);
+    color: var(--fg-dim);
+    border-radius: 999px;
+    padding: 6px 13px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .15s ease;
+    font-family: inherit;
+}
+.rf-chip:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+.rf-results { margin-top: 16px; }
+.rf-hit {
+    display: grid;
+    grid-template-columns: 26px 1.1fr auto 1.4fr 90px 26px 30px;
+    align-items: center;
+    gap: 14px;
+    padding: 11px 14px;
+    border: 1px solid var(--hairline);
+    border-left: 2px solid var(--c, var(--accent));
+    border-radius: 8px;
+    margin-bottom: 7px;
+    background: var(--surface-1);
+    animation: rf-in .22s ease both;
+    cursor: pointer;
+    transition: border-color .14s ease, background .14s ease;
+}
+.rf-hit:hover { background: var(--surface-2); border-color: var(--hairline); }
+.rf-hit.is-playing { border-color: var(--c, var(--accent)); background: var(--surface-2); }
+@keyframes rf-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.rf-hit__play {
+    width: 0; height: 0; justify-self: center;
+    border-left: 10px solid var(--c, var(--accent));
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    transition: transform .14s ease;
+}
+.rf-hit:hover .rf-hit__play { transform: scale(1.15); }
+.rf-hit.is-playing .rf-hit__play {
+    width: 9px; height: 11px; border: none;
+    border-left: 3px solid var(--c, var(--accent));
+    border-right: 3px solid var(--c, var(--accent));
+    animation: rf-pulse .7s ease-in-out infinite;
+}
+@keyframes rf-pulse { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
+.rf-hit__name { color: var(--fg); font-weight: 600; }
+.rf-hit__cat {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--c, var(--accent));
+}
+.rf-hit__tags {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 11.5px; color: var(--fg-dim);
+}
+.rf-hit__spec { display: flex; align-items: center; justify-content: flex-end; }
+.rf-spec { display: block; height: 26px; width: 88px; opacity: .9; }
+.rf-empty { color: var(--fg-dim); font-size: 14px; padding: 10px 2px; }
+
+/* ============================================================================
+   LIGHT "LAB" THEME — white tactile bench (Serum × Advanced fusion).
+   Toggled via [data-theme="light"] on <html>. Same variables, repainted.
+   ============================================================================ */
+:root[data-theme="light"] {
+    --bg:        #ECECE8;
+    --surface-1: #FCFCFB;
+    --surface-2: #F2F2EE;
+    --hairline:  #E2E2DE;
+    --fg:        #1A1C1F;
+    --fg-dim:    #77797E;
+    --accent:    #00A87D;
+    --accent-2:  #00966F;
+}
+:root[data-theme="light"] body { background: var(--bg); }
+/* dark spectral "screen" behind result rows stays a real screen even in light mode */
+:root[data-theme="light"] .rf-hit {
+    background: var(--surface-1);
+    box-shadow: 0 1px 0 #FFF inset;
+}
+:root[data-theme="light"] .rf-hit:hover,
+:root[data-theme="light"] .rf-hit.is-playing { background: var(--surface-2); }
+:root[data-theme="light"] .rf-search__bar { background: var(--surface-1); }
+:root[data-theme="light"] .rf-search__bar:focus-within { box-shadow: 0 0 0 3px rgba(0,168,125,.14); }
+
+.theme-toggle {
+    background: transparent;
+    border: 0.5px solid var(--hairline);
+    color: var(--fg-dim);
+    border-radius: 999px;
+    width: 34px; height: 34px;
+    cursor: pointer;
+    font-size: 15px;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: color .15s ease, border-color .15s ease;
+}
+.theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ============================================================================
+   TRUST BAND — weaponizes the market's #1 resentment (Waves WUP/license servers)
+   ============================================================================ */
+.trust { border-bottom: 1px solid var(--hairline); background: var(--surface-1); }
+.trust__inner { max-width: var(--maxw); margin: 0 auto; padding: 32px 32px; }
+.trust__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+.trust__item { display: flex; flex-direction: column; gap: 5px; border-left: 2px solid var(--accent); padding-left: 14px; }
+.trust__k { font-size: 14px; font-weight: 500; color: var(--fg); }
+.trust__v { font-size: 12.5px; color: var(--fg-dim); line-height: 1.5; }
+@media (max-width: 880px) { .trust__grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px) { .trust__grid { grid-template-columns: 1fr; } }
+
+/* --- "more like this" (≈) + similar-view header --- */
+.rf-hit__sim {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: transparent; border: 0.5px solid var(--hairline);
+    color: var(--fg-dim); font-size: 14px; cursor: pointer; line-height: 1;
+    transition: color .14s ease, border-color .14s ease;
+}
+.rf-hit__sim:hover { color: var(--c, var(--accent)); border-color: var(--c, var(--accent)); }
+.rf-simhead {
+    display: flex; align-items: center; justify-content: space-between;
+    margin: 2px 2px 12px; font-size: 14px; color: var(--fg);
+}
+.rf-back {
+    background: transparent; border: 0.5px solid var(--hairline); color: var(--fg-dim);
+    border-radius: 999px; padding: 5px 12px; font-size: 12px; cursor: pointer;
+}
+.rf-back:hover { color: var(--accent); border-color: var(--accent); }
+@media (max-width: 720px) { .rf-hit { grid-template-columns: 22px 1fr auto 88px 24px 28px; } }
+
+/* --- favourites --- */
+.rf-hit__fav {
+    background: transparent; border: none; cursor: pointer;
+    color: var(--fg-dim); font-size: 15px; line-height: 1; padding: 0;
+    transition: color .14s ease, transform .1s ease;
+}
+.rf-hit__fav:hover { color: var(--c, var(--accent)); transform: scale(1.15); }
+.rf-hit__fav.on { color: var(--c, var(--accent)); }
+.rf-chip--fav { border-color: var(--accent); color: var(--accent); }
+
+/* --- browse the shelf (empty-query view) + provenance badge --- */
+.rf-shelfhead {
+    font-size: 13px; color: var(--fg-dim); margin: 4px 2px 14px;
+    font-family: "JetBrains Mono","SF Mono",Menlo,monospace; letter-spacing: .04em;
+}
+.rf-shelfcat {
+    font-size: 12px; text-transform: uppercase; letter-spacing: .1em;
+    color: var(--c, var(--accent)); border-left: 2px solid var(--c, var(--accent));
+    padding-left: 10px; margin: 18px 0 8px; font-weight: 500;
+}
+.rf-hit__lic {
+    font-family: "JetBrains Mono","SF Mono",Menlo,monospace; font-size: 10px;
+    color: var(--fg-dim); border: 0.5px solid var(--hairline); border-radius: 4px;
+    padding: 1px 5px; margin-left: 8px; vertical-align: 1px;
+}
+.rf-chip--surprise { border-color: var(--accent-2); color: var(--accent-2); }
+
+/* --- shelf mood filters --- */
+.rf-moods { display: flex; flex-wrap: wrap; gap: 7px; margin: 0 0 14px; }
+.rf-mood {
+    background: transparent; border: 0.5px solid var(--hairline); color: var(--fg-dim);
+    border-radius: 999px; padding: 5px 12px; font-size: 12px; cursor: pointer;
+    transition: all .14s ease;
+}
+.rf-mood:hover { color: var(--fg); border-color: var(--fg-dim); }
+.rf-mood.on { color: var(--bg); background: var(--accent); border-color: var(--accent); }

@@ -6,6 +6,7 @@
 <title>Research Facility — A sonic research lab for musicians</title>
 <meta name="description" content="A hybrid sampler/synth plugin. Discover sounds for your music. Open source. GPL-3.">
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="palettes.css">
 </head>
 <body>
 
@@ -24,35 +25,67 @@
   </div>
 
   <div class="hero__content">
-    <h1>The sound you've been<br><span class="accent">searching</span> for.</h1>
-    <p class="hero__sub">A sonic research lab for musicians. Hybrid sampler/synth.<br>Open source. Pre-built binaries when you want them.</p>
+    <h1>Describe the sound.<br><span class="accent">Find</span> it.</h1>
+    <p class="hero__sub">A sonic research lab for musicians. Type a vibe — the local AI finds the sound.<br>No scrolling 26,000 presets. Your queries never leave your machine.</p>
+
+    <!-- LIVE semantic-search demo — the plugin's actual ranking, in your browser -->
+    <div class="rf-search">
+      <div class="rf-search__bar">
+        <span class="rf-search__icon">⌕</span>
+        <input id="rf-query" type="text" autocomplete="off" spellcheck="false"
+               placeholder="try: warm vintage tape pad">
+        <span class="rf-search__badge">LOCAL · <span id="rf-count">53</span> sounds</span>
+      </div>
+      <div class="rf-chips">
+        <button class="rf-chip">underwater cathedral</button>
+        <button class="rf-chip">glassy bell pluck</button>
+        <button class="rf-chip">deep sub bass</button>
+        <button class="rf-chip">dark cinematic drone</button>
+        <button class="rf-chip">nostalgic music box</button>
+        <button class="rf-chip rf-chip--fav" data-fav="1">♥ favourites</button>
+        <button class="rf-chip rf-chip--surprise" data-surprise="1">⚄ surprise me</button>
+      </div>
+      <div id="rf-results" class="rf-results"></div>
+    </div>
+
     <div class="hero__cta">
       <a href="#download" class="btn btn--primary">Get the plugin</a>
       <a href="#docs" class="btn btn--ghost">Read the docs</a>
     </div>
-    <p class="hero__meta">v0.1 pre-alpha · GPL-3 · macOS &amp; Windows</p>
+    <p class="hero__meta">v0.1 pre-alpha · GPL-3 · macOS &amp; Windows · search runs 100% offline</p>
   </div>
 </header>
+
+<section class="trust">
+  <div class="trust__inner">
+    <div class="trust__grid">
+      <div class="trust__item"><span class="trust__k">No license server</span><span class="trust__v">No account, no phone-home. An OS update will never brick your instrument.</span></div>
+      <div class="trust__item"><span class="trust__k">Perpetual means perpetual</span><span class="trust__v">Buy once, lifetime updates. No annual plan to keep it working.</span></div>
+      <div class="trust__item"><span class="trust__k">Open source core</span><span class="trust__v">GPL-3. Rebuild from source any time. The commit history is the roadmap.</span></div>
+      <div class="trust__item"><span class="trust__k">Runs light</span><span class="trust__v">100+ voices on a laptop, on battery. One honest price, never 90%-off theater.</span></div>
+    </div>
+  </div>
+</section>
 
 <section id="what" class="section">
   <h2 class="section__title">What it is</h2>
 
   <div class="grid grid--four">
     <div class="card">
-      <h3>Hybrid engine</h3>
-      <p>Sample-streaming + synthesis. Filter, chorus, reverb on every voice. Wavetable and FM coming.</p>
+      <h3>Describe it, find it</h3>
+      <p>Type a vibe and the local AI finds the sound. No scrolling 14,000 presets you'll never hear. The whole search runs on your machine — nothing leaves it.</p>
     </div>
     <div class="card">
-      <h3>Quick &amp; Expert</h3>
-      <p>Six macros for the working musician. Full mod matrix for the sound designer. Same preset, two minds.</p>
+      <h3>More like this</h3>
+      <p>Every sound knows its neighbours by ear, not tags. One click surfaces the sounds that actually resemble it — real audio similarity, offline, instant.</p>
     </div>
     <div class="card">
-      <h3>AI search, local</h3>
-      <p>Type a vibe — get matching presets. Inference runs on your machine. Your queries never leave it.</p>
+      <h3>Six honest macros</h3>
+      <p>Air, Body, Motion, Space, Grit, Width. Each one moves the whole patch musically — simple by default, the full engine one click away.</p>
     </div>
     <div class="card">
-      <h3>Curated library</h3>
-      <p>Hand-tagged sounds. CC0 sources. Quality over quantity. Smaller library, faster discovery.</p>
+      <h3>Curated, not a firehose</h3>
+      <p>A small library of sounds you'll actually use, each documented and licensed clean. Quality over 26,000 files. You own it forever.</p>
     </div>
   </div>
 </section>
@@ -104,8 +137,8 @@
       <span class="status__label">Phase 2 — real Sampler module + interactive Catalog</span>
     </div>
     <div class="status__row">
-      <span class="status__check status__check--queued">○</span>
-      <span class="status__label">Phase 3 — AI semantic preset search</span>
+      <span class="status__check status__check--done">✓</span>
+      <span class="status__label">Phase 3 — local semantic preset search (live in the hero above)</span>
     </div>
     <div class="status__row">
       <span class="status__check status__check--queued">○</span>
@@ -136,5 +169,39 @@
   <p>© 2026 Research Facility · Built with HISE · Licensed GPL-3 · We are not affiliated with Spectrasonics.</p>
 </footer>
 
+<div class="pal-bar" id="pal-bar">
+  <span class="pal-bar__label">PALETTE · PICK ONE</span>
+</div>
+<script>
+  (function () {
+    var root = document.documentElement;
+    var PALS = [
+      ["1","Braun White","#F0EDE5","#C8853A","#7A8C5A"],
+      ["2","Archive Paper","#EDE8DC","#E8735C","#3D5588"],
+      ["3","Anthracite Lab","#232320","#D19A52","#8B9A63"],
+      ["4","Phosphor Bench","#20201A","#9AA678","#C89A4C"],
+      ["5","Kodak Duo","#2C2820","#C89A4E","#7E8A5C"]
+    ];
+    var saved = "3";
+    try { saved = localStorage.getItem("rf-palette") || "3"; } catch (e) {}
+    root.setAttribute("data-palette", saved);
+    var bar = document.getElementById("pal-bar");
+    PALS.forEach(function (p) {
+      var b = document.createElement("button");
+      b.className = "pal-chip";
+      b.setAttribute("aria-pressed", p[0] === saved ? "true" : "false");
+      b.innerHTML = '<span class="dots"><i style="background:' + p[2] + '"></i><i style="background:' + p[3] + '"></i><i style="background:' + p[4] + '"></i></span>' + p[1];
+      b.addEventListener("click", function () {
+        root.setAttribute("data-palette", p[0]);
+        try { localStorage.setItem("rf-palette", p[0]); } catch (e) {}
+        bar.querySelectorAll(".pal-chip").forEach(function (c) { c.setAttribute("aria-pressed", "false"); });
+        b.setAttribute("aria-pressed", "true");
+        if (window.__rfRerender) window.__rfRerender();
+      });
+      bar.appendChild(b);
+    });
+  })();
+</script>
+<script src="search.js"></script>
 </body>
 </html>

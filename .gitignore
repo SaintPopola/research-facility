@@ -75,3 +75,8 @@ Downloads/HISE*.dmg
 
 # Local-only research mirror
 docs/01_upstream_research.md
+
+# Field Kit build output (large audio zips)
+dist/
+
+.claude/

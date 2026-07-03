@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research Facility — UI concept (Serum × Advanced fusion)</title>
+<style>
+  :root{ --mono:"SF Mono",ui-monospace,Menlo,Monaco,monospace; --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#C8CACE;font-family:var(--sans);padding:28px;display:flex;justify-content:center;}
+  .rig{width:820px;max-width:100%;}
+  .mono{font-family:var(--mono);}
+  .caption{font-family:var(--mono);font-size:11px;color:#6C6E72;letter-spacing:.1em;text-align:center;margin-top:16px;}
+</style>
+</head>
+<body>
+<div class="rig">
+  <div style="background:#F5F5F3;border:1px solid #E2E2DE;border-radius:14px;padding:16px;box-shadow:0 1px 0 #FFF inset,0 8px 24px rgba(20,22,26,.12);">
+
+    <div style="display:flex;align-items:center;gap:14px;border-bottom:1px solid #E6E6E2;padding-bottom:12px;margin-bottom:14px;">
+      <div style="width:34px;height:34px;border-radius:9px;background:#0E1114;display:flex;align-items:center;justify-content:center;">
+        <span class="mono" style="color:#00D9A0;font-size:15px;">RF</span></div>
+      <div style="line-height:1.15;">
+        <div class="mono" style="font-size:13px;color:#1A1C1F;letter-spacing:.14em;">RESEARCH&nbsp;FACILITY</div>
+        <div class="mono" style="font-size:10px;color:#9A9A93;letter-spacing:.12em;">SPECIMEN&nbsp;SYNTHESIZER</div></div>
+      <div style="flex:1;background:#0E1114;border-radius:9px;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;">
+        <div><div class="mono" style="font-size:9px;color:#5A5F68;letter-spacing:.14em;">PRESET 014 / PADS</div>
+          <div class="mono" style="font-size:14px;color:#E8EAED;">Underwater Cathedral</div></div>
+        <div style="display:flex;gap:5px;"><span class="mono" style="font-size:10px;color:#0E1114;background:#35C6FF;border-radius:5px;padding:3px 7px;">A</span>
+          <span class="mono" style="font-size:10px;color:#8B8F96;border:1px solid #2A2E36;border-radius:5px;padding:3px 7px;">B</span></div></div>
+      <div style="text-align:center;">
+        <svg width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" fill="none" stroke="#E0E0DB" stroke-width="4"/>
+          <circle cx="26" cy="26" r="22" fill="none" stroke="#00D9A0" stroke-width="4" stroke-linecap="round" stroke-dasharray="104 138" transform="rotate(135 26 26)"/>
+          <circle cx="26" cy="26" r="15" fill="#FCFCFB" stroke="#DDDDD7"/><line x1="26" y1="26" x2="26" y2="14" stroke="#1A1C1F" stroke-width="2" stroke-linecap="round" transform="rotate(70 26 26)"/></svg>
+        <div class="mono" style="font-size:9px;color:#9A9A93;letter-spacing:.12em;margin-top:-2px;">MASTER</div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px;">
+      <div style="background:#FCFCFB;border:1px solid #E6E6E2;border-radius:11px;padding:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span class="mono" style="font-size:10px;color:#35C6FF;letter-spacing:.1em;">OSC A</span>
+          <span style="width:20px;height:11px;background:#35C6FF;border-radius:6px;position:relative;display:inline-block;"><span style="position:absolute;right:1px;top:1px;width:9px;height:9px;background:#FCFCFB;border-radius:50%;"></span></span></div>
+        <div style="background:#0E1114;border-radius:7px;height:52px;padding:6px;"><svg width="100%" height="40" viewBox="0 0 120 40" preserveAspectRatio="none"><polyline points="0,20 10,8 20,26 30,6 40,22 50,10 60,30 70,12 80,24 90,9 100,28 110,14 120,20" fill="none" stroke="#35C6FF" stroke-width="1.5"/></svg></div>
+        <div style="display:flex;justify-content:space-around;margin-top:9px;">
+          <div style="text-align:center;"><svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="12" fill="none" stroke="#E4E4DE" stroke-width="3"/><circle cx="15" cy="15" r="12" fill="none" stroke="#35C6FF" stroke-width="3" stroke-linecap="round" stroke-dasharray="42 75" transform="rotate(135 15 15)"/></svg><div class="mono" style="font-size:8px;color:#9A9A93;">WT POS</div></div>
+          <div style="text-align:center;"><svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="12" fill="none" stroke="#E4E4DE" stroke-width="3"/><circle cx="15" cy="15" r="12" fill="none" stroke="#35C6FF" stroke-width="3" stroke-linecap="round" stroke-dasharray="60 75" transform="rotate(135 15 15)"/></svg><div class="mono" style="font-size:8px;color:#9A9A93;">UNISON</div></div></div>
+      </div>
+      <div style="background:#FCFCFB;border:1px solid #E6E6E2;border-radius:11px;padding:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span class="mono" style="font-size:10px;color:#9B6CFF;letter-spacing:.1em;">SUB / NOISE</span>
+          <span style="width:20px;height:11px;background:#9B6CFF;border-radius:6px;position:relative;display:inline-block;"><span style="position:absolute;right:1px;top:1px;width:9px;height:9px;background:#FCFCFB;border-radius:50%;"></span></span></div>
+        <div style="background:#0E1114;border-radius:7px;height:52px;padding:6px;"><svg width="100%" height="40" viewBox="0 0 120 40" preserveAspectRatio="none"><path d="M0,20 Q30,-6 60,20 T120,20" fill="none" stroke="#9B6CFF" stroke-width="2"/></svg></div>
+        <div style="margin-top:11px;"><div class="mono" style="font-size:8px;color:#9A9A93;margin-bottom:3px;">SUB&nbsp;LEVEL</div>
+          <div style="height:5px;background:#E4E4DE;border-radius:3px;position:relative;"><span style="position:absolute;left:0;top:0;width:58%;height:5px;background:#9B6CFF;border-radius:3px;"></span></div>
+          <div class="mono" style="font-size:8px;color:#9A9A93;margin:7px 0 3px;">NOISE</div>
+          <div style="height:5px;background:#E4E4DE;border-radius:3px;position:relative;"><span style="position:absolute;left:0;top:0;width:22%;height:5px;background:#9B6CFF;border-radius:3px;"></span></div></div>
+      </div>
+      <div style="background:#FCFCFB;border:1px solid #E6E6E2;border-radius:11px;padding:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span class="mono" style="font-size:10px;color:#D9962F;letter-spacing:.1em;">FILTER</span>
+          <span class="mono" style="font-size:8px;color:#B08434;border:1px solid #EBD9B8;background:#FBF2E1;border-radius:5px;padding:2px 5px;">LP24</span></div>
+        <div style="background:#0E1114;border-radius:7px;height:52px;padding:6px;"><svg width="100%" height="40" viewBox="0 0 120 40" preserveAspectRatio="none"><path d="M0,30 L60,30 Q78,30 84,10 L88,34 L120,36" fill="none" stroke="#FFB84C" stroke-width="1.5"/><line x1="84" y1="0" x2="84" y2="40" stroke="#FFB84C" stroke-width="0.5" stroke-dasharray="2 2" opacity="0.5"/></svg></div>
+        <div style="display:flex;justify-content:space-around;margin-top:9px;">
+          <div style="text-align:center;"><svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="12" fill="none" stroke="#E4E4DE" stroke-width="3"/><circle cx="15" cy="15" r="12" fill="none" stroke="#FFB84C" stroke-width="3" stroke-linecap="round" stroke-dasharray="70 75" transform="rotate(135 15 15)"/></svg><div class="mono" style="font-size:8px;color:#9A9A93;">CUTOFF</div></div>
+          <div style="text-align:center;"><svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="12" fill="none" stroke="#E4E4DE" stroke-width="3"/><circle cx="15" cy="15" r="12" fill="none" stroke="#FFB84C" stroke-width="3" stroke-linecap="round" stroke-dasharray="30 75" transform="rotate(135 15 15)"/></svg><div class="mono" style="font-size:8px;color:#9A9A93;">RESO</div></div></div>
+      </div>
+      <div style="background:#FCFCFB;border:1px solid #E6E6E2;border-radius:11px;padding:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span class="mono" style="font-size:10px;color:#00B98A;letter-spacing:.1em;">FX RACK</span><span class="mono" style="font-size:8px;color:#5A5F68;">3</span></div>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;background:#F0F0EC;border-radius:6px;padding:5px 8px;"><span class="mono" style="font-size:9px;color:#3A3C40;">REVERB</span><span style="width:6px;height:6px;border-radius:50%;background:#00D9A0;display:inline-block;"></span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;background:#F0F0EC;border-radius:6px;padding:5px 8px;"><span class="mono" style="font-size:9px;color:#3A3C40;">CHORUS</span><span style="width:6px;height:6px;border-radius:50%;background:#00D9A0;display:inline-block;"></span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;background:#F0F0EC;border-radius:6px;padding:5px 8px;"><span class="mono" style="font-size:9px;color:#3A3C40;">TAPE</span><span style="width:6px;height:6px;border-radius:50%;background:#00D9A0;display:inline-block;"></span></div>
+          <div style="display:flex;justify-content:center;align-items:center;border:1px dashed #D8D8D2;border-radius:6px;padding:4px;"><span class="mono" style="font-size:9px;color:#B4B4AD;">+ add</span></div></div>
+      </div>
+    </div>
+
+    <div style="background:#0E1114;border-radius:11px;padding:12px 14px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span class="mono" style="font-size:10px;color:#5A5F68;letter-spacing:.14em;">SPECTRUM&nbsp;·&nbsp;LIVE</span><span class="mono" style="font-size:10px;color:#00D9A0;letter-spacing:.1em;">◉ ANALYZING</span></div>
+      <svg width="100%" height="86" viewBox="0 0 640 86" preserveAspectRatio="none" style="display:block;">
+        <line x1="0" y1="72" x2="640" y2="72" stroke="#1E232B"/><line x1="0" y1="48" x2="640" y2="48" stroke="#161A20"/><line x1="0" y1="24" x2="640" y2="24" stroke="#161A20"/>
+        <path d="M0,72 L0,58 L20,40 L40,52 L60,30 L80,46 L100,18 L120,38 L140,50 L160,28 L180,44 L200,22 L220,42 L240,54 L260,36 L280,48 L300,26 L320,44 L340,56 L360,40 L380,52 L400,34 L420,50 L440,60 L460,46 L480,58 L500,42 L520,56 L540,64 L560,52 L580,62 L600,58 L620,66 L640,68 L640,72 Z" fill="#0F2A26" stroke="#00D9A0" stroke-width="1.5"/></svg>
+      <div style="display:flex;justify-content:space-between;margin-top:5px;"><span class="mono" style="font-size:9px;color:#3A4049;">40Hz</span><span class="mono" style="font-size:9px;color:#3A4049;">400</span><span class="mono" style="font-size:9px;color:#3A4049;">1k</span><span class="mono" style="font-size:9px;color:#3A4049;">4k</span><span class="mono" style="font-size:9px;color:#3A4049;">16kHz</span></div>
+    </div>
+
+    <div style="background:#FCFCFB;border:1px solid #E6E6E2;border-radius:11px;padding:12px 10px;">
+      <div class="mono" style="font-size:10px;color:#9A9A93;letter-spacing:.14em;margin-bottom:10px;">QUICK&nbsp;TWEAK&nbsp;·&nbsp;6&nbsp;MACROS</div>
+      <div id="macros" style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;"></div>
+      <div style="display:flex;align-items:center;gap:12px;border-top:1px solid #EDEDE9;margin-top:12px;padding-top:10px;">
+        <span class="mono" style="font-size:9px;color:#9A9A93;letter-spacing:.1em;">OUTPUT</span>
+        <div style="flex:1;display:flex;flex-direction:column;gap:3px;">
+          <div style="height:6px;background:#E4E4DE;border-radius:3px;position:relative;"><span style="position:absolute;left:0;top:0;width:64%;height:6px;background:#00D9A0;border-radius:3px;"></span></div>
+          <div style="height:6px;background:#E4E4DE;border-radius:3px;position:relative;"><span style="position:absolute;left:0;top:0;width:60%;height:6px;background:#00D9A0;border-radius:3px;"></span></div></div>
+        <span class="mono" style="font-size:9px;color:#3A3C40;">-3.4 dB</span>
+        <div style="display:flex;gap:4px;"><span class="mono" style="font-size:9px;color:#1A1C1F;background:#F0F0EC;border:1px solid #E0E0DB;border-radius:6px;padding:4px 9px;">QUICK</span><span class="mono" style="font-size:9px;color:#8B8F96;border:1px solid #E0E0DB;border-radius:6px;padding:4px 9px;">EXPERT</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="caption">RESEARCH FACILITY · UI CONCEPT · SERUM × ADVANCED FUSION · white bench, dark screens</div>
+</div>
+<script>
+  const M=[["BRIGHT",62,"#00D9A0"],["MOVE",38,"#00D9A0"],["WARM",80,"#00D9A0"],["WIDTH",50,"#00D9A0"],["LENGTH",68,"#00D9A0"],["DRIVE",18,"#FFB84C"]];
+  document.getElementById("macros").innerHTML=M.map(([n,v,c])=>{
+    const dash=Math.round(v/100*145), ang=135+v/100*270;
+    return `<div style="text-align:center;"><svg width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="28" r="23" fill="none" stroke="#E4E4DE" stroke-width="3"/><circle cx="28" cy="28" r="23" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round" stroke-dasharray="${dash} 145" transform="rotate(135 28 28)"/><circle cx="28" cy="28" r="16" fill="#F7F7F4" stroke="#DDDDD7"/><line x1="28" y1="28" x2="28" y2="15" stroke="#1A1C1F" stroke-width="2" stroke-linecap="round" transform="rotate(${ang-90} 28 28)"/></svg><div class="mono" style="font-size:9px;color:#3A3C40;">${n}</div><div class="mono" style="font-size:8px;color:#B4B4AD;">${v}%</div></div>`;
+  }).join("");
+</script>
+</body>
+</html>

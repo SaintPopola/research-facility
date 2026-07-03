@@ -1,26 +1,361 @@
 {
   "vocab": [
+    "aggressive",
+    "ambient",
+    "anxious",
     "bass",
     "basses",
     "bell",
+    "biting",
     "bright",
     "calm",
+    "clean",
+    "cold",
+    "crystal",
+    "dark",
     "deep",
     "default",
     "detuned",
+    "dirty",
+    "dreamy",
+    "drone",
     "engine_testing",
+    "ethereal",
     "evolving",
+    "expressive",
+    "glassy",
     "harmonic",
+    "haunting",
+    "hopeful",
+    "intimate",
+    "lead",
+    "leads",
+    "lo-fi",
+    "melancholy",
+    "metallic",
+    "mid",
+    "movement",
+    "moving",
+    "neutral",
+    "noise",
+    "nostalgic",
     "pad",
     "pads",
     "placeholder",
+    "playful",
     "pluck",
     "plucks",
+    "punchy",
+    "retro",
+    "rich",
+    "rough",
+    "round",
+    "rounded",
+    "sharp",
+    "shimmer",
+    "short",
     "sine",
-    "sub"
+    "small",
+    "smoky",
+    "smooth",
+    "soft",
+    "spacious",
+    "string",
+    "sub",
+    "synth",
+    "tense",
+    "texture",
+    "textures",
+    "thick",
+    "thin",
+    "tight",
+    "tiny",
+    "tonal",
+    "vocal",
+    "warm",
+    "wet",
+    "wide",
+    "wind",
+    "wobbly",
+    "wood"
   ],
-  "preset_count": 3,
+  "preset_count": 53,
   "presets": [
+    {
+      "id": "RF_pad_slow_dawn",
+      "name": "RF_pad_slow_dawn",
+      "tags": [
+        "bright",
+        "calm",
+        "evolving",
+        "hopeful",
+        "pad",
+        "pads",
+        "warm"
+      ]
+    },
+    {
+      "id": "RF_bass_stone",
+      "name": "RF_bass_stone",
+      "tags": [
+        "aggressive",
+        "bass",
+        "basses",
+        "dark",
+        "deep",
+        "rough"
+      ]
+    },
+    {
+      "id": "RF_pluck_marimba_echo",
+      "name": "RF_pluck_marimba_echo",
+      "tags": [
+        "calm",
+        "pluck",
+        "plucks",
+        "rounded",
+        "warm",
+        "wood"
+      ]
+    },
+    {
+      "id": "RF_texture_furnace_drone",
+      "name": "RF_texture_furnace_drone",
+      "tags": [
+        "anxious",
+        "dark",
+        "drone",
+        "texture",
+        "textures",
+        "warm"
+      ]
+    },
+    {
+      "id": "RF_lead_square_vintage",
+      "name": "RF_lead_square_vintage",
+      "tags": [
+        "lead",
+        "leads",
+        "nostalgic",
+        "playful",
+        "retro",
+        "thin"
+      ]
+    },
+    {
+      "id": "RF_pluck_tine",
+      "name": "RF_pluck_tine",
+      "tags": [
+        "bell",
+        "hopeful",
+        "metallic",
+        "pluck",
+        "plucks",
+        "soft"
+      ]
+    },
+    {
+      "id": "RF_pad_vellum",
+      "name": "RF_pad_vellum",
+      "tags": [
+        "calm",
+        "dark",
+        "ethereal",
+        "evolving",
+        "pad",
+        "pads",
+        "warm"
+      ]
+    },
+    {
+      "id": "RF_texture_static",
+      "name": "RF_texture_static",
+      "tags": [
+        "ambient",
+        "calm",
+        "neutral",
+        "noise",
+        "texture",
+        "textures"
+      ]
+    },
+    {
+      "id": "RF_lead_mellow_saw",
+      "name": "RF_lead_mellow_saw",
+      "tags": [
+        "calm",
+        "lead",
+        "leads",
+        "soft",
+        "warm"
+      ]
+    },
+    {
+      "id": "RF_pad_velvet",
+      "name": "RF_pad_velvet",
+      "tags": [
+        "calm",
+        "intimate",
+        "pad",
+        "pads",
+        "smooth",
+        "warm"
+      ]
+    },
+    {
+      "id": "RF_lead_acid",
+      "name": "RF_lead_acid",
+      "tags": [
+        "aggressive",
+        "biting",
+        "lead",
+        "leads"
+      ]
+    },
+    {
+      "id": "RF_pad_frost",
+      "name": "RF_pad_frost",
+      "tags": [
+        "bright",
+        "calm",
+        "cold",
+        "crystal",
+        "pad",
+        "pads"
+      ]
+    },
+    {
+      "id": "RF_lead_smoke",
+      "name": "RF_lead_smoke",
+      "tags": [
+        "dark",
+        "lead",
+        "leads",
+        "melancholy",
+        "rich",
+        "smoky"
+      ]
+    },
+    {
+      "id": "RF_bass_cellar",
+      "name": "RF_bass_cellar",
+      "tags": [
+        "bass",
+        "basses",
+        "dark",
+        "deep",
+        "melancholy",
+        "wide"
+      ]
+    },
+    {
+      "id": "RF_pad_storm_eye",
+      "name": "RF_pad_storm_eye",
+      "tags": [
+        "anxious",
+        "dark",
+        "movement",
+        "pad",
+        "pads",
+        "tense"
+      ]
+    },
+    {
+      "id": "RF_bass_pulse",
+      "name": "RF_bass_pulse",
+      "tags": [
+        "aggressive",
+        "bass",
+        "basses",
+        "punchy",
+        "sub",
+        "tight"
+      ]
+    },
+    {
+      "id": "RF_pad_furnace",
+      "name": "RF_pad_furnace",
+      "tags": [
+        "aggressive",
+        "dirty",
+        "pad",
+        "pads",
+        "rich",
+        "warm"
+      ]
+    },
+    {
+      "id": "RF_pad_choir_ghost",
+      "name": "RF_pad_choir_ghost",
+      "tags": [
+        "ethereal",
+        "nostalgic",
+        "pad",
+        "pads",
+        "vocal",
+        "wide"
+      ]
+    },
+    {
+      "id": "RF_texture_wind_tunnel",
+      "name": "RF_texture_wind_tunnel",
+      "tags": [
+        "ethereal",
+        "moving",
+        "texture",
+        "textures",
+        "wide",
+        "wind"
+      ]
+    },
+    {
+      "id": "RF_lead_cassette",
+      "name": "RF_lead_cassette",
+      "tags": [
+        "lead",
+        "leads",
+        "lo-fi",
+        "nostalgic",
+        "retro",
+        "warm"
+      ]
+    },
+    {
+      "id": "RF_pluck_resonator",
+      "name": "RF_pluck_resonator",
+      "tags": [
+        "dark",
+        "deep",
+        "melancholy",
+        "pluck",
+        "plucks",
+        "wood"
+      ]
+    },
+    {
+      "id": "RF_bass_carve",
+      "name": "RF_bass_carve",
+      "tags": [
+        "aggressive",
+        "bass",
+        "basses",
+        "biting",
+        "mid",
+        "sharp"
+      ]
+    },
+    {
+      "id": "RF_pad_veil",
+      "name": "RF_pad_veil",
+      "tags": [
+        "ethereal",
+        "pad",
+        "pads",
+        "shimmer",
+        "soft",
+        "thin"
+      ]
+    },
     {
       "id": "RF_pluck",
       "name": "RF_pluck",
@@ -33,6 +368,16 @@
         "placeholder",
         "pluck",
         "plucks"
+      ]
+    },
+    {
+      "id": "RF_lead_cutter",
+      "name": "RF_lead_cutter",
+      "tags": [
+        "aggressive",
+        "lead",
+        "leads",
+        "sharp"
       ]
     },
     {
@@ -51,6 +396,195 @@
       ]
     },
     {
+      "id": "RF_pad_mist",
+      "name": "RF_pad_mist",
+      "tags": [
+        "ambient",
+        "calm",
+        "cold",
+        "pad",
+        "pads",
+        "thin"
+      ]
+    },
+    {
+      "id": "RF_pad_solar_drift",
+      "name": "RF_pad_solar_drift",
+      "tags": [
+        "bright",
+        "hopeful",
+        "pad",
+        "pads",
+        "shimmer",
+        "wide"
+      ]
+    },
+    {
+      "id": "RF_lead_pinhole",
+      "name": "RF_lead_pinhole",
+      "tags": [
+        "lead",
+        "leads",
+        "playful",
+        "small",
+        "thin"
+      ]
+    },
+    {
+      "id": "RF_pad_marrow",
+      "name": "RF_pad_marrow",
+      "tags": [
+        "deep",
+        "melancholy",
+        "pad",
+        "pads",
+        "sub",
+        "warm"
+      ]
+    },
+    {
+      "id": "RF_pluck_music_box",
+      "name": "RF_pluck_music_box",
+      "tags": [
+        "bell",
+        "nostalgic",
+        "pluck",
+        "plucks",
+        "small"
+      ]
+    },
+    {
+      "id": "RF_pluck_glass_bell",
+      "name": "RF_pluck_glass_bell",
+      "tags": [
+        "bell",
+        "bright",
+        "calm",
+        "crystal",
+        "pluck",
+        "plucks"
+      ]
+    },
+    {
+      "id": "RF_pad_vox_drift",
+      "name": "RF_pad_vox_drift",
+      "tags": [
+        "dark",
+        "haunting",
+        "melancholy",
+        "pad",
+        "pads",
+        "vocal"
+      ]
+    },
+    {
+      "id": "RF_bass_glass_sub",
+      "name": "RF_bass_glass_sub",
+      "tags": [
+        "bass",
+        "basses",
+        "bright",
+        "calm",
+        "crystal",
+        "sub"
+      ]
+    },
+    {
+      "id": "RF_pluck_sparrow",
+      "name": "RF_pluck_sparrow",
+      "tags": [
+        "bell",
+        "bright",
+        "hopeful",
+        "pluck",
+        "plucks"
+      ]
+    },
+    {
+      "id": "RF_texture_hiss_pad",
+      "name": "RF_texture_hiss_pad",
+      "tags": [
+        "ambient",
+        "calm",
+        "soft",
+        "texture",
+        "textures",
+        "tonal"
+      ]
+    },
+    {
+      "id": "RF_bass_whisper_sub",
+      "name": "RF_bass_whisper_sub",
+      "tags": [
+        "bass",
+        "basses",
+        "calm",
+        "deep",
+        "soft",
+        "sub"
+      ]
+    },
+    {
+      "id": "RF_bass_wool",
+      "name": "RF_bass_wool",
+      "tags": [
+        "bass",
+        "basses",
+        "calm",
+        "soft",
+        "thick",
+        "warm"
+      ]
+    },
+    {
+      "id": "RF_pluck_pizz",
+      "name": "RF_pluck_pizz",
+      "tags": [
+        "bright",
+        "playful",
+        "pluck",
+        "plucks",
+        "short",
+        "string"
+      ]
+    },
+    {
+      "id": "RF_pad_owl_hymn",
+      "name": "RF_pad_owl_hymn",
+      "tags": [
+        "ambient",
+        "dark",
+        "deep",
+        "melancholy",
+        "pad",
+        "pads"
+      ]
+    },
+    {
+      "id": "RF_pluck_mallet_soft",
+      "name": "RF_pluck_mallet_soft",
+      "tags": [
+        "calm",
+        "pluck",
+        "plucks",
+        "rounded",
+        "soft",
+        "wood"
+      ]
+    },
+    {
+      "id": "RF_texture_rain_wall",
+      "name": "RF_texture_rain_wall",
+      "tags": [
+        "ambient",
+        "melancholy",
+        "texture",
+        "textures",
+        "wet",
+        "wide"
+      ]
+    },
+    {
       "id": "RF_bass",
       "name": "RF_bass",
       "tags": [
@@ -62,6 +596,124 @@
         "harmonic",
         "placeholder",
         "sub"
+      ]
+    },
+    {
+      "id": "RF_bass_deep_sub",
+      "name": "RF_bass_deep_sub",
+      "tags": [
+        "bass",
+        "basses",
+        "clean",
+        "deep",
+        "sub"
+      ]
+    },
+    {
+      "id": "RF_bass_moon_bass",
+      "name": "RF_bass_moon_bass",
+      "tags": [
+        "bass",
+        "basses",
+        "dreamy",
+        "ethereal",
+        "smooth",
+        "wide"
+      ]
+    },
+    {
+      "id": "RF_lead_choir_lead",
+      "name": "RF_lead_choir_lead",
+      "tags": [
+        "lead",
+        "leads",
+        "nostalgic",
+        "smooth",
+        "vocal",
+        "warm"
+      ]
+    },
+    {
+      "id": "RF_pluck_crystal_drop",
+      "name": "RF_pluck_crystal_drop",
+      "tags": [
+        "bright",
+        "ethereal",
+        "glassy",
+        "pluck",
+        "plucks",
+        "tiny"
+      ]
+    },
+    {
+      "id": "RF_lead_bright_square",
+      "name": "RF_lead_bright_square",
+      "tags": [
+        "bright",
+        "clean",
+        "lead",
+        "leads",
+        "playful",
+        "thin"
+      ]
+    },
+    {
+      "id": "RF_pad_old_tape",
+      "name": "RF_pad_old_tape",
+      "tags": [
+        "lo-fi",
+        "nostalgic",
+        "pad",
+        "pads",
+        "warm",
+        "wobbly"
+      ]
+    },
+    {
+      "id": "RF_pluck_plinky",
+      "name": "RF_pluck_plinky",
+      "tags": [
+        "bright",
+        "playful",
+        "pluck",
+        "plucks",
+        "tiny"
+      ]
+    },
+    {
+      "id": "RF_bass_round",
+      "name": "RF_bass_round",
+      "tags": [
+        "bass",
+        "basses",
+        "calm",
+        "round",
+        "smooth",
+        "warm"
+      ]
+    },
+    {
+      "id": "RF_lead_vox_saw",
+      "name": "RF_lead_vox_saw",
+      "tags": [
+        "bright",
+        "expressive",
+        "hopeful",
+        "lead",
+        "leads",
+        "synth"
+      ]
+    },
+    {
+      "id": "RF_pad_halo",
+      "name": "RF_pad_halo",
+      "tags": [
+        "bright",
+        "hopeful",
+        "pad",
+        "pads",
+        "spacious",
+        "wide"
       ]
     }
   ]

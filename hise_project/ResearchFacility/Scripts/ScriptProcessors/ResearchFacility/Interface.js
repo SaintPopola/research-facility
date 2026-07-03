@@ -8,6 +8,107 @@
 Content.makeFrontInterface(1024, 700);
 
 // ============================================================================
+// DESIGN TOKENS — one source of truth for colour + type + spacing.
+// Sweep inline hex to these over time; new components use them directly.
+// Category-coded accents turn the catalog into a "specimen shelf".
+// ============================================================================
+const var T = {
+    "bg":      0xFF0A0B0D,
+    "s1":      0xFF101216,   // raised surface
+    "s2":      0xFF16191F,
+    "s3":      0xFF1D212A,   // hover
+    "line":    0xFF262B34,
+    "lineHi":  0xFF333A45,
+    "txt":     0xFFE8EAED,
+    "dim":     0xFF8B8F96,
+    "faint":   0xFF5A5F68,
+    "accent":  0xFF00D9A0,   // primary (kept in sync with existing UI)
+    "audition":0xFFFFE268,
+    "warn":    0xFFFF8A4C,
+    "ok":      0xFF5BE38A,
+    // category accents (pads/plucks/basses/leads/textures)
+    "catPads":     0xFF35C6FF,
+    "catPlucks":   0xFFFFB84C,
+    "catBasses":   0xFF9B6CFF,
+    "catLeads":    0xFFFF5C8A,
+    "catTextures": 0xFFA6E22E,
+    // type — swap MONO to "JetBrains Mono" once the .ttf is dropped in Fonts/
+    "FONT":      "Oxygen",
+    "FONT_BOLD": "Oxygen Bold",
+    "MONO":      "Oxygen"
+};
+
+// category name → its accent colour (for specimen cards + meters)
+inline function catColour(cat)
+{
+    if (cat == "pads")     return T.catPads;
+    if (cat == "plucks")   return T.catPlucks;
+    if (cat == "basses")   return T.catBasses;
+    if (cat == "leads")    return T.catLeads;
+    if (cat == "textures") return T.catTextures;
+    return T.accent;
+}
+
+// ============================================================================
+// CUSTOM MACRO KNOB LOOK — a tick-ring dial with a modulation slot + pointer +
+// live mono readout. Reads Vital/Pigments-grade vs the stock HISE knob (the #1
+// amateur tell). Robust primitives only (ellipse/line/trig) so it renders
+// consistently. Assigned to the 6 Lab knobs below.
+// ============================================================================
+const var knobLaf = Content.createLocalLookAndFeel();
+knobLaf.registerFunction("drawRotarySlider", function(g, obj)
+{
+    var a  = obj.area;                        // [x, y, w, h]
+    var cx = a[0] + a[2] / 2.0;
+    var cy = a[1] + a[3] / 2.0 - 4;           // leave room for the label below
+    var R  = Math.min(a[2], a[3]) / 2.0 - 8;
+    var v  = obj.valueNormalized;             // 0..1
+    var D2R = Math.PI / 180.0;
+    var A0 = -135.0;                           // sweep start (from 12 o'clock, CW)
+    var SW = 270.0;                            // total sweep
+
+    // tick ring — lit up to the current value
+    var N = 28;
+    for (i = 0; i < N; i++)
+    {
+        var f = i / (N - 1.0);
+        var ang = (A0 + f * SW) * D2R;
+        var tx = cx + Math.sin(ang) * R;
+        var ty = cy - Math.cos(ang) * R;
+        if (f <= v) g.setColour(obj.hover ? 0xFFFFFFFF : T.accent);
+        else        g.setColour(T.line);
+        g.fillEllipse([tx - 1.5, ty - 1.5, 3.0, 3.0]);
+    }
+
+    // modulation slot — a faint outer ring you can later light per-mod
+    g.setColour(T.lineHi);
+    g.drawEllipse([cx - R - 4, cy - R - 4, (R + 4) * 2, (R + 4) * 2], 1.0);
+
+    // knob body
+    var br = R - 8;
+    g.setColour(T.s2);
+    g.fillEllipse([cx - br, cy - br, br * 2, br * 2]);
+    g.setColour(T.line);
+    g.drawEllipse([cx - br, cy - br, br * 2, br * 2], 1.0);
+
+    // pointer
+    var pa = (A0 + v * SW) * D2R;
+    g.setColour(T.accent);
+    g.drawLine(cx + Math.sin(pa) * (br * 0.35), cy - Math.cos(pa) * (br * 0.35),
+               cx + Math.sin(pa) * (br * 0.92), cy - Math.cos(pa) * (br * 0.92), 2.5);
+
+    // label + live value (mono)
+    var lbl = (obj.text != undefined) ? obj.text : "";
+    var vtxt = (obj.valueAsText != undefined) ? obj.valueAsText : "";
+    g.setColour(T.dim);
+    g.setFont(T.MONO, 9);
+    g.drawAlignedText(lbl, [a[0], a[1] + a[3] - 22, a[2], 12], "centred");
+    g.setColour(T.txt);
+    g.setFont(T.MONO, 10);
+    g.drawAlignedText(vtxt, [a[0], a[1] + a[3] - 11, a[2], 12], "centred");
+});
+
+// ============================================================================
 // TOP BAR
 // ============================================================================
 
@@ -413,13 +514,32 @@ CatalogPanel.setPaintRoutine(function(g)
             tagStr = p.tags[0];
             if (p.tags.length > 1) tagStr = tagStr + " · " + p.tags[1];
         }
-        g.setColour(0xFF00D9A0);
-        g.setFont("Oxygen", 9);
+        var catCol = catColour(p.category);
+        g.setColour(catCol);
+        g.setFont(T.MONO, 9);
         g.drawAlignedText(tagStr, [x + 12, y + 34, cardW - 24, 12], "left");
 
+        // Spectral "specimen" portrait — the sound's real frequency fingerprint,
+        // colour-coded by category. Turns a text card into a specimen slide.
+        if (p.spectrum != undefined && p.spectrum.length > 0)
+        {
+            var specX = x + 12;
+            var specY = y + 52;
+            var specW = cardW - 24;
+            var specH = 20;
+            var nb = p.spectrum.length;
+            var bw = specW / nb;
+            g.setColour(catCol);
+            for (b = 0; b < nb; b++)
+            {
+                var bh = 1 + p.spectrum[b] * (specH - 1);
+                g.fillRect([specX + b * bw, specY + specH - bh, bw - 0.6, bh]);
+            }
+        }
+
         // Category badge
-        g.setColour(0xFF8B8F96);
-        g.setFont("Oxygen", 9);
+        g.setColour(T.dim);
+        g.setFont(T.MONO, 9);
         g.drawAlignedText(p.category, [x + 12, y + cardH - 18, cardW - 24, 12], "left");
 
         // Active indicator dot
@@ -601,7 +721,8 @@ const var KNOB_X = [240, 480, 720]; // 3 column centers
 
 const var BrightnessKnob = Content.addKnob("BrightnessKnob", KNOB_X[0] - 40, KNOB_Y1 - 40);
 Content.setPropertiesFromJSON("BrightnessKnob", {
-    "text": "Brightness",
+    "text": "Air",
+        "tooltip": "Opens the sound up — dark and closed to bright and airy.",
     "width": 80, "height": 80,
     "processorId": "Master Filter",
     "parameterId": "Frequency",
@@ -615,7 +736,8 @@ Content.setPropertiesFromJSON("BrightnessKnob", {
 
 const var MovementKnob = Content.addKnob("MovementKnob", KNOB_X[1] - 40, KNOB_Y1 - 40);
 Content.setPropertiesFromJSON("MovementKnob", {
-    "text": "Movement",
+    "text": "Motion",
+        "tooltip": "How much the sound shimmers and drifts.",
     "width": 80, "height": 80,
     "processorId": "Chorus",
     "parameterId": "Rate",
@@ -627,7 +749,8 @@ Content.setPropertiesFromJSON("MovementKnob", {
 
 const var WarmthKnob = Content.addKnob("WarmthKnob", KNOB_X[2] - 40, KNOB_Y1 - 40);
 Content.setPropertiesFromJSON("WarmthKnob", {
-    "text": "Warmth",
+    "text": "Body",
+        "tooltip": "Weight and focus — thin to full-bodied.",
     "width": 80, "height": 80,
     "processorId": "Master Filter",
     "parameterId": "Q",
@@ -639,6 +762,7 @@ Content.setPropertiesFromJSON("WarmthKnob", {
 const var WidthKnob = Content.addKnob("WidthKnob", KNOB_X[0] - 40, KNOB_Y2 - 40);
 Content.setPropertiesFromJSON("WidthKnob", {
     "text": "Width",
+        "tooltip": "Narrow and centred to wide and stereo.",
     "width": 80, "height": 80,
     "processorId": "Chorus",
     "parameterId": "Width",
@@ -651,7 +775,8 @@ Content.setPropertiesFromJSON("WidthKnob", {
 
 const var LengthKnob = Content.addKnob("LengthKnob", KNOB_X[1] - 40, KNOB_Y2 - 40);
 Content.setPropertiesFromJSON("LengthKnob", {
-    "text": "Length",
+    "text": "Space",
+        "tooltip": "Dry and close to a long, spacious tail.",
     "width": 80, "height": 80,
     "processorId": "Master Reverb",
     "parameterId": "WetLevel",
@@ -664,7 +789,8 @@ Content.setPropertiesFromJSON("LengthKnob", {
 
 const var DriveKnob = Content.addKnob("DriveKnob", KNOB_X[2] - 40, KNOB_Y2 - 40);
 Content.setPropertiesFromJSON("DriveKnob", {
-    "text": "Drive",
+    "text": "Grit",
+        "tooltip": "Clean to warm, driven grit.",
     "width": 80, "height": 80,
     "processorId": "Voice A",
     "parameterId": "SaturationAmount",
@@ -674,6 +800,12 @@ Content.setPropertiesFromJSON("DriveKnob", {
     "stepSize": 0.01,
     "suffix": " %"
 });
+
+// Apply the custom dial look to all six macros.
+const var LAB_KNOBS = [BrightnessKnob, MovementKnob, WarmthKnob,
+                       WidthKnob, LengthKnob, DriveKnob];
+for (kn = 0; kn < LAB_KNOBS.length; kn++)
+    LAB_KNOBS[kn].setLocalLookAndFeel(knobLaf);
 
 // ============================================================================
 // FIELD SECTION — sample import drop zone (visual stub)
@@ -815,28 +947,61 @@ StudioPanel.setPaintRoutine(function(g)
     g.setFont("Oxygen Bold", 11);
     g.drawAlignedText("OUTPUT",  [0, 240, 200, 14], "left");
 
-    g.setColour(0xFFE8EAED);
-    g.setFont("Oxygen", 11);
+    g.setColour(T.txt);
+    g.setFont(T.MONO, 11);
     g.drawAlignedText("L", [0, 270, 16, 16], "left");
     g.drawAlignedText("R", [0, 296, 16, 16], "left");
 
-    // Meter bars (static visual)
-    g.setColour(0xFF1D2026);
-    g.fillRect([24, 270, 600, 14]);
-    g.fillRect([24, 296, 600, 14]);
-    g.setColour(0xFF00D9A0);
-    g.fillRect([24, 270, 380, 14]);
-    g.fillRect([24, 296, 360, 14]);
+    // REAL peak meters — driven by the engine, not fake numbers.
+    var lp = this.data.lPeak == undefined ? 0.0 : this.data.lPeak;
+    var rp = this.data.rPeak == undefined ? 0.0 : this.data.rPeak;
+    var trackW = 600;
+    g.setColour(T.s3);
+    g.fillRect([24, 270, trackW, 14]);
+    g.fillRect([24, 296, trackW, 14]);
+    // green below -6dB, amber near 0
+    g.setColour(lp > 0.94 ? T.warn : T.accent);
+    g.fillRect([24, 270, trackW * lp, 14]);
+    g.setColour(rp > 0.94 ? T.warn : T.accent);
+    g.fillRect([24, 296, trackW * rp, 14]);
+    // 0dB tick
+    g.setColour(T.line);
+    g.fillRect([24 + trackW, 268, 1, 44]);
 
-    g.setColour(0xFFE8EAED);
-    g.setFont("Oxygen", 11);
-    g.drawAlignedText("-3.2 dB", [640, 270, 100, 16], "left");
-    g.drawAlignedText("-4.1 dB", [640, 296, 100, 16], "left");
+    g.setColour(T.txt);
+    g.setFont(T.MONO, 11);
+    g.drawAlignedText(this.data.lDb == undefined ? "-inf" : this.data.lDb, [640, 270, 100, 16], "left");
+    g.drawAlignedText(this.data.rDb == undefined ? "-inf" : this.data.rDb, [640, 296, 100, 16], "left");
 
-    g.setColour(0xFF8B8F96);
-    g.setFont("Oxygen", 10);
-    g.drawAlignedText("Headroom: 8.7 dB",  [0, 340, 844, 14], "left");
+    g.setColour(T.dim);
+    g.setFont(T.MONO, 10);
+    g.drawAlignedText("live master peak · post-FX", [0, 340, 844, 14], "left");
 });
+
+// Real metering: poll the engine master peak and repaint while visible.
+inline function _fmtDb(gain)
+{
+    local db = Engine.getDecibelsForGainFactor(gain);
+    if (db < -99.0) return "-inf";
+    return Math.round(db * 10) / 10 + " dB";
+}
+StudioPanel.data.lPeak = 0.0;
+StudioPanel.data.rPeak = 0.0;
+StudioPanel.setTimerCallback(function()
+{
+    if (!this.get("visible")) return;
+    var lg = Engine.getMasterPeakLevel(false);
+    var rg = Engine.getMasterPeakLevel(true);
+    var ln = 0.01 * (100.0 + Engine.getDecibelsForGainFactor(lg));
+    var rn = 0.01 * (100.0 + Engine.getDecibelsForGainFactor(rg));
+    // clamp + ballistic decay
+    this.data.lPeak = Math.max(0.0, Math.min(1.0, Math.max(ln, this.data.lPeak - 0.05)));
+    this.data.rPeak = Math.max(0.0, Math.min(1.0, Math.max(rn, this.data.rPeak - 0.05)));
+    this.data.lDb = _fmtDb(lg);
+    this.data.rDb = _fmtDb(rg);
+    this.repaintImmediately();
+});
+StudioPanel.startTimer(30);
 
 // ============================================================================
 // BOTTOM BAR — Quick Tweak / Expert toggle
