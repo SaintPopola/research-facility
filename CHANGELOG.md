@@ -2,6 +2,25 @@
 
 All notable changes to Research Facility. Following [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format. Version numbers follow [SemVer](https://semver.org/).
 
+## [0.1.0] - 2026-07-03 — studio-grade engine + distributable installer
+
+### Added — DSP engine (authored as files, compiled + validated via cloud CI)
+- Script-driven **macro fan-out**: the six dials (Air/Body/Motion/Space/Grit/Width) each move 1–3 clamped FX parameters at once.
+- **Character filter**: Moog-style resonant ladder (PolyphonicFilter Mode 8) with the Drive saturator moved ahead of it for pre-drive bite.
+- **Per-voice analog drift**: two Random voice-start modulators (±10 cents pitch + cutoff wander).
+- **Sub-oscillator layer** (SineSynth, octave down), blended by the Body macro.
+- **FX rack**: parametric EQ (Air EQ) + tempo delay (Space Delay), alongside chorus + reverb.
+- **Audition engine**: click a catalog sound and it plays a short, category-shaped phrase at host tempo.
+- **A/B macro compare** in the Quick Tweak view.
+- **50 factory presets**, one tuned to every specimen (mood/tag-driven macro values).
+
+### Added — packaging / distribution
+- `packaging/build_installer.sh` builds a macOS `.pkg` that installs VST3 + AU + samples and writes the HISE `LinkOSX` redirect (no locate dialog). Auto-signs + notarizes when a Developer ID is present (`packaging/SIGNING.md`).
+- End-user `docs/MANUAL.md`, `docs/EULA.md`, `packaging/uninstall.command`.
+
+### Known limitations
+- Binaries/installer UNSIGNED until an Apple Developer ID is added (Gatekeeper warns on other Macs); samples ship as raw wavs (HLAC monolith needs a one-time HISE GUI encode); macOS only (Windows build pending).
+
 ## [Unreleased]
 
 ### Added — 2026-06-03 (pre-alpha scaffold session)

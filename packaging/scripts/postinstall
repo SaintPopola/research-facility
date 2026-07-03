@@ -1,0 +1,27 @@
+#!/bin/sh
+# Research Facility — samples-component postinstall.
+# The installer runs as root ($HOME = /var/root), so resolve the REAL logged-in
+# user and write a per-user LinkOSX that points HISE at the shared sample folder
+# this installer just placed under /Library. Result: no locate dialog, ever.
+set -e
+
+# Canonical (shared, all-user) sample location installed by the samples pkg.
+SYS="/Library/Application Support/Research Facility/ResearchFacility/Samples"
+
+# Resolve the console user (Apple/scriptingosx-verified method).
+loggedInUser=$( echo "show State:/Users/ConsoleUser" | scutil | awk '/Name :/ && ! /loginwindow/ { print $3 }' )
+if [ -z "$loggedInUser" ] || [ "$loggedInUser" = "root" ]; then
+  loggedInUser=$( stat -f "%Su" /dev/console )
+fi
+userHome=$( dscl . -read /Users/"$loggedInUser" NFSHomeDirectory 2>/dev/null | awk '{print $2}' )
+[ -z "$userHome" ] && userHome="/Users/$loggedInUser"
+
+APP="$userHome/Library/Application Support/Research Facility/ResearchFacility/Samples"
+mkdir -p "$APP"
+# LinkOSX = single line, absolute path, no trailing newline (HISE reads it verbatim).
+printf '%s' "$SYS" > "$APP/LinkOSX"
+
+# Hand the created AppData tree back to the user (installer created it as root).
+chown -R "$loggedInUser":staff "$userHome/Library/Application Support/Research Facility" 2>/dev/null || true
+
+exit 0

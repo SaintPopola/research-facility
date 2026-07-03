@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="2">
+    <title>Research Facility</title>
+    <organization>com.researchfacility</organization>
+    <allowed-os-versions><os-version min="10.13"/></allowed-os-versions>
+    <!-- rootVolumeOnly install; the samples component's postinstall does the
+         per-user LinkOSX so the plugin never shows a locate dialog. -->
+    <options customize="never" require-scripts="true" rootVolumeOnly="true" hostArchitectures="x86_64,arm64"/>
+    <domain enable_anywhere="false" enable_currentUserHome="false" enable_localSystem="true"/>
+    <choices-outline>
+        <line choice="plugins"/>
+        <line choice="samples"/>
+    </choices-outline>
+    <choice id="plugins" visible="false" title="Research Facility Plug-Ins">
+        <pkg-ref id="com.researchfacility.plugin.plugins"/>
+    </choice>
+    <choice id="samples" visible="false" title="Research Facility Samples">
+        <pkg-ref id="com.researchfacility.plugin.samples"/>
+    </choice>
+    <pkg-ref id="com.researchfacility.plugin.plugins" version="0.1.0" onConclusion="none">RF-plugins.pkg</pkg-ref>
+    <pkg-ref id="com.researchfacility.plugin.samples" version="0.1.0" onConclusion="none">RF-samples.pkg</pkg-ref>
+</installer-gui-script>
