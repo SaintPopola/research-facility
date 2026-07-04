@@ -8,7 +8,7 @@
 
 A hybrid sampler/synth VST3 + AU plugin inspired by Spectrasonics Omnisphere, built as **GPL-3 open source** with **paid pre-built binaries** for those who'd rather not compile from source. The Vital model.
 
-**Status:** Pre-alpha. Phase 1 audio engine + branded UI live. Cloud-build CI on GitHub Actions; binaries delivered via `scripts/download_build.sh`. Roadmap targets v1.0 commercial launch in 18-24 months.
+**Status:** v0.1 pre-release. A complete studio-grade instrument compiles + `auval`-validates in cloud CI on every commit and ships as a **one-click macOS installer** (VST3 + AU + sound library, no sample-locate dialog). Unsigned until a Developer ID is added; Windows pending. See [`CHANGELOG.md`](CHANGELOG.md).
 
 ## How it ships
 
@@ -30,21 +30,22 @@ See [`TAKE_CONTROL.md`](TAKE_CONTROL.md) for the full no-touch-HISE pipeline.
 - **Research Facility theme**: dark clinical aesthetic, monospace data, scientific-lab feel
 - **Curated factory library**: hand-tagged CC0 sounds (no Omnisphere-clone library size — *smaller library, better organized*)
 
-## Status — what works today
+## What works today
 
-This is a **work-in-progress** snapshot. Phase 0 + Phase 1 deliverables are live:
+A complete instrument, compiled + `auval`-validated in CI:
 
-- ✅ Branded UI shell with 4 navigable sections (Catalog / Lab / Field / Studio)
-- ✅ Working audio engine (sine voice + filter + chorus + reverb in current default patch)
-- ✅ 6 macro knobs bound to real DSP parameters
-- ✅ Quick Tweak / Expert mode toggle
-- ✅ 3 generated default samples + SampleMaps
-- ⏸ Real Sampler integration (Phase 2 — experimental patch in `ResearchFacility_v2_sampler.xml`)
-- ⏸ AI semantic search backend (Phase 3 — tag-based prototype Phase 2)
-- ⏸ Curated 200+ preset factory library (Phase 4)
-- ⏸ Commercial v1.0 release (Phase 7, target 18-24 months from start)
+- ✅ **Six fan-out macros** — Air / Body / Motion / Space / Grit / Width, each moving several DSP params at once
+- ✅ **Character filter** — Moog-style resonant ladder with pre-drive bite + per-voice analog drift
+- ✅ **Sub-oscillator layer**, blended by the Body macro
+- ✅ **FX rack** — parametric EQ, chorus, tempo-synced delay, reverb
+- ✅ **Sample voice + interactive catalog** — click a sound and it auditions itself a phrase, in host tempo
+- ✅ **Local semantic search** — describe a vibe, find the sound; nothing leaves your machine
+- ✅ **A/B macro compare** + **50 factory presets** (one tuned to every sound)
+- ✅ **One-click macOS installer** (VST3 + AU + samples, no locate dialog) — built in CI on every commit
+- ⏸ Signed / notarized binaries (needs a Developer ID — see [`packaging/SIGNING.md`](packaging/SIGNING.md))
+- ⏸ Windows build ([`docs/WINDOWS_BUILD.md`](docs/WINDOWS_BUILD.md)) · sample monolith · commercial checkout
 
-See [`docs/PHASE1_STATUS.md`](docs/PHASE1_STATUS.md) for the complete state.
+See [`CHANGELOG.md`](CHANGELOG.md) and the end-user [`docs/MANUAL.md`](docs/MANUAL.md).
 
 ## Building from source
 
@@ -62,11 +63,15 @@ Then in HISE:
 
 For a step-by-step walkthrough see [`docs/INSTALL.md`](docs/INSTALL.md).
 
-## Pre-built binaries
+## Install (pre-built)
 
-(Not yet available — early alpha.)
-
-Once v0.1 ships, pre-built signed binaries with the curated factory library will be available for purchase via the project's online store. Free community binaries (unsigned, no curated library) will be available on GitHub Releases.
+Every green CI build produces **`ResearchFacility-<ver>.pkg`** — a one-click macOS installer
+(VST3 + AU + the full sound library, no locate dialog). Get it from the latest
+[Actions run](https://github.com/SaintPopola/research-facility/actions) artifacts, or from a
+tagged [Release](https://github.com/SaintPopola/research-facility/releases) (`git tag v0.1.0`
+fires the release pipeline). It's **unsigned** pre-release — Gatekeeper will warn, so
+right-click the `.pkg` → Open, or clear quarantine — until a Developer ID is configured
+([`packaging/SIGNING.md`](packaging/SIGNING.md)). Full walkthrough: [`docs/MANUAL.md`](docs/MANUAL.md).
 
 ## License
 
