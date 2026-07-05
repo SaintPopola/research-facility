@@ -1,8 +1,15 @@
 # Windows build — status, path, and why it's deferred
 
-**Status: not built yet (macOS-only in CI). Feasible, but a dedicated effort — not a
-quick add.** This documents the exact path so it can be tackled deliberately, not by
-burning blind CI cycles.
+**Status: IN PROGRESS (2026-07-05) — `build_windows` job added to
+`.github/workflows/build-plugin.yml` following the path below.** Key discoveries that
+un-deferred it: HISE 4.1.0 vendors a prebuilt `tools/projucer/Projucer.exe`, ships
+ASIO + VST3 SDKs in-repo as `tools/SDK/sdk.zip`, and its standalone project already
+targets VS2022 (the VS2017 worry below is stale for 4.1.0). The built `HISE.exe` is
+cached between runs, so only the first run pays the ~40 min HISE compile.
+Jucer patching lives in `scripts/ci/patch_jucer.py` (IPP off, VST2-compat off,
+VS2017→VS2022 retarget if needed).
+
+Original research (kept for context):
 
 ## Why it's harder than macOS
 The macOS CI downloads a ready-to-run `HISE.app` and runs `HISE export`. On Windows:
