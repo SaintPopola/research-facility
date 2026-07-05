@@ -249,7 +249,10 @@ jobs:
         shell: bash
         run: |
           cd "$GITHUB_WORKSPACE/hise-source/tools/SDK"
-          if [ ! -d "VST3 SDK" ]; then tar -xf sdk.zip; fi
+          # git-bash tar is GNU tar (no zip support, unlike macOS bsdtar) -> use 7z.
+          # Deep marker check: a failed/partial earlier extract may have left the
+          # top-level dir behind (and been cached), so test an inner dir instead.
+          if [ ! -d "VST3 SDK/pluginterfaces" ]; then 7z x -y sdk.zip; fi
           ls "VST3 SDK" | head -5
           ls ASIOSDK2.3 | head -5
 
