@@ -12,26 +12,30 @@ Content.makeFrontInterface(1024, 700);
 // Sweep inline hex to these over time; new components use them directly.
 // Category-coded accents turn the catalog into a "specimen shelf".
 // ============================================================================
+// PHOSPHOR BENCH — the chosen palette (2026-07-05). Warm near-black bench,
+// bone text, desaturated phosphor-olive accent, muted amber secondary.
+// Matches site/styles.css :root exactly. No teal, no neon.
 const var T = {
-    "bg":      0xFF0A0B0D,
-    "s1":      0xFF101216,   // raised surface
-    "s2":      0xFF16191F,
-    "s3":      0xFF1D212A,   // hover
-    "line":    0xFF262B34,
-    "lineHi":  0xFF333A45,
-    "txt":     0xFFE8EAED,
-    "dim":     0xFF8B8F96,
-    "faint":   0xFF5A5F68,
-    "accent":  0xFF00D9A0,   // primary (kept in sync with existing UI)
-    "audition":0xFFFFE268,
-    "warn":    0xFFFF8A4C,
-    "ok":      0xFF5BE38A,
+    "bg":      0xFF17170F,
+    "s1":      0xFF20201A,   // raised surface
+    "s2":      0xFF24241D,
+    "s3":      0xFF2A2A22,   // hover
+    "line":    0xFF353528,
+    "lineHi":  0xFF464638,
+    "txt":     0xFFE4E2D2,
+    "dim":     0xFF82826E,
+    "faint":   0xFF5E5E50,
+    "accent":  0xFF9AA678,   // phosphor olive (primary)
+    "accentHi":0xFFAFBA8C,   // hover/lit variant
+    "audition":0xFFC89A4C,   // muted amber (secondary)
+    "warn":    0xFFC08A5A,
+    "ok":      0xFF9AA678,
     // category accents (pads/plucks/basses/leads/textures)
-    "catPads":     0xFF35C6FF,
-    "catPlucks":   0xFFFFB84C,
-    "catBasses":   0xFF9B6CFF,
-    "catLeads":    0xFFFF5C8A,
-    "catTextures": 0xFFA6E22E,
+    "catPads":     0xFF79867A,
+    "catPlucks":   0xFFB79A56,
+    "catBasses":   0xFFC08A5A,
+    "catLeads":    0xFF8A8270,
+    "catTextures": 0xFF9AA678,
     // type — swap MONO to "JetBrains Mono" once the .ttf is dropped in Fonts/
     "FONT":      "Oxygen",
     "FONT_BOLD": "Oxygen Bold",
@@ -116,19 +120,19 @@ const var TopBar = Content.addPanel("TopBar", 0, 0);
 Content.setPropertiesFromJSON("TopBar", { "width": 1024, "height": 56 });
 TopBar.setPaintRoutine(function(g)
 {
-    g.fillAll(0xFF0A0B0D);
-    g.setColour(0xFF2A2E36);
+    g.fillAll(T.bg);
+    g.setColour(T.line);
     g.fillRect([0, 55, 1024, 1]);
 
-    g.setColour(0xFF00D9A0);
+    g.setColour(T.accent);
     g.setFont("Oxygen Bold", 22);
     g.drawAlignedText("RF", [20, 14, 40, 28], "centred");
 
-    g.setColour(0xFFE8EAED);
+    g.setColour(T.txt);
     g.setFont("Oxygen Bold", 13);
     g.drawAlignedText("RESEARCH  FACILITY", [72, 16, 240, 20], "left");
 
-    g.setColour(0xFF8B8F96);
+    g.setColour(T.dim);
     g.setFont("Oxygen", 10);
     g.drawAlignedText("v0.1 · scaffold", [72, 34, 240, 14], "left");
 });
@@ -137,14 +141,14 @@ const var SearchBar = Content.addPanel("SearchBar", 320, 12);
 Content.setPropertiesFromJSON("SearchBar", { "width": 540, "height": 32, "allowCallbacks": "Clicks & Hover" });
 SearchBar.setPaintRoutine(function(g)
 {
-    g.setColour(this.data.hover ? 0xFF1D2026 : 0xFF14161A);
+    g.setColour(this.data.hover ? T.s2 : T.s1);
     g.fillRoundedRectangle([0, 0, 540, 32], 6);
-    g.setColour(0xFF2A2E36);
+    g.setColour(T.line);
     g.drawRoundedRectangle([0.5, 0.5, 539, 31], 6, 1);
-    g.setColour(0xFF8B8F96);
+    g.setColour(T.dim);
     g.setFont("Oxygen", 13);
     g.drawAlignedText("What are you researching?", [16, 0, 500, 32], "left");
-    g.setColour(0xFF00D9A0);
+    g.setColour(T.accent);
     g.setFont("Oxygen Bold", 14);
     g.drawAlignedText("Q", [510, 0, 20, 32], "centred");
 });
@@ -154,9 +158,9 @@ const var AIBtn = Content.addPanel("AIBtn", 880, 12);
 Content.setPropertiesFromJSON("AIBtn", { "width": 76, "height": 32, "allowCallbacks": "Clicks & Hover" });
 AIBtn.setPaintRoutine(function(g)
 {
-    g.setColour(this.data.hover ? 0xFF1AEBB2 : 0xFF00D9A0);
+    g.setColour(this.data.hover ? T.accentHi : T.accent);
     g.fillRoundedRectangle([0, 0, 76, 32], 6);
-    g.setColour(0xFF0A0B0D);
+    g.setColour(T.bg);
     g.setFont("Oxygen Bold", 12);
     g.drawAlignedText("AI  ASK", [0, 0, 76, 32], "centred");
 });
@@ -211,8 +215,8 @@ Rail.data.hoverIndex = -1;
 
 Rail.setPaintRoutine(function(g)
 {
-    g.fillAll(0xFF0A0B0D);
-    g.setColour(0xFF2A2E36);
+    g.fillAll(T.bg);
+    g.setColour(T.line);
     g.fillRect([139, 0, 1, 584]);
 
     for (i = 0; i < this.data.sections.length; i++)
@@ -220,33 +224,33 @@ Rail.setPaintRoutine(function(g)
         var y = 28 + i * 44;
         if (i == this.data.activeIndex)
         {
-            g.setColour(0xFF00D9A0);
+            g.setColour(T.accent);
             g.fillRect([0, y - 4, 3, 30]);
-            g.setColour(0xFFE8EAED);
+            g.setColour(T.txt);
         }
         else if (i == this.data.hoverIndex)
         {
-            g.setColour(0xFFE8EAED);
+            g.setColour(T.txt);
         }
         else
         {
-            g.setColour(0xFF8B8F96);
+            g.setColour(T.dim);
         }
         g.setFont("Oxygen Bold", 12);
         g.drawAlignedText(this.data.sections[i], [24, y, 100, 22], "left");
     }
 
-    g.setColour(0xFF2A2E36);
+    g.setColour(T.line);
     g.fillRect([16, 224, 100, 1]);
-    g.setColour(0xFF8B8F96);
+    g.setColour(T.dim);
     g.setFont("Oxygen", 11);
     g.drawAlignedText("Favorites", [24, 244, 100, 18], "left");
     g.drawAlignedText("Recent",    [24, 268, 100, 18], "left");
     g.drawAlignedText("History",   [24, 292, 100, 18], "left");
 
-    g.setColour(0xFF2A2E36);
+    g.setColour(T.line);
     g.fillRect([16, 520, 100, 1]);
-    g.setColour(0xFF8B8F96);
+    g.setColour(T.dim);
     g.setFont("Oxygen", 10);
     g.drawAlignedText("Phase 1",   [24, 532, 100, 14], "left");
     g.drawAlignedText("Playable",  [24, 548, 100, 14], "left");
@@ -260,17 +264,17 @@ const var Main = Content.addPanel("Main", 140, 56);
 Content.setPropertiesFromJSON("Main", { "width": 884, "height": 584 });
 Main.setPaintRoutine(function(g)
 {
-    g.fillAll(0xFF14161A);
+    g.fillAll(T.s1);
 
     var rail = Content.getComponent("Rail");
     var section = rail.data.activeIndex;
     var sectionName = rail.data.sections[section];
 
-    g.setColour(0xFF8B8F96);
+    g.setColour(T.dim);
     g.setFont("Oxygen", 10);
     g.drawAlignedText("SECTION", [24, 16, 200, 14], "left");
 
-    g.setColour(0xFF00D9A0);
+    g.setColour(T.accent);
     g.setFont("Oxygen Bold", 13);
     g.drawAlignedText(sectionName, [24, 32, 200, 18], "left");
 });
@@ -504,11 +508,11 @@ CatalogPanel.setPaintRoutine(function(g)
 {
     var visiblePresets = getVisiblePresets(this);
 
-    g.setColour(0xFF8B8F96);
+    g.setColour(T.dim);
     g.setFont("Oxygen Bold", 11);
     g.drawAlignedText("CATALOG", [0, 0, 200, 14], "left");
 
-    g.setColour(0xFFE8EAED);
+    g.setColour(T.txt);
     g.setFont("Oxygen", 11);
     g.drawAlignedText("Showing " + visiblePresets.length + " of " + catalog.length + " sounds. Click a card to load.",
                       [0, 18, 600, 14], "left");
@@ -523,17 +527,17 @@ CatalogPanel.setPaintRoutine(function(g)
 
         if (i == this.data.activeCategory)
         {
-            g.setColour(0xFF00D9A0);
+            g.setColour(T.accent);
             g.fillRect([tabX, tabY + 18, tabW - 8, 2]);
-            g.setColour(0xFFE8EAED);
+            g.setColour(T.txt);
         }
         else if (i == this.data.hoverCategoryIndex)
         {
-            g.setColour(0xFFE8EAED);
+            g.setColour(T.txt);
         }
         else
         {
-            g.setColour(0xFF8B8F96);
+            g.setColour(T.dim);
         }
         g.setFont("Oxygen Bold", 11);
         g.drawAlignedText(label, [tabX, tabY, tabW - 8, 16], "left");
@@ -558,17 +562,17 @@ CatalogPanel.setPaintRoutine(function(g)
 
         if (active)
         {
-            g.setColour(0xFF00D9A0);
+            g.setColour(T.accent);
             g.fillRoundedRectangle([chipX, chipY, chipW, chipH], chipH / 2);
-            g.setColour(0xFF0A0B0D);
+            g.setColour(T.bg);
         }
         else
         {
-            g.setColour(hover ? 0xFF2A2E36 : 0xFF1D2026);
+            g.setColour(hover ? T.line : T.s2);
             g.fillRoundedRectangle([chipX, chipY, chipW, chipH], chipH / 2);
-            g.setColour(0xFF2A2E36);
+            g.setColour(T.line);
             g.drawRoundedRectangle([chipX + 0.5, chipY + 0.5, chipW - 1, chipH - 1], chipH / 2, 1);
-            g.setColour(hover ? 0xFFE8EAED : 0xFF8B8F96);
+            g.setColour(hover ? T.txt : T.dim);
         }
         g.drawAlignedText(label, [chipX + chipPadX, chipY + 2, chipW - chipPadX * 2, chipH - 4], "left");
         chipX += chipW + 8;
@@ -578,9 +582,9 @@ CatalogPanel.setPaintRoutine(function(g)
     {
         var clearLabel = "× clear";
         var clearW = clearLabel.length * 6 + chipPadX * 2;
-        g.setColour(0xFF1D2026);
+        g.setColour(T.s2);
         g.fillRoundedRectangle([chipX, chipY, clearW, chipH], chipH / 2);
-        g.setColour(0xFFFF8A4C);
+        g.setColour(T.warn);
         g.drawAlignedText(clearLabel, [chipX + chipPadX, chipY + 2, clearW - chipPadX * 2, chipH - 4], "left");
     }
 
@@ -605,22 +609,22 @@ CatalogPanel.setPaintRoutine(function(g)
 
         // Card background
         if (isActive)
-            g.setColour(0xFF1D2026);
+            g.setColour(T.s2);
         else if (isHover)
             g.setColour(0xFF1A1D22);
         else
-            g.setColour(0xFF14161A);
+            g.setColour(T.s1);
         g.fillRoundedRectangle([x, y, cardW, cardH], 6);
 
         // Card border (active = accent)
         if (isActive)
-            g.setColour(0xFF00D9A0);
+            g.setColour(T.accent);
         else
-            g.setColour(0xFF2A2E36);
+            g.setColour(T.line);
         g.drawRoundedRectangle([x + 0.5, y + 0.5, cardW - 1, cardH - 1], 6, isActive ? 2 : 1);
 
         // Name
-        g.setColour(0xFFE8EAED);
+        g.setColour(T.txt);
         g.setFont("Oxygen Bold", 13);
         g.drawAlignedText(p.name, [x + 12, y + 12, cardW - 24, 18], "left");
 
@@ -662,7 +666,7 @@ CatalogPanel.setPaintRoutine(function(g)
         // Active indicator dot
         if (isActive)
         {
-            g.setColour(0xFF00D9A0);
+            g.setColour(T.accent);
             g.fillEllipse([x + cardW - 18, y + 12, 6, 6]);
         }
     }
@@ -808,17 +812,17 @@ LabPanel.data.abBtnY = 296; LabPanel.data.abBtnH = 34; LabPanel.data.abBtnW = 11
 LabPanel.data.abBtnGap = 20; LabPanel.data.abBtnX0 = 257;
 LabPanel.setPaintRoutine(function(g)
 {
-    g.setColour(0xFFE8EAED);
+    g.setColour(T.txt);
     g.setFont("Oxygen Bold", 18);
     g.drawAlignedText("Quick Tweak", [0, 0, 844, 24], "left");
 
-    g.setColour(0xFF8B8F96);
+    g.setColour(T.dim);
     g.setFont("Oxygen", 11);
     g.drawAlignedText("Six macros control everything that matters. Toggle to Expert (bottom-right) for the full mod matrix.",
                       [0, 28, 844, 16], "left");
 
     // Section divider
-    g.setColour(0xFF2A2E36);
+    g.setColour(T.line);
     g.fillRect([0, 56, 844, 1]);
 
     // A/B macro compare buttons
@@ -831,26 +835,26 @@ LabPanel.setPaintRoutine(function(g)
         g.fillRoundedRectangle([bx, this.data.abBtnY, this.data.abBtnW, this.data.abBtnH], 6);
         g.setColour(0xFF4A4F5A);
         g.drawRoundedRectangle([bx, this.data.abBtnY, this.data.abBtnW, this.data.abBtnH], 6, 1);
-        g.setColour(0xFFE8EAED);
+        g.setColour(T.txt);
         g.setFont("Oxygen Bold", 11);
         g.drawAlignedText(abLabels[bi], [bx, this.data.abBtnY, this.data.abBtnW, this.data.abBtnH], "centred");
     }
-    g.setColour(0xFF8B8F96);
+    g.setColour(T.dim);
     g.setFont("Oxygen", 10);
     g.drawAlignedText("A/B — store two macro states, then click A / B to flip between them",
                       [this.data.abBtnX0, this.data.abBtnY + 42, 500, 14], "left");
 
     // Engine info footer
-    g.setColour(0xFF2A2E36);
+    g.setColour(T.line);
     g.fillRect([0, 380, 844, 1]);
-    g.setColour(0xFF8B8F96);
+    g.setColour(T.dim);
     g.setFont("Oxygen Bold", 11);
     g.drawAlignedText("SIGNAL FLOW", [0, 396, 844, 14], "left");
-    g.setColour(0xFFE8EAED);
+    g.setColour(T.txt);
     g.setFont("Oxygen", 12);
     g.drawAlignedText("Voice A + Sub  →  Drive  →  Filter  →  Air EQ  →  Chorus  →  Delay  →  Reverb",
                       [0, 416, 844, 16], "left");
-    g.setColour(0xFF8B8F96);
+    g.setColour(T.dim);
     g.setFont("Oxygen", 10);
     g.drawAlignedText("Moog-ladder filter with per-voice drift and a tempo delay. The six macros fan out across the chain.",
                       [0, 436, 844, 14], "left");
@@ -1067,11 +1071,11 @@ const var FieldPanel = Content.addPanel("FieldPanel", 160, 116);
 Content.setPropertiesFromJSON("FieldPanel", { "width": 844, "height": 504 });
 FieldPanel.setPaintRoutine(function(g)
 {
-    g.setColour(0xFFE8EAED);
+    g.setColour(T.txt);
     g.setFont("Oxygen Bold", 18);
     g.drawAlignedText("Field Recordings", [0, 0, 844, 24], "left");
 
-    g.setColour(0xFF8B8F96);
+    g.setColour(T.dim);
     g.setFont("Oxygen", 11);
     g.drawAlignedText("Import your own samples. License-check happens on drop.",
                       [0, 28, 844, 16], "left");
@@ -1082,11 +1086,11 @@ FieldPanel.setPaintRoutine(function(g)
     var dw = 600;
     var dh = 280;
 
-    g.setColour(0xFF1D2026);
+    g.setColour(T.s2);
     g.fillRoundedRectangle([dx, dy, dw, dh], 12);
 
     // Dashed border (simulate with rect segments)
-    g.setColour(0xFF2A2E36);
+    g.setColour(T.line);
     for (i = 0; i < dw; i += 12)
     {
         g.fillRect([dx + i, dy, 6, 2]);
@@ -1098,21 +1102,21 @@ FieldPanel.setPaintRoutine(function(g)
         g.fillRect([dx + dw - 2, dy + i, 2, 6]);
     }
 
-    g.setColour(0xFF00D9A0);
+    g.setColour(T.accent);
     g.setFont("Oxygen Bold", 28);
     g.drawAlignedText("Drop samples here", [dx, dy + 100, dw, 36], "centred");
 
-    g.setColour(0xFF8B8F96);
+    g.setColour(T.dim);
     g.setFont("Oxygen", 12);
     g.drawAlignedText("WAV  ·  AIF  ·  SFZ", [dx, dy + 144, dw, 18], "centred");
     g.drawAlignedText("(Phase 2 — currently visual only)", [dx, dy + 168, dw, 16], "centred");
 
-    g.setColour(0xFF2A2E36);
+    g.setColour(T.line);
     g.fillRect([0, 400, 844, 1]);
-    g.setColour(0xFF8B8F96);
+    g.setColour(T.dim);
     g.setFont("Oxygen Bold", 11);
     g.drawAlignedText("LICENSE DISCIPLINE", [0, 416, 844, 14], "left");
-    g.setColour(0xFFE8EAED);
+    g.setColour(T.txt);
     g.setFont("Oxygen", 11);
     g.drawAlignedText("Every sample carries a .meta.json sidecar (source URL + license + uploader). CI blocks merges without it.",
                       [0, 436, 844, 14], "left");
@@ -1126,25 +1130,25 @@ const var StudioPanel = Content.addPanel("StudioPanel", 160, 116);
 Content.setPropertiesFromJSON("StudioPanel", { "width": 844, "height": 504 });
 StudioPanel.setPaintRoutine(function(g)
 {
-    g.setColour(0xFFE8EAED);
+    g.setColour(T.txt);
     g.setFont("Oxygen Bold", 18);
     g.drawAlignedText("Studio", [0, 0, 844, 24], "left");
 
-    g.setColour(0xFF8B8F96);
+    g.setColour(T.dim);
     g.setFont("Oxygen", 11);
     g.drawAlignedText("Global FX rack + output bus.",
                       [0, 28, 844, 16], "left");
 
-    g.setColour(0xFF2A2E36);
+    g.setColour(T.line);
     g.fillRect([0, 56, 844, 1]);
 
     // FX chain rack
-    g.setColour(0xFF8B8F96);
+    g.setColour(T.dim);
     g.setFont("Oxygen Bold", 11);
     g.drawAlignedText("FX CHAIN", [0, 76, 844, 14], "left");
 
     var fxList = ["FILTER", "CHORUS", "REVERB"];
-    var fxColors = [0xFF1D2026, 0xFF1D2026, 0xFF1D2026];
+    var fxColors = [T.s2, T.s2, T.s2];
 
     var slotW = 220;
     var slotH = 80;
@@ -1157,24 +1161,24 @@ StudioPanel.setPaintRoutine(function(g)
 
         g.setColour(fxColors[i]);
         g.fillRoundedRectangle([x, y, slotW, slotH], 6);
-        g.setColour(0xFF2A2E36);
+        g.setColour(T.line);
         g.drawRoundedRectangle([x + 0.5, y + 0.5, slotW - 1, slotH - 1], 6, 1);
 
-        g.setColour(0xFFE8EAED);
+        g.setColour(T.txt);
         g.setFont("Oxygen Bold", 12);
         g.drawAlignedText(fxList[i], [x + 16, y + 14, slotW - 32, 16], "left");
 
-        g.setColour(0xFF8B8F96);
+        g.setColour(T.dim);
         g.setFont("Oxygen", 10);
         g.drawAlignedText("ACTIVE", [x + 16, y + 34, slotW - 32, 14], "left");
 
-        g.setColour(0xFF00D9A0);
+        g.setColour(T.accent);
         g.fillEllipse([x + slotW - 24, y + 16, 8, 8]);
 
         // Arrow to next
         if (i < fxList.length - 1)
         {
-            g.setColour(0xFF8B8F96);
+            g.setColour(T.dim);
             var ax = x + slotW + 4;
             var ay = y + slotH / 2;
             g.setFont("Oxygen Bold", 14);
@@ -1184,18 +1188,18 @@ StudioPanel.setPaintRoutine(function(g)
 
     // Add-effect slot
     var addX = 3 * (slotW + gap);
-    g.setColour(0xFF14161A);
+    g.setColour(T.s1);
     g.fillRoundedRectangle([addX, 100, slotW, slotH], 6);
-    g.setColour(0xFF2A2E36);
+    g.setColour(T.line);
     g.drawRoundedRectangle([addX + 0.5, 100.5, slotW - 1, slotH - 1], 6, 1);
-    g.setColour(0xFF8B8F96);
+    g.setColour(T.dim);
     g.setFont("Oxygen", 12);
     g.drawAlignedText("+ add effect", [addX, 130, slotW, 16], "centred");
 
     // Output meter mockup
-    g.setColour(0xFF2A2E36);
+    g.setColour(T.line);
     g.fillRect([0, 220, 844, 1]);
-    g.setColour(0xFF8B8F96);
+    g.setColour(T.dim);
     g.setFont("Oxygen Bold", 11);
     g.drawAlignedText("OUTPUT",  [0, 240, 200, 14], "left");
 
@@ -1266,25 +1270,25 @@ Bottom.data.expertMode = 0;
 
 Bottom.setPaintRoutine(function(g)
 {
-    g.fillAll(0xFF0A0B0D);
-    g.setColour(0xFF2A2E36);
+    g.fillAll(T.bg);
+    g.setColour(T.line);
     g.fillRect([0, 0, 1024, 1]);
 
-    g.setColour(0xFF8B8F96);
+    g.setColour(T.dim);
     g.setFont("Oxygen", 10);
     g.drawAlignedText("Voice A active · 6-macro Quick Tweak · Phase 1",
                       [16, 22, 700, 16], "left");
 
-    var quickColour = this.data.expertMode == 0 ? 0xFFE8EAED : 0xFF8B8F96;
-    var exprColour  = this.data.expertMode == 1 ? 0xFFE8EAED : 0xFF8B8F96;
+    var quickColour = this.data.expertMode == 0 ? T.txt : T.dim;
+    var exprColour  = this.data.expertMode == 1 ? T.txt : T.dim;
 
     g.setColour(quickColour);
     g.setFont("Oxygen Bold", 11);
     g.drawAlignedText("QUICK TWEAK", [820, 22, 100, 16], "right");
 
-    g.setColour(0xFF1D2026);
+    g.setColour(T.s2);
     g.fillRoundedRectangle([930, 24, 36, 16], 8);
-    g.setColour(0xFF00D9A0);
+    g.setColour(T.accent);
     var knobX = this.data.expertMode == 0 ? 932 : 950;
     g.fillEllipse([knobX, 26, 12, 12]);
 

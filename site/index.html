@@ -7,7 +7,6 @@
 <meta name="description" content="A hybrid sampler/synth plugin. Discover sounds for your music. Open source. GPL-3.">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="palettes.css">
 </head>
 <body>
 
@@ -189,39 +188,6 @@
   <p>© 2026 Research Facility · Built with HISE · Licensed GPL-3 · We are not affiliated with Spectrasonics.</p>
 </footer>
 
-<div class="pal-bar" id="pal-bar">
-  <span class="pal-bar__label">PALETTE · PICK ONE</span>
-</div>
-<script>
-  (function () {
-    var root = document.documentElement;
-    var PALS = [
-      ["1","Braun White","#F0EDE5","#C8853A","#7A8C5A"],
-      ["2","Archive Paper","#EDE8DC","#E8735C","#3D5588"],
-      ["3","Anthracite Lab","#232320","#D19A52","#8B9A63"],
-      ["4","Phosphor Bench","#20201A","#9AA678","#C89A4C"],
-      ["5","Kodak Duo","#2C2820","#C89A4E","#7E8A5C"]
-    ];
-    var saved = "3";
-    try { saved = localStorage.getItem("rf-palette") || "3"; } catch (e) {}
-    root.setAttribute("data-palette", saved);
-    var bar = document.getElementById("pal-bar");
-    PALS.forEach(function (p) {
-      var b = document.createElement("button");
-      b.className = "pal-chip";
-      b.setAttribute("aria-pressed", p[0] === saved ? "true" : "false");
-      b.innerHTML = '<span class="dots"><i style="background:' + p[2] + '"></i><i style="background:' + p[3] + '"></i><i style="background:' + p[4] + '"></i></span>' + p[1];
-      b.addEventListener("click", function () {
-        root.setAttribute("data-palette", p[0]);
-        try { localStorage.setItem("rf-palette", p[0]); } catch (e) {}
-        bar.querySelectorAll(".pal-chip").forEach(function (c) { c.setAttribute("aria-pressed", "false"); });
-        b.setAttribute("aria-pressed", "true");
-        if (window.__rfRerender) window.__rfRerender();
-      });
-      bar.appendChild(b);
-    });
-  })();
-</script>
 <script src="search.js"></script>
 </body>
 </html>
