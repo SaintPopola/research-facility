@@ -277,10 +277,14 @@ jobs:
       - name: Export plugin (VST3)
         shell: cmd
         run: |
+          rem HISE parses the raw command line, so quotes inside -p:/-h: values
+          rem survive into the path and fail its sanity check. Runner paths have
+          rem no spaces -> pass them unquoted.
           set HISE_EXE=%GITHUB_WORKSPACE%\hise-source\projects\standalone\Builds\VisualStudio2022\x64\CI\App\HISE.exe
-          "%HISE_EXE%" set_hise_folder -p:"%GITHUB_WORKSPACE%\hise-source"
-          "%HISE_EXE%" set_project_folder -p:"%GITHUB_WORKSPACE%\hise_project\ResearchFacility"
-          "%HISE_EXE%" export "%GITHUB_WORKSPACE%\hise_project\ResearchFacility\XmlPresetBackups\ResearchFacility.xml" -h:"%GITHUB_WORKSPACE%\hise-source" -t:instrument -p:VST3 -a:x64
+          "%HISE_EXE%" set_hise_folder -p:%GITHUB_WORKSPACE%\hise-source
+          "%HISE_EXE%" set_project_folder -p:%GITHUB_WORKSPACE%\hise_project\ResearchFacility
+          "%HISE_EXE%" export %GITHUB_WORKSPACE%\hise_project\ResearchFacility\XmlPresetBackups\ResearchFacility.xml -h:%GITHUB_WORKSPACE%\hise-source -t:instrument -p:VST3 -a:x64
+          if %errorlevel% neq 0 exit /b %errorlevel%
 
       - name: Patch generated .jucer (IPP off, VS2022 toolset)
         shell: bash
