@@ -368,6 +368,17 @@ jobs:
             libfreetype6-dev libfontconfig1-dev libgtk-3-dev libglu1-mesa-dev mesa-common-dev
           # webkit package name differs across ubuntu versions
           sudo apt-get install -y libwebkit2gtk-4.1-dev || sudo apt-get install -y libwebkit2gtk-4.0-dev
+          # JUCE's generated Makefile pkg-configs "webkit2gtk-4.0" by name; Ubuntu
+          # 24.04 only ships 4.1, and ONE missing package makes the whole
+          # pkg-config call fail (which also drops the gtk include flags ->
+          # "gtk/gtk.h not found"). Alias the 4.1 .pc files under the 4.0 names.
+          for pc in webkit2gtk javascriptcoregtk; do
+            SRC=$(find /usr -name "${pc}-4.1.pc" 2>/dev/null | head -1)
+            if [ -n "$SRC" ] && [ ! -e "$(dirname "$SRC")/${pc}-4.0.pc" ]; then
+              sudo ln -sf "$SRC" "$(dirname "$SRC")/${pc}-4.0.pc"
+            fi
+          done
+          pkg-config --exists webkit2gtk-4.0 && echo "webkit2gtk-4.0 alias OK"
 
       - name: Cache built HISE binary
         id: cache-hise-bin
