@@ -3,103 +3,236 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Research Facility — UI concept (Serum × Advanced fusion)</title>
+<title>Research Facility — UI concept (Advanced × Serum, Phosphor Bench)</title>
 <style>
-  :root{ --mono:"SF Mono",ui-monospace,Menlo,Monaco,monospace; --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif; }
+  /* Phosphor Bench tokens — must match site/styles.css and Interface.js T */
+  :root{
+    --bg:#17170F; --s1:#20201A; --s2:#24241D; --s3:#2A2A22;
+    --line:#353528; --line-hi:#464638;
+    --txt:#E4E2D2; --dim:#82826E; --faint:#5E5E50;
+    --accent:#9AA678; --accent-hi:#AFBA8C; --amber:#C89A4C; --warn:#C08A5A;
+    --screen:#0D0D08; --screen-line:#1C1C12;
+    --mono:"SF Mono",ui-monospace,Menlo,Monaco,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif;
+  }
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:#C8CACE;font-family:var(--sans);padding:28px;display:flex;justify-content:center;}
-  .rig{width:820px;max-width:100%;}
+  body{background:#101009;font-family:var(--sans);padding:24px;display:flex;justify-content:center;}
   .mono{font-family:var(--mono);}
-  .caption{font-family:var(--mono);font-size:11px;color:#6C6E72;letter-spacing:.1em;text-align:center;margin-top:16px;}
+  .rig{width:1024px;max-width:100%;}
+  .caption{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.1em;text-align:center;margin-top:14px;}
+
+  /* the bench */
+  .bench{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:14px;
+         box-shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 12px 32px rgba(0,0,0,.5);}
+
+  /* header */
+  .hdr{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:12px;}
+  .hdr .title{line-height:1.2;}
+  .hdr .title b{font-family:var(--mono);font-size:12px;color:var(--txt);letter-spacing:.16em;font-weight:700;display:block;}
+  .hdr .title span{font-family:var(--mono);font-size:9px;color:var(--faint);letter-spacing:.14em;}
+  .preset{flex:1;background:var(--screen);border:1px solid var(--screen-line);border-radius:8px;
+          padding:6px 12px;display:flex;align-items:center;justify-content:space-between;
+          box-shadow:0 2px 6px rgba(0,0,0,.45) inset;}
+  .preset .cat{font-family:var(--mono);font-size:8px;color:var(--faint);letter-spacing:.16em;}
+  .preset .name{font-family:var(--mono);font-size:13px;color:var(--txt);}
+  .chip{font-family:var(--mono);font-size:9px;border-radius:5px;padding:3px 7px;letter-spacing:.06em;}
+  .chip.on{color:var(--bg);background:var(--accent);}
+  .chip.off{color:var(--dim);border:1px solid var(--line-hi);}
+  .badge{font-family:var(--mono);font-size:8px;color:var(--accent);border:1px solid var(--line-hi);
+         border-radius:5px;padding:3px 7px;letter-spacing:.14em;}
+
+  /* module strips row */
+  .strips{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr 130px;gap:10px;margin-bottom:12px;}
+  .strip{background:var(--s1);border:1px solid var(--line);border-radius:10px;padding:9px;
+         box-shadow:0 1px 0 rgba(255,255,255,.035) inset, 0 3px 8px rgba(0,0,0,.28);}
+  .strip .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+  .strip .head b{font-family:var(--mono);font-size:9px;color:var(--dim);letter-spacing:.18em;font-weight:600;}
+  .led{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 5px rgba(154,166,120,.7);}
+  .led.amb{background:var(--amber);box-shadow:0 0 5px rgba(200,154,76,.7);}
+  .screen{background:var(--screen);border:1px solid var(--screen-line);border-radius:7px;
+          box-shadow:0 2px 8px rgba(0,0,0,.5) inset;overflow:hidden;}
+
+  /* SPECIMEN browser */
+  .search{display:flex;gap:6px;align-items:center;padding:6px 8px;border-bottom:1px solid var(--screen-line);}
+  .search span{font-family:var(--mono);font-size:10px;color:var(--faint);}
+  .hit{display:flex;align-items:center;gap:8px;padding:5px 8px;border-bottom:1px solid var(--screen-line);}
+  .hit:last-child{border-bottom:0;}
+  .hit .nm{flex:1;font-family:var(--mono);font-size:10px;color:var(--txt);}
+  .hit.sel{background:#14140C;}
+  .hit.sel .nm{color:var(--accent-hi);}
+  .spec{display:flex;align-items:flex-end;gap:1.5px;height:14px;}
+  .spec i{width:2.5px;border-radius:1px;display:block;}
+
+  /* knobs */
+  .krow{display:flex;justify-content:space-around;align-items:flex-end;margin-top:9px;}
+  .knob{text-align:center;}
+  .knob .cap{width:38px;height:38px;border-radius:50%;margin:0 auto;position:relative;display:block;
+             background:radial-gradient(circle at 34% 30%, #33332A, #22221B 68%);
+             border:1px solid var(--line-hi);
+             box-shadow:0 2px 5px rgba(0,0,0,.5), 0 1px 0 rgba(255,255,255,.05) inset;}
+  .knob .cap::after{content:"";position:absolute;left:50%;top:3px;width:2px;height:11px;
+             background:var(--txt);border-radius:1px;transform-origin:50% 16px;}
+  .knob .arc{position:absolute;inset:-5px;border-radius:50%;
+             background:conic-gradient(from 225deg, var(--accent) var(--v), rgba(70,70,56,.5) var(--v), rgba(70,70,56,.5) 270deg, transparent 270deg);
+             -webkit-mask:radial-gradient(circle, transparent 21px, #000 22px);mask:radial-gradient(circle, transparent 21px, #000 22px);}
+  .knob label{display:block;font-family:var(--mono);font-size:8px;color:var(--dim);letter-spacing:.14em;margin-top:6px;}
+  .knob .val{font-family:var(--mono);font-size:8px;color:var(--faint);}
+  .r0 .cap::after{transform:translateX(-50%) rotate(-135deg);} .r1 .cap::after{transform:translateX(-50%) rotate(-60deg);}
+  .r2 .cap::after{transform:translateX(-50%) rotate(0deg);}    .r3 .cap::after{transform:translateX(-50%) rotate(45deg);}
+  .r4 .cap::after{transform:translateX(-50%) rotate(100deg);}  .r5 .cap::after{transform:translateX(-50%) rotate(135deg);}
+
+  /* switches (ADVANCED-style) */
+  .swrow{display:flex;gap:5px;justify-content:center;margin-top:8px;}
+  .sw{font-family:var(--mono);font-size:8px;letter-spacing:.1em;color:var(--dim);
+      border:1px solid var(--line-hi);border-radius:4px;padding:3px 7px;}
+  .sw.on{color:var(--bg);background:var(--accent);border-color:var(--accent);}
+
+  /* master strip */
+  .master{display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:12px 9px;}
+  .bigdial{width:84px;height:84px;border-radius:50%;position:relative;
+           background:radial-gradient(circle at 32% 28%, #3A3A30, #22221B 70%);
+           border:1px solid var(--line-hi);
+           box-shadow:0 4px 12px rgba(0,0,0,.55), 0 1px 0 rgba(255,255,255,.06) inset;}
+  .bigdial::after{content:"";position:absolute;left:50%;top:7px;width:3px;height:19px;background:var(--txt);
+                  border-radius:1.5px;transform:translateX(-50%) rotate(28deg);transform-origin:50% 35px;}
+  .bigdial .arc{position:absolute;inset:-8px;border-radius:50%;
+           background:conic-gradient(from 225deg, var(--accent) 190deg, rgba(70,70,56,.5) 190deg, rgba(70,70,56,.5) 270deg, transparent 270deg);
+           -webkit-mask:radial-gradient(circle, transparent 46px, #000 47px);mask:radial-gradient(circle, transparent 46px, #000 47px);}
+  .meters{display:flex;gap:8px;margin-top:10px;}
+  .meter{width:7px;height:64px;background:var(--screen);border:1px solid var(--screen-line);border-radius:4px;position:relative;overflow:hidden;}
+  .meter i{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(180deg,var(--amber),var(--accent));display:block;}
+
+  /* macro row */
+  .macros{background:var(--s1);border:1px solid var(--line);border-radius:10px;padding:10px 8px 12px;
+          box-shadow:0 1px 0 rgba(255,255,255,.035) inset, 0 3px 8px rgba(0,0,0,.28);margin-bottom:12px;}
+  .macros .krow{margin-top:0;}
+  .macros .knob .cap{width:46px;height:46px;}
+  .macros .knob .arc{-webkit-mask:radial-gradient(circle, transparent 25px, #000 26px);mask:radial-gradient(circle, transparent 25px, #000 26px);}
+  .macros .knob .cap::after{height:14px;transform-origin:50% 20px;}
+
+  /* analyzer footer */
+  .analyzer{height:56px;position:relative;}
+  .analyzer svg{display:block;width:100%;height:100%;}
+  .anno{position:absolute;top:6px;left:10px;font-family:var(--mono);font-size:8px;color:var(--faint);letter-spacing:.16em;}
+  .anno b{color:var(--accent);font-weight:400;}
 </style>
 </head>
 <body>
 <div class="rig">
-  <div style="background:#F5F5F3;border:1px solid #E2E2DE;border-radius:14px;padding:16px;box-shadow:0 1px 0 #FFF inset,0 8px 24px rgba(20,22,26,.12);">
+  <div class="bench">
 
-    <div style="display:flex;align-items:center;gap:14px;border-bottom:1px solid #E6E6E2;padding-bottom:12px;margin-bottom:14px;">
-      <div style="width:34px;height:34px;border-radius:9px;background:#0E1114;display:flex;align-items:center;justify-content:center;">
-        <span class="mono" style="color:#9AA678;font-size:15px;">RF</span></div>
-      <div style="line-height:1.15;">
-        <div class="mono" style="font-size:13px;color:#1A1C1F;letter-spacing:.14em;">RESEARCH&nbsp;FACILITY</div>
-        <div class="mono" style="font-size:10px;color:#9A9A93;letter-spacing:.12em;">SPECIMEN&nbsp;SYNTHESIZER</div></div>
-      <div style="flex:1;background:#0E1114;border-radius:9px;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;">
-        <div><div class="mono" style="font-size:9px;color:#5A5F68;letter-spacing:.14em;">PRESET 014 / PADS</div>
-          <div class="mono" style="font-size:14px;color:#E8EAED;">Underwater Cathedral</div></div>
-        <div style="display:flex;gap:5px;"><span class="mono" style="font-size:10px;color:#0E1114;background:#35C6FF;border-radius:5px;padding:3px 7px;">A</span>
-          <span class="mono" style="font-size:10px;color:#8B8F96;border:1px solid #2A2E36;border-radius:5px;padding:3px 7px;">B</span></div></div>
-      <div style="text-align:center;">
-        <svg width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" fill="none" stroke="#E0E0DB" stroke-width="4"/>
-          <circle cx="26" cy="26" r="22" fill="none" stroke="#9AA678" stroke-width="4" stroke-linecap="round" stroke-dasharray="104 138" transform="rotate(135 26 26)"/>
-          <circle cx="26" cy="26" r="15" fill="#FCFCFB" stroke="#DDDDD7"/><line x1="26" y1="26" x2="26" y2="14" stroke="#1A1C1F" stroke-width="2" stroke-linecap="round" transform="rotate(70 26 26)"/></svg>
-        <div class="mono" style="font-size:9px;color:#9A9A93;letter-spacing:.12em;margin-top:-2px;">MASTER</div></div>
+    <!-- header -->
+    <div class="hdr">
+      <svg width="30" height="30" viewBox="0 0 32 32">
+        <rect x="11" y="2.5" width="10" height="3" rx="1.5" fill="#E4E2D2" opacity=".85"/>
+        <rect x="9.5" y="7" width="13" height="21" rx="4.5" fill="none" stroke="#E4E2D2" stroke-width="2"/>
+        <rect x="11.9" y="18" width="1.8" height="6.5" rx=".9" fill="#9AA678"/>
+        <rect x="14.3" y="13" width="1.8" height="11.5" rx=".9" fill="#9AA678"/>
+        <rect x="16.7" y="15.5" width="1.8" height="9" rx=".9" fill="#9AA678"/>
+        <rect x="19.1" y="19.5" width="1.8" height="5" rx=".9" fill="#9AA678"/>
+      </svg>
+      <div class="title"><b>RESEARCH&nbsp;FACILITY</b><span>SPECIMEN&nbsp;SYNTHESIZER</span></div>
+      <div class="preset">
+        <div><div class="cat">PRESET 014 · PADS</div><div class="name">Underwater Cathedral</div></div>
+        <div style="display:flex;gap:5px;"><span class="chip on">A</span><span class="chip off">B</span></div>
+      </div>
+      <span class="badge">LOCAL&nbsp;·&nbsp;PRIVATE</span>
     </div>
 
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px;">
-      <div style="background:#FCFCFB;border:1px solid #E6E6E2;border-radius:11px;padding:10px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span class="mono" style="font-size:10px;color:#35C6FF;letter-spacing:.1em;">OSC A</span>
-          <span style="width:20px;height:11px;background:#35C6FF;border-radius:6px;position:relative;display:inline-block;"><span style="position:absolute;right:1px;top:1px;width:9px;height:9px;background:#FCFCFB;border-radius:50%;"></span></span></div>
-        <div style="background:#0E1114;border-radius:7px;height:52px;padding:6px;"><svg width="100%" height="40" viewBox="0 0 120 40" preserveAspectRatio="none"><polyline points="0,20 10,8 20,26 30,6 40,22 50,10 60,30 70,12 80,24 90,9 100,28 110,14 120,20" fill="none" stroke="#35C6FF" stroke-width="1.5"/></svg></div>
-        <div style="display:flex;justify-content:space-around;margin-top:9px;">
-          <div style="text-align:center;"><svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="12" fill="none" stroke="#E4E4DE" stroke-width="3"/><circle cx="15" cy="15" r="12" fill="none" stroke="#35C6FF" stroke-width="3" stroke-linecap="round" stroke-dasharray="42 75" transform="rotate(135 15 15)"/></svg><div class="mono" style="font-size:8px;color:#9A9A93;">WT POS</div></div>
-          <div style="text-align:center;"><svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="12" fill="none" stroke="#E4E4DE" stroke-width="3"/><circle cx="15" cy="15" r="12" fill="none" stroke="#35C6FF" stroke-width="3" stroke-linecap="round" stroke-dasharray="60 75" transform="rotate(135 15 15)"/></svg><div class="mono" style="font-size:8px;color:#9A9A93;">UNISON</div></div></div>
+    <!-- module strips -->
+    <div class="strips">
+
+      <div class="strip">
+        <div class="head"><b>SPECIMEN</b><span class="led"></span></div>
+        <div class="screen">
+          <div class="search"><span>⌕</span><span style="color:#5E5E50;">warm vintage tape pad…</span></div>
+          <div class="hit sel"><span class="nm">Old Tape</span><span class="spec"><i style="height:9px;background:#79867A"></i><i style="height:13px;background:#79867A"></i><i style="height:7px;background:#79867A"></i><i style="height:4px;background:#79867A"></i></span></div>
+          <div class="hit"><span class="nm">Dust Choir</span><span class="spec"><i style="height:6px;background:#9AA678"></i><i style="height:10px;background:#9AA678"></i><i style="height:12px;background:#9AA678"></i><i style="height:5px;background:#9AA678"></i></span></div>
+          <div class="hit"><span class="nm">Deep Sub</span><span class="spec"><i style="height:14px;background:#C08A5A"></i><i style="height:8px;background:#C08A5A"></i><i style="height:4px;background:#C08A5A"></i><i style="height:2px;background:#C08A5A"></i></span></div>
+        </div>
+        <div class="swrow"><span class="sw on">≈ MORE LIKE THIS</span><span class="sw">♥</span><span class="sw">⚄ SURPRISE</span></div>
       </div>
-      <div style="background:#FCFCFB;border:1px solid #E6E6E2;border-radius:11px;padding:10px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span class="mono" style="font-size:10px;color:#9B6CFF;letter-spacing:.1em;">SUB / NOISE</span>
-          <span style="width:20px;height:11px;background:#9B6CFF;border-radius:6px;position:relative;display:inline-block;"><span style="position:absolute;right:1px;top:1px;width:9px;height:9px;background:#FCFCFB;border-radius:50%;"></span></span></div>
-        <div style="background:#0E1114;border-radius:7px;height:52px;padding:6px;"><svg width="100%" height="40" viewBox="0 0 120 40" preserveAspectRatio="none"><path d="M0,20 Q30,-6 60,20 T120,20" fill="none" stroke="#9B6CFF" stroke-width="2"/></svg></div>
-        <div style="margin-top:11px;"><div class="mono" style="font-size:8px;color:#9A9A93;margin-bottom:3px;">SUB&nbsp;LEVEL</div>
-          <div style="height:5px;background:#E4E4DE;border-radius:3px;position:relative;"><span style="position:absolute;left:0;top:0;width:58%;height:5px;background:#9B6CFF;border-radius:3px;"></span></div>
-          <div class="mono" style="font-size:8px;color:#9A9A93;margin:7px 0 3px;">NOISE</div>
-          <div style="height:5px;background:#E4E4DE;border-radius:3px;position:relative;"><span style="position:absolute;left:0;top:0;width:22%;height:5px;background:#9B6CFF;border-radius:3px;"></span></div></div>
+
+      <div class="strip">
+        <div class="head"><b>FILTER</b><span class="led"></span></div>
+        <div class="screen" style="height:52px;">
+          <svg viewBox="0 0 140 52" preserveAspectRatio="none" style="display:block;width:100%;height:100%;">
+            <path d="M0,20 L62,20 Q78,20 84,10 Q90,0 96,26 Q104,52 140,52 L0,52 Z" fill="rgba(154,166,120,.14)"/>
+            <path d="M0,20 L62,20 Q78,20 84,10 Q90,0 96,26 Q104,52 140,52" fill="none" stroke="#9AA678" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="krow">
+          <div class="knob r3"><span class="cap"><span class="arc" style="--v:180deg;"></span></span><label>CUTOFF</label><span class="val">2.4k</span></div>
+          <div class="knob r2"><span class="cap"><span class="arc" style="--v:135deg;"></span></span><label>RES</label><span class="val">0.45</span></div>
+          <div class="knob r1"><span class="cap"><span class="arc" style="--v:75deg;"></span></span><label>DRIVE</label><span class="val">18%</span></div>
+        </div>
+        <div class="swrow"><span class="sw on">LADDER</span><span class="sw">SEM</span><span class="sw">DIODE</span></div>
       </div>
-      <div style="background:#FCFCFB;border:1px solid #E6E6E2;border-radius:11px;padding:10px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span class="mono" style="font-size:10px;color:#D9962F;letter-spacing:.1em;">FILTER</span>
-          <span class="mono" style="font-size:8px;color:#B08434;border:1px solid #EBD9B8;background:#FBF2E1;border-radius:5px;padding:2px 5px;">LP24</span></div>
-        <div style="background:#0E1114;border-radius:7px;height:52px;padding:6px;"><svg width="100%" height="40" viewBox="0 0 120 40" preserveAspectRatio="none"><path d="M0,30 L60,30 Q78,30 84,10 L88,34 L120,36" fill="none" stroke="#C89A4C" stroke-width="1.5"/><line x1="84" y1="0" x2="84" y2="40" stroke="#C89A4C" stroke-width="0.5" stroke-dasharray="2 2" opacity="0.5"/></svg></div>
-        <div style="display:flex;justify-content:space-around;margin-top:9px;">
-          <div style="text-align:center;"><svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="12" fill="none" stroke="#E4E4DE" stroke-width="3"/><circle cx="15" cy="15" r="12" fill="none" stroke="#C89A4C" stroke-width="3" stroke-linecap="round" stroke-dasharray="70 75" transform="rotate(135 15 15)"/></svg><div class="mono" style="font-size:8px;color:#9A9A93;">CUTOFF</div></div>
-          <div style="text-align:center;"><svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="12" fill="none" stroke="#E4E4DE" stroke-width="3"/><circle cx="15" cy="15" r="12" fill="none" stroke="#C89A4C" stroke-width="3" stroke-linecap="round" stroke-dasharray="30 75" transform="rotate(135 15 15)"/></svg><div class="mono" style="font-size:8px;color:#9A9A93;">RESO</div></div></div>
+
+      <div class="strip">
+        <div class="head"><b>MOTION</b><span class="led amb"></span></div>
+        <div class="screen" style="height:52px;">
+          <svg viewBox="0 0 140 52" preserveAspectRatio="none" style="display:block;width:100%;height:100%;">
+            <path d="M0,26 Q17,4 35,26 Q52,48 70,26 Q87,4 105,26 Q122,48 140,26" fill="none" stroke="#C89A4C" stroke-width="1.5"/>
+            <path d="M0,26 L140,26" stroke="#1C1C12" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="krow">
+          <div class="knob r2"><span class="cap"><span class="arc" style="--v:135deg;"></span></span><label>RATE</label><span class="val">1/8</span></div>
+          <div class="knob r1"><span class="cap"><span class="arc" style="--v:80deg;"></span></span><label>DEPTH</label><span class="val">32%</span></div>
+        </div>
+        <div class="swrow"><span class="sw on">DRIFT</span><span class="sw">SYNC</span></div>
       </div>
-      <div style="background:#FCFCFB;border:1px solid #E6E6E2;border-radius:11px;padding:10px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span class="mono" style="font-size:10px;color:#00B98A;letter-spacing:.1em;">FX RACK</span><span class="mono" style="font-size:8px;color:#5A5F68;">3</span></div>
-        <div style="display:flex;flex-direction:column;gap:5px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;background:#F0F0EC;border-radius:6px;padding:5px 8px;"><span class="mono" style="font-size:9px;color:#3A3C40;">REVERB</span><span style="width:6px;height:6px;border-radius:50%;background:#9AA678;display:inline-block;"></span></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;background:#F0F0EC;border-radius:6px;padding:5px 8px;"><span class="mono" style="font-size:9px;color:#3A3C40;">CHORUS</span><span style="width:6px;height:6px;border-radius:50%;background:#9AA678;display:inline-block;"></span></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;background:#F0F0EC;border-radius:6px;padding:5px 8px;"><span class="mono" style="font-size:9px;color:#3A3C40;">TAPE</span><span style="width:6px;height:6px;border-radius:50%;background:#9AA678;display:inline-block;"></span></div>
-          <div style="display:flex;justify-content:center;align-items:center;border:1px dashed #D8D8D2;border-radius:6px;padding:4px;"><span class="mono" style="font-size:9px;color:#B4B4AD;">+ add</span></div></div>
+
+      <div class="strip">
+        <div class="head"><b>SPACE</b><span class="led"></span></div>
+        <div class="screen" style="height:52px;">
+          <svg viewBox="0 0 140 52" preserveAspectRatio="none" style="display:block;width:100%;height:100%;">
+            <g fill="#9AA678"><rect x="8" y="8" width="3" height="44" opacity=".9"/><rect x="16" y="16" width="3" height="36" opacity=".7"/><rect x="24" y="22" width="3" height="30" opacity=".55"/><rect x="33" y="27" width="3" height="25" opacity=".42"/><rect x="43" y="31" width="3" height="21" opacity=".33"/><rect x="54" y="35" width="3" height="17" opacity=".25"/><rect x="67" y="39" width="3" height="13" opacity=".18"/><rect x="82" y="42" width="3" height="10" opacity=".13"/><rect x="99" y="45" width="3" height="7" opacity=".09"/><rect x="118" y="47" width="3" height="5" opacity=".06"/></g>
+          </svg>
+        </div>
+        <div class="krow">
+          <div class="knob r2"><span class="cap"><span class="arc" style="--v:135deg;"></span></span><label>MIX</label><span class="val">24%</span></div>
+          <div class="knob r3"><span class="cap"><span class="arc" style="--v:170deg;"></span></span><label>TIME</label><span class="val">3.2s</span></div>
+        </div>
+        <div class="swrow"><span class="sw">HALL</span><span class="sw on">TAPE&nbsp;DELAY</span></div>
+      </div>
+
+      <div class="strip master">
+        <div class="head" style="width:100%;"><b>OUTPUT</b><span class="led"></span></div>
+        <div class="bigdial"><span class="arc"></span></div>
+        <label class="mono" style="font-size:8px;color:var(--dim);letter-spacing:.16em;margin-top:7px;">LEVEL</label>
+        <div class="meters">
+          <span class="meter"><i style="height:58%;"></i></span>
+          <span class="meter"><i style="height:52%;"></i></span>
+        </div>
+        <span class="mono" style="font-size:8px;color:var(--faint);margin-top:4px;">-3.2 dB</span>
       </div>
     </div>
 
-    <div style="background:#0E1114;border-radius:11px;padding:12px 14px;margin-bottom:12px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span class="mono" style="font-size:10px;color:#5A5F68;letter-spacing:.14em;">SPECTRUM&nbsp;·&nbsp;LIVE</span><span class="mono" style="font-size:10px;color:#9AA678;letter-spacing:.1em;">◉ ANALYZING</span></div>
-      <svg width="100%" height="86" viewBox="0 0 640 86" preserveAspectRatio="none" style="display:block;">
-        <line x1="0" y1="72" x2="640" y2="72" stroke="#1E232B"/><line x1="0" y1="48" x2="640" y2="48" stroke="#161A20"/><line x1="0" y1="24" x2="640" y2="24" stroke="#161A20"/>
-        <path d="M0,72 L0,58 L20,40 L40,52 L60,30 L80,46 L100,18 L120,38 L140,50 L160,28 L180,44 L200,22 L220,42 L240,54 L260,36 L280,48 L300,26 L320,44 L340,56 L360,40 L380,52 L400,34 L420,50 L440,60 L460,46 L480,58 L500,42 L520,56 L540,64 L560,52 L580,62 L600,58 L620,66 L640,68 L640,72 Z" fill="#20201A" stroke="#9AA678" stroke-width="1.5"/></svg>
-      <div style="display:flex;justify-content:space-between;margin-top:5px;"><span class="mono" style="font-size:9px;color:#3A4049;">40Hz</span><span class="mono" style="font-size:9px;color:#3A4049;">400</span><span class="mono" style="font-size:9px;color:#3A4049;">1k</span><span class="mono" style="font-size:9px;color:#3A4049;">4k</span><span class="mono" style="font-size:9px;color:#3A4049;">16kHz</span></div>
-    </div>
-
-    <div style="background:#FCFCFB;border:1px solid #E6E6E2;border-radius:11px;padding:12px 10px;">
-      <div class="mono" style="font-size:10px;color:#9A9A93;letter-spacing:.14em;margin-bottom:10px;">QUICK&nbsp;TWEAK&nbsp;·&nbsp;6&nbsp;MACROS</div>
-      <div id="macros" style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;"></div>
-      <div style="display:flex;align-items:center;gap:12px;border-top:1px solid #EDEDE9;margin-top:12px;padding-top:10px;">
-        <span class="mono" style="font-size:9px;color:#9A9A93;letter-spacing:.1em;">OUTPUT</span>
-        <div style="flex:1;display:flex;flex-direction:column;gap:3px;">
-          <div style="height:6px;background:#E4E4DE;border-radius:3px;position:relative;"><span style="position:absolute;left:0;top:0;width:64%;height:6px;background:#9AA678;border-radius:3px;"></span></div>
-          <div style="height:6px;background:#E4E4DE;border-radius:3px;position:relative;"><span style="position:absolute;left:0;top:0;width:60%;height:6px;background:#9AA678;border-radius:3px;"></span></div></div>
-        <span class="mono" style="font-size:9px;color:#3A3C40;">-3.4 dB</span>
-        <div style="display:flex;gap:4px;"><span class="mono" style="font-size:9px;color:#1A1C1F;background:#F0F0EC;border:1px solid #E0E0DB;border-radius:6px;padding:4px 9px;">QUICK</span><span class="mono" style="font-size:9px;color:#8B8F96;border:1px solid #E0E0DB;border-radius:6px;padding:4px 9px;">EXPERT</span></div>
+    <!-- macro row -->
+    <div class="macros">
+      <div class="krow">
+        <div class="knob r2"><span class="cap"><span class="arc" style="--v:135deg;"></span></span><label>AIR</label><span class="val">50</span></div>
+        <div class="knob r3"><span class="cap"><span class="arc" style="--v:190deg;"></span></span><label>BODY</label><span class="val">71</span></div>
+        <div class="knob r1"><span class="cap"><span class="arc" style="--v:75deg;"></span></span><label>MOTION</label><span class="val">28</span></div>
+        <div class="knob r4"><span class="cap"><span class="arc" style="--v:215deg;"></span></span><label>SPACE</label><span class="val">80</span></div>
+        <div class="knob r0"><span class="cap"><span class="arc" style="--v:12deg;"></span></span><label>GRIT</label><span class="val">4</span></div>
+        <div class="knob r2"><span class="cap"><span class="arc" style="--v:135deg;"></span></span><label>WIDTH</label><span class="val">50</span></div>
       </div>
     </div>
+
+    <!-- analyzer footer -->
+    <div class="screen analyzer">
+      <span class="anno">SPECTRUM · <b>◉ ANALYZING</b></span>
+      <svg viewBox="0 0 640 56" preserveAspectRatio="none">
+        <path d="M0,50 L0,44 L30,32 L60,40 L90,22 L120,34 L150,14 L180,28 L210,38 L240,20 L270,33 L300,16 L330,31 L360,42 L390,27 L420,36 L450,20 L480,33 L510,44 L540,30 L570,40 L600,46 L640,50 Z"
+              fill="rgba(154,166,120,.15)" stroke="#9AA678" stroke-width="1.3"/>
+      </svg>
+    </div>
+
   </div>
-  <div class="caption">RESEARCH FACILITY · UI CONCEPT · SERUM × ADVANCED FUSION · white bench, dark screens</div>
+  <div class="caption">RESEARCH FACILITY · UI CONCEPT v2 · ADVANCED TACTILITY × SERUM DENSITY · PHOSPHOR BENCH</div>
 </div>
-<script>
-  const M=[["BRIGHT",62,"#9AA678"],["MOVE",38,"#9AA678"],["WARM",80,"#9AA678"],["WIDTH",50,"#9AA678"],["LENGTH",68,"#9AA678"],["DRIVE",18,"#C89A4C"]];
-  document.getElementById("macros").innerHTML=M.map(([n,v,c])=>{
-    const dash=Math.round(v/100*145), ang=135+v/100*270;
-    return `<div style="text-align:center;"><svg width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="28" r="23" fill="none" stroke="#E4E4DE" stroke-width="3"/><circle cx="28" cy="28" r="23" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round" stroke-dasharray="${dash} 145" transform="rotate(135 28 28)"/><circle cx="28" cy="28" r="16" fill="#F7F7F4" stroke="#DDDDD7"/><line x1="28" y1="28" x2="28" y2="15" stroke="#1A1C1F" stroke-width="2" stroke-linecap="round" transform="rotate(${ang-90} 28 28)"/></svg><div class="mono" style="font-size:9px;color:#3A3C40;">${n}</div><div class="mono" style="font-size:8px;color:#B4B4AD;">${v}%</div></div>`;
-  }).join("");
-</script>
 </body>
 </html>
