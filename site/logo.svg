@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 44" role="img" aria-label="Research Facility">
   <!-- specimen vial mark -->
   <g>
-    <rect x="17" y="5.5" width="10" height="3" rx="1.5" fill="#E4E2D2" opacity=".85"/>
-    <rect x="15.5" y="10" width="13" height="21" rx="4.5" fill="none" stroke="#E4E2D2" stroke-width="2"/>
-    <rect x="17.9" y="21" width="1.8" height="6.5" rx=".9" fill="#9AA678"/>
-    <rect x="20.3" y="16" width="1.8" height="11.5" rx=".9" fill="#9AA678"/>
-    <rect x="22.7" y="18.5" width="1.8" height="9" rx=".9" fill="#9AA678"/>
-    <rect x="25.1" y="22.5" width="1.8" height="5" rx=".9" fill="#9AA678"/>
+    <rect x="17" y="5.5" width="10" height="3" rx="1.5" fill="#E8EAED" opacity=".85"/>
+    <rect x="15.5" y="10" width="13" height="21" rx="4.5" fill="none" stroke="#E8EAED" stroke-width="2"/>
+    <rect x="17.9" y="21" width="1.8" height="6.5" rx=".9" fill="#00D9A0"/>
+    <rect x="20.3" y="16" width="1.8" height="11.5" rx=".9" fill="#00D9A0"/>
+    <rect x="22.7" y="18.5" width="1.8" height="9" rx=".9" fill="#00D9A0"/>
+    <rect x="25.1" y="22.5" width="1.8" height="5" rx=".9" fill="#00D9A0"/>
   </g>
   <!-- wordmark -->
   <text x="44" y="26.5" font-family="-apple-system, 'Segoe UI', Inter, system-ui, sans-serif"
-        font-size="14" font-weight="700" letter-spacing="3" fill="#E4E2D2">RESEARCH  FACILITY</text>
+        font-size="14" font-weight="700" letter-spacing="3" fill="#E8EAED">RESEARCH  FACILITY</text>
 </svg>

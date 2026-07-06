@@ -12,30 +12,31 @@ Content.makeFrontInterface(1024, 700);
 // Sweep inline hex to these over time; new components use them directly.
 // Category-coded accents turn the catalog into a "specimen shelf".
 // ============================================================================
-// PHOSPHOR BENCH — the chosen palette (2026-07-05). Warm near-black bench,
-// bone text, desaturated phosphor-olive accent, muted amber secondary.
-// Matches site/styles.css :root exactly. No teal, no neon.
+// Original dark-clinical palette (user's pick 2026-07-06 - reverted from
+// the Phosphor Bench experiment). Near-black surfaces, teal-green accent,
+// colorful category accents. Values live only here; all paint routines
+// reference T.* tokens.
 const var T = {
-    "bg":      0xFF17170F,
-    "s1":      0xFF20201A,   // raised surface
-    "s2":      0xFF24241D,
-    "s3":      0xFF2A2A22,   // hover
-    "line":    0xFF353528,
-    "lineHi":  0xFF464638,
-    "txt":     0xFFE4E2D2,
-    "dim":     0xFF82826E,
-    "faint":   0xFF5E5E50,
-    "accent":  0xFF9AA678,   // phosphor olive (primary)
-    "accentHi":0xFFAFBA8C,   // hover/lit variant
-    "audition":0xFFC89A4C,   // muted amber (secondary)
-    "warn":    0xFFC08A5A,
-    "ok":      0xFF9AA678,
+    "bg":      0xFF0A0B0D,
+    "s1":      0xFF101216,   // raised surface
+    "s2":      0xFF16191F,
+    "s3":      0xFF1D212A,   // hover
+    "line":    0xFF262B34,
+    "lineHi":  0xFF333A45,
+    "txt":     0xFFE8EAED,
+    "dim":     0xFF8B8F96,
+    "faint":   0xFF5A5F68,
+    "accent":  0xFF00D9A0,   // teal-green (primary)
+    "accentHi":0xFF1AEBB2,   // hover/lit variant
+    "audition":0xFFFFE268,
+    "warn":    0xFFFF8A4C,
+    "ok":      0xFF5BE38A,
     // category accents (pads/plucks/basses/leads/textures)
-    "catPads":     0xFF79867A,
-    "catPlucks":   0xFFB79A56,
-    "catBasses":   0xFFC08A5A,
-    "catLeads":    0xFF8A8270,
-    "catTextures": 0xFF9AA678,
+    "catPads":     0xFF35C6FF,
+    "catPlucks":   0xFFFFB84C,
+    "catBasses":   0xFF9B6CFF,
+    "catLeads":    0xFFFF5C8A,
+    "catTextures": 0xFFA6E22E,
     // type — swap MONO to "JetBrains Mono" once the .ttf is dropped in Fonts/
     "FONT":      "Oxygen",
     "FONT_BOLD": "Oxygen Bold",
