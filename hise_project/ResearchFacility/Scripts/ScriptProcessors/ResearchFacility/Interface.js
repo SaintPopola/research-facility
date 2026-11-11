@@ -21,6 +21,7 @@ Content.makeFrontInterface(1024, 700);
 Synth.deferCallbacks(true);      // MIDI callbacks on the UI thread (visuals only)
 
 include("FactoryBank.js");
+include("LoopBank.js");
 
 // ============================================================================
 // DESIGN TOKENS
@@ -77,7 +78,8 @@ const var S = {
     "list": [], "scroll": 0, "hoverRow": -1, "hoverItem": "",
     "lastNote": -1, "lastVel": 0, "quiet": 0, "tick": 0,
     "lvlL": 0.0, "lvlR": 0.0, "voices": 0, "cpu": 0.0,
-    "strumNote": -1, "orbPhase": 0.0, "orbFrame": 0
+    "strumNote": -1, "orbPhase": 0.0, "orbFrame": 0,
+    "mode": 0, "kit": 0, "loopQ": -1
 };
 
 const var FAV = {};
@@ -228,6 +230,10 @@ const var M_Vel     = Synth.getModulator("Vel Gain");
 const var M_PumpA   = Synth.getModulator("Pump A");
 const var M_PumpS   = Synth.getModulator("Pump Sub");
 const var M_Move    = Synth.getModulator("Movement LFO");
+const var LoopsSynth  = Synth.getChildSynth("Loop Lines");
+const var LoopSampler = Synth.getSampler("Loop Lines");
+const var LANE_COL = [0xFF6E9BFF, 0xFF9B6CFF, 0xFFFFB84C, 0xFF35C6FF];   // KEYS BASS PLUCK AIR
+const var LANE_KEYS = ["C2-D#2", "E2-G2", "G#2-B2", "C3-D#3"];
 
 const var A = {
     "fFreq": FX_Filter.getAttributeIndex("Frequency"),
@@ -357,6 +363,42 @@ inline function applyVoicing(p)
     setA(M_SubEnv, A.sSus, p.subsus);
     setA(VoiceA, A.gainA, 0.9 * Engine.getGainFactorForDecibels(p.trim));
     S.col = catColour(p.cat);
+}
+
+// ============================================================================
+// LOOP LINES: tempo-synced loops (docs/15). The loop's quarter count flips
+// 4/8/16 so the stretch ratio stays inside HISE's 0.0625-2.0 range; changing
+// the options kills voices, so it only happens when the feel actually changes.
+// ============================================================================
+inline function applyFeel()
+{
+    local kit = LOOP_KITS[S.kit];
+    local host = Engine.getHostBpm();
+    if (host < 40.0 || host > 300.0) host = kit.bpm;
+    local r = host / kit.bpm;
+    local q = 8;
+    if (r > 1.45) q = 16;
+    if (r < 0.7) q = 4;
+    if (q != S.loopQ)
+    {
+        local o = LoopSampler.getTimestretchOptions();
+        o.Mode = "TempoSynced";
+        o.SkipLatency = true;
+        o.Tonality = 0.17;
+        o.NumQuarters = q;
+        LoopSampler.setTimestretchOptions(o);
+        S.loopQ = q;
+    }
+}
+
+inline function paintLoopKeys(on)
+{
+    local n = 0;
+    for (n = 0; n < 16; n++)
+    {
+        local lane = Math.floor(n / 4);
+        Engine.setKeyColour(LOOP_FIRST_NOTE + n, on ? Colours.withAlpha(LANE_COL[lane], 0.5) : 0x00000000);
+    }
 }
 
 // ============================================================================
@@ -612,7 +654,8 @@ Header.setPaintRoutine(function(g)
     g.fillRect([336, 16, 1, 20]);
     g.fillRect([688, 16, 1, 20]);
 
-    var lbl = catLabel(p.cat);
+    if (S.mode == 1) col = T.accent;
+    var lbl = S.mode == 1 ? "LOOPS" : catLabel(p.cat);
     var cw = Math.round(lbl.length * 6.6 + 14);
     g.setColour(Colours.withAlpha(col, 0.16));
     g.fillRoundedRectangle([348, 17, cw, 18], 4.0);
@@ -622,37 +665,53 @@ Header.setPaintRoutine(function(g)
 
     g.setColour(T.txt);
     g.setFont(T.BOLD, 16);
-    g.drawAlignedText(p.name, [348 + cw + 10, 8, 250 - cw, 36], "left");
+    var kitNow = LOOP_KITS[S.kit];
+    g.drawAlignedText(S.mode == 1 ? kitNow.name : p.name, [348 + cw + 10, 8, 250 - cw, 36], "left");
 
     var pos = S.list.indexOf(S.cur);
     var tot = S.list.length;
     g.setColour(T.faint);
     g.setFont(T.FONT, 10);
-    if (pos >= 0)
-        g.drawAlignedText((pos + 1) + "/" + tot, [596, 8, 50, 36], "right");
+    if (S.mode == 1)
+    {
+        g.drawAlignedText(kitNow.bpm + " BPM  " + kitNow.key, [536, 8, 140, 36], "right");
+    }
+    else
+    {
+        if (pos >= 0)
+            g.drawAlignedText((pos + 1) + "/" + tot, [596, 8, 50, 36], "right");
+        var fav = isFav(p.id);
+        g.setColour(fav ? T.heart : (hv == "heart" ? T.txt : T.faint));
+        if (fav) g.fillPath(HEART, [656, 19, 16, 14]);
+        else g.drawPath(HEART, [656, 19, 16, 14], 1.4);
+    }
 
-    var fav = isFav(p.id);
-    g.setColour(fav ? T.heart : (hv == "heart" ? T.txt : T.faint));
-    if (fav) g.fillPath(HEART, [656, 19, 16, 14]);
-    else g.drawPath(HEART, [656, 19, 16, 14], 1.4);
+    // INSTRUMENT | LOOPS switch
+    g.setColour(T.s1);
+    g.fillRoundedRectangle([736, 12, 124, 28], 14.0);
+    g.setColour(T.line);
+    g.drawRoundedRectangle([736.5, 12.5, 123, 27], 14.0, 1.0);
+    g.setColour(Colours.withAlpha(T.accent, 0.2));
+    g.fillRoundedRectangle([S.mode == 0 ? 738 : 798, 14, 60, 24], 12.0);
+    g.setFontWithSpacing(T.BOLD, 9, 0.12);
+    g.setColour(S.mode == 0 ? T.accent : (hv == "inst" ? T.txt : T.dim));
+    g.drawAlignedText("INSTR", [738, 14, 60, 24], "centred");
+    g.setColour(S.mode == 1 ? T.accent : (hv == "loops" ? T.txt : T.dim));
+    g.drawAlignedText("LOOPS", [798, 14, 60, 24], "centred");
 
     // performance readout + meters
     g.setColour(T.dim);
-    g.setFontWithSpacing(T.FONT, 9, 0.12);
+    g.setFontWithSpacing(T.FONT, 8, 0.12);
     var vs = S.voices < 10 ? "0" + S.voices : "" + S.voices;
-    g.drawAlignedText("VOICES " + vs, [752, 12, 90, 12], "left");
-    g.drawAlignedText("CPU " + Math.round(S.cpu) + "%", [752, 28, 90, 12], "left");
-
-    g.setColour(T.faint);
-    g.drawAlignedText("L", [856, 13, 10, 10], "left");
-    g.drawAlignedText("R", [856, 28, 10, 10], "left");
+    g.drawAlignedText("VOX " + vs, [870, 12, 50, 12], "left");
+    g.drawAlignedText("CPU " + Math.round(S.cpu) + "%", [870, 28, 50, 12], "left");
     g.setColour(T.s2);
-    g.fillRoundedRectangle([868, 15, 136, 5], 2.0);
-    g.fillRoundedRectangle([868, 30, 136, 5], 2.0);
+    g.fillRoundedRectangle([924, 15, 80, 5], 2.0);
+    g.fillRoundedRectangle([924, 30, 80, 5], 2.0);
     g.setColour(S.lvlL > 0.97 ? T.warn : T.accent);
-    g.fillRoundedRectangle([868, 15, 136 * S.lvlL, 5], 2.0);
+    g.fillRoundedRectangle([924, 15, 80 * S.lvlL, 5], 2.0);
     g.setColour(S.lvlR > 0.97 ? T.warn : T.accent);
-    g.fillRoundedRectangle([868, 30, 136 * S.lvlR, 5], 2.0);
+    g.fillRoundedRectangle([924, 30, 80 * S.lvlR, 5], 2.0);
 });
 
 Header.setMouseCallback(function(event)
@@ -664,10 +723,19 @@ Header.setMouseCallback(function(event)
         else if (event.x >= 688 && event.x < 724) h = "next";
         else if (event.x >= 648 && event.x < 680) h = "heart";
         else if (event.x >= 336 && event.x < 688) h = "name";
+        else if (event.x >= 738 && event.x < 798) h = "inst";
+        else if (event.x >= 798 && event.x < 858) h = "loops";
     }
     if (event.clicked)
     {
-        if (h == "prev") stepPreset(-1);
+        if (h == "inst") setMode(0);
+        else if (h == "loops") setMode(1);
+        else if (S.mode == 1)
+        {
+            if (h == "prev") loadKit((S.kit + LOOP_KITS.length - 1) % LOOP_KITS.length);
+            else if (h == "next") loadKit((S.kit + 1) % LOOP_KITS.length);
+        }
+        else if (h == "prev") stepPreset(-1);
         else if (h == "next") stepPreset(1);
         else if (h == "heart") toggleFav(S.cur);
         else if (h == "name") previewCurrent();
@@ -693,6 +761,51 @@ Browser.setPaintRoutine(function(g)
     g.fillRoundedRectangle([0, 0, 256, 520], 8.0);
     g.setColour(T.line);
     g.drawRoundedRectangle([0.5, 0.5, 255, 519], 8.0, 1.0);
+
+    if (S.mode == 1)
+    {
+        g.setColour(T.dim);
+        g.setFontWithSpacing(T.FONT, 9, 0.18);
+        g.drawAlignedText("LOOP KITS", [16, 14, 200, 14], "left");
+        for (k = 0; k < LOOP_KITS.length; k++)
+        {
+            var kt = LOOP_KITS[k];
+            var ky = 36 + k * 50;
+            var kon = (k == S.kit);
+            g.setColour(kon ? Colours.withAlpha(T.accent, 0.12) : T.s2);
+            g.fillRoundedRectangle([10, ky, 236, 44], 6.0);
+            if (kon)
+            {
+                g.setColour(T.accent);
+                g.fillRoundedRectangle([10, ky + 8, 3, 28], 1.5);
+            }
+            g.setColour(T.txt);
+            g.setFont(T.BOLD, 13);
+            g.drawAlignedText(kt.name, [22, ky + 4, 220, 18], "left");
+            g.setColour(T.dim);
+            g.setFont(T.FONT, 10);
+            g.drawAlignedText(kt.bpm + " BPM  /  " + kt.key + "  /  " + kt.tags.join(", "), [22, ky + 22, 220, 16], "left");
+        }
+        var ly = 36 + LOOP_KITS.length * 50 + 18;
+        g.setColour(T.dim);
+        g.setFontWithSpacing(T.FONT, 9, 0.18);
+        g.drawAlignedText("LANES  /  4 TAKES EACH", [16, ly, 220, 14], "left");
+        for (k = 0; k < 4; k++)
+        {
+            g.setColour(LANE_COL[k]);
+            g.fillRoundedRectangle([16, ly + 24 + k * 26, 10, 10], 3.0);
+            g.setColour(T.txt);
+            g.setFont(T.BOLD, 11);
+            g.drawAlignedText(LOOP_LANES[k], [34, ly + 20 + k * 26, 80, 18], "left");
+            g.setColour(T.dim);
+            g.setFont(T.FONT, 11);
+            g.drawAlignedText(LANE_KEYS[k], [120, ly + 20 + k * 26, 120, 18], "left");
+        }
+        g.setColour(T.faint);
+        g.setFont(T.FONT, 10);
+        g.drawMultiLineText("Hold keys or sequence them in a clip. Loops follow the host tempo; one key per take.", [16, ly + 140], 224, "left", 0.0);
+        return;
+    }
 
     // search field (the editable label sits on top of this)
     g.setColour(T.bg);
@@ -892,6 +1005,12 @@ inline function scrollFromY(y)
 
 Browser.setMouseCallback(function(event)
 {
+    if (S.mode == 1)
+    {
+        if (event.clicked && event.y >= 36 && event.y < 36 + LOOP_KITS.length * 50)
+            loadKit(Math.floor((event.y - 36) / 50));
+        return;
+    }
     var hit = browserHit(event.x, event.y);
     var prevItem = S.hoverItem;
     var prevRow = S.hoverRow;
@@ -1090,12 +1209,13 @@ Visualiser.setPaintRoutine(function(g)
 
     // description + tags
     var p = FACTORY_BANK[S.cur];
+    var lk = LOOP_KITS[S.kit];
     g.setColour(T.txt);
     g.setFont(T.FONT, 11);
-    g.drawAlignedText(p.desc, [210, 238, 460, 16], "left");
+    g.drawAlignedText(S.mode == 1 ? (lk.name + " loop kit: 16 original 2-bar loops at " + lk.bpm + " BPM in " + lk.key + ".") : p.desc, [210, 238, 460, 16], "left");
     g.setColour(col);
     g.setFontWithSpacing(T.FONT, 9, 0.1);
-    g.drawAlignedText(p.tags.join("  /  ").toUpperCase(), [210, 258, 460, 14], "left");
+    g.drawAlignedText(S.mode == 1 ? "KEYS C2  /  BASS E2  /  PLUCK G#2  /  AIR C3" : p.tags.join("  /  ").toUpperCase(), [210, 258, 460, 14], "left");
 
     // preview button
     var pb = Visualiser.data.hoverPlay;
@@ -1391,6 +1511,11 @@ keyLaf.registerFunction("drawWhiteNote", function(g, obj)
     else
         g.setGradientFill([0xFFC9CFD6, 0, y, 0xFFEEF1F4, 0, y + h, false]);
     g.fillRoundedRectangle([x, y, w, h], 4.0);
+    if (!obj.down && obj.keyColour != 0)
+    {
+        g.setColour(obj.keyColour);
+        g.fillRoundedRectangle([x + 2, y + h - 26, w - 4, 8], 3.0);
+    }
     if (obj.noteNumber % 12 == 0)
     {
         g.setColour(obj.down ? T.bg : 0xFF6B737D);
@@ -1408,6 +1533,11 @@ keyLaf.registerFunction("drawBlackNote", function(g, obj)
     else
         g.setGradientFill([0xFF262B33, 0, a[1], 0xFF101317, 0, a[1] + a[3], false]);
     g.fillRoundedRectangle([a[0], a[1] - 3, a[2], a[3] + 3], 3.0);
+    if (!obj.down && obj.keyColour != 0)
+    {
+        g.setColour(obj.keyColour);
+        g.fillRoundedRectangle([a[0] + 2, a[1] + a[3] - 16, a[2] - 4, 6], 2.0);
+    }
     g.setColour(0x14FFFFFF);
     g.fillRoundedRectangle([a[0] + 2, a[1] + a[3] - 8, a[2] - 4, 4], 2.0);
 });
@@ -1482,6 +1612,78 @@ inline function onPresetKey(component, value)
     refreshAll();
 }
 PresetKey.setControlCallback(onPresetKey);
+
+// hidden: INSTRUMENT / LOOPS mode and the loaded loop kit, saved in DAW sessions
+const var ModeKey = Content.addLabel("ModeKey", 0, 0);
+Content.setPropertiesFromJSON("ModeKey", {"saveInPreset": true, "visible": false,
+    "width": 1, "height": 1, "editable": false, "text": "inst"});
+const var KitKey = Content.addLabel("KitKey", 0, 0);
+Content.setPropertiesFromJSON("KitKey", {"saveInPreset": true, "visible": false,
+    "width": 1, "height": 1, "editable": false, "text": LOOP_KITS[0].id});
+
+inline function findKit(id)
+{
+    local i = 0;
+    for (i = 0; i < LOOP_KITS.length; i++)
+    {
+        local kt = LOOP_KITS[i];
+        if (kt.id == id) return i;
+    }
+    return -1;
+}
+
+inline function loadKit(i)
+{
+    if (i < 0 || i >= LOOP_KITS.length) return;
+    local kit = LOOP_KITS[i];
+    S.kit = i;
+    KitKey.setValue(kit.id);
+    if (LoopSampler.getCurrentSampleMapId() != kit.map)
+        LoopSampler.loadSampleMap(kit.map);
+    S.loopQ = -1;
+    applyFeel();
+    refreshAll();
+}
+
+inline function setMode(m)
+{
+    if (m == S.mode) return;
+    S.mode = m;
+    ModeKey.setValue(m == 1 ? "loops" : "inst");
+    allPreviewOff();
+    Engine.allNotesOff();
+    VoiceA.setBypassed(m == 1);
+    SubSyn.setBypassed(m == 1);
+    LoopsSynth.setBypassed(m == 0);
+    paintLoopKeys(m == 1);
+    if (m == 1)
+    {
+        S.loopQ = -1;
+        applyFeel();
+    }
+    refreshAll();
+}
+
+inline function onModeKey(component, value)
+{
+    setMode(value == "loops" ? 1 : 0);
+}
+ModeKey.setControlCallback(onModeKey);
+
+inline function onKitKey(component, value)
+{
+    local k = findKit(value);
+    if (k >= 0) loadKit(k);
+}
+KitKey.setControlCallback(onKitKey);
+
+// keep the loop feel right when the host tempo changes
+const var Transport = Engine.createTransportHandler();
+inline function onTempo(bpm)
+{
+    if (S.mode == 1) applyFeel();
+}
+Transport.setOnTempoChange(false, onTempo);
 
 inline function stepPreset(dir)
 {
@@ -1580,6 +1782,11 @@ inline function selfTest()
     if (tempoIndex("1/8D") < 0) ok = false;
     if (S.list.length < 40) ok = false;
     if (!matchesQuery(FACTORY_BANK[0], ["keys"])) ok = false;
+    if (LOOP_KITS.length != 3) ok = false;
+    if (findKit(LOOP_KITS[1].id) != 1) ok = false;
+    applyFeel();
+    local tso = LoopSampler.getTimestretchOptions();
+    if (tso.Mode != "TempoSynced") ok = false;
     local tst = Math.pow(2.0, 0.5) + Math.log(10.0) + Math.sin(1.0) + Math.cos(1.0) + Math.abs(-1.0);
     if (tst < 1.0) ok = false;
     local t1 = Colours.withAlpha(T.accent, 0.5);

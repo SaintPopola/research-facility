@@ -85,6 +85,8 @@ dist/
 # scripts/build_signature_bank.py (locally and in CI) - not committed.
 hise_project/*/Samples/SIG_*.wav
 hise_project/*/Samples/SIG_*.wav.meta.json
+hise_project/*/Samples/LL_*.wav
+hise_project/*/Samples/LL_*.wav.meta.json
 
 # Python bytecode
 __pycache__/
