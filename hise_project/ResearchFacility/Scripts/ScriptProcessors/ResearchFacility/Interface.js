@@ -1757,7 +1757,7 @@ Visualiser.setTimerCallback(function()
     }
     if (S.tick % 4 == 0)
     {
-        S.voices = Engine.getNumVoices();
+        S.voices = Math.max(0, Engine.getNumVoices());     // can read negative with a bypassed sampler
         S.cpu = Engine.getCpuUsage();
         Header.repaint();
     }
