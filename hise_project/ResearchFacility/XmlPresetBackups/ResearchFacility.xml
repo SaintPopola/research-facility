@@ -101,7 +101,7 @@
                Group5Table="24...............vO...f+....9C...vO"
                Group6Table="24...............vO...f+....9C...vO"
                Group7Table="24...............vO...f+....9C...vO"
-               SampleMapID="SIG_night_drive_keys">
+               SampleMapID="SIG_drowned_tines">
       <ChildProcessors>
         <Processor Type="MidiProcessorChain" ID="Midi Processor" Bypassed="0">
           <ChildProcessors/>

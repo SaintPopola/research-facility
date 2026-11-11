@@ -17,7 +17,7 @@ import math
 import numba as nb
 import numpy as np
 
-SR = 44100
+SR = 48000          # Sweet Melody renders at 48 kHz / 24-bit (doc 13 quality bar)
 
 
 def mtof(note: float) -> float:
@@ -291,7 +291,7 @@ def gen_tine_ep(note, n, p, rng):
     amp = env_exp(n, t60, a=0.0015)
     bark = p.get("bark", 1.2)
     idx = bark * (0.35 + 0.65 * np.exp(-t / (0.08 + 0.10 * (1 - reg))))
-    mult = wow(n, p.get("wow", 0.0), rng=rng) if p.get("wow", 0.0) > 0 else 1.0
+    mult = wow(n, p.get("wow", 0.0), rate=p.get("wow_rate", 0.55), rng=rng) if p.get("wow", 0.0) > 0 else 1.0
     ph = np.cumsum(f0 * mult) / SR
     mod = np.sin(2 * np.pi * ph * 1.0 + 0.3)
     car = np.sin(2 * np.pi * ph + idx * mod)
@@ -356,7 +356,7 @@ def gen_felt_piano(note, n, p, rng):
         r = lp24(r, p["lp"] * (0.7 + 0.6 * reg))
     if p.get("wow", 0) > 0:
         # apply wow by resampling read positions
-        m = wow(n, p["wow"], rng=rng)
+        m = wow(n, p["wow"], rate=p.get("wow_rate", 0.55), rng=rng)
         pos = np.cumsum(m) - m[0]
         pos = np.clip(pos, 0, n - 1)
         l = np.interp(pos, np.arange(n), l)
@@ -408,6 +408,11 @@ def gen_supersaw(note, n, p, rng):
     t = tvec(n)
     v = int(p.get("voices", 7))
     det = p.get("detune_c", 22.0)
+    # optional delayed vibrato (ensemble strings): vib_c cents at vib_rate Hz after vib_delay s
+    vib = 1.0
+    if p.get("vib_c", 0) > 0:
+        ramp = np.clip((t - p.get("vib_delay", 0.8)) / 0.6, 0.0, 1.0)
+        vib = 2.0 ** (p["vib_c"] * ramp * np.sin(2 * np.pi * p.get("vib_rate", 5.2) * t) / 1200.0)
     l = np.zeros(n)
     r = np.zeros(n)
     for i in range(v):
@@ -417,7 +422,7 @@ def gen_supersaw(note, n, p, rng):
             u = i / (v - 1) * 2.0 - 1.0                      # -1..1
             off = det * (u ** 3 * 0.6 + u * 0.4)             # denser near centre
             pn = u * p.get("spread", 0.9)
-        fr = f0 * 2.0 ** (off / 1200.0) * drift(n, rng, p.get("drift_c", 3.0), rng.uniform(0.1, 0.35))
+        fr = f0 * 2.0 ** (off / 1200.0) * drift(n, rng, p.get("drift_c", 3.0), rng.uniform(0.1, 0.35)) * vib
         if p.get("pulse", 0) > 0 and i % 2 == 1:
             s = pulse(fr, rng.uniform(0.3, 0.5), rng.uniform(0, 1))
         else:

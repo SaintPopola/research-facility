@@ -45,17 +45,18 @@ MAPS = PROJ / "SampleMaps"
 SCRIPTS = PROJ / "Scripts"
 ASSETS = ROOT / "assets" / "presets"
 
-DEFAULT_PRESET = "night_drive_keys"
+DEFAULT_PRESET = "drowned_tines"
 
 # Browser categories (order = tab order) and their display names.
 CATEGORIES = [
-    ("keys", "KEYS"), ("pads", "PADS"), ("plucks", "PLUCKS"), ("leads", "LEADS"),
-    ("bells", "BELLS"), ("vox", "VOX"), ("bass", "BASS"), ("archive", "ARCHIVE"),
+    ("keys", "KEYS"), ("chords", "CHORDS"), ("pads", "PADS"), ("guitar", "GUITAR"),
+    ("plucks", "PLUCKS"), ("leads", "LEADS"), ("bells", "BELLS"), ("vox", "VOX"),
+    ("bass", "BASS"), ("archive", "ARCHIVE"),
 ]
 
 # Vibe chips shown in the browser (must appear in preset tags).
-VIBES = ["underwater", "reggaeton", "future-bass", "lofi", "rnb", "808",
-         "dark", "bright", "lush", "airy", "vocal-chop", "supersaw"]
+VIBES = ["underwater", "rnb", "lofi", "slowed", "reggaeton", "house",
+         "future-bass", "808", "chorus", "dark", "lush", "vocal-chop"]
 
 # ---------------------------------------------------------------------------
 # Preset table.
@@ -67,9 +68,11 @@ VIBES = ["underwater", "reggaeton", "future-bass", "lofi", "rnb", "808",
 #   dur = seconds per sample, loop = sustain loop
 # ---------------------------------------------------------------------------
 
-def P(id, name, cat, tags, gen, gp, m, v, z, dur, loop, desc):
+def P(id, name, cat, tags, gen, gp, m, v, z, dur, loop, desc, vl=1):
+    """vl = velocity layers (1 or 2). Layer 1 (soft) is rendered with a gentler
+    excitation from soften(); layer 2 is the recipe as written."""
     return dict(id=id, name=name, cat=cat, tags=tags, gen=gen, gp=gp, m=m, v=v,
-                z=z, dur=dur, loop=loop, desc=desc)
+                z=z, dur=dur, loop=loop, desc=desc, vl=vl)
 
 
 def V(atk=5, rel=600, reso=0.9, vel=0.5, lfo=0.2, dly="1/8D", subdec=1200, subsus=-30, trim=0.0):
@@ -78,6 +81,129 @@ def V(atk=5, rel=600, reso=0.9, vel=0.5, lfo=0.2, dly="1/8D", subdec=1200, subsu
 
 
 PRESETS = [
+    # ================================================================ SWEET MELODY P1
+    # docs/12_playlist_presets.json priority 1, interim synth recipes. Velocity
+    # layer 1 is a softened render; one gain per instrument; 48 kHz / 24-bit.
+    P("drowned_tines", "Drowned Tines", "keys", ["underwater", "rnb", "late-night", "lofi", "two-chord"],
+      "tine_ep", dict(t60=6.0, bark=0.9, tine=0.15, tine_ratio=7.11, pickup=0.30, wow=5.0, lp=2200,
+                      decim=11025, decim_drive=0.08, post_hp=220),
+      [2200, 0.15, 0.35, 0.60, 0.60, 0.30, 0.10, 0.0],
+      V(atk=6, rel=1300, reso=0.9, vel=0.55, lfo=0.15, dly="1/4D", subdec=1600, subsus=-30),
+      (36, 96, 6), 4.5, False,
+      "Tine piano with the highs and lows cut away, slow tape wobble and a long dark halo. Floating two-chord beds.", vl=2),
+    P("half_speed_keys", "Half-Speed Keys", "keys", ["slowed", "reverb", "tape", "dreamy"],
+      "tine_ep", dict(t60=7.0, bark=0.8, tine=0.12, pickup=0.25, wow=8.0, wow_rate=0.3, lp=2600, slow=0.85),
+      [2000, 0.20, 0.25, 0.70, 0.75, 0.20, 0.10, 0.0],
+      V(atk=8, rel=2000, reso=0.9, vel=0.5, lfo=0.1, dly="1/4D", subsus=-30),
+      (36, 96, 6), 4.5, False,
+      "Keys printed to tape at 0.85x speed: lower, slower wobble, darker top. Sits with slowed tracks.", vl=2),
+    P("hushed_felt_grand", "Hushed Felt Grand", "keys", ["piano", "romantic", "ballad", "late-night"],
+      "felt_piano", dict(hardness=0.25, t60=7.0, unison_c=1.0, lp=4200, wow=1.5, post_shelf=(7000, -3.0)),
+      [5000, 0.0, 0.05, 0.50, 0.45, 0.08, 0.0, 0.0],
+      V(atk=3, rel=1000, reso=0.7, vel=0.75, lfo=0.1, dly="1/8D", subsus=-40),
+      (24, 108, 4), 5.5, False,
+      "Soft, close felt piano with the top rolled off. Ballads and slow trap-soul.", vl=2),
+    P("syrup_tine", "Syrup Tine", "keys", ["rnb", "neo-soul", "warm", "chorus"],
+      "tine_ep", dict(t60=5.0, bark=1.3, tine=0.22, pickup=0.45, wow=2.5, lp=4500),
+      [3500, 0.20, 0.45, 0.65, 0.35, 0.12, 0.20, 0.0],
+      V(atk=3, rel=700, reso=0.8, vel=0.65, lfo=0.25, dly="1/8D", subsus=-30),
+      (36, 96, 6), 4.0, False,
+      "Warm, barky tine piano with chorus and a little drive. Neo-soul comping, behind the beat.", vl=2),
+    P("dusk_poly_chords", "Dusk Poly Chords", "chords", ["synth-pop", "chorus", "stabs", "analog"],
+      "supersaw", dict(voices=2, pulse=1, detune_c=8, sub=0.25, lp=2200, reso=0.15, keytrack=0.4,
+                       attack=0.008, decay=0.6, sustain=0.6),
+      [2200, 0.25, 0.40, 0.80, 0.35, 0.12, 0.10, 0.20],
+      V(atk=5, rel=350, reso=1.0, vel=0.45, lfo=0.25, dly="1/8D", subsus=-12),
+      (36, 96, 6), 3.0, True,
+      "Saw plus pulse plus sub with thick chorus. Chord stabs or held beds.", vl=2),
+    P("pump_saw_stab", "Pump Saw Stab", "chords", ["future-beats", "supersaw", "house", "future-bass"],
+      "supersaw", dict(voices=7, detune_c=22, lp=1200, keytrack=0.5, fenv=4500, fenv_t=0.30, t60=1.8, attack=0.003),
+      [9000, 0.15, 0.35, 0.85, 0.35, 0.18, 0.30, 0.60],
+      V(atk=1, rel=300, reso=0.9, vel=0.45, lfo=0.3, dly="1/8D"),
+      (36, 96, 6), 2.5, False,
+      "Wide supersaw stab with a snappy filter, ducking to the beat. House and future-beats chords.", vl=2),
+    P("chorus_jangle_clean", "Chorus Jangle Clean", "guitar", ["jangle", "bedroom", "clean", "chorus"],
+      "karplus", dict(t60=2.4, bright=5000, damp=0.4, pos=0.15, body=0.35, chorus=1, post_shelf=(5000, 1.5)),
+      [6000, 0.0, 0.40, 0.60, 0.30, 0.15, 0.10, 0.0],
+      V(atk=1, rel=400, reso=0.8, vel=0.7, lfo=0.2, dly="1/8D", subsus=-40),
+      (40, 88, 3), 3.0, False,
+      "Clean single-coil style guitar through soft chorus and a plate. Bedroom-pop jangle.", vl=2),
+    P("five_take_steel", "Five-Take Steel Acoustic", "guitar", ["acoustic", "steel", "stacked", "indie-folk"],
+      "karplus", dict(t60=3.0, bright=7000, damp=0.25, pos=0.12, chorus=1),
+      [9000, 0.0, 0.10, 0.85, 0.25, 0.05, 0.0, 0.0],
+      V(atk=1, rel=700, reso=0.7, vel=0.7, lfo=0.15, dly="1/4D", subsus=-40),
+      (40, 88, 4), 3.5, False,
+      "Picked steel-string guitar spread wide with ringing open strings. Intimate verse to big chorus.", vl=2),
+    P("porch_nylon", "Porch Nylon", "guitar", ["nylon", "sad-trap", "latin", "warm"],
+      "karplus", dict(t60=2.6, bright=3200, body=0.6, pos=0.22, chorus=1),
+      [5500, 0.0, 0.20, 0.50, 0.30, 0.15, 0.05, 0.0],
+      V(atk=1, rel=500, reso=0.8, vel=0.65, lfo=0.2, dly="1/8", subsus=-40),
+      (40, 88, 4), 3.0, False,
+      "Warm nylon pluck with a woody body. Sad-trap loops and Latin ostinatos.", vl=2),
+    P("spring_surf_strum", "Spring Surf Strum", "guitar", ["surf", "punk", "spring", "bright"],
+      "karplus", dict(t60=1.8, bright=6500, damp=0.3, pos=0.12, chorus=0),
+      [7000, 0.0, 0.10, 0.45, 0.30, 0.05, 0.30, 0.0],
+      V(atk=1, rel=250, reso=0.8, vel=0.7, lfo=0.2, dly="1/8", subsus=-40),
+      (40, 88, 4), 2.5, False,
+      "Bright, slightly driven guitar for fast surf punk and bedroom indie.", vl=2),
+    P("night_celesta", "Night Celesta", "bells", ["celesta", "glass", "late-night", "rnb"],
+      "modal", dict(modes=[(1, 1, 1), (4.0, 0.22, 0.3), (10.0, 0.05, 0.08)], t60=2.4, strike=0.2, lp=7000, post_hp=200),
+      [9000, 0.0, 0.25, 0.70, 0.50, 0.25, 0.0, 0.0],
+      V(atk=1, rel=1000, reso=0.7, vel=0.6, lfo=0.2, dly="1/8D", subsus=-40),
+      (48, 96, 6), 3.0, False,
+      "Glassy celesta, bright but small. Sparse high arpeggios above the vocal.", vl=2),
+    P("boogie_keytar", "Boogie Keytar", "leads", ["boogie", "funk", "keytar", "lead"],
+      "supersaw", dict(voices=2, pulse=1, detune_c=7, lp=900, reso=0.2, fenv=2600, fenv_t=0.38,
+                       attack=0.003, decay=0.6, sustain=0.8),
+      [5000, 0.0, 0.30, 0.40, 0.20, 0.20, 0.25, 0.0],
+      V(atk=3, rel=150, reso=1.1, vel=0.5, lfo=0.3, dly="1/8D", subsus=-20),
+      (36, 96, 6), 2.5, True,
+      "Saw-plus-pulse lead with a snappy filter. Boogie answer phrases.", vl=2),
+    P("bubble_reed_call", "Bubble Reed Call", "leads", ["sax", "reed", "echo", "call"],
+      "voice", dict(singers=1, vowels=["o"], vib_c=12, vib_delay=0.3, breath=0.22, attack=0.04, lp=3200),
+      [4000, 0.0, 0.25, 0.55, 0.55, 0.50, 0.20, 0.0],
+      V(atk=40, rel=350, reso=0.9, vel=0.5, lfo=0.2, dly="1/4D", subsus=-20),
+      (48, 84, 4), 3.0, True,
+      "Breathy sax-like call soaked in ping-pong echo.", vl=2),
+    P("velvet_swell_strings", "Velvet Swell Strings", "pads", ["strings", "cinematic", "swell", "emotional"],
+      "supersaw", dict(voices=7, detune_c=12, drift_c=4, lp=2800, keytrack=0.5, hp=160, attack=0.6, sustain=1.0,
+                       vib_c=8, vib_rate=5.2, vib_delay=0.8),
+      [3000, 0.15, 0.30, 0.80, 0.60, 0.05, 0.0, 0.0],
+      V(atk=600, rel=1800, reso=0.8, vel=0.4, lfo=0.15, dly="1/8D", subsus=-12),
+      (36, 96, 6), 5.0, True,
+      "Ensemble saw strings with a slow swell, delayed vibrato and a soft top."),
+    P("wonky_analog_poly", "Wonky Analog Poly", "pads", ["french-touch", "chorus", "detuned", "house"],
+      "supersaw", dict(voices=3, detune_c=16, drift_c=9, lp=2600, keytrack=0.5, attack=0.08, decay=1.0, sustain=0.75),
+      [2500, 0.20, 0.50, 0.85, 0.40, 0.15, 0.15, 0.35],
+      V(atk=30, rel=600, reso=1.1, vel=0.4, lfo=0.3, dly="1/8D", subsus=-12),
+      (36, 96, 6), 3.5, True,
+      "Slightly out-of-tune, heavily chorused brassy poly that ducks to the beat."),
+    P("angel_stretch_cloud", "Angel Stretch Cloud", "vox", ["vocal", "stretched", "cloud", "lush"],
+      "voice", dict(singers=3, vowels=["a", "o"], vib_c=6, spread_c=6, breath=0.08, attack=0.7, lp=5500),
+      [5500, 0.0, 0.35, 0.85, 0.70, 0.35, 0.05, 0.0],
+      V(atk=250, rel=1800, reso=0.8, vel=0.3, lfo=0.1, dly="1/4D", subsus=-30),
+      (55, 86, 3), 6.0, True,
+      "Stretched, floating 'ooh-ah' cloud. In cloud rap it is the lead instrument.", vl=2),
+    P("voice_memo_chop", "Voice-Memo Chop", "vox", ["vocal-chop", "house", "fragment", "pitched"],
+      "voice", dict(singers=1, vowels=["a", "o"], t60=0.45, attack=0.003, vib_c=0, breath=0.03, post_hp=250),
+      [8000, 0.0, 0.15, 0.50, 0.30, 0.20, 0.05, 0.30],
+      V(atk=1, rel=120, reso=0.8, vel=0.5, lfo=0.3, dly="1/8D"),
+      (48, 84, 3), 1.0, False,
+      "Short pitched 'ah' chop. Play it like a lead for house hooks.", vl=2),
+    P("long_glide_808", "Long Glide 808", "bass", ["808", "trap", "glide", "sub"],
+      "808", dict(drop_st=7, drop_t=0.045, t60=3.0, drive=1.6, click=0.12),
+      [18000, 0.0, 0.0, 0.0, 0.0, 0.0, 0.15, 0.0],
+      V(atk=1, rel=250, reso=0.7, vel=0.35, lfo=0.1, subdec=200, subsus=-40),
+      (24, 60, 6), 3.5, False,
+      "Clean, long sine 808 with a short pitch thump and soft drive."),
+    P("disco_pulse_bass", "Disco Pulse Bass", "bass", ["disco", "boogie", "funk", "house"],
+      "reese", dict(detune_c=3, lp=450, reso=0.3, sub=0.5, drive=1.6, attack=0.002, decay=0.25, sustain=0.4),
+      [4000, 0.10, 0.0, 0.0, 0.0, 0.0, 0.30, 0.20],
+      V(atk=1, rel=80, reso=1.2, vel=0.6, lfo=0.1, dly="1/8", subdec=200, subsus=-40),
+      (24, 60, 3), 2.5, True,
+      "Busy plucky bass with a short filter snap. Disco, boogie and house.", vl=2),
+
+    # ================================================================ SIGNATURE BANK v0.2
     # ------------------------------------------------------------ KEYS
     P("night_drive_keys", "Night Drive Keys", "keys", ["underwater", "rnb", "late-night", "dark", "lofi"],
       "tine_ep", dict(t60=6.0, bark=1.0, tine=0.18, pickup=0.30, wow=6.0, lp=2600, decim=8000, decim_drive=0.15),
@@ -378,6 +504,85 @@ def zone_roots(z):
     return list(range(lo, hi + 1, step))
 
 
+def write_wav24(path: Path, l: np.ndarray, r: np.ndarray, rng) -> None:
+    """48 kHz / 24-bit stereo PCM with TPDF dither at the 24-bit LSB."""
+    q = 8388607.0
+    dither = (rng.random(len(l)) - rng.random(len(l))) / q
+    li = np.clip(np.round((l + dither) * q), -8388608, 8388607).astype("<i4")
+    ri = np.clip(np.round((r + dither) * q), -8388608, 8388607).astype("<i4")
+    inter = np.empty(len(li) * 2, dtype="<i4")
+    inter[0::2] = li
+    inter[1::2] = ri
+    raw = inter.view(np.uint8).reshape(-1, 4)[:, :3].tobytes()   # little-endian low 3 bytes
+    with wave.open(str(path), "wb") as w:
+        w.setnchannels(2)
+        w.setsampwidth(3)
+        w.setframerate(SR)
+        w.writeframes(raw)
+
+
+SOFT_RULES = {
+    # gen: {param: multiplier}  (missing params are left alone)
+    "tine_ep":    {"bark": 0.55, "tine": 0.6, "pickup": 0.6, "lp": 0.7},
+    "felt_piano": {"hardness": 0.5, "lp": 0.75},
+    "reed_ep":    {"drive": 0.7, "lp": 0.75},
+    "supersaw":   {"lp": 0.65, "fenv": 0.5, "drive": 0.7, "drive_pre": 0.7},
+    "karplus":    {"bright": 0.55, "damp": 0.6},
+    "modal":      {"strike": 0.4, "lp": 0.7},
+    "fm_bell":    {"index": 0.55},
+    "voice":      {"breath": 1.3, "lp": 0.75},
+    "808":        {"drive": 0.75, "click": 0.5},
+    "reese":      {"lp": 0.75, "drive": 0.8},
+    "sub":        {"drive": 0.8, "h2": 0.6},
+    "flute":      {"breath": 0.8},
+}
+SOFT_DEFAULT_LP = {"felt_piano": 3500, "modal": 5000, "voice": 3200, "karplus": 3000}
+SOFT_LEVEL = 0.71          # soft layer sits ~3 dB under the hard layer
+
+
+def soften(gen, gp):
+    out = dict(gp)
+    for k, mul in SOFT_RULES.get(gen, {}).items():
+        if k in out and out[k]:
+            out[k] = out[k] * mul
+    if gen in SOFT_DEFAULT_LP and not out.get("lp"):
+        out["lp"] = SOFT_DEFAULT_LP[gen]
+    return out
+
+
+def post_eq(x, gp):
+    """Baked per-preset EQ (the plugin's Air EQ is fixed): post_hp = low cut Hz,
+    post_shelf = (Hz, dB) high shelf built from a high-pass blend."""
+    if gp.get("post_hp"):
+        x = dsp.svf(x, gp["post_hp"], 0.707, 2)          # 12 dB/oct: keeps low-note bodies
+    if gp.get("post_shelf"):
+        f, db = gp["post_shelf"]
+        x = x + (10 ** (db / 20.0) - 1.0) * dsp.svf(x, f, 0.707, 2)
+    return x
+
+
+def render_voice(p, gp, note, n, rng):
+    """One zone/layer. gp['slow'] < 1 renders a slowed-tape take that stays in
+    tune: render higher and shorter, then stretch back (pitch, envelopes and
+    spectrum all drop together, like tape at that speed)."""
+    gen = dsp.GENERATORS[p["gen"]]
+    slow = gp.get("slow", 1.0)
+    if slow < 1.0:
+        n_r = int(n * slow)
+        l, r = gen(note - 12.0 * math.log2(slow), n_r, gp, rng)
+        pos = np.linspace(0, n_r - 1, n)
+        l = np.interp(pos, np.arange(n_r), l)
+        r = np.interp(pos, np.arange(n_r), r)
+    else:
+        l, r = gen(note, n, gp, rng)
+    if gp.get("decim"):
+        l = dsp.decimate(l, gp["decim"], gp.get("decim_drive", 0.0))
+        r = dsp.decimate(r, gp["decim"], gp.get("decim_drive", 0.0))
+    l = post_eq(np.nan_to_num(l), gp)
+    r = post_eq(np.nan_to_num(r), gp)
+    return l - np.mean(l), r - np.mean(r)
+
+
 def write_wav16(path: Path, l: np.ndarray, r: np.ndarray, rng) -> None:
     dither = (rng.random(len(l)) - rng.random(len(l))) / 32768.0
     li = np.clip(np.round((l + dither) * 32767.0), -32768, 32767).astype("<i2")
@@ -405,50 +610,62 @@ def loop_points(p, n, note):
 
 
 def render_preset(p) -> list[dict]:
-    gen = dsp.GENERATORS[p["gen"]]
     n = int(p["dur"] * SR)
     zones = []
     raw = []
+    layers = p.get("vl", 1)
     for note in zone_roots(p["z"]):
-        rng = np.random.default_rng(seed_for(p["id"], note))
-        l, r = gen(note, n, p["gp"], rng)
-        if p["gp"].get("decim"):
-            l = dsp.decimate(l, p["gp"]["decim"], p["gp"].get("decim_drive", 0.0))
-            r = dsp.decimate(r, p["gp"]["decim"], p["gp"].get("decim_drive", 0.0))
-        l = np.nan_to_num(l)
-        r = np.nan_to_num(r)
-        # remove DC + equalise loudness across the keyboard (RMS over the body)
-        l = l - np.mean(l)
-        r = r - np.mean(r)
+        hard_l, hard_r = render_voice(p, p["gp"], note, n, np.random.default_rng(seed_for(p["id"], note)))
+        # keyboard balance: one gain per zone from the HARD layer, shared by both layers
         win = slice(0, min(n, int(1.0 * SR)))
-        rms = math.sqrt(float(np.mean((l[win] ** 2 + r[win] ** 2) * 0.5)) + 1e-12)
+        rms = math.sqrt(float(np.mean((hard_l[win] ** 2 + hard_r[win] ** 2) * 0.5)) + 1e-12)
         tilt_db = -max(0, note - 72) * 0.12                 # tame the very top
         g = (10 ** (tilt_db / 20.0)) * 0.18 / rms
-        raw.append((note, l * g, r * g))
-    peak = max(max(np.max(np.abs(l)), np.max(np.abs(r))) for _, l, r in raw)
-    norm = 0.5 / peak                                       # -6 dBFS for the loudest zone
-    for note, l, r in raw:
-        l = l * norm
-        r = r * norm
+        if layers == 2:
+            sl, sr_ = render_voice(p, soften(p["gen"], p["gp"]), note, n,
+                                   np.random.default_rng(seed_for(p["id"], note) ^ 0x50F7))
+            raw.append((note, 1, sl * g * SOFT_LEVEL, sr_ * g * SOFT_LEVEL))
+            raw.append((note, 2, hard_l * g, hard_r * g))
+        else:
+            raw.append((note, 0, hard_l * g, hard_r * g))
+    # one gain per instrument, set by LOUDNESS (loudest zone body RMS -> 0.12) so
+    # presets are level-matched while browsing; a soft-knee peak limiter above
+    # 0.6 catches attack spikes instead of letting them set the whole gain.
+    win = slice(0, min(n, int(1.0 * SR)))
+    rms_max = max(math.sqrt(float(np.mean((l[win] ** 2 + r[win] ** 2) * 0.5))) for _, _, l, r in raw)
+    norm = 0.12 / max(rms_max, 1e-9)        # about -18 dBFS RMS per voice: headroom for chords + FX
+
+    def limit(x):
+        a = np.abs(x)
+        over = a > 0.6
+        y = x.copy()
+        y[over] = np.sign(x[over]) * (0.6 + 0.35 * np.tanh((a[over] - 0.6) / 0.35))
+        return y
+
+    for note, layer, l, r in raw:
+        l = limit(l * norm)
+        r = limit(r * norm)
         if not p["loop"]:
             fade = int(0.04 * SR)
             ramp = np.linspace(1.0, 0.0, fade)
             l[-fade:] *= ramp
             r[-fade:] *= ramp
-        zones.append(dict(note=note, l=l, r=r))
+        zones.append(dict(note=note, layer=layer, l=l, r=r))
     return zones
 
 
 def write_preset_audio(p, zones) -> None:
-    roots = [z["note"] for z in zones]
+    roots = sorted(set(z["note"] for z in zones))
     step = p["z"][2]
     entries = []
     today = date.today().isoformat()
+    VEL = {0: (0, 127), 1: (0, 84), 2: (85, 127)}
     for i, z in enumerate(zones):
         note = z["note"]
-        fname = f"SIG_{p['id']}_{note}.wav"
-        rng = np.random.default_rng(seed_for(p["id"], note) ^ 0x5EED)
-        write_wav16(SAMPLES / fname, z["l"], z["r"], rng)
+        layer = z["layer"]
+        fname = f"SIG_{p['id']}_{note}.wav" if layer == 0 else f"SIG_{p['id']}_{note}_v{layer}.wav"
+        rng = np.random.default_rng(seed_for(p["id"], note) ^ 0x5EED ^ layer)
+        write_wav24(SAMPLES / fname, z["l"], z["r"], rng)
         meta = {
             "filename": fname,
             "source": {
@@ -462,8 +679,10 @@ def write_preset_audio(p, zones) -> None:
                         "preset": p["name"]},
         }
         (SAMPLES / (fname + ".meta.json")).write_text(json.dumps(meta, indent=2))
-        lo = 0 if i == 0 else note - step // 2
-        hi = 127 if i == len(roots) - 1 else note + (step - step // 2) - 1
+        ri = roots.index(note)
+        lo = 0 if ri == 0 else note - step // 2
+        hi = 127 if ri == len(roots) - 1 else note + (step - step // 2) - 1
+        lov, hiv = VEL[layer]
         n = len(z["l"])
         if p["loop"]:
             ls, le, xf = loop_points(p, n, note)
@@ -472,7 +691,7 @@ def write_preset_audio(p, zones) -> None:
             loop_attr = 'LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"'
         entries.append(
             f'  <sample ID="{i}" FileName="{{PROJECT_FOLDER}}{fname}" Root="{note}" HiKey="{hi}"\n'
-            f'          LoKey="{lo}" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"\n'
+            f'          LoKey="{lo}" LoVel="{lov}" HiVel="{hiv}" RRGroup="1" Volume="0" Pan="0"\n'
             f'          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="{n}"\n'
             f'          SampleStartMod="0" {loop_attr}\n'
             f'          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"\n'
