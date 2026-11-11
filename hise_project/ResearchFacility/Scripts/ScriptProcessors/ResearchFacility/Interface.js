@@ -169,7 +169,7 @@ const var S = {
     "lastNote": -1, "lastVel": 0, "quiet": 0, "tick": 0,
     "lvlL": 0.0, "lvlR": 0.0, "voices": 0, "cpu": 0.0,
     "strumNote": -1, "orbPhase": 0.0, "orbFrame": 0,
-    "mode": 0, "kit": 0, "loopQ": -1
+    "mode": 0, "kit": 0, "loopQ": -1, "shift": 0
 };
 
 const var FAV = {};
@@ -488,14 +488,34 @@ inline function applyFeel()
     }
 }
 
-inline function paintLoopKeys(on)
+// Mac keyboard: JUCE maps the QWERTY row to MIDI 60-76; KeyShift moves it by S.shift octaves
+const var QWERTY_LO = 60;
+const var QWERTY_HI = 76;
+
+inline function keyTint(n)
+{
+    if (S.mode == 1 && n >= LOOP_FIRST_NOTE && n < LOOP_FIRST_NOTE + 16)
+        return Colours.withAlpha(LANE_COL[Math.floor((n - LOOP_FIRST_NOTE) / 4)], 0.5);
+    if (n >= QWERTY_LO + S.shift * 12 && n <= QWERTY_HI + S.shift * 12)
+        return Colours.withAlpha(T.accent, 0.28);
+    return 0x00000000;
+}
+
+inline function refreshKeyTints()
 {
     local n = 0;
-    for (n = 0; n < 16; n++)
-    {
-        local lane = Math.floor(n / 4);
-        Engine.setKeyColour(LOOP_FIRST_NOTE + n, on ? Colours.withAlpha(LANE_COL[lane], 0.5) : 0x00000000);
-    }
+    for (n = 0; n < 128; n++)
+        Engine.setKeyColour(n, keyTint(n));
+}
+
+inline function paintLoopKeys(on)
+{
+    refreshKeyTints();
+}
+
+inline function qwertyRange()
+{
+    return Engine.getMidiNoteName(QWERTY_LO + S.shift * 12) + "-" + Engine.getMidiNoteName(QWERTY_HI + S.shift * 12);
 }
 
 // ============================================================================
@@ -817,6 +837,7 @@ Header.setPaintRoutine(function(g)
 
 Header.setMouseCallback(function(event)
 {
+    if (event.mouseUp) refocusKeys();
     var h = "";
     if (event.y >= 8 && event.y <= 44)
     {
@@ -1110,6 +1131,7 @@ inline function scrollFromY(y)
 
 Browser.setMouseCallback(function(event)
 {
+    if (event.mouseUp) refocusKeys();
     if (S.mode == 1)
     {
         if (event.clicked && event.y >= 36 && event.y < 36 + LOOP_KITS.length * 50)
@@ -1266,6 +1288,8 @@ Visualiser.setPaintRoutine(function(g)
     g.setColour(T.glassDim);
     g.setFontWithSpacing(T.FONT, 9, 0.18);
     g.drawAlignedText("SPECTRUM  /  LIVE", [16, 14, 200, 14], "left");
+    g.setColour(T.glassDim);
+    g.drawAlignedText("MAC KEYS " + qwertyRange() + "   [  ]", [300, 14, 290, 14], "right");
     if (S.lastNote >= 0)
     {
         g.setColour(T.onGlass);
@@ -1376,6 +1400,7 @@ inline function strumAt(x, y)
 
 Visualiser.setMouseCallback(function(event)
 {
+    if (event.mouseUp) refocusKeys();
     var inPlay = (event.x >= 600 && event.x < 704 && event.y >= 10 && event.y < 32);
     if (inPlay != this.data.hoverPlay)
     {
@@ -1481,6 +1506,7 @@ inline function onMacro(component, value)
     local i = MACROS.indexOf(component);
     if (i >= 0) applyMacro(i, value);
     MacroCard.repaint();
+    refocusKeys();
 }
 for (mk = 0; mk < 8; mk++) MACROS[mk].setControlCallback(onMacro);
 
@@ -1580,6 +1606,7 @@ inline function variation()
 
 MacroCard.setMouseCallback(function(event)
 {
+    if (event.mouseUp) refocusKeys();
     var h = "";
     if (event.y >= 24 && event.y < 46)
     {
@@ -1607,6 +1634,13 @@ keyLaf.registerFunction("drawKeyboardBackground", function(g, obj)
     g.setColour(T.frame);
     g.fillRect(obj.area);
 });
+inline function keyIsDown(n, rawDown)
+{
+    if (HELD[n] > 0) return true;
+    if (S.shift != 0 && n >= QWERTY_LO && n <= QWERTY_HI) return false;   // raw QWERTY key, sounding elsewhere
+    return rawDown;
+}
+
 keyLaf.registerFunction("drawWhiteNote", function(g, obj)
 {
     var a = obj.area;
@@ -1614,21 +1648,22 @@ keyLaf.registerFunction("drawWhiteNote", function(g, obj)
     var y = a[1];
     var w = a[2] - 2;
     var h = a[3] - 1;
-    if (obj.down)
+    var isDown = keyIsDown(obj.noteNumber, obj.down);
+    if (isDown)
         g.setGradientFill([T.glow, 0, y, T.accent, 0, y + h, false]);
     else if (obj.hover)
         g.setGradientFill([0xFFE9EDF1, 0, y, 0xFFFFFFFF, 0, y + h, false]);
     else
         g.setGradientFill([T.bgLo, 0, y, T.s3, 0, y + h, false]);
     g.fillRoundedRectangle([x, y, w, h], 4.0);
-    if (!obj.down && obj.keyColour != 0)
+    if (!isDown && obj.keyColour != 0)
     {
         g.setColour(obj.keyColour);
         g.fillRoundedRectangle([x + 2, y + h - 26, w - 4, 8], 3.0);
     }
     if (obj.noteNumber % 12 == 0)
     {
-        g.setColour(obj.down ? T.bg : 0xFF6B737D);
+        g.setColour(isDown ? T.bg : 0xFF6B737D);
         g.setFont(T.BOLD, 9);
         g.drawAlignedText("C" + Engine.doubleToString(Math.floor(obj.noteNumber / 12) - 2, 0), [x, y + h - 16, w, 12], "centred");
     }
@@ -1636,14 +1671,15 @@ keyLaf.registerFunction("drawWhiteNote", function(g, obj)
 keyLaf.registerFunction("drawBlackNote", function(g, obj)
 {
     var a = obj.area;
-    if (obj.down)
+    var isDown = keyIsDown(obj.noteNumber, obj.down);
+    if (isDown)
         g.setGradientFill([T.accent, 0, a[1], 0xFF007A5C, 0, a[1] + a[3], false]);
     else if (obj.hover)
         g.setGradientFill([0xFF343A44, 0, a[1], 0xFF1F242C, 0, a[1] + a[3], false]);
     else
         g.setGradientFill([T.capHi, 0, a[1], T.frameDeep, 0, a[1] + a[3], false]);
     g.fillRoundedRectangle([a[0], a[1] - 3, a[2], a[3] + 3], 3.0);
-    if (!obj.down && obj.keyColour != 0)
+    if (!isDown && obj.keyColour != 0)
     {
         g.setColour(obj.keyColour);
         g.fillRoundedRectangle([a[0] + 2, a[1] + a[3] - 16, a[2] - 4, 6], 2.0);
@@ -1664,11 +1700,36 @@ Keys.setContentData({
     "BlackKeyRatio": 0.62,
     "DisplayOctaveNumber": false,
     "ToggleMode": false,
-    "MidiChannel": 1,
+    "MidiChannel": 16,          // KeyShift.js moves these by the [ ] octave and re-channels to 1
     "UseVectorGraphics": true,
     "UseFlatStyle": true
 });
 Keys.setLocalLookAndFeel(keyLaf);
+
+// The Mac keyboard only plays while the on-screen piano has keyboard focus.
+// Clicking a panel, knob or preset takes focus away, so every such action
+// hands it straight back (the search field keeps it while you type in it).
+inline function refocusKeys()
+{
+    Keys.grabFocus();
+}
+
+inline function shiftOctave(d)
+{
+    local ns = S.shift + d;
+    if (ns < -3) ns = -3;
+    if (ns > 3) ns = 3;
+    if (ns == S.shift) return;
+    S.shift = ns;
+    Globals.keyShift = ns;       // read by KeyShift.js; held notes keep their own shift
+    refreshKeyTints();
+    Visualiser.repaint();
+}
+
+inline function onOctaveDown(event) { shiftOctave(-1); }
+inline function onOctaveUp(event) { shiftOctave(1); }
+Content.setKeyPressCallback("[", onOctaveDown);
+Content.setKeyPressCallback("]", onOctaveUp);
 
 // ============================================================================
 // PRESET LOADING
@@ -1708,6 +1769,7 @@ inline function loadPreset(idx)
     applyRelease(p.rel);
     scrollToCurrent();
     refreshAll();
+    refocusKeys();
 }
 
 inline function onPresetKey(component, value)
@@ -1893,6 +1955,7 @@ inline function selfTest()
     if (S.list.length < 40) ok = false;
     if (!matchesQuery(FACTORY_BANK[0], ["keys"])) ok = false;
     if (LOOP_KITS.length != 3) ok = false;
+    if (qwertyRange() != "C3-E4") ok = false;
     if (findKit(LOOP_KITS[1].id) != 1) ok = false;
     applyFeel();
     local tso = LoopSampler.getTimestretchOptions();
@@ -1912,6 +1975,7 @@ inline function selfTest()
     if (!ok) Console.print(RF_SELFTEST_FAILED.length);    // unknown id -> load reports an error
 }
 selfTest();
+refreshKeyTints();
 
 function onNoteOn()
 {
@@ -1921,10 +1985,13 @@ function onNoteOn()
     S.lastNote = n;
     S.lastVel = v;
     spawnParticles(n, v);
+    Engine.setKeyColour(n, keyTint(n));   // repaint: shifted notes light the key that sounds
 }
 function onNoteOff()
 {
-    HELD[Message.getNoteNumber()] = 0;
+    var n = Message.getNoteNumber();
+    HELD[n] = 0;
+    Engine.setKeyColour(n, keyTint(n));
 }
 function onController()
 {

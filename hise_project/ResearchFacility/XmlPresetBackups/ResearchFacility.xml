@@ -6,6 +6,10 @@
   <ChildProcessors>
     <Processor Type="MidiProcessorChain" ID="Midi Processor" Bypassed="0">
       <ChildProcessors>
+        <Processor Type="ScriptProcessor" ID="KeyShift" Bypassed="0">
+          <ChildProcessors/>
+          <Content/>
+        </Processor>
         <Processor Type="ScriptProcessor" ID="Interface" Bypassed="0">
           <ChildProcessors/>
           <Content/>
