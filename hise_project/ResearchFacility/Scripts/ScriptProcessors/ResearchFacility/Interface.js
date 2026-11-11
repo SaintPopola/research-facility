@@ -23,25 +23,115 @@ Synth.deferCallbacks(true);      // MIDI callbacks on the UI thread (visuals onl
 include("FactoryBank.js");
 include("LoopBank.js");
 
+
 // ============================================================================
-// DESIGN TOKENS
+// DESIGN TOKENS  -  "Porcelain Lab" light theme (Sweet Melody v0.3)
+// Porcelain field, graphite touch, glass signal, colour = meaning.
+// One light, top-left. Ratios are WCAG 2.x against the named token, computed
+// from these exact hex values. Legacy keys (bg s1 s2 s3 line lineHi txt dim
+// faint accent accentHi warn heart FONT BOLD) keep their names so the v0.2
+// paint code still compiles during the port; their meaning is now LIGHT.
 // ============================================================================
 const var T = {
-    "bg":      0xFF0A0B0D,
-    "s1":      0xFF111419,
-    "s2":      0xFF171B21,
-    "s3":      0xFF1F242C,
-    "line":    0xFF232830,
-    "lineHi":  0xFF353C47,
-    "txt":     0xFFE8ECEF,
-    "dim":     0xFF8A929C,
-    "faint":   0xFF5C636D,
-    "accent":  0xFF00D9A0,
-    "accentHi":0xFF3DF2BE,
-    "warn":    0xFFFF8A4C,
-    "heart":   0xFFFF5C8A,
+    // ---- porcelain surfaces (no pure white on large areas)
+    "bg":        0xFFD3D9DF,   // L0 shell face; flat, or bgHi -> bgLo satin gradient (outer shell only)
+    "bgHi":      0xFFE2E7EC,   // shell gradient top
+    "bgLo":      0xFFCBD2D9,   // shell gradient bottom
+    "s1":        0xFFE5E9ED,   // L1 module card face, flat (1.17:1 vs bg: every card carries a tape + 1px line)
+    "s2":        0xFFEFF2F5,   // raised: pills, small buttons, active tab, selected list row
+    "s3":        0xFFF6F8FA,   // hover and tiny highlights only (glare limit)
+    "well":      0xFFD6DBE1,   // L-1 recessed: fields, inactive tabs, fader slots (pair with bevelDark / bevelLight)
+    "line":      0xFFC2C9D0,   // decorative hairline + knob track ring (1.37:1 s1: decoration only)
+    "lineHi":    0xFF6F7882,   // outline that IDENTIFIES a control: slots, pills, toggles (3.67:1 s1 | 3.15:1 bg)
+
+    // ---- ink on porcelain
+    "txt":       0xFF1C2127,   // titles, values, selected rows       13.28:1 s1 | 11.39:1 bg
+    "dim":       0xFF444C56,   // knob and fader labels                 7.13:1 s1 |  6.25:1 well
+    "faint":     0xFF575F69,   // units, captions                       5.30:1 s1 |  4.55:1 bg (prefer cards)
+    "mute":      0xFF9AA2AB,   // disabled controls only (2.12:1, WCAG-exempt), never a live label
+
+    // ---- the one accent: Melody Cyan (values, selection, macros, current page)
+    "accent":    0xFF007488,   // value arcs, curves, selection bars    4.47:1 s1 | 3.26:1 vs line track
+    "accentHi":  0xFF0089A0,   // hover / drag state of accent graphics (3.38:1 s1; hover is exempt)
+    "accentInk": 0xFF006272,   // accent TEXT and values on porcelain   5.76:1 s1 | 5.04:1 well
+    "onAccent":  0xFFFFFFFF,   // text or icon on an accent fill        5.45:1
+    "glow":      0xFF3FE3F2,   // accent inside glass only              11.55:1 glass (1.28:1 on s1: banned there)
+    "glowCore":  0xFFA8F7FF,   // hot core of meters / lit LEDs in glass 14.92:1
+    "accentOnFrame": 0xFF4CD3E6, // accent on graphite frame and tapes  8.30:1 frame | 5.86:1 tape
+
+    // ---- graphite: frame (top bar, status bar, keybed), tapes, caps
+    "frame":     0xFF24282E,   // top bar 52px, keybed surround
+    "frameHi":   0xFF353B43,   // active page key, raised key on frame, LED off state
+    "frameDeep": 0xFF1A1D21,   // status bar, 1px frame edges
+    "onFrame":   0xFFE6E9EC,   // text on frame                         12.15:1 frame | 13.88:1 frameDeep
+    "onFrameDim":0xFFA7AFB8,   // inactive page keys, secondary text     6.68:1 frame |  5.10:1 frameHi
+    "tape":      0xFF3A4048,   // section header tape (20px)             8.58:1 vs s1 as a shape
+    "onTape":    0xFFF2F4F6,   // tape titles, button labels             9.49:1
+    "onTapeDim": 0xFFB4BCC5,   // inactive tabs on a tape, bypassed titles 5.45:1
+    "cap":       0xFF2E343C,   // graphite knob cap / button base       10.29:1 s1
+    "capHi":     0xFF46505B,   // top of graphite gradients (light from top-left)
+    "pointer":   0xFFFFFFFF,   // pointer on graphite caps              12.56:1 (the only pure-white use)
+    "capLight":  0xFFF6F8FA,   // porcelain key-parameter cap (1.15:1 s1: ALWAYS draw capRing)
+    "capRing":   0xFF23272D,   // 2px ring on porcelain caps            12.30:1 s1 | 14.09:1 capLight
+    "pointerDark":0xFF23272D,  // pointer on porcelain caps
+
+    // ---- smoked glass (everything animated lives here)
+    "glass":     0xFF13171C,   // display wells, stage, editors, source tiles (gradient glassHi -> glass)
+    "glassHi":   0xFF1C2228,   // top of the glass gradient
+    "glassLine": 0xFF2A3139,   // grid lines inside glass (1.37:1, decorative)
+    "glassDim":  0xFF7F8A96,   // axis labels, secondary text in glass   5.12:1 glass | 4.57:1 glassHi
+    "onGlass":   0xFFE8ECEF,   // primary text in glass                 15.15:1
+
+    // ---- red LCD readouts, meter states, misc
+    "lcdBg":     0xFF1C0606,   // LCD glass
+    "lcdBezel":  0xFF0D0303,   // 1px LCD bezel
+    "lcdOff":    0xFF3B0F0E,   // ghost (unlit) segments, decorative 1.17:1
+    "lcdText":   0xFFFF5A4E,   // lit segments, peak-hold ticks          6.33:1 lcdBg
+    "warn":      0xFFFFB020,   // meter caution segments, queued loop LED (glass only) 9.84:1
+    "clip":      0xFFFF4A3D,   // clip / overload LED                    5.40:1 glass | 4.44:1 frame
+    "heart":     0xFFB8215F,   // favourite heart on porcelain          5.03:1 s1 (on frame use loopG)
+    "focus":     0xFF0A57CC,   // keyboard focus + valid drag-target ring 5.30:1 s1 | 4.54:1 bg
+
+    // ---- modulation families: ink = porcelain (rings, labels, fader stripes, tab stripes)
+    //      G = glass (Source Bay tiles, editor curves). Ratios: ink on s1 | G on glass
+    "mPerf":  0xFF5B3EB6, "mPerfG":  0xFFA88CFF,   // VEL AT MW KEY        6.13 | 6.74
+    "mEnv":   0xFF9A3E0A, "mEnvG":   0xFFFF9452,   // AMP ENV2 ENV3        5.61 | 8.23
+    "mLfo":   0xFF1E6935, "mLfoG":   0xFF62E38D,   // LFO 1-4              5.50 | 11.05
+    "mStep":  0xFF735500, "mStepG":  0xFFFFC53D,   // STEP 1-2             5.68 | 11.40
+    "mRand":  0xFF9A1694, "mRandG":  0xFFF27BEC,   // RAND 1-2             5.90 | 7.56
+    "mMacro": 0xFF006272, "mMacroG": 0xFF3FE3F2,   // M1-M8 (= accent)     5.76 | 11.55
+    "loop":   0xFFA02D4B, "loopG":   0xFFFF7092,   // LOOPS page identity, shaper keys 5.79 | 6.84 (5.63 on frame)
+
+    // ---- alpha helpers (0xAARRGGBB); shadows are for the static Chrome panel only
+    "shadow":     0x808E97A1,  // 50% cool shadow under raised controls
+    "shadowSoft": 0x2E0F1A2A,  // ~18% ambient card shadow: radius 6, offset [0, 2]
+    "hiLight":    0xD9FFFFFF,  // 85% white: light half of a dual shadow, offset [-3, -3]
+    "bevelDark":  0x59000000,  // 35% black: 1px top edge of wells, glass and LCDs
+    "bevelLight": 0xB3FFFFFF,  // 70% white: 1px bottom lip of wells
+    "sheen":      0x0FFFFFFF,  // 6% white: glass top sheen over the top 30%
+    "cardEdge":   0x8CFFFFFF,  // 55% white: 1px top inner highlight on cards
+
+    // ---- type. Oxygen pair is HISE-embedded. SM Mono must be registered before the first paint:
+    //      Engine.loadFontAs("{PROJECT_FOLDER}fonts/<OFL mono>.ttf", "SM Mono");
+    //      an unknown id silently falls back to a system font (MainController::getFontFromString).
     "FONT":    "Oxygen",
-    "BOLD":    "Oxygen Bold"
+    "BOLD":    "Oxygen Bold",
+    "MONO":    "Oxygen",          // SM Mono once an OFL mono .ttf is bundled + Engine.loadFontAs
+    "fsBrand": 15, "fsTape": 10, "fsLabel": 9, "fsValue": 10, "fsLcd": 13, "fsMin": 9,
+
+    // ---- geometry (1200 x 800 base, 8px grid)
+    "W": 1200, "H": 800, "topH": 52, "statusH": 24,
+    "margin": 12, "gutter": 8, "pad": 12, "tapeH": 20, "rCard": 6.0, "rCtl": 4.0
+};
+
+// Category inks for porcelain (browser dots, pill outlines). 5.04-6.84:1 on s1.
+// Selected rows still draw the preset NAME in T.txt. CAT_COL keeps its neon
+// values for glass-only use (stage tint S.col). LANE_COL (KEYS BASS PLUCK AIR)
+// stays as-is: 5.13-10.46:1 on T.glass, glass use only.
+const var CAT_INK = {
+    "keys":  0xFF2F5BC4, "chords": 0xFFA23D1B, "pads":  0xFF006781, "guitar": 0xFF7A5A14,
+    "plucks":0xFF8A5300, "leads":  0xFFB0205A, "bells": 0xFF00665A, "vox":    0xFF8A3DB0,
+    "bass":  0xFF4E3BA8, "archive":0xFF59616B
 };
 
 const var CAT_COL = {
@@ -100,6 +190,13 @@ inline function catColour(cat)
 {
     local c = CAT_COL[cat];
     if (c == undefined) return T.accent;
+    return c;
+}
+
+inline function catInk(cat)
+{
+    local c = CAT_INK[cat];
+    if (c == undefined) return T.accentInk;
     return c;
 }
 
@@ -605,10 +702,12 @@ const var Bg = Content.addPanel("Bg", 0, 0);
 Content.setPropertiesFromJSON("Bg", {"width": 1024, "height": 700, "allowCallbacks": "No Callbacks"});
 Bg.setPaintRoutine(function(g)
 {
-    g.setColour(T.bg);
-    g.fillRect([0, 0, 1024, 700]);
-    g.setColour(T.line);
-    g.fillRect([16, 586, 992, 1]);
+    g.setGradientFill([T.bgHi, 0, 0, T.bgLo, 0, 590, false]);
+    g.fillRect([0, 0, 1024, 590]);
+    g.setColour(T.frame);
+    g.fillRect([0, 588, 1024, 112]);
+    g.setColour(T.frameDeep);
+    g.fillRect([0, 588, 1024, 1]);
 });
 
 // ============================================================================
@@ -624,37 +723,39 @@ Header.setPaintRoutine(function(g)
     var p = FACTORY_BANK[S.cur];
     var col = catColour(p.cat);
 
-    g.setColour(T.bg);
+    g.setColour(T.frame);
     g.fillRect([0, 0, 1024, 52]);
-    g.setColour(T.line);
+    g.setColour(T.frameHi);
     g.fillRect([0, 51, 1024, 1]);
 
     // 3D specimen-vial mark (Blender render, design/blender/sm_ui_assets.py)
     g.drawImage("logo", [8, 4, 44, 44], 0, 0);
 
-    g.setColour(T.txt);
+    g.setColour(T.onFrame);
     g.setFontWithSpacing(T.BOLD, 13, 0.12);
     g.drawAlignedText("SWEET MELODY", [54, 11, 230, 16], "left");
-    g.setColour(T.dim);
+    g.setColour(T.onFrameDim);
     g.setFontWithSpacing(T.FONT, 9, 0.18);
     g.drawAlignedText("BY RESEARCH FACILITY  /  V0.2", [54, 28, 230, 12], "left");
 
     // preset display
     var hv = this.data.hover;
-    g.setColour(T.s1);
-    g.fillRoundedRectangle([300, 8, 424, 36], 8.0);
-    g.setColour(hv == "name" ? T.lineHi : T.line);
+    g.setColour(T.lcdBg);
+    g.fillRoundedRectangle([300, 8, 424, 36], 6.0);
+    g.setColour(T.bevelDark);
+    g.fillRect([306, 8, 412, 1]);
+    g.setColour(hv == "name" ? T.onFrameDim : T.frameHi);
     g.drawRoundedRectangle([300.5, 8.5, 423, 35], 8.0, 1.0);
 
-    g.setColour(hv == "prev" ? T.accent : T.dim);
+    g.setColour(hv == "prev" ? T.accentOnFrame : T.onFrameDim);
     g.fillPath(ARROW_L, [313, 20, 8, 12]);
-    g.setColour(hv == "next" ? T.accent : T.dim);
+    g.setColour(hv == "next" ? T.accentOnFrame : T.onFrameDim);
     g.fillPath(ARROW_R, [703, 20, 8, 12]);
-    g.setColour(T.line);
+    g.setColour(T.frameHi);
     g.fillRect([336, 16, 1, 20]);
     g.fillRect([688, 16, 1, 20]);
 
-    if (S.mode == 1) col = T.accent;
+    if (S.mode == 1) col = T.accentOnFrame;
     var lbl = S.mode == 1 ? "LOOPS" : catLabel(p.cat);
     var cw = Math.round(lbl.length * 6.6 + 14);
     g.setColour(Colours.withAlpha(col, 0.16));
@@ -663,14 +764,14 @@ Header.setPaintRoutine(function(g)
     g.setFontWithSpacing(T.BOLD, 9, 0.1);
     g.drawAlignedText(lbl, [348, 17, cw, 18], "centred");
 
-    g.setColour(T.txt);
+    g.setColour(T.lcdText);
     g.setFont(T.BOLD, 16);
     var kitNow = LOOP_KITS[S.kit];
     g.drawAlignedText(S.mode == 1 ? kitNow.name : p.name, [348 + cw + 10, 8, 250 - cw, 36], "left");
 
     var pos = S.list.indexOf(S.cur);
     var tot = S.list.length;
-    g.setColour(T.faint);
+    g.setColour(T.onFrameDim);
     g.setFont(T.FONT, 10);
     if (S.mode == 1)
     {
@@ -681,36 +782,36 @@ Header.setPaintRoutine(function(g)
         if (pos >= 0)
             g.drawAlignedText((pos + 1) + "/" + tot, [596, 8, 50, 36], "right");
         var fav = isFav(p.id);
-        g.setColour(fav ? T.heart : (hv == "heart" ? T.txt : T.faint));
+        g.setColour(fav ? T.loopG : (hv == "heart" ? T.onFrame : T.onFrameDim));
         if (fav) g.fillPath(HEART, [656, 19, 16, 14]);
         else g.drawPath(HEART, [656, 19, 16, 14], 1.4);
     }
 
     // INSTRUMENT | LOOPS switch
-    g.setColour(T.s1);
+    g.setColour(T.frameDeep);
     g.fillRoundedRectangle([736, 12, 124, 28], 14.0);
-    g.setColour(T.line);
+    g.setColour(T.frameHi);
     g.drawRoundedRectangle([736.5, 12.5, 123, 27], 14.0, 1.0);
-    g.setColour(Colours.withAlpha(T.accent, 0.2));
+    g.setColour(Colours.withAlpha(T.accentOnFrame, 0.2));
     g.fillRoundedRectangle([S.mode == 0 ? 738 : 798, 14, 60, 24], 12.0);
     g.setFontWithSpacing(T.BOLD, 9, 0.12);
-    g.setColour(S.mode == 0 ? T.accent : (hv == "inst" ? T.txt : T.dim));
+    g.setColour(S.mode == 0 ? T.accentOnFrame : (hv == "inst" ? T.onFrame : T.onFrameDim));
     g.drawAlignedText("INSTR", [738, 14, 60, 24], "centred");
-    g.setColour(S.mode == 1 ? T.accent : (hv == "loops" ? T.txt : T.dim));
+    g.setColour(S.mode == 1 ? T.accentOnFrame : (hv == "loops" ? T.onFrame : T.onFrameDim));
     g.drawAlignedText("LOOPS", [798, 14, 60, 24], "centred");
 
     // performance readout + meters
-    g.setColour(T.dim);
+    g.setColour(T.onFrameDim);
     g.setFontWithSpacing(T.FONT, 8, 0.12);
     var vs = S.voices < 10 ? "0" + S.voices : "" + S.voices;
     g.drawAlignedText("VOX " + vs, [870, 12, 50, 12], "left");
     g.drawAlignedText("CPU " + Math.round(S.cpu) + "%", [870, 28, 50, 12], "left");
-    g.setColour(T.s2);
+    g.setColour(T.frameHi);
     g.fillRoundedRectangle([924, 15, 80, 5], 2.0);
     g.fillRoundedRectangle([924, 30, 80, 5], 2.0);
-    g.setColour(S.lvlL > 0.97 ? T.warn : T.accent);
+    g.setColour(S.lvlL > 0.97 ? T.warn : T.accentOnFrame);
     g.fillRoundedRectangle([924, 15, 80 * S.lvlL, 5], 2.0);
-    g.setColour(S.lvlR > 0.97 ? T.warn : T.accent);
+    g.setColour(S.lvlR > 0.97 ? T.warn : T.accentOnFrame);
     g.fillRoundedRectangle([924, 30, 80 * S.lvlR, 5], 2.0);
 });
 
@@ -760,7 +861,9 @@ Browser.setPaintRoutine(function(g)
     g.setColour(T.s1);
     g.fillRoundedRectangle([0, 0, 256, 520], 8.0);
     g.setColour(T.line);
-    g.drawRoundedRectangle([0.5, 0.5, 255, 519], 8.0, 1.0);
+    g.drawRoundedRectangle([0.5, 0.5, 255, 519], 6.0, 1.0);
+    g.setColour(T.cardEdge);
+    g.fillRect([6, 1, 244, 1]);
 
     if (S.mode == 1)
     {
@@ -808,8 +911,10 @@ Browser.setPaintRoutine(function(g)
     }
 
     // search field (the editable label sits on top of this)
-    g.setColour(T.bg);
-    g.fillRoundedRectangle([12, 12, 232, 30], 6.0);
+    g.setColour(T.well);
+    g.fillRoundedRectangle([12, 12, 232, 30], 4.0);
+    g.setColour(T.bevelDark);
+    g.fillRect([16, 12, 224, 1]);
     g.setColour(S.query != "" ? Colours.withAlpha(T.accent, 0.6) : T.line);
     g.drawRoundedRectangle([12.5, 12.5, 231, 29], 6.0, 1.0);
     g.setColour(T.dim);
@@ -828,7 +933,7 @@ Browser.setPaintRoutine(function(g)
         var pl = PILLS[k];
         var on = (pl[1] == S.cat);
         var hov = (S.hoverItem == "p" + k);
-        var pc = pl[1] < 0 ? T.accent : catColour(FACTORY_CATS[pl[1]]);
+        var pc = pl[1] < 0 ? T.accentInk : catInk(FACTORY_CATS[pl[1]]);
         g.setColour(on ? Colours.withAlpha(pc, 0.18) : (hov ? T.s3 : T.s2));
         g.fillRoundedRectangle([pl[2], pl[3], pl[4], 20], 10.0);
         if (on)
@@ -847,7 +952,7 @@ Browser.setPaintRoutine(function(g)
         var ch = CHIPS[k];
         var con = (ch[0] == "fav") ? S.fav : (S.vibe == ch[0]);
         var chov = (S.hoverItem == "c" + k);
-        g.setColour(con ? T.accent : (chov ? T.s3 : T.bg));
+        g.setColour(con ? T.accent : (chov ? T.s3 : T.s2));
         g.fillRoundedRectangle([ch[2], ch[3], ch[4], 18], 4.0);
         if (!con)
         {
@@ -856,15 +961,15 @@ Browser.setPaintRoutine(function(g)
         }
         if (ch[0] == "fav")
         {
-            g.setColour(con ? T.bg : T.heart);
+            g.setColour(con ? T.onAccent : T.heart);
             g.fillPath(HEART, [ch[2] + 6, ch[3] + 5, 8, 7]);
-            g.setColour(con ? T.bg : (chov ? T.txt : T.dim));
+            g.setColour(con ? T.onAccent : (chov ? T.txt : T.dim));
             g.setFont(T.FONT, 10);
             g.drawAlignedText(ch[1], [ch[2] + 14, ch[3], ch[4] - 16, 18], "centred");
         }
         else
         {
-            g.setColour(con ? T.bg : (chov ? T.txt : T.dim));
+            g.setColour(con ? T.onAccent : (chov ? T.txt : T.dim));
             g.setFont(T.FONT, 10);
             g.drawAlignedText(ch[1], [ch[2], ch[3], ch[4], 18], "centred");
         }
@@ -883,9 +988,9 @@ Browser.setPaintRoutine(function(g)
         var isHov = (S.hoverRow == k);
         if (isCur)
         {
-            g.setColour(Colours.withAlpha(S.col, 0.12));
+            g.setColour(T.s2);
             g.fillRoundedRectangle([8, ry, 236, BR_ROW_H - 2], 5.0);
-            g.setColour(S.col);
+            g.setColour(T.accent);
             g.fillRoundedRectangle([8, ry + 5, 3, BR_ROW_H - 12], 1.5);
         }
         else if (isHov)
@@ -893,9 +998,9 @@ Browser.setPaintRoutine(function(g)
             g.setColour(T.s2);
             g.fillRoundedRectangle([8, ry, 236, BR_ROW_H - 2], 5.0);
         }
-        g.setColour(catColour(bp.cat));
+        g.setColour(catInk(bp.cat));
         g.fillEllipse([18, ry + 9, 6, 6]);
-        g.setColour(isCur ? T.txt : (isHov ? T.txt : 0xFFC3C9D0));
+        g.setColour(isCur ? T.txt : (isHov ? T.txt : T.dim));
         g.setFont(isCur ? T.BOLD : T.FONT, 12);
         g.drawAlignedText(bp.name, [32, ry, 170, BR_ROW_H - 2], "left");
         var bf = isFav(bp.id);
@@ -1131,18 +1236,20 @@ Visualiser.setPaintRoutine(function(g)
     var k = 0;
     var col = S.col;
 
-    g.setColour(T.s1);
-    g.fillRoundedRectangle([0, 0, VIS_W, VIS_H], 8.0);
+    g.setGradientFill([T.glassHi, 0, 0, T.glass, 0, VIS_H, false]);
+    g.fillRoundedRectangle([0, 0, VIS_W, VIS_H], 6.0);
     g.setGradientFill([Colours.withAlpha(col, 0.10), 340, 140, 0x00000000, 340, 420, true]);
     g.fillRoundedRectangle([0, 0, VIS_W, VIS_H], 8.0);
     // 3D specimen-chamber backdrop, dimmed so the live traces stay readable
     g.setOpacity(0.5);
     g.drawImage("backdrop", [1, 1, VIS_W - 2, VIS_H - 2], 0, 0);
     g.setOpacity(1.0);
-    g.setGradientFill([0x00111419, 0, 110, 0xF2111419, 0, VIS_H, false]);
+    g.setGradientFill([0x0013171C, 0, 110, 0xF213171C, 0, VIS_H, false]);
     g.fillRoundedRectangle([0, 0, VIS_W, VIS_H], 8.0);
-    g.setColour(T.line);
-    g.drawRoundedRectangle([0.5, 0.5, VIS_W - 1, VIS_H - 1], 8.0, 1.0);
+    g.setColour(T.bevelDark);
+    g.drawRoundedRectangle([0.5, 0.5, VIS_W - 1, VIS_H - 1], 6.0, 1.0);
+    g.setColour(T.sheen);
+    g.fillRoundedRectangle([1, 1, VIS_W - 2, VIS_H * 0.3], 6.0);
 
     // holographic orb: spins faster and glows brighter with the output level
     var lvl = Math.max(S.lvlL, S.lvlR);
@@ -1151,17 +1258,17 @@ Visualiser.setPaintRoutine(function(g)
     g.setOpacity(1.0);
 
     // measurement grid
-    g.setColour(0x0AFFFFFF);
+    g.setColour(T.glassLine);
     for (k = 1; k < 10; k++) g.fillRect([16 + k * 65.2, 44, 1, 176]);
     for (k = 1; k < 4; k++) g.fillRect([16, 44 + k * 44, 652, 1]);
 
     // header labels
-    g.setColour(T.dim);
+    g.setColour(T.glassDim);
     g.setFontWithSpacing(T.FONT, 9, 0.18);
     g.drawAlignedText("SPECTRUM  /  LIVE", [16, 14, 200, 14], "left");
     if (S.lastNote >= 0)
     {
-        g.setColour(T.txt);
+        g.setColour(T.onGlass);
         g.drawAlignedText(Engine.getMidiNoteName(S.lastNote) + "   VEL " + S.lastVel, [480, 14, 188, 14], "right");
     }
 
@@ -1169,7 +1276,7 @@ Visualiser.setPaintRoutine(function(g)
     var sp = SpecBuf.createPath([0, 0, 652, 176], [0.0, 1.0, 0, 8192], 0.0);
     g.setGradientFill([Colours.withAlpha(col, 0.38), 0, 44, Colours.withAlpha(col, 0.02), 0, 220, false]);
     g.fillPath(sp, SPEC_AREA);
-    g.setColour(Colours.withAlpha(T.accent, 0.9));
+    g.setColour(Colours.withAlpha(T.glow, 0.9));
     g.drawPath(sp, SPEC_AREA, 1.5);
 
     // held-note beams
@@ -1198,19 +1305,19 @@ Visualiser.setPaintRoutine(function(g)
     }
 
     // scope inset
-    g.setColour(T.bg);
+    g.setColour(T.glass);
     g.fillRoundedRectangle([16, 210, 180, 66], 6.0);
     var scp = ScopeBuf.createPath([0, 0, 176, 58], [-1.0, 1.0, 0, 4096], 0.0);
-    g.setColour(Colours.withAlpha(T.txt, 0.75));
+    g.setColour(Colours.withAlpha(T.onGlass, 0.75));
     g.drawPath(scp, [18, 214, 176, 58], 1.0);
-    g.setColour(T.faint);
+    g.setColour(T.glassDim);
     g.setFontWithSpacing(T.FONT, 8, 0.18);
     g.drawAlignedText("SCOPE", [22, 212, 60, 12], "left");
 
     // description + tags
     var p = FACTORY_BANK[S.cur];
     var lk = LOOP_KITS[S.kit];
-    g.setColour(T.txt);
+    g.setColour(T.onGlass);
     g.setFont(T.FONT, 11);
     g.drawAlignedText(S.mode == 1 ? (lk.name + " loop kit: 16 original 2-bar loops at " + lk.bpm + " BPM in " + lk.key + ".") : p.desc, [210, 238, 460, 16], "left");
     g.setColour(col);
@@ -1219,33 +1326,33 @@ Visualiser.setPaintRoutine(function(g)
 
     // preview button
     var pb = Visualiser.data.hoverPlay;
-    g.setColour(pb ? Colours.withAlpha(T.accent, 0.22) : T.s2);
+    g.setColour(pb ? Colours.withAlpha(T.glow, 0.22) : T.glassHi);
     g.fillRoundedRectangle([600, 10, 104, 22], 11.0);
-    g.setColour(pb ? T.accent : T.lineHi);
+    g.setColour(pb ? T.glow : T.glassDim);
     g.drawRoundedRectangle([600.5, 10.5, 103, 21], 11.0, 1.0);
-    g.setColour(T.accent);
+    g.setColour(T.glow);
     g.fillPath(PLAY_ICON, [612, 16, 8, 10]);
-    g.setColour(pb ? T.txt : T.dim);
+    g.setColour(pb ? T.onGlass : T.glassDim);
     g.setFontWithSpacing(T.BOLD, 9, 0.12);
     g.drawAlignedText("PREVIEW", [624, 10, 72, 22], "centred");
 
     // output meters
     var mh = 176;
-    g.setColour(T.s2);
+    g.setColour(T.glassHi);
     g.fillRoundedRectangle([684, 44, 6, mh], 3.0);
     g.fillRoundedRectangle([696, 44, 6, mh], 3.0);
-    g.setColour(S.lvlL > 0.97 ? T.warn : T.accent);
+    g.setColour(S.lvlL > 0.97 ? T.warn : T.glow);
     g.fillRoundedRectangle([684, 44 + mh * (1.0 - S.lvlL), 6, mh * S.lvlL], 3.0);
-    g.setColour(S.lvlR > 0.97 ? T.warn : T.accent);
+    g.setColour(S.lvlR > 0.97 ? T.warn : T.glow);
     g.fillRoundedRectangle([696, 44 + mh * (1.0 - S.lvlR), 6, mh * S.lvlR], 3.0);
-    g.setColour(T.faint);
+    g.setColour(T.glassDim);
     g.setFont(T.FONT, 8);
     g.drawAlignedText("L  R", [680, 224, 28, 12], "centred");
 
     // idle hint
     if (S.quiet > 60 && S.lastNote < 0)
     {
-        g.setColour(Colours.withAlpha(T.txt, 0.45));
+        g.setColour(Colours.withAlpha(T.onGlass, 0.45));
         g.setFontWithSpacing(T.FONT, 11, 0.16);
         g.drawAlignedText("PLAY A KEY  /  CLICK HERE TO STRUM  /  PRESS PREVIEW", [16, 112, 652, 20], "centred");
     }
@@ -1402,12 +1509,15 @@ MacroCard.setPaintRoutine(function(g)
     g.setColour(T.line);
     g.drawRoundedRectangle([0.5, 0.5, 719, 215], 8.0, 1.0);
 
-    g.setColour(T.dim);
-    g.setFontWithSpacing(T.FONT, 9, 0.18);
-    g.drawAlignedText("MACROS", [16, 12, 120, 14], "left");
+    g.setColour(T.tape);
+    g.fillRoundedRectangle([0, 0, 720, 20], 6.0);
+    g.fillRect([0, 10, 720, 10]);
+    g.setColour(T.onTape);
+    g.setFontWithSpacing(T.BOLD, 9, 0.18);
+    g.drawAlignedText("MACROS", [14, 0, 200, 20], "left");
 
     // live modulation rings (real modulator output) around MOTION and PUMP
-    var mods = [[2, M_Move.getCurrentLevel(), T.accent], [7, M_PumpA.getCurrentLevel(), S.col]];
+    var mods = [[2, M_Move.getCurrentLevel(), T.mLfo], [7, M_PumpA.getCurrentLevel(), T.mEnv]];
     for (k = 0; k < 2; k++)
     {
         var md = mods[k];
@@ -1434,12 +1544,12 @@ MacroCard.setPaintRoutine(function(g)
         var b = btns[k];
         var hot = (bh == b[0]);
         g.setColour(hot ? T.s3 : T.s2);
-        g.fillRoundedRectangle([b[1], 8, 92, 22], 6.0);
+        g.fillRoundedRectangle([b[1], 24, 92, 22], 4.0);
         g.setColour(hot ? T.lineHi : T.line);
-        g.drawRoundedRectangle([b[1] + 0.5, 8.5, 91, 21], 6.0, 1.0);
+        g.drawRoundedRectangle([b[1] + 0.5, 24.5, 91, 21], 4.0, 1.0);
         g.setColour(hot ? T.txt : T.dim);
         g.setFontWithSpacing(T.BOLD, 9, 0.12);
-        g.drawAlignedText(b[0], [b[1], 8, 92, 22], "centred");
+        g.drawAlignedText(b[0], [b[1], 24, 92, 22], "centred");
     }
 
     // lower strip: envelope + voicing readout
@@ -1471,7 +1581,7 @@ inline function variation()
 MacroCard.setMouseCallback(function(event)
 {
     var h = "";
-    if (event.y >= 8 && event.y < 30)
+    if (event.y >= 24 && event.y < 46)
     {
         if (event.x >= 520 && event.x < 612) h = "VARIATION";
         else if (event.x >= 624 && event.x < 716) h = "RESET";
@@ -1494,7 +1604,7 @@ MacroCard.setMouseCallback(function(event)
 const var keyLaf = Content.createLocalLookAndFeel();
 keyLaf.registerFunction("drawKeyboardBackground", function(g, obj)
 {
-    g.setColour(T.bg);
+    g.setColour(T.frame);
     g.fillRect(obj.area);
 });
 keyLaf.registerFunction("drawWhiteNote", function(g, obj)
@@ -1505,11 +1615,11 @@ keyLaf.registerFunction("drawWhiteNote", function(g, obj)
     var w = a[2] - 2;
     var h = a[3] - 1;
     if (obj.down)
-        g.setGradientFill([T.accentHi, 0, y, T.accent, 0, y + h, false]);
+        g.setGradientFill([T.glow, 0, y, T.accent, 0, y + h, false]);
     else if (obj.hover)
         g.setGradientFill([0xFFE9EDF1, 0, y, 0xFFFFFFFF, 0, y + h, false]);
     else
-        g.setGradientFill([0xFFC9CFD6, 0, y, 0xFFEEF1F4, 0, y + h, false]);
+        g.setGradientFill([T.bgLo, 0, y, T.s3, 0, y + h, false]);
     g.fillRoundedRectangle([x, y, w, h], 4.0);
     if (!obj.down && obj.keyColour != 0)
     {
@@ -1531,7 +1641,7 @@ keyLaf.registerFunction("drawBlackNote", function(g, obj)
     else if (obj.hover)
         g.setGradientFill([0xFF343A44, 0, a[1], 0xFF1F242C, 0, a[1] + a[3], false]);
     else
-        g.setGradientFill([0xFF262B33, 0, a[1], 0xFF101317, 0, a[1] + a[3], false]);
+        g.setGradientFill([T.capHi, 0, a[1], T.frameDeep, 0, a[1] + a[3], false]);
     g.fillRoundedRectangle([a[0], a[1] - 3, a[2], a[3] + 3], 3.0);
     if (!obj.down && obj.keyColour != 0)
     {
