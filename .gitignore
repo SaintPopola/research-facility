@@ -80,3 +80,8 @@ docs/01_upstream_research.md
 dist/
 
 .claude/
+
+# Signature Bank audio is rendered deterministically by
+# scripts/build_signature_bank.py (locally and in CI) - not committed.
+hise_project/*/Samples/SIG_*.wav
+hise_project/*/Samples/SIG_*.wav.meta.json

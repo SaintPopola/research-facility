@@ -30,6 +30,17 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Render Signature Bank samples (deterministic, not stored in git)
+        run: |
+          set -e
+          python3 -m venv "$RUNNER_TEMP/sigvenv"
+          "$RUNNER_TEMP/sigvenv/bin/python" -m pip install --quiet numpy scipy numba
+          "$RUNNER_TEMP/sigvenv/bin/python" scripts/build_signature_bank.py
+          # the committed browser data + sample maps must match what the renderer produces
+          git diff --exit-code -- hise_project/ResearchFacility/Scripts/FactoryBank.js hise_project/ResearchFacility/SampleMaps \
+            || { echo "ERROR: generated bank data differs from the committed files"; exit 1; }
+          ls hise_project/ResearchFacility/Samples/SIG_*.wav | wc -l
+
       - name: Show toolchain
         run: |
           sw_vers
