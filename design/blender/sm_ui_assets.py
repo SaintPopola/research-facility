@@ -295,10 +295,187 @@ def build_logo(out):
     bpy.ops.render.render(write_still=True)
 
 
+# ================================================================ PORCELAIN LAB (docs/17)
+def srgb(hexstr, a=1.0):
+    """sRGB hex -> linear RGBA for Blender colour sockets."""
+    h = hexstr.lstrip("#")
+    out = []
+    for i in (0, 2, 4):
+        c = int(h[i:i + 2], 16) / 255.0
+        out.append(c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4)
+    return (out[0], out[1], out[2], a)
+
+
+def pl_scene(res_x, res_y, samples=128, transparent=True):
+    sc = fresh_scene(res_x, res_y, samples=samples, transparent=transparent)
+    sc.cycles.seed = 7
+    sc.cycles.max_bounces = 8
+    sc.cycles.transmission_bounces = 12
+    sc.world.node_tree.nodes["Background"].inputs["Color"].default_value = (0.18, 0.18, 0.18, 1)
+    sc.world.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.35
+    return sc
+
+
+def pl_rig():
+    key = area_light("PL_Key", (-2.4, 2.4, 4.0), (0, 0, 0), 2.0, 330, color=(1.0, 0.98, 0.96))
+    c = key.constraints.new("TRACK_TO")
+    tgt = bpy.data.objects.new("PL_KeyTarget", None)
+    bpy.context.scene.collection.objects.link(tgt)
+    c.target = tgt
+    c.track_axis = "TRACK_NEGATIVE_Z"
+    c.up_axis = "UP_Y"
+    area_light("PL_Fill", (0, 0, 6.0), (0, 0, 0), 4.0, 66, color=(0.92, 0.96, 1.0))
+
+
+def pl_top_camera(diameter):
+    d = bpy.data.cameras.new("PL_Cam")
+    d.type = "ORTHO"
+    d.ortho_scale = diameter * 1.25
+    o = bpy.data.objects.new("PL_Cam", d)
+    o.location = (0, 0, 10)
+    bpy.context.scene.collection.objects.link(o)
+    bpy.context.scene.camera = o
+
+
+def pl_shadow_catcher(size=20):
+    bpy.ops.mesh.primitive_plane_add(size=size, location=(0, 0, 0))
+    pl = bpy.context.active_object
+    if hasattr(pl, "is_shadow_catcher"):
+        pl.is_shadow_catcher = True
+    return pl
+
+
+def m_porcelain():
+    m = principled("Porcelain", base=srgb("#E0E3E6"), rough=0.32)      # measured to land on T.capLight-ish #EEF1F4
+    b = m.node_tree.nodes["Principled BSDF"]
+    b.inputs["Subsurface Weight"].default_value = 0.08
+    b.inputs["Coat Weight"].default_value = 0.25
+    b.inputs["Coat Roughness"].default_value = 0.1
+    return m
+
+
+def m_graphite():
+    m = principled("Graphite", base=srgb("#2E343C"), metallic=0.85, rough=0.36)
+    m.node_tree.nodes["Principled BSDF"].inputs["Anisotropic"].default_value = 0.4
+    add_bump(m, rings_height)
+    return m
+
+
+def m_glass():
+    return principled("SmokedGlass", base=srgb("#9AA6B2"), rough=0.04, transmission=1.0, ior=1.45)
+
+
+def m_filament():
+    return principled("Filament", base=(0, 0, 0, 1), emit=srgb("#3FE3F2"), emit_strength=1.0)
+
+
+def pl_cap(name, mat, radius=1.0, height=0.28, dome=0.0, chamfer=0.06, serrations=0):
+    bpy.ops.mesh.primitive_cylinder_add(vertices=96 if not serrations else serrations * 4, radius=radius,
+                                        depth=height, location=(0, 0, height / 2))
+    o = bpy.context.active_object
+    o.name = name
+    if serrations:
+        me = o.data
+        for v in me.vertices:
+            ang = math.atan2(v.co.y, v.co.x)
+            k = math.cos(ang * serrations)
+            scale = 1.0 - 0.06 * (0.5 + 0.5 * k)
+            v.co.x *= scale
+            v.co.y *= scale
+    if dome > 0:
+        for v in o.data.vertices:
+            if v.co.z > 0:
+                r = math.hypot(v.co.x, v.co.y) / radius
+                v.co.z += dome * (1.0 - r * r)
+    bpy.ops.object.shade_smooth()
+    bev = o.modifiers.new("Chamfer", "BEVEL")
+    bev.width = chamfer
+    bev.segments = 4
+    bev.harden_normals = True
+    o.data.materials.append(mat)
+    return o
+
+
+def pl_render_still(out, name):
+    sc = bpy.context.scene
+    os.makedirs(os.path.join(out), exist_ok=True)
+    sc.frame_set(1)
+    sc.render.filepath = os.path.join(out, "0001.png")
+    bpy.ops.render.render(write_still=True)
+
+
+def build_pl_swatch(out):
+    """Step 1: porcelain, graphite, glass, filament spheres + one graphite cap."""
+    pl_scene(640, 200, samples=128, transparent=False)
+    floor = principled("Card", base=srgb("#E5E9ED"), rough=0.6)
+    bpy.ops.mesh.primitive_plane_add(size=40, location=(0, 0, 0))
+    bpy.context.active_object.data.materials.append(floor)
+    for i, mat in enumerate((m_porcelain(), m_graphite(), m_glass(), m_filament())):
+        bpy.ops.mesh.primitive_uv_sphere_add(radius=0.8, segments=64, ring_count=32, location=(-4.4 + i * 2.2, 0, 0.8))
+        bpy.ops.object.shade_smooth()
+        bpy.context.active_object.data.materials.append(mat)
+    cap = pl_cap("Cap", m_graphite(), radius=0.8, height=0.3)
+    cap.location = (4.4, 0, 0)
+    pl_rig()
+    d = bpy.data.cameras.new("PL_Cam"); d.type = "ORTHO"; d.ortho_scale = 11.5
+    o = bpy.data.objects.new("PL_Cam", d); o.location = (0, -0.2, 10)
+    bpy.context.scene.collection.objects.link(o); bpy.context.scene.camera = o
+    pl_render_still(out, "swatch")
+
+
+def build_pl_cap_graphite(out):
+    pl_scene(128, 128); pl_shadow_catcher(); pl_cap("CapG", m_graphite()); pl_rig(); pl_top_camera(2.0)
+    pl_render_still(out, "cap_graphite")
+
+
+def build_pl_cap_porcelain(out):
+    pl_scene(128, 128); pl_shadow_catcher(); pl_cap("CapP", m_porcelain(), dome=0.08); pl_rig(); pl_top_camera(2.0)
+    pl_render_still(out, "cap_porcelain")
+
+
+def build_pl_cap_selector(out):
+    pl_scene(96, 96); pl_shadow_catcher(); pl_cap("CapS", m_graphite(), serrations=24, chamfer=0.04); pl_rig(); pl_top_camera(2.0)
+    pl_render_still(out, "cap_selector")
+
+
+def build_pl_pad(out):
+    pl_scene(112, 112); pl_shadow_catcher()
+    bpy.ops.mesh.primitive_cube_add(size=1.6, location=(0, 0, 0.12))
+    pad = bpy.context.active_object
+    pad.scale = (1.0, 1.0, 0.15)
+    bev = pad.modifiers.new("Round", "BEVEL"); bev.width = 0.18; bev.segments = 6
+    pad.data.materials.append(m_porcelain())
+    bpy.ops.object.shade_smooth()
+    pl_rig(); pl_top_camera(1.6)
+    pl_render_still(out, "pad")
+
+
+def build_pl_fader_cap(out):
+    pl_scene(72, 40); pl_shadow_catcher()
+    bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, 0, 0.18))
+    cap = bpy.context.active_object
+    cap.scale = (1.6, 0.85, 0.36)
+    bev = cap.modifiers.new("Round", "BEVEL"); bev.width = 0.06; bev.segments = 4
+    cap.data.materials.append(m_graphite())
+    bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, 0, 0.37))
+    groove = bpy.context.active_object
+    groove.scale = (1.5, 0.08, 0.02)
+    groove.data.materials.append(principled("Groove", base=srgb("#1A1D21"), rough=0.5))
+    pl_rig()
+    d = bpy.data.cameras.new("PL_Cam"); d.type = "ORTHO"; d.ortho_scale = 2.25
+    o = bpy.data.objects.new("PL_Cam", d); o.location = (0, 0, 10)
+    bpy.context.scene.collection.objects.link(o); bpy.context.scene.camera = o
+    pl_render_still(out, "fader_cap")
+
+
 if __name__ == "__main__":
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else ["all", "/tmp/sm_ui"]
     which, out_dir = argv[0], argv[1]
-    builders = {"knob": build_knob, "orb": build_orb, "backdrop": build_backdrop, "logo": build_logo}
-    for name in (builders if which == "all" else [which]):
+    builders = {"knob": build_knob, "orb": build_orb, "backdrop": build_backdrop, "logo": build_logo,
+                "pl_swatch": build_pl_swatch, "pl_cap_graphite": build_pl_cap_graphite,
+                "pl_cap_porcelain": build_pl_cap_porcelain, "pl_cap_selector": build_pl_cap_selector,
+                "pl_pad": build_pl_pad, "pl_fader_cap": build_pl_fader_cap}
+    names = [n for n in builders if n.startswith("pl_")] if which == "pl_all" else (list(builders) if which == "all" else [which])
+    for name in names:
         builders[name](os.path.join(out_dir, name))
         print(f"SM_UI_ASSET_DONE {name}", flush=True)
