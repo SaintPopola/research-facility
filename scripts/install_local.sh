@@ -46,7 +46,9 @@ done
 
 mkdir -p "$APPDATA"
 rsync -a "$ROOT/hise_project/ResearchFacility/Samples/"*.wav "$APPDATA/"
-printf '%s' "$APPDATA" > "$APPDATA/LinkOSX"
+# HISE reads LinkOSX from the AppData root, pointing at the Samples folder
+printf '%s' "$APPDATA" > "$(dirname "$APPDATA")/LinkOSX"
+rm -f "$APPDATA/LinkOSX"
 
 killall -9 AudioComponentRegistrar 2>/dev/null || true
 sleep 2

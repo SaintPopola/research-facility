@@ -454,9 +454,9 @@ inline function previewCurrent()
 // BROWSER MODEL
 // ============================================================================
 const var BR_ROW_H = 26;
-const var BR_LIST_Y = 182;
-const var BR_LIST_H = 304;
-const var BR_ROWS = 11;
+reg BR_LIST_Y = 182;        // set by layoutBrowser() from the real chip rows
+reg BR_LIST_H = 304;
+reg BR_ROWS = 11;
 
 const var PILLS = [];    // [label, catIndex(-1 = all), x, y, w]
 const var CHIPS = [];    // [key, label, x, y, w]
@@ -475,10 +475,10 @@ inline function layoutBrowser()
     local y = 52;
     for (i = 0; i < labels.length; i++)
     {
-        local w = Math.round(labels[i].length * 6.6 + 16);
+        local w = Math.round(labels[i].length * 6.2 + 12);
         if (x + w > 244) { x = 12; y = y + 24; }
         PILLS.push([labels[i], idx[i], x, y, w]);
-        x = x + w + 6;
+        x = x + w + 5;
     }
     x = 12;
     y = y + 30;
@@ -491,11 +491,15 @@ inline function layoutBrowser()
     }
     for (i = 0; i < keys.length; i++)
     {
-        local w2 = Math.round(names[i].length * 5.6 + 16);
+        local w2 = Math.round(names[i].length * 5.4 + 12);
         if (x + w2 > 244) { x = 12; y = y + 22; }
         CHIPS.push([keys[i], names[i], x, y, w2]);
-        x = x + w2 + 5;
+        x = x + w2 + 4;
     }
+    BR_LIST_Y = y + 18 + 16;
+    BR_LIST_H = 486 - BR_LIST_Y;
+    BR_ROWS = Math.floor(BR_LIST_H / BR_ROW_H);
+    BR_LIST_H = BR_ROWS * BR_ROW_H;
 }
 
 inline function matchesQuery(p, toks)
@@ -966,7 +970,7 @@ ScopeBuf.setActive(true);
 
 const var VIS_W = 720;
 const var VIS_H = 292;
-const var SPEC_AREA = [16, 44, 652, 196];
+const var SPEC_AREA = [16, 44, 652, 176];
 const var SCOPE_AREA = [16, 214, 180, 58];
 const var STRUM_SCALE = [0, 3, 5, 7, 10];        // minor pentatonic
 
@@ -990,7 +994,7 @@ inline function spawnParticles(note, vel)
     {
         local s = pNext;
         PX[s] = x + (Math.random() - 0.5) * 10.0;
-        PY[s] = 236.0;
+        PY[s] = 216.0;
         PVX[s] = (Math.random() - 0.5) * 1.6;
         PVY[s] = -(1.2 + Math.random() * 2.2) * (0.5 + vel / 160.0);
         PL[s] = 1.0;
@@ -1013,8 +1017,8 @@ Visualiser.setPaintRoutine(function(g)
 
     // measurement grid
     g.setColour(0x0AFFFFFF);
-    for (k = 1; k < 10; k++) g.fillRect([16 + k * 65.2, 44, 1, 196]);
-    for (k = 1; k < 4; k++) g.fillRect([16, 44 + k * 49, 652, 1]);
+    for (k = 1; k < 10; k++) g.fillRect([16 + k * 65.2, 44, 1, 176]);
+    for (k = 1; k < 4; k++) g.fillRect([16, 44 + k * 44, 652, 1]);
 
     // header labels
     g.setColour(T.dim);
@@ -1027,8 +1031,8 @@ Visualiser.setPaintRoutine(function(g)
     }
 
     // FFT (path pins its own top + bottom, so scaling into the area is exact)
-    var sp = SpecBuf.createPath([0, 0, 652, 196], [0.0, 1.0, 0, 8192], 0.0);
-    g.setGradientFill([Colours.withAlpha(col, 0.38), 0, 44, Colours.withAlpha(col, 0.02), 0, 240, false]);
+    var sp = SpecBuf.createPath([0, 0, 652, 176], [0.0, 1.0, 0, 8192], 0.0);
+    g.setGradientFill([Colours.withAlpha(col, 0.38), 0, 44, Colours.withAlpha(col, 0.02), 0, 220, false]);
     g.fillPath(sp, SPEC_AREA);
     g.setColour(Colours.withAlpha(T.accent, 0.9));
     g.drawPath(sp, SPEC_AREA, 1.5);
@@ -1040,9 +1044,9 @@ Visualiser.setPaintRoutine(function(g)
         if (hv > 0)
         {
             var bx = noteToX(k);
-            var bh = 30 + 160 * hv / 127.0;
-            g.setGradientFill([Colours.withAlpha(col, 0.0), bx, 240 - bh, Colours.withAlpha(col, 0.55), bx, 240, false]);
-            g.fillRect([bx - 1.5, 240 - bh, 3, bh]);
+            var bh = 30 + 140 * hv / 127.0;
+            g.setGradientFill([Colours.withAlpha(col, 0.0), bx, 220 - bh, Colours.withAlpha(col, 0.55), bx, 220, false]);
+            g.fillRect([bx - 1.5, 220 - bh, 3, bh]);
         }
     }
 
@@ -1072,10 +1076,10 @@ Visualiser.setPaintRoutine(function(g)
     var p = FACTORY_BANK[S.cur];
     g.setColour(T.txt);
     g.setFont(T.FONT, 11);
-    g.drawAlignedText(p.desc, [210, 236, 460, 16], "left");
+    g.drawAlignedText(p.desc, [210, 238, 460, 16], "left");
     g.setColour(col);
     g.setFontWithSpacing(T.FONT, 9, 0.1);
-    g.drawAlignedText(p.tags.join("  /  ").toUpperCase(), [210, 256, 460, 14], "left");
+    g.drawAlignedText(p.tags.join("  /  ").toUpperCase(), [210, 258, 460, 14], "left");
 
     // preview button
     var pb = Visualiser.data.hoverPlay;
@@ -1090,7 +1094,7 @@ Visualiser.setPaintRoutine(function(g)
     g.drawAlignedText("PREVIEW", [624, 10, 72, 22], "centred");
 
     // output meters
-    var mh = 196;
+    var mh = 176;
     g.setColour(T.s2);
     g.fillRoundedRectangle([684, 44, 6, mh], 3.0);
     g.fillRoundedRectangle([696, 44, 6, mh], 3.0);
@@ -1100,14 +1104,14 @@ Visualiser.setPaintRoutine(function(g)
     g.fillRoundedRectangle([696, 44 + mh * (1.0 - S.lvlR), 6, mh * S.lvlR], 3.0);
     g.setColour(T.faint);
     g.setFont(T.FONT, 8);
-    g.drawAlignedText("L  R", [680, 244, 28, 12], "centred");
+    g.drawAlignedText("L  R", [680, 224, 28, 12], "centred");
 
     // idle hint
     if (S.quiet > 60 && S.lastNote < 0)
     {
         g.setColour(Colours.withAlpha(T.txt, 0.45));
         g.setFontWithSpacing(T.FONT, 11, 0.16);
-        g.drawAlignedText("PLAY A KEY  /  CLICK HERE TO STRUM  /  PRESS PREVIEW", [16, 120, 652, 20], "centred");
+        g.drawAlignedText("PLAY A KEY  /  CLICK HERE TO STRUM  /  PRESS PREVIEW", [16, 112, 652, 20], "centred");
     }
 });
 
@@ -1239,12 +1243,12 @@ inline function onMacro(component, value)
 }
 for (mk = 0; mk < 8; mk++) MACROS[mk].setControlCallback(onMacro);
 
-const var AttackKnob = Content.addKnob("AttackKnob", MC_X + 16, MC_Y + 140);
-Content.setPropertiesFromJSON("AttackKnob", {"width": 44, "height": 58, "text": "ATTACK",
+const var AttackKnob = Content.addKnob("AttackKnob", MC_X + 14, MC_Y + 140);
+Content.setPropertiesFromJSON("AttackKnob", {"width": 56, "height": 58, "text": "ATTACK",
     "min": 0, "max": 3000, "mode": "Time", "middlePosition": 150, "defaultValue": 5, "stepSize": 1,
     "tooltip": "Amp attack", "saveInPreset": true, "isPluginParameter": true, "pluginParameterName": "Attack"});
-const var ReleaseKnob = Content.addKnob("ReleaseKnob", MC_X + 64, MC_Y + 140);
-Content.setPropertiesFromJSON("ReleaseKnob", {"width": 44, "height": 58, "text": "RELEASE",
+const var ReleaseKnob = Content.addKnob("ReleaseKnob", MC_X + 76, MC_Y + 140);
+Content.setPropertiesFromJSON("ReleaseKnob", {"width": 56, "height": 58, "text": "RELEASE",
     "min": 10, "max": 6000, "mode": "Time", "middlePosition": 700, "defaultValue": 600, "stepSize": 1,
     "tooltip": "Amp release", "saveInPreset": true, "isPluginParameter": true, "pluginParameterName": "Release"});
 AttackKnob.setLocalLookAndFeel(knobLaf);
@@ -1307,9 +1311,6 @@ MacroCard.setPaintRoutine(function(g)
     // lower strip: envelope + voicing readout
     g.setColour(T.line);
     g.fillRect([16, 130, 688, 1]);
-    g.setColour(T.dim);
-    g.setFontWithSpacing(T.FONT, 9, 0.18);
-    g.drawAlignedText("AMP", [118, 142, 60, 12], "left");
     var info = "ECHO " + p.dly + "     PUMP 1/4     VELOCITY " + Math.round(p.vel * 100) + "%     FILTER Q " + Engine.doubleToString(p.reso, 1);
     g.setColour(T.txt);
     g.setFontWithSpacing(T.FONT, 10, 0.08);
@@ -1380,7 +1381,7 @@ keyLaf.registerFunction("drawWhiteNote", function(g, obj)
     {
         g.setColour(obj.down ? T.bg : 0xFF6B737D);
         g.setFont(T.BOLD, 9);
-        g.drawAlignedText("C" + (Math.floor(obj.noteNumber / 12) - 2), [x, y + h - 16, w, 12], "centred");
+        g.drawAlignedText("C" + Engine.doubleToString(Math.floor(obj.noteNumber / 12) - 2, 0), [x, y + h - 16, w, 12], "centred");
     }
 });
 keyLaf.registerFunction("drawBlackNote", function(g, obj)

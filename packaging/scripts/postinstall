@@ -16,7 +16,9 @@ fi
 userHome=$( dscl . -read /Users/"$loggedInUser" NFSHomeDirectory 2>/dev/null | awk '{print $2}' )
 [ -z "$userHome" ] && userHome="/Users/$loggedInUser"
 
-APP="$userHome/Library/Application Support/Research Facility/Sweet Melody/Samples"
+# HISE 4.1 reads LinkOSX from the AppData ROOT (FrontendHandler::
+# getSampleLocationForCompiledPlugin -> getLinkFile(appDataDir)), not from Samples/.
+APP="$userHome/Library/Application Support/Research Facility/Sweet Melody"
 mkdir -p "$APP"
 # LinkOSX = single line, absolute path, no trailing newline (HISE reads it verbatim).
 printf '%s' "$SYS" > "$APP/LinkOSX"
