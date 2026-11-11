@@ -779,6 +779,21 @@ def write_wav24(path: Path, l: np.ndarray, r: np.ndarray, rng) -> None:
         w.writeframes(raw)
 
 
+def write_wav16(path: Path, l: np.ndarray, r: np.ndarray, rng) -> None:
+    """48 kHz / 16-bit stereo PCM with TPDF dither at the 16-bit LSB (loops: a third smaller
+    than 24-bit; the loops sit near -13 dBFS RMS, so 16-bit leaves ~80 dB of clean range)."""
+    q = 32767.0
+    dither = (rng.random(len(l)) - rng.random(len(l))) / q
+    inter = np.empty(len(l) * 2, dtype="<i2")
+    inter[0::2] = np.clip(np.round((l + dither) * q), -32768, 32767).astype("<i2")
+    inter[1::2] = np.clip(np.round((r + dither) * q), -32768, 32767).astype("<i2")
+    with wave.open(str(path), "wb") as w:
+        w.setnchannels(2)
+        w.setsampwidth(2)
+        w.setframerate(SR)
+        w.writeframes(inter.tobytes())
+
+
 SOFT_RULES = {
     # gen: {param: multiplier}  (missing params are left alone)
     "prepared":   {"hardness": 0.5, "lp": 0.75, "rattle": 0.5, "metal_mix": 0.7},
