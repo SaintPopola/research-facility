@@ -77,7 +77,7 @@ const var S = {
     "list": [], "scroll": 0, "hoverRow": -1, "hoverItem": "",
     "lastNote": -1, "lastVel": 0, "quiet": 0, "tick": 0,
     "lvlL": 0.0, "lvlR": 0.0, "voices": 0, "cpu": 0.0,
-    "strumNote": -1
+    "strumNote": -1, "orbPhase": 0.0, "orbFrame": 0
 };
 
 const var FAV = {};
@@ -575,6 +575,7 @@ Bg.setPaintRoutine(function(g)
 const var Header = Content.addPanel("Header", 0, 0);
 Content.setPropertiesFromJSON("Header", {"width": 1024, "height": 52, "allowCallbacks": "Clicks & Hover"});
 Header.data.hover = "";
+Header.loadImage("{PROJECT_FOLDER}sm_logo.png", "logo");
 
 Header.setPaintRoutine(function(g)
 {
@@ -586,21 +587,15 @@ Header.setPaintRoutine(function(g)
     g.setColour(T.line);
     g.fillRect([0, 51, 1024, 1]);
 
-    // specimen-vial mark
-    g.setColour(T.accent);
-    g.drawRoundedRectangle([18, 12, 16, 28], 4.0, 1.5);
-    g.fillRect([22, 30, 8, 6]);
-    g.setColour(Colours.withAlpha(T.accent, 0.55));
-    g.fillRect([22, 24, 8, 4]);
-    g.setColour(Colours.withAlpha(T.accent, 0.25));
-    g.fillRect([22, 18, 8, 4]);
+    // 3D specimen-vial mark (Blender render, design/blender/sm_ui_assets.py)
+    g.drawImage("logo", [8, 4, 44, 44], 0, 0);
 
     g.setColour(T.txt);
     g.setFontWithSpacing(T.BOLD, 13, 0.12);
-    g.drawAlignedText("SWEET MELODY", [44, 11, 230, 16], "left");
+    g.drawAlignedText("SWEET MELODY", [54, 11, 230, 16], "left");
     g.setColour(T.dim);
     g.setFontWithSpacing(T.FONT, 9, 0.18);
-    g.drawAlignedText("BY RESEARCH FACILITY  /  V0.2", [44, 28, 230, 12], "left");
+    g.drawAlignedText("BY RESEARCH FACILITY  /  V0.2", [54, 28, 230, 12], "left");
 
     // preset display
     var hv = this.data.hover;
@@ -986,6 +981,8 @@ Content.setPropertiesFromJSON("Visualiser", {"width": VIS_W, "height": VIS_H,
     "allowCallbacks": "Clicks, Hover & Dragging"});
 Visualiser.data.hover = false;
 Visualiser.data.hoverPlay = false;
+Visualiser.loadImage("{PROJECT_FOLDER}sm_backdrop.png", "backdrop");
+Visualiser.loadImage("{PROJECT_FOLDER}sm_orb_strip.png", "orb");
 
 inline function noteToX(n)
 {
@@ -1019,8 +1016,20 @@ Visualiser.setPaintRoutine(function(g)
     g.fillRoundedRectangle([0, 0, VIS_W, VIS_H], 8.0);
     g.setGradientFill([Colours.withAlpha(col, 0.10), 340, 140, 0x00000000, 340, 420, true]);
     g.fillRoundedRectangle([0, 0, VIS_W, VIS_H], 8.0);
+    // 3D specimen-chamber backdrop, dimmed so the live traces stay readable
+    g.setOpacity(0.5);
+    g.drawImage("backdrop", [1, 1, VIS_W - 2, VIS_H - 2], 0, 0);
+    g.setOpacity(1.0);
+    g.setGradientFill([0x00111419, 0, 110, 0xF2111419, 0, VIS_H, false]);
+    g.fillRoundedRectangle([0, 0, VIS_W, VIS_H], 8.0);
     g.setColour(T.line);
     g.drawRoundedRectangle([0.5, 0.5, VIS_W - 1, VIS_H - 1], 8.0, 1.0);
+
+    // holographic orb: spins faster and glows brighter with the output level
+    var lvl = Math.max(S.lvlL, S.lvlR);
+    g.setOpacity(0.22 + 0.6 * lvl);
+    g.drawImage("orb", [252, 24, 184, 184], 0, S.orbFrame * 256);
+    g.setOpacity(1.0);
 
     // measurement grid
     g.setColour(0x0AFFFFFF);
@@ -1172,6 +1181,7 @@ Content.setPropertiesFromJSON("MacroCard", {"width": 720, "height": 216, "allowC
 MacroCard.data.hover = "";
 
 const var knobLaf = Content.createLocalLookAndFeel();
+knobLaf.loadImage("{PROJECT_FOLDER}sm_knob_strip.png", "knob");     // 64-frame 3D cap (Blender)
 knobLaf.registerFunction("drawRotarySlider", function(g, obj)
 {
     var a = obj.area;
@@ -1199,18 +1209,15 @@ knobLaf.registerFunction("drawRotarySlider", function(g, obj)
         g.drawPath(ARC, false, th);
     }
 
-    var cr = R - (big ? 7.0 : 5.0);
-    g.setGradientFill([T.s3, cx, cy - cr, T.s1, cx, cy + cr, false]);
-    g.fillEllipse([cx - cr, cy - cr, cr * 2.0, cr * 2.0]);
-    g.setColour(hot ? T.lineHi : T.line);
-    g.drawEllipse([cx - cr, cy - cr, cr * 2.0, cr * 2.0], 1.0);
-
-    var px1 = cx + Math.sin(a1) * cr * 0.3;
-    var py1 = cy - Math.cos(a1) * cr * 0.3;
-    var px2 = cx + Math.sin(a1) * cr * 0.88;
-    var py2 = cy - Math.cos(a1) * cr * 0.88;
-    g.setColour(T.txt);
-    g.drawLine(px1, px2, py1, py2, big ? 2.2 : 1.6);
+    // 3D machined cap: frame 0 = minimum, 63 = maximum (pointer baked in)
+    var cr = R - (big ? 3.0 : 2.0);
+    var fi = Math.round(v * 63.0);
+    g.drawImage("knob", [cx - cr, cy - cr, cr * 2.0, cr * 2.0], 0, fi * 128);
+    if (hot)
+    {
+        g.setColour(Colours.withAlpha(T.accentHi, 0.35));
+        g.drawEllipse([cx - cr + 1, cy - cr + 1, cr * 2.0 - 2, cr * 2.0 - 2], 1.2);
+    }
 
     var label = hot ? obj.valueAsText : obj.text;
     g.setColour(hot ? T.txt : T.dim);
@@ -1524,6 +1531,9 @@ Visualiser.setTimerCallback(function()
     if (loud) S.quiet = 0;
     else S.quiet = S.quiet + 1;
 
+    S.orbPhase = S.orbPhase + 0.2 + 1.6 * Math.max(S.lvlL, S.lvlR);
+    if (S.orbPhase >= 32.0) S.orbPhase = S.orbPhase - 32.0;
+    S.orbFrame = Math.floor(S.orbPhase);
     var anyP = false;
     for (k = 0; k < NP; k++)
     {

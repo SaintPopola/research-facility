@@ -88,3 +88,6 @@ hise_project/*/Samples/SIG_*.wav.meta.json
 
 # Python bytecode
 __pycache__/
+
+# local Python environments (autosampler)
+.venv*/
