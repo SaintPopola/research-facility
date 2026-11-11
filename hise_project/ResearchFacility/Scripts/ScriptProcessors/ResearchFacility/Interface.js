@@ -22,6 +22,7 @@ Synth.deferCallbacks(true);      // MIDI callbacks on the UI thread (visuals onl
 
 include("FactoryBank.js");
 include("LoopBank.js");
+include("DeepParams.js");
 
 
 // ============================================================================
@@ -169,7 +170,8 @@ const var S = {
     "lastNote": -1, "lastVel": 0, "quiet": 0, "tick": 0,
     "lvlL": 0.0, "lvlR": 0.0, "voices": 0, "cpu": 0.0,
     "strumNote": -1, "orbPhase": 0.0, "orbFrame": 0,
-    "mode": 0, "kit": 0, "loopQ": -1, "shift": 0
+    "mode": 0, "kit": 0, "loopQ": -1, "shift": 0,
+    "page": 0, "trim": 0.0, "vfIdle": true
 };
 
 const var FAV = {};
@@ -327,6 +329,19 @@ const var M_Vel     = Synth.getModulator("Vel Gain");
 const var M_PumpA   = Synth.getModulator("Pump A");
 const var M_PumpS   = Synth.getModulator("Pump Sub");
 const var M_Move    = Synth.getModulator("Movement LFO");
+// SHAPE page modules (docs/16 Stage 1)
+const var FX_VFilter = Synth.getEffect("Voice Filter");      // per-voice, in Voice A FX
+const var M_FEnv    = Synth.getModulator("Filter Env");
+const var M_FVel    = Synth.getModulator("Filter Vel");
+const var M_FKey    = Synth.getModulator("Filter Key");
+const var M_VibA    = Synth.getModulator("Vibrato A");
+const var M_VibS    = Synth.getModulator("Vibrato Sub");
+const var M_WheelA  = Synth.getModulator("Vib Wheel A");
+const var M_WheelS  = Synth.getModulator("Vib Wheel Sub");
+const var M_BendA   = Synth.getModulator("Bend A");
+const var M_BendS   = Synth.getModulator("Bend Sub");
+const var M_APitch  = Synth.getModulator("A Pitch UIMod");
+const var M_Drift   = Synth.getModulator("Voice Drift");
 const var LoopsSynth  = Synth.getChildSynth("Loop Lines");
 const var LoopSampler = Synth.getSampler("Loop Lines");
 const var LANE_COL = [0xFF6E9BFF, 0xFF9B6CFF, 0xFFFFB84C, 0xFF35C6FF];   // KEYS BASS PLUCK AIR
@@ -361,8 +376,30 @@ const var A = {
     "pFreqS":M_PumpS.getAttributeIndex("Frequency"),
     "mFreq": M_Move.getAttributeIndex("Frequency"),
     "gainA": VoiceA.getAttributeIndex("Gain"),
-    "gainS": SubSyn.getAttributeIndex("Gain")
+    "gainS": SubSyn.getAttributeIndex("Gain"),
+    "vfFreq":  FX_VFilter.getAttributeIndex("Frequency"),
+    "vfQ":     FX_VFilter.getAttributeIndex("Q"),
+    "vfMode":  FX_VFilter.getAttributeIndex("Mode"),
+    "feA":     M_FEnv.getAttributeIndex("Attack"),
+    "feD":     M_FEnv.getAttributeIndex("Decay"),
+    "feS":     M_FEnv.getAttributeIndex("Sustain"),
+    "feR":     M_FEnv.getAttributeIndex("Release"),
+    "aHold":   M_Amp.getAttributeIndex("Hold"),
+    "aDec":    M_Amp.getAttributeIndex("Decay"),
+    "aSus":    M_Amp.getAttributeIndex("Sustain"),
+    "aACurve": M_Amp.getAttributeIndex("AttackCurve"),
+    "aDCurve": M_Amp.getAttributeIndex("DecayCurve"),
+    "vibF":    M_VibA.getAttributeIndex("Frequency"),
+    "vibFS":   M_VibS.getAttributeIndex("Frequency"),
+    "vibFade": M_VibA.getAttributeIndex("FadeIn"),
+    "vibFadeS":M_VibS.getAttributeIndex("FadeIn"),
+    "subOct":  SubSyn.getAttributeIndex("OctaveTranspose"),
+    "subSat":  SubSyn.getAttributeIndex("SaturationAmount")
 };
+
+// SHAPE values by control id (registry defaults until a preset or the user sets them)
+const var DV = {};
+for (dp = 0; dp < DEEP_PARAMS.length; dp++) DV[DEEP_PARAMS[dp].id] = DEEP_PARAMS[dp]["default"];
 
 inline function setA(proc, idx, v)
 {
@@ -442,13 +479,72 @@ inline function applyRelease(ms)
     setA(M_SubEnv, A.sRel, ms);
 }
 
-// voicing = everything a preset sets that is not a visible control
+inline function applyALevel()
+{
+    setA(VoiceA, A.gainA, 0.9 * Engine.getGainFactorForDecibels(S.trim) * Engine.getGainFactorForDecibels(DV.ALevelKnob));
+}
+
+// per-voice filter costs nothing when it would not change the sound
+inline function updateVoiceFilter()
+{
+    local lp = Math.round(DV.FTypeKnob) <= 2;
+    local idle = lp && DV.CutoffKnob >= 19990 && DV.FEnvAmtKnob < 0.001 && DV.FKeyKnob < 0.001 && DV.FVelKnob < 0.001;
+    if (idle != S.vfIdle)
+    {
+        FX_VFilter.setBypassed(idle);
+        S.vfIdle = idle;
+    }
+}
+
+// one place that turns a SHAPE value into module settings
+inline function applyDeep(id, v)
+{
+    DV[id] = v;
+    if (id == "ALevelKnob") applyALevel();
+    else if (id == "VelAmpKnob") M_Vel.setIntensity(v);
+    else if (id == "SubOctKnob") setA(SubSyn, A.subOct, DEEP_SUB_OCTAVES[Math.round(v)]);
+    else if (id == "SubDriveKnob") setA(SubSyn, A.subSat, v);
+    else if (id == "SubDecKnob") setA(M_SubEnv, A.sDec, v);
+    else if (id == "SubSusKnob") setA(M_SubEnv, A.sSus, v);
+    else if (id == "FTypeKnob")
+    {
+        local ft = DEEP_FILTER_TYPES[Math.round(v)];
+        setA(FX_VFilter, A.vfMode, ft[1]);
+        updateVoiceFilter();
+    }
+    else if (id == "CutoffKnob") { setA(FX_VFilter, A.vfFreq, v); updateVoiceFilter(); }
+    else if (id == "ResoKnob") setA(FX_VFilter, A.vfQ, v);
+    else if (id == "FEnvAmtKnob") { M_FEnv.setIntensity(v); updateVoiceFilter(); }
+    else if (id == "FKeyKnob") { M_FKey.setIntensity(v); updateVoiceFilter(); }
+    else if (id == "FVelKnob") { M_FVel.setIntensity(v); updateVoiceFilter(); }
+    else if (id == "FAtkKnob") setA(M_FEnv, A.feA, v);
+    else if (id == "FDecKnob") setA(M_FEnv, A.feD, v);
+    else if (id == "FSusKnob") setA(M_FEnv, A.feS, v);
+    else if (id == "FRelKnob") setA(M_FEnv, A.feR, v);
+    else if (id == "AmpHoldKnob") setA(M_Amp, A.aHold, v);
+    else if (id == "AmpDecKnob") setA(M_Amp, A.aDec, v);
+    else if (id == "AmpSusKnob") setA(M_Amp, A.aSus, v);
+    else if (id == "ACurveKnob") setA(M_Amp, A.aACurve, v);
+    else if (id == "DCurveKnob") setA(M_Amp, A.aDCurve, v);
+    else if (id == "ASemiKnob") M_APitch.setIntensity(v);           // pitch mods take semitones
+    else if (id == "DriftKnob") M_Drift.setIntensity(v / 100.0);    // cents -> semitones
+    else if (id == "BendKnob") { M_BendA.setIntensity(v); M_BendS.setIntensity(v); }
+    else if (id == "VibKnob") { M_VibA.setIntensity(v); M_VibS.setIntensity(v); }
+    else if (id == "VibRateKnob") { setA(M_VibA, A.vibF, v); setA(M_VibS, A.vibFS, v); }
+    else if (id == "VibDelayKnob") { setA(M_VibA, A.vibFade, v); setA(M_VibS, A.vibFadeS, v); }
+    else if (id == "ViaWheelKnob")
+    {
+        M_WheelA.setBypassed(v < 0.5);
+        M_WheelS.setBypassed(v < 0.5);
+    }
+}
+
+// fixed voicing = what a preset sets that has no control (safe to re-run on session restore)
 inline function applyVoicing(p)
 {
     if (SamplerA.getCurrentSampleMapId() != p.map)
         SamplerA.loadSampleMap(p.map);
     setA(FX_Filter, A.fQ, p.reso);
-    M_Vel.setIntensity(p.vel);
     setA(M_Move, A.mFreq, p.lfo);
     local ti = tempoIndex(p.dly);
     if (ti >= 0)
@@ -456,9 +552,8 @@ inline function applyVoicing(p)
         setA(FX_Delay, A.eL, ti);
         setA(FX_Delay, A.eR, ti);
     }
-    setA(M_SubEnv, A.sDec, p.subdec);
-    setA(M_SubEnv, A.sSus, p.subsus);
-    setA(VoiceA, A.gainA, 0.9 * Engine.getGainFactorForDecibels(p.trim));
+    S.trim = p.trim;
+    applyALevel();
     S.col = catColour(p.cat);
 }
 
@@ -807,18 +902,23 @@ Header.setPaintRoutine(function(g)
         else g.drawPath(HEART, [656, 19, 16, 14], 1.4);
     }
 
-    // INSTRUMENT | LOOPS switch
+    // PLAY | SHAPE | LOOPS switch (PLAY and SHAPE are the instrument's two pages)
     g.setColour(T.frameDeep);
-    g.fillRoundedRectangle([736, 12, 124, 28], 14.0);
+    g.fillRoundedRectangle([734, 12, 128, 28], 14.0);
     g.setColour(T.frameHi);
-    g.drawRoundedRectangle([736.5, 12.5, 123, 27], 14.0, 1.0);
+    g.drawRoundedRectangle([734.5, 12.5, 127, 27], 14.0, 1.0);
+    var seg = S.mode == 1 ? 2 : S.page;
     g.setColour(Colours.withAlpha(T.accentOnFrame, 0.2));
-    g.fillRoundedRectangle([S.mode == 0 ? 738 : 798, 14, 60, 24], 12.0);
-    g.setFontWithSpacing(T.BOLD, 9, 0.12);
-    g.setColour(S.mode == 0 ? T.accentOnFrame : (hv == "inst" ? T.onFrame : T.onFrameDim));
-    g.drawAlignedText("INSTR", [738, 14, 60, 24], "centred");
-    g.setColour(S.mode == 1 ? T.accentOnFrame : (hv == "loops" ? T.onFrame : T.onFrameDim));
-    g.drawAlignedText("LOOPS", [798, 14, 60, 24], "centred");
+    g.fillRoundedRectangle([736 + seg * 41, 14, 42, 24], 12.0);
+    g.setFontWithSpacing(T.BOLD, 8, 0.1);
+    var segs = [["PLAY", "play"], ["SHAPE", "shape"], ["LOOPS", "loops"]];
+    var si = 0;
+    for (si = 0; si < 3; si++)
+    {
+        var sg = segs[si];
+        g.setColour(seg == si ? T.accentOnFrame : (hv == sg[1] ? T.onFrame : T.onFrameDim));
+        g.drawAlignedText(sg[0], [736 + si * 41, 14, 42, 24], "centred");
+    }
 
     // performance readout + meters
     g.setColour(T.onFrameDim);
@@ -845,12 +945,14 @@ Header.setMouseCallback(function(event)
         else if (event.x >= 688 && event.x < 724) h = "next";
         else if (event.x >= 648 && event.x < 680) h = "heart";
         else if (event.x >= 336 && event.x < 688) h = "name";
-        else if (event.x >= 738 && event.x < 798) h = "inst";
-        else if (event.x >= 798 && event.x < 858) h = "loops";
+        else if (event.x >= 736 && event.x < 777) h = "play";
+        else if (event.x >= 777 && event.x < 818) h = "shape";
+        else if (event.x >= 818 && event.x < 860) h = "loops";
     }
     if (event.clicked)
     {
-        if (h == "inst") setMode(0);
+        if (h == "play") { setMode(0); setPage(0); }
+        else if (h == "shape") { setMode(0); setPage(1); }
         else if (h == "loops") setMode(1);
         else if (S.mode == 1)
         {
@@ -1293,7 +1395,7 @@ Visualiser.setPaintRoutine(function(g)
     if (S.lastNote >= 0)
     {
         g.setColour(T.onGlass);
-        g.drawAlignedText(Engine.getMidiNoteName(S.lastNote) + "   VEL " + S.lastVel, [480, 14, 188, 14], "right");
+        g.drawAlignedText(Engine.getMidiNoteName(S.lastNote) + "   VEL " + S.lastVel, [140, 14, 150, 14], "left");   // clear of the PREVIEW pill
     }
 
     // FFT (path pins its own top + bottom, so scaling into the area is exact)
@@ -1732,6 +1834,252 @@ Content.setKeyPressCallback("[", onOctaveDown);
 Content.setKeyPressCallback("]", onOctaveUp);
 
 // ============================================================================
+// SHAPE PAGE (docs/16 Stage 1): hard-wired deep edit. Every control comes from
+// Scripts/DeepParams.js (generated from scripts/deep_params.json). Created
+// BEFORE PresetKey on purpose: HISE restores controls in creation order, so an
+// old session (no SHAPE values saved) resets these first and onPresetKey then
+// puts the preset's own values back.
+// ============================================================================
+const var SP_W = 720;
+const var SP_H = 532;
+const var SP_CW = 174;
+const var SP_CARDS = [["SOURCE", 0], ["FILTER", 182], ["AMP", 364], ["PITCH", 546]];
+const var SP_HELP = ["Main layer level and feel, plus the sine sub underneath it.",
+                     "A filter on every note. Wide open SVF LP = off. ENV AMT closes it after each hit, like a pluck.",
+                     "The main layer's volume shape. Curves turn straight ramps into swells or snaps.",
+                     "Mod wheel = vibrato while VIA WHEEL is lit. BEND sets the pitch wheel range."];
+const var SP_HIT = {"ftype": [190, 28, 158, 24], "subOct": [8, 124, 158, 24], "via": [554, 200, 158, 24]};
+
+const var ShapePage = Content.addPanel("ShapePage", 288, 60);
+Content.setPropertiesFromJSON("ShapePage", {"width": SP_W, "height": SP_H, "allowCallbacks": "Clicks & Hover", "visible": false});
+ShapePage.data.hover = "";
+
+const var DEEP_COMP = {};
+
+inline function onDeep(component, value)
+{
+    local id = component.getId();
+    if (id == "AmpAtkProxy")
+    {
+        AttackKnob.setValue(value);
+        applyAttack(value);
+    }
+    else if (id == "AmpRelProxy")
+    {
+        ReleaseKnob.setValue(value);
+        applyRelease(value);
+    }
+    else
+        applyDeep(id, value);
+    ShapePage.repaint();
+    refocusKeys();
+}
+
+for (dp = 0; dp < DEEP_PARAMS.length; dp++)
+{
+    var de = DEEP_PARAMS[dp];
+    var dk = Content.addKnob(de.id, de.x, de.y);
+    Content.setPropertiesFromJSON(de.id, {"mode": de.mode});
+    Content.setPropertiesFromJSON(de.id, {"parentComponent": "ShapePage", "x": de.x, "y": de.y,
+        "width": de.w, "height": de.h, "text": de.label, "tooltip": de.tip,
+        "min": de.min, "max": de.max, "stepSize": de.step, "defaultValue": de["default"],
+        "saveInPreset": de.kind != "proxy", "isPluginParameter": false, "visible": de.kind != "state"});
+    if (isDefined(de.middle)) dk.set("middlePosition", de.middle);
+    if (isDefined(de.unit)) dk.set("suffix", " " + de.unit);
+    dk.setValue(de["default"]);
+    dk.setLocalLookAndFeel(knobLaf);
+    dk.setControlCallback(onDeep);
+    DEEP_COMP[de.id] = dk;
+}
+
+inline function syncProxies()
+{
+    DEEP_COMP.AmpAtkProxy.setValue(AttackKnob.getValue());
+    DEEP_COMP.AmpRelProxy.setValue(ReleaseKnob.getValue());
+}
+
+// SHAPE values for a factory preset: registry defaults, the old voicing fields, then the preset's own "d"
+inline function setDeepFromPreset(p)
+{
+    local i = 0;
+    for (i = 0; i < DEEP_PARAMS.length; i++)
+    {
+        local e = DEEP_PARAMS[i];
+        if (e.kind != "proxy")
+        {
+            local v = e["default"];
+            if (e.id == "VelAmpKnob") v = p.vel;
+            else if (e.id == "SubDecKnob") v = p.subdec;
+            else if (e.id == "SubSusKnob") v = p.subsus;
+            if (isDefined(p.d))
+            {
+                if (isDefined(p.d[e.id])) v = p.d[e.id];
+            }
+            DEEP_COMP[e.id].setValue(v);
+            applyDeep(e.id, v);
+        }
+    }
+}
+
+inline function setPage(pg)
+{
+    S.page = pg;
+    local shape = (S.mode == 0 && pg == 1);
+    local i = 0;
+    ShapePage.showControl(shape);
+    Visualiser.showControl(!shape);
+    MacroCard.showControl(!shape);
+    for (i = 0; i < 8; i++) MACROS[i].showControl(!shape);
+    AttackKnob.showControl(!shape);
+    ReleaseKnob.showControl(!shape);
+    if (shape) syncProxies();
+    Header.repaint();
+    ShapePage.repaint();
+}
+
+inline function stepState(id, dir, count)
+{
+    local v = (Math.round(DV[id]) + dir + count) % count;
+    DEEP_COMP[id].setValue(v);
+    applyDeep(id, v);
+}
+
+inline function inRect(r, x, y)
+{
+    return x >= r[0] && x < r[0] + r[2] && y >= r[1] && y < r[1] + r[3];
+}
+
+inline function drawStepper(g, r, text, hot)
+{
+    g.setColour(hot ? T.s3 : T.s2);
+    g.fillRoundedRectangle(r, 4.0);
+    g.setColour(hot ? T.lineHi : T.line);
+    g.drawRoundedRectangle([r[0] + 0.5, r[1] + 0.5, r[2] - 1, r[3] - 1], 4.0, 1.0);
+    g.setColour(T.dim);
+    g.fillPath(ARROW_L, [r[0] + 9, r[1] + 7, 6, 10]);
+    g.fillPath(ARROW_R, [r[0] + r[2] - 15, r[1] + 7, 6, 10]);
+    g.setColour(T.txt);
+    g.setFontWithSpacing(T.BOLD, 9, 0.12);
+    g.drawAlignedText(text, [r[0] + 20, r[1], r[2] - 40, r[3]], "centred");
+}
+
+// envelope preview: levels 0..1 at time points, x scaled by sqrt(ms) so short and long stages both read
+inline function drawEnv(g, area, atk, hold, dec, sus, rel, floor, col)
+{
+    local tx = [Math.sqrt(atk), Math.sqrt(hold), Math.sqrt(dec), 2.4 * 10.0, Math.sqrt(rel)];
+    local tot = tx[0] + tx[1] + tx[2] + tx[3] + tx[4] + 0.001;
+    local sx = area[2] / tot;
+    local yb = area[1] + area[3];
+    local hh = area[3];
+    local x0 = area[0];
+    local x1 = x0 + tx[0] * sx;
+    local x2 = x1 + tx[1] * sx;
+    local x3 = x2 + tx[2] * sx;
+    local x4 = x3 + tx[3] * sx;
+    local x5 = x4 + tx[4] * sx;
+    local lf = yb - floor * hh;
+    local lt = area[1];
+    local ls = yb - (floor + (1.0 - floor) * sus) * hh;
+    g.setColour(T.line);
+    g.drawRect(area, 1.0);
+    g.setColour(col);
+    g.drawLine(x0, x1, lf, lt, 2.0);
+    g.drawLine(x1, x2, lt, lt, 2.0);
+    g.drawLine(x2, x3, lt, ls, 2.0);
+    g.drawLine(x3, x4, ls, ls, 2.0);
+    g.drawLine(x4, x5, ls, lf, 2.0);
+}
+
+ShapePage.setPaintRoutine(function(g)
+{
+    var c = 0;
+    var hv = this.data.hover;
+    for (c = 0; c < 4; c++)
+    {
+        var cd = SP_CARDS[c];
+        var cx = cd[1];
+        g.setColour(T.s1);
+        g.fillRoundedRectangle([cx, 0, SP_CW, SP_H], 8.0);
+        g.setColour(T.line);
+        g.drawRoundedRectangle([cx + 0.5, 0.5, SP_CW - 1, SP_H - 1], 8.0, 1.0);
+        g.setColour(T.tape);
+        g.fillRoundedRectangle([cx, 0, SP_CW, 20], 6.0);
+        g.fillRect([cx, 10, SP_CW, 10]);
+        g.setColour(T.onTape);
+        g.setFontWithSpacing(T.BOLD, 9, 0.18);
+        g.drawAlignedText(cd[0], [cx + 12, 0, SP_CW - 24, 20], "left");
+        g.setColour(T.line);
+        g.fillRect([cx + 12, 404, SP_CW - 24, 1]);
+        g.setColour(T.faint);
+        g.setFont(T.FONT, 10);
+        g.drawFittedText(SP_HELP[c], [cx + 12, 414, SP_CW - 24, 60], "topLeft", 5, 1.0);
+    }
+
+    // section captions
+    g.setColour(T.faint);
+    g.setFontWithSpacing(T.BOLD, 8, 0.16);
+    g.drawAlignedText("SUB LAYER", [12, 106, 150, 14], "left");
+    g.drawAlignedText("FILTER ENVELOPE", [194, 202, 150, 14], "left");
+    g.drawAlignedText("VIBRATO", [558, 112, 150, 14], "left");
+    g.drawAlignedText("SHAPE", [376, 280, 150, 14], "left");
+    g.drawAlignedText("SWEEP", [194, 280, 150, 14], "left");
+
+    // steppers + toggle
+    var ft = DEEP_FILTER_TYPES[Math.round(DV.FTypeKnob)];
+    drawStepper(g, SP_HIT.ftype, ft[0], hv == "ftype");
+    var so = DEEP_SUB_OCTAVES[Math.round(DV.SubOctKnob)];
+    drawStepper(g, SP_HIT.subOct, "SUB OCT  " + (so == 0 ? "0" : "" + so), hv == "subOct");
+    var via = DV.ViaWheelKnob > 0.5;
+    var vr = SP_HIT.via;
+    g.setColour(via ? Colours.withAlpha(T.accent, 0.16) : (hv == "via" ? T.s3 : T.s2));
+    g.fillRoundedRectangle(vr, 4.0);
+    g.setColour(via ? T.accent : (hv == "via" ? T.lineHi : T.line));
+    g.drawRoundedRectangle([vr[0] + 0.5, vr[1] + 0.5, vr[2] - 1, vr[3] - 1], 4.0, 1.0);
+    g.setColour(via ? T.accentInk : T.dim);
+    g.setFontWithSpacing(T.BOLD, 9, 0.12);
+    g.drawAlignedText(via ? "VIA WHEEL  ON" : "VIA WHEEL  OFF", vr, "centred");
+
+    // filter envelope as a cutoff sweep (the floor is how far ENV AMT closes it)
+    var amt = DV.FEnvAmtKnob;
+    var fs = Engine.getGainFactorForDecibels(DV.FSusKnob);
+    drawEnv(g, [194, 298, 150, 84], DV.FAtkKnob, 0, DV.FDecKnob, fs, DV.FRelKnob, 1.0 - amt, amt > 0.001 ? T.accent : T.mute);
+
+    // amp envelope
+    var as = Engine.getGainFactorForDecibels(DV.AmpSusKnob);
+    drawEnv(g, [376, 298, 150, 84], AttackKnob.getValue(), DV.AmpHoldKnob, DV.AmpDecKnob, as, ReleaseKnob.getValue(), 0.0, T.accent);
+});
+
+ShapePage.setMouseCallback(function(event)
+{
+    if (event.mouseUp) refocusKeys();
+    var h = "";
+    if (inRect(SP_HIT.ftype, event.x, event.y)) h = "ftype";
+    else if (inRect(SP_HIT.subOct, event.x, event.y)) h = "subOct";
+    else if (inRect(SP_HIT.via, event.x, event.y)) h = "via";
+    if (event.clicked)
+    {
+        if (h == "ftype")
+        {
+            var fr = SP_HIT.ftype;
+            stepState("FTypeKnob", event.x < fr[0] + fr[2] / 2 ? -1 : 1, DEEP_FILTER_TYPES.length);
+        }
+        else if (h == "subOct")
+        {
+            var sr = SP_HIT.subOct;
+            stepState("SubOctKnob", event.x < sr[0] + sr[2] / 2 ? -1 : 1, DEEP_SUB_OCTAVES.length);
+        }
+        else if (h == "via")
+            stepState("ViaWheelKnob", 1, 2);
+        this.repaint();
+    }
+    if (h != this.data.hover)
+    {
+        this.data.hover = h;
+        this.repaint();
+    }
+});
+
+// ============================================================================
 // PRESET LOADING
 // ============================================================================
 // hidden: remembers which factory sound is loaded, so a DAW session reopens
@@ -1746,6 +2094,7 @@ inline function refreshAll()
     Browser.repaint();
     Visualiser.repaint();
     MacroCard.repaint();
+    ShapePage.repaint();
 }
 
 inline function loadPreset(idx)
@@ -1753,8 +2102,9 @@ inline function loadPreset(idx)
     if (idx < 0 || idx >= FACTORY_BANK.length) return;
     local p = FACTORY_BANK[idx];
     S.cur = idx;
-    PresetKey.setValue(p.id);
+    PresetKey.setValue(p.id + "|d1");      // |d1 = this session also stores SHAPE values
     applyVoicing(p);
+    setDeepFromPreset(p);
     local mv = p.m;
     local i = 0;
     for (i = 0; i < 8; i++)
@@ -1767,6 +2117,7 @@ inline function loadPreset(idx)
     applyAttack(p.atk);
     ReleaseKnob.setValue(p.rel);
     applyRelease(p.rel);
+    syncProxies();
     scrollToCurrent();
     refreshAll();
     refocusKeys();
@@ -1774,12 +2125,15 @@ inline function loadPreset(idx)
 
 inline function onPresetKey(component, value)
 {
-    // session restore: re-apply the voicing only (the visible controls restore
-    // their own saved values, including any tweaks the user made)
-    local idx = findPreset(value);
+    // session restore: re-apply the fixed voicing only (the visible controls restore
+    // their own saved values, including any tweaks the user made). Sessions saved
+    // before the SHAPE page have no "|d1": give them the preset's own SHAPE values.
+    local parts = ("" + value).split("|");
+    local idx = findPreset(parts[0]);
     if (idx < 0) return;
     S.cur = idx;
     applyVoicing(FACTORY_BANK[idx]);
+    if (parts.length < 2) setDeepFromPreset(FACTORY_BANK[idx]);
     scrollToCurrent();
     refreshAll();
 }
@@ -1833,6 +2187,7 @@ inline function setMode(m)
         S.loopQ = -1;
         applyFeel();
     }
+    setPage(S.page);
     refreshAll();
 }
 
@@ -1957,6 +2312,20 @@ inline function selfTest()
     if (LOOP_KITS.length != 3) ok = false;
     if (qwertyRange() != "C3-E4") ok = false;
     if (findKit(LOOP_KITS[1].id) != 1) ok = false;
+    // SHAPE page (docs/16 Stage 1): every module attribute resolves, neutral defaults keep the filter off
+    local bad = "";
+    for (ak in A)
+        if (A[ak] < 0) bad += ak + " ";
+    if (bad != "") { ok = false; Console.print("RF selftest bad attribute: " + bad); }
+    if (DEEP_PARAMS.length != 30) ok = false;
+    if (!FX_VFilter.isBypassed() || !S.vfIdle) ok = false;
+    if (M_WheelA.isBypassed()) ok = false;
+    if (DV.BendKnob != 2) ok = false;
+    if (findPreset(("" + PresetKey.getValue()).split("|")[0]) < 0) ok = false;
+    applyDeep("CutoffKnob", 1200);
+    if (FX_VFilter.isBypassed()) ok = false;
+    applyDeep("CutoffKnob", 20000);
+    if (!FX_VFilter.isBypassed()) ok = false;
     applyFeel();
     local tso = LoopSampler.getTimestretchOptions();
     if (tso.Mode != "TempoSynced") ok = false;
