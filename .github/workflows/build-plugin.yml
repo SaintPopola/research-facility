@@ -250,6 +250,7 @@ jobs:
           name: SweetMelody-macOS-Installer-unsigned
           path: dist/*.pkg
           if-no-files-found: warn
+          retention-days: 3          # 1.2 GB per run; the plugin artifacts keep the default
 
       - name: Upload full Binaries folder for debugging
         if: always()
@@ -258,7 +259,7 @@ jobs:
           name: SweetMelody-macOS-Binaries-debug
           path: hise_project/ResearchFacility/Binaries/
           if-no-files-found: warn
-          retention-days: 7
+          retention-days: 2
 
   build_macos_standalone:
     name: macOS Standalone app
@@ -537,7 +538,7 @@ jobs:
           name: SweetMelody-Windows-Binaries-debug
           path: hise_project/ResearchFacility/Binaries/
           if-no-files-found: warn
-          retention-days: 7
+          retention-days: 2
 
   build_linux:
     name: Linux x64 VST3
@@ -653,4 +654,4 @@ jobs:
           name: SweetMelody-Linux-Binaries-debug
           path: hise_project/ResearchFacility/Binaries/
           if-no-files-found: warn
-          retention-days: 7
+          retention-days: 2
