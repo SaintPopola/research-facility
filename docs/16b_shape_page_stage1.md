@@ -33,3 +33,37 @@ Pitch bend now works (2 semitones by default). The mod wheel now adds vibrato on
 - No XML hygiene renames (Master Filter chain names, Cutoff Drift). They are cosmetic, and removing Cutoff Drift would change the sound.
 - No FilterDisplay or AHDSRGraph floating tiles. The cards draw their own envelope previews instead.
 - No factory preset sets "d" values yet. That is a sound-design pass, for example filter-envelope plucks.
+
+## Stage 2 (same day): MOD page and mod matrix
+
+- The header is now PLAY | SHAPE | MOD | LOOPS.
+- 'Mod Sources' (GlobalModulatorContainer, first child synth) holds 11 sources:
+  - LFO 1: sine, 1/4, host grid.
+  - LFO 2: triangle, 1/8, restarts per phrase.
+  - LFO 3: steps, 1/16.
+  - LFO 4: drawn, one bar.
+  - Env 2: pluck.
+  - Env 3: swell.
+  - Velocity, Key, Random, Mod Wheel, Aftertouch.
+- Synth.setUseUniformVoiceHandler is on, so Env 2/3 follow each note. Voice A and Sub now have 64 voices.
+- Engine.createModulationMatrix("Mod Sources") has six targets: A Pitch (SEMI knob, via 'A Pitch UIMod'), A Level, Sub Level (BODY), Cutoff, Resonance and Grit (time-variant only).
+- CutoffKnob and ASemiKnob have no control callback, so the matrix owns their base value (docs/16 rule R1). The animation clock follows them for the Voice Filter auto-bypass. The filter also wakes when anything is routed to Cutoff.
+- MOD page:
+  - a source list with live meters and connection counts;
+  - a per-source editor: LFO rate (sync or Hz), fade, wave, sync; envelope A D S R;
+  - a live trace of the selected source;
+  - one-click ROUTE chips at 25% (pitch 1 st);
+  - a connection list with drag depth, SCALE/UNI/BI, INV and remove.
+- Right-click on any target knob also offers the native "Connect to <source>" menu.
+- Target knobs draw an outer ring from their value to the live modulated value, plus a connection count.
+- Persistence: the hidden 'ModState' label stores matrix.toBase64(). It is created before PresetKey, so old sessions restore with no connections.
+- A factory preset load resets source settings and connections, then applies the preset's optional "mod" rows.
+- Build gates in scripts/build_signature_bank.py:
+  - check_mod validates source and target names, slot capacity per kind, intensity range and mode;
+  - check_sample_maps fails if any key x velocity x RR starts two samples (the uniform voice handler requirement).
+- XML hygiene from docs/16 (no change to the sound):
+  - Master Filter chain renamed 'Bipolar Freq Modulation';
+  - 'Q Modulation' added, and 'Cutoff Drift' removed (it never loaded under the old chain name);
+  - Saturator 'Wet Amount Modulation' removed;
+  - Pump chains renamed to the exact LFO chain IDs.
+- Not yet: drag-to-modulate from chips, drawn LFO 4 / step LFO 3 editors, velocity/key curves, host parameters for LFO rates, and a CPU measurement (Stage 3).

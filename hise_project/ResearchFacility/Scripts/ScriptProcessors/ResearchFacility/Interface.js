@@ -171,7 +171,8 @@ const var S = {
     "lvlL": 0.0, "lvlR": 0.0, "voices": 0, "cpu": 0.0,
     "strumNote": -1, "orbPhase": 0.0, "orbFrame": 0,
     "mode": 0, "kit": 0, "loopQ": -1, "shift": 0,
-    "page": 0, "trim": 0.0, "vfIdle": true
+    "page": 0, "trim": 0.0, "vfIdle": true, "kitTop": 0,
+    "cutConn": 0, "modSrc": 0, "histPos": 0, "connDrag": -1
 };
 
 const var FAV = {};
@@ -488,7 +489,7 @@ inline function applyALevel()
 inline function updateVoiceFilter()
 {
     local lp = Math.round(DV.FTypeKnob) <= 2;
-    local idle = lp && DV.CutoffKnob >= 19990 && DV.FEnvAmtKnob < 0.001 && DV.FKeyKnob < 0.001 && DV.FVelKnob < 0.001;
+    local idle = lp && DV.CutoffKnob >= 19990 && DV.FEnvAmtKnob < 0.001 && DV.FKeyKnob < 0.001 && DV.FVelKnob < 0.001 && S.cutConn == 0;
     if (idle != S.vfIdle)
     {
         FX_VFilter.setBypassed(idle);
@@ -568,9 +569,10 @@ inline function applyFeel()
     local host = Engine.getHostBpm();
     if (host < 40.0 || host > 300.0) host = kit.bpm;
     local r = host / kit.bpm;
-    local q = 8;
-    if (r > 1.45) q = 16;
-    if (r < 0.7) q = 4;
+    local base = kit.quarters;               // 8 for 2-bar kits, 16 for 4-bar pack kits
+    local q = base;
+    if (r > 1.45) q = base * 2;
+    if (r < 0.7) q = base / 2;
     if (q != S.loopQ)
     {
         local o = LoopSampler.getTimestretchOptions();
@@ -904,35 +906,35 @@ Header.setPaintRoutine(function(g)
 
     // PLAY | SHAPE | LOOPS switch (PLAY and SHAPE are the instrument's two pages)
     g.setColour(T.frameDeep);
-    g.fillRoundedRectangle([734, 12, 128, 28], 14.0);
+    g.fillRoundedRectangle([732, 12, 164, 28], 14.0);
     g.setColour(T.frameHi);
-    g.drawRoundedRectangle([734.5, 12.5, 127, 27], 14.0, 1.0);
-    var seg = S.mode == 1 ? 2 : S.page;
+    g.drawRoundedRectangle([732.5, 12.5, 163, 27], 14.0, 1.0);
+    var seg = S.mode == 1 ? 3 : S.page;
     g.setColour(Colours.withAlpha(T.accentOnFrame, 0.2));
-    g.fillRoundedRectangle([736 + seg * 41, 14, 42, 24], 12.0);
-    g.setFontWithSpacing(T.BOLD, 8, 0.1);
-    var segs = [["PLAY", "play"], ["SHAPE", "shape"], ["LOOPS", "loops"]];
+    g.fillRoundedRectangle([734 + seg * 40, 14, 40, 24], 12.0);
+    g.setFontWithSpacing(T.BOLD, 8, 0.08);
+    var segs = [["PLAY", "play"], ["SHAPE", "shape"], ["MOD", "mod"], ["LOOPS", "loops"]];
     var si = 0;
-    for (si = 0; si < 3; si++)
+    for (si = 0; si < 4; si++)
     {
         var sg = segs[si];
         g.setColour(seg == si ? T.accentOnFrame : (hv == sg[1] ? T.onFrame : T.onFrameDim));
-        g.drawAlignedText(sg[0], [736 + si * 41, 14, 42, 24], "centred");
+        g.drawAlignedText(sg[0], [734 + si * 40, 14, 40, 24], "centred");
     }
 
     // performance readout + meters
     g.setColour(T.onFrameDim);
     g.setFontWithSpacing(T.FONT, 8, 0.12);
     var vs = S.voices < 10 ? "0" + S.voices : "" + S.voices;
-    g.drawAlignedText("VOX " + vs, [870, 12, 50, 12], "left");
-    g.drawAlignedText("CPU " + Math.round(S.cpu) + "%", [870, 28, 50, 12], "left");
+    g.drawAlignedText("VOX " + vs, [904, 12, 44, 12], "left");
+    g.drawAlignedText("CPU " + Math.round(S.cpu) + "%", [904, 28, 44, 12], "left");
     g.setColour(T.frameHi);
-    g.fillRoundedRectangle([924, 15, 80, 5], 2.0);
-    g.fillRoundedRectangle([924, 30, 80, 5], 2.0);
+    g.fillRoundedRectangle([950, 15, 56, 5], 2.0);
+    g.fillRoundedRectangle([950, 30, 56, 5], 2.0);
     g.setColour(S.lvlL > 0.97 ? T.warn : T.accentOnFrame);
-    g.fillRoundedRectangle([924, 15, 80 * S.lvlL, 5], 2.0);
+    g.fillRoundedRectangle([950, 15, 56 * S.lvlL, 5], 2.0);
     g.setColour(S.lvlR > 0.97 ? T.warn : T.accentOnFrame);
-    g.fillRoundedRectangle([924, 30, 80 * S.lvlR, 5], 2.0);
+    g.fillRoundedRectangle([950, 30, 56 * S.lvlR, 5], 2.0);
 });
 
 Header.setMouseCallback(function(event)
@@ -945,14 +947,16 @@ Header.setMouseCallback(function(event)
         else if (event.x >= 688 && event.x < 724) h = "next";
         else if (event.x >= 648 && event.x < 680) h = "heart";
         else if (event.x >= 336 && event.x < 688) h = "name";
-        else if (event.x >= 736 && event.x < 777) h = "play";
-        else if (event.x >= 777 && event.x < 818) h = "shape";
-        else if (event.x >= 818 && event.x < 860) h = "loops";
+        else if (event.x >= 734 && event.x < 774) h = "play";
+        else if (event.x >= 774 && event.x < 814) h = "shape";
+        else if (event.x >= 814 && event.x < 854) h = "mod";
+        else if (event.x >= 854 && event.x < 894) h = "loops";
     }
     if (event.clicked)
     {
         if (h == "play") { setMode(0); setPage(0); }
         else if (h == "shape") { setMode(0); setPage(1); }
+        else if (h == "mod") { setMode(0); setPage(2); }
         else if (h == "loops") setMode(1);
         else if (S.mode == 1)
         {
@@ -974,6 +978,13 @@ Header.setMouseCallback(function(event)
 // ============================================================================
 // BROWSER
 // ============================================================================
+// loop kit list: a 7-row window that follows the loaded kit (packs can add many kits)
+const var KIT_ROW = 42;
+inline function kitVis()
+{
+    return Math.min(LOOP_KITS.length, 7);
+}
+
 const var Browser = Content.addPanel("Browser", 16, 60);
 Content.setPropertiesFromJSON("Browser", {"width": 256, "height": 520,
     "allowCallbacks": "Clicks, Hover & Dragging"});
@@ -992,27 +1003,38 @@ Browser.setPaintRoutine(function(g)
     {
         g.setColour(T.dim);
         g.setFontWithSpacing(T.FONT, 9, 0.18);
-        g.drawAlignedText("LOOP KITS", [16, 14, 200, 14], "left");
-        for (k = 0; k < LOOP_KITS.length; k++)
+        g.drawAlignedText("LOOP KITS", [16, 14, 120, 14], "left");
+        var kvis = kitVis();
+        if (LOOP_KITS.length > kvis)
         {
+            g.setColour(T.dim);
+            g.fillPath(ARROW_L, [184, 15, 6, 10]);
+            g.fillPath(ARROW_R, [236, 15, 6, 10]);
+            g.setFont(T.FONT, 9);
+            g.drawAlignedText((S.kitTop + 1) + "-" + (S.kitTop + kvis) + "/" + LOOP_KITS.length, [192, 12, 42, 16], "centred");
+        }
+        var kr = 0;
+        for (kr = 0; kr < kvis; kr++)
+        {
+            k = S.kitTop + kr;
             var kt = LOOP_KITS[k];
-            var ky = 36 + k * 50;
+            var ky = 36 + kr * KIT_ROW;
             var kon = (k == S.kit);
             g.setColour(kon ? Colours.withAlpha(T.accent, 0.12) : T.s2);
-            g.fillRoundedRectangle([10, ky, 236, 44], 6.0);
+            g.fillRoundedRectangle([10, ky, 236, KIT_ROW - 4], 6.0);
             if (kon)
             {
                 g.setColour(T.accent);
-                g.fillRoundedRectangle([10, ky + 8, 3, 28], 1.5);
+                g.fillRoundedRectangle([10, ky + 7, 3, KIT_ROW - 18], 1.5);
             }
             g.setColour(T.txt);
             g.setFont(T.BOLD, 13);
-            g.drawAlignedText(kt.name, [22, ky + 4, 220, 18], "left");
+            g.drawAlignedText(kt.name, [22, ky + 2, 220, 18], "left");
             g.setColour(T.dim);
             g.setFont(T.FONT, 10);
-            g.drawAlignedText(kt.bpm + " BPM  /  " + kt.key + "  /  " + kt.tags.join(", "), [22, ky + 22, 220, 16], "left");
+            g.drawAlignedText(kt.bpm + " BPM  /  " + kt.key + "  /  " + kt.tags.join(", "), [22, ky + 19, 220, 16], "left");
         }
-        var ly = 36 + LOOP_KITS.length * 50 + 18;
+        var ly = 36 + kvis * KIT_ROW + 14;
         g.setColour(T.dim);
         g.setFontWithSpacing(T.FONT, 9, 0.18);
         g.drawAlignedText("LANES  /  4 TAKES EACH", [16, ly, 220, 14], "left");
@@ -1029,7 +1051,7 @@ Browser.setPaintRoutine(function(g)
         }
         g.setColour(T.faint);
         g.setFont(T.FONT, 10);
-        g.drawMultiLineText("Hold keys or sequence them in a clip. Loops follow the host tempo; one key per take.", [16, ly + 140], 224, "left", 0.0);
+        g.drawMultiLineText("Hold keys or sequence them in a clip. Loops follow the host tempo; one key per take.", [16, ly + 136], 224, "left", 0.0);
         return;
     }
 
@@ -1236,8 +1258,15 @@ Browser.setMouseCallback(function(event)
     if (event.mouseUp) refocusKeys();
     if (S.mode == 1)
     {
-        if (event.clicked && event.y >= 36 && event.y < 36 + LOOP_KITS.length * 50)
-            loadKit(Math.floor((event.y - 36) / 50));
+        var kv = kitVis();
+        if (event.clicked && event.y >= 10 && event.y < 30 && event.x >= 176 && LOOP_KITS.length > kv)
+        {
+            if (event.x < 213) S.kitTop = Math.max(0, S.kitTop - 1);
+            else S.kitTop = Math.min(LOOP_KITS.length - kv, S.kitTop + 1);
+            this.repaint();
+        }
+        else if (event.clicked && event.y >= 36 && event.y < 36 + kv * KIT_ROW)
+            loadKit(S.kitTop + Math.floor((event.y - 36) / KIT_ROW));
         return;
     }
     var hit = browserHit(event.x, event.y);
@@ -1563,6 +1592,23 @@ knobLaf.registerFunction("drawRotarySlider", function(g, obj)
         g.drawPath(ARC, false, th);
     }
 
+    // matrix target: outer arc from the knob value to the live modulated value
+    var ti = MOD_TGT_COMP.indexOf(obj.id);
+    if (ti >= 0 && TGT_COUNT[ti] > 0)
+    {
+        var mv = Matrix.getModValue(obj.id);
+        var b0 = a0 + 4.712 * v;
+        var b1 = a0 + 4.712 * mv;
+        var RR = R + 4.0;
+        ARC.clear();
+        ARC.addArc([cx - RR, cy - RR, RR * 2.0, RR * 2.0], Math.min(b0, b1), Math.max(b0, b1) + 0.01);
+        g.setColour(T.mLfo);
+        g.drawPath(ARC, false, 2.0);
+        g.fillEllipse([cx + RR * Math.sin(b1) - 2.5, cy - RR * Math.cos(b1) - 2.5, 5, 5]);
+        g.setFont(T.BOLD, 8);
+        g.drawAlignedText("" + TGT_COUNT[ti], [w - 12, 0, 12, 10], "right");
+    }
+
     // 3D machined cap: frame 0 = minimum, 63 = maximum (pointer baked in)
     var cr = R - (big ? 3.0 : 2.0);
     var fi = Math.round(v * 63.0);
@@ -1855,6 +1901,9 @@ Content.setPropertiesFromJSON("ShapePage", {"width": SP_W, "height": SP_H, "allo
 ShapePage.data.hover = "";
 
 const var DEEP_COMP = {};
+// the mod matrix only receives a knob's value when the knob has no control callback
+// (ScriptProcessor.cpp 4.1.0), so these two are followed by the animation clock instead
+const var MATRIX_OWNED = ["CutoffKnob", "ASemiKnob"];
 
 inline function onDeep(component, value)
 {
@@ -1888,7 +1937,7 @@ for (dp = 0; dp < DEEP_PARAMS.length; dp++)
     if (isDefined(de.unit)) dk.set("suffix", " " + de.unit);
     dk.setValue(de["default"]);
     dk.setLocalLookAndFeel(knobLaf);
-    dk.setControlCallback(onDeep);
+    if (MATRIX_OWNED.indexOf(de.id) < 0) dk.setControlCallback(onDeep);
     DEEP_COMP[de.id] = dk;
 }
 
@@ -1916,6 +1965,7 @@ inline function setDeepFromPreset(p)
                 if (isDefined(p.d[e.id])) v = p.d[e.id];
             }
             DEEP_COMP[e.id].setValue(v);
+            if (MATRIX_OWNED.indexOf(e.id) >= 0) DEEP_COMP[e.id].changed();    // reaches the matrix base value
             applyDeep(e.id, v);
         }
     }
@@ -1925,16 +1975,21 @@ inline function setPage(pg)
 {
     S.page = pg;
     local shape = (S.mode == 0 && pg == 1);
+    local mod = (S.mode == 0 && pg == 2);
+    local play = !shape && !mod;
     local i = 0;
     ShapePage.showControl(shape);
-    Visualiser.showControl(!shape);
-    MacroCard.showControl(!shape);
-    for (i = 0; i < 8; i++) MACROS[i].showControl(!shape);
-    AttackKnob.showControl(!shape);
-    ReleaseKnob.showControl(!shape);
+    ModPage.showControl(mod);
+    Visualiser.showControl(play);
+    MacroCard.showControl(play);
+    for (i = 0; i < 8; i++) MACROS[i].showControl(play);
+    AttackKnob.showControl(play);
+    ReleaseKnob.showControl(play);
+    showModEditor(mod ? S.modSrc : -1);
     if (shape) syncProxies();
     Header.repaint();
     ShapePage.repaint();
+    ModPage.repaint();
 }
 
 inline function stepState(id, dir, count)
@@ -2080,6 +2135,521 @@ ShapePage.setMouseCallback(function(event)
 });
 
 // ============================================================================
+// MOD PAGE + MATRIX (docs/16 Stage 2). 'Mod Sources' is a GlobalModulatorContainer
+// (first child synth) with 11 sources; the 4.1.0 ScriptModulationMatrix routes them
+// to six real-module targets. Unconnected sources and receivers are auto-bypassed.
+// ============================================================================
+Synth.setUseUniformVoiceHandler("ResearchFacility", true);   // Env 2/3 follow each note
+
+const var MOD_SOURCES = ["LFO 1", "LFO 2", "LFO 3", "LFO 4", "Env 2", "Env 3", "Velocity", "Key", "Random", "Mod Wheel", "Aftertouch"];
+const var MOD_KIND = ["lfo", "lfo", "lfo", "lfo", "env", "env", "note", "note", "note", "cc", "cc"];
+const var MOD_COL = [T.mLfo, T.mLfo, T.mLfo, T.mLfo, T.mEnv, T.mEnv, T.mPerf, T.mPerf, T.mRand, T.mStep, T.mStep];
+const var MOD_HELP = ["Sine on the host grid. Steady wobble or tremolo.",
+                      "Triangle that restarts on each new phrase. Filter sweeps.",
+                      "Stepped pattern on a 1/16 grid. Gates and trills.",
+                      "Drawn shape over one bar. Slow, shaped movement.",
+                      "Fast envelope on every note. Filter snap, pitch drop.",
+                      "Slow swell on every note. Pads that bloom.",
+                      "How hard each note is played.",
+                      "Which key is played. Brighter or louder up high.",
+                      "A new random value on every note. Humanize.",
+                      "The mod wheel (CC1).",
+                      "Channel pressure from the keyboard."];
+const var MOD_TGT = ["A Pitch", "A Level", "Sub Level", "Cutoff", "Resonance", "Grit"];
+const var MOD_TGT_LABEL = ["PITCH", "LEVEL", "SUB", "CUTOFF", "RESO", "GRIT"];
+const var MOD_TGT_COMP = ["ASemiKnob", "ALevelKnob", "BodyKnob", "CutoffKnob", "ResoKnob", "GritKnob"];
+const var MOD_MODES = ["Scale", "Unipolar", "Bipolar"];
+const var MOD_MODE_SHORT = ["SCALE", "UNI", "BI"];
+const var TGT_COUNT = [0, 0, 0, 0, 0, 0];
+const var SRC_COUNT = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+const var CONNS = [];
+const var MOD_MODS = [];
+for (ms = 0; ms < MOD_SOURCES.length; ms++) MOD_MODS.push(Synth.getModulator(MOD_SOURCES[ms]));
+const var MOD_HIST = [];
+for (ms = 0; ms < 64; ms++) MOD_HIST.push(0.0);
+
+// hidden: every connection as the matrix's own base64, saved with the DAW session
+// (4.1.0 getStateInformation skips the 'ModulationMatrix' state manager)
+const var ModState = Content.addLabel("ModState", 0, 0);
+Content.setPropertiesFromJSON("ModState", {"saveInPreset": true, "visible": false,
+    "width": 1, "height": 1, "editable": false, "text": ""});
+
+const var Matrix = Engine.createModulationMatrix("Mod Sources");
+Matrix.setEditCallback(function(targetId)
+{
+    setMode(0);
+    setPage(2);
+});
+Matrix.setNumModulationSlots([2, 2, 1]);
+Matrix.addModulatorTarget({"ID": "A Pitch", "Target": "Voice A", "Component": "ASemiKnob", "Chain": Matrix.Pitch, "Slots": [2, 2, 2], "AddConstUIMod": true});
+Matrix.addModulatorTarget({"ID": "A Level", "Target": "Voice A", "Component": "ALevelKnob", "Chain": Matrix.Gain, "Slots": [2, 2, 1]});
+Matrix.addModulatorTarget({"ID": "Sub Level", "Target": "Sub", "Component": "BodyKnob", "Chain": Matrix.Gain, "Slots": [1, 2, 1]});
+Matrix.addModulatorTarget({"ID": "Cutoff", "Target": "Voice Filter", "Component": "CutoffKnob", "Chain": Matrix.Frequency, "Slots": [2, 2, 2]});
+Matrix.addModulatorTarget({"ID": "Resonance", "Target": "Voice Filter", "Component": "ResoKnob", "Chain": 3, "Slots": [1, 1, 1]});
+Matrix.addModulatorTarget({"ID": "Grit", "Target": "Drive", "Component": "GritKnob", "Chain": 0, "Slots": [0, 2, 0]});
+
+inline function refreshConns()
+{
+    local all = Matrix.getConnectionData("");
+    local i = 0;
+    for (i = 0; i < TGT_COUNT.length; i++) TGT_COUNT[i] = 0;
+    for (i = 0; i < SRC_COUNT.length; i++) SRC_COUNT[i] = 0;
+    CONNS.clear();
+    for (i = 0; i < all.length; i++)
+    {
+        local c = all[i];
+        local ti = MOD_TGT.indexOf(c.Target);
+        local si = MOD_SOURCES.indexOf(c.Source);
+        if (ti >= 0) TGT_COUNT[ti] = TGT_COUNT[ti] + 1;
+        if (si >= 0) SRC_COUNT[si] = SRC_COUNT[si] + 1;
+        CONNS.push(c);
+    }
+    S.cutConn = TGT_COUNT[3];
+}
+
+inline function connIndex(src, tgt)
+{
+    local i = 0;
+    for (i = 0; i < CONNS.length; i++)
+    {
+        local c = CONNS[i];
+        if (c.Source == src && c.Target == tgt) return i;
+    }
+    return -1;
+}
+
+// one-click routing: toggle the selected source onto a target at a musical default depth
+inline function toggleRoute(src, tgt)
+{
+    if (connIndex(src, tgt) >= 0)
+        Matrix.connect(src, tgt, false);
+    else if (Matrix.canConnect(src, tgt))
+    {
+        Matrix.connect(src, tgt, true);
+        Matrix.updateIntensity(src, tgt, tgt == "A Pitch" ? 1.0 : 0.25);
+    }
+    refreshConns();
+    updateVoiceFilter();
+}
+
+Matrix.setConnectionCallback(function(source, target, action)
+{
+    var b = Matrix.toBase64();
+    if (b != ModState.getValue()) ModState.setValue(b);
+    refreshConns();
+    updateVoiceFilter();
+    ModPage.repaint();
+});
+
+inline function onModState(component, value)
+{
+    if (value == "") Matrix.clearAllConnections();
+    else Matrix.fromBase64(value);
+    refreshConns();
+    updateVoiceFilter();
+}
+ModState.setControlCallback(onModState);
+
+// ---------- source editor controls (one small set per LFO / envelope, saved in the session)
+const var LFO_WAVES = ["SINE", "TRIANGLE", "SAW", "SQUARE", "RANDOM", "DRAWN", "STEPS"];   // WaveFormType 1..7
+const var LFO_IDX = [];
+const var ENV_IDX = [];
+for (ms = 0; ms < 4; ms++)
+{
+    var lmod = MOD_MODS[ms];
+    LFO_IDX.push([lmod.getAttributeIndex("Frequency"), lmod.getAttributeIndex("TempoSync"),
+                  lmod.getAttributeIndex("WaveFormType"), lmod.getAttributeIndex("FadeIn")]);
+}
+for (ms = 4; ms < 6; ms++)
+{
+    var emod = MOD_MODS[ms];
+    ENV_IDX.push([emod.getAttributeIndex("Attack"), emod.getAttributeIndex("Decay"),
+                  emod.getAttributeIndex("Sustain"), emod.getAttributeIndex("Release")]);
+}
+// [id, label, source index, kind, column, min, max, default, mode, middle, step]
+const var MOD_PARAMS = [
+    ["Lfo1Rate", "RATE", 0, "knob", 0, 0, 1, 0.2778, "Linear", 0.5, 0.001], ["Lfo1Fade", "FADE", 0, "knob", 1, 0, 3000, 0, "Time", 500, 1],
+    ["Lfo1Sync", "SYNC", 0, "state", 0, 0, 1, 1, "Linear", 0.5, 1], ["Lfo1Wave", "WAVE", 0, "state", 0, 0, 6, 0, "Linear", 3, 1],
+    ["Lfo2Rate", "RATE", 1, "knob", 0, 0, 1, 0.4444, "Linear", 0.5, 0.001], ["Lfo2Fade", "FADE", 1, "knob", 1, 0, 3000, 0, "Time", 500, 1],
+    ["Lfo2Sync", "SYNC", 1, "state", 0, 0, 1, 1, "Linear", 0.5, 1], ["Lfo2Wave", "WAVE", 1, "state", 0, 0, 6, 1, "Linear", 3, 1],
+    ["Lfo3Rate", "RATE", 2, "knob", 0, 0, 1, 0.6111, "Linear", 0.5, 0.001], ["Lfo3Fade", "FADE", 2, "knob", 1, 0, 3000, 0, "Time", 500, 1],
+    ["Lfo3Sync", "SYNC", 2, "state", 0, 0, 1, 1, "Linear", 0.5, 1], ["Lfo3Wave", "WAVE", 2, "state", 0, 0, 6, 6, "Linear", 3, 1],
+    ["Lfo4Rate", "RATE", 3, "knob", 0, 0, 1, 0.0, "Linear", 0.5, 0.001], ["Lfo4Fade", "FADE", 3, "knob", 1, 0, 3000, 0, "Time", 500, 1],
+    ["Lfo4Sync", "SYNC", 3, "state", 0, 0, 1, 1, "Linear", 0.5, 1], ["Lfo4Wave", "WAVE", 3, "state", 0, 0, 6, 5, "Linear", 3, 1],
+    ["Env2A", "ATTACK", 4, "knob", 0, 0, 3000, 5, "Time", 150, 1], ["Env2D", "DECAY", 4, "knob", 1, 5, 10000, 600, "Time", 800, 1],
+    ["Env2S", "SUSTAIN", 4, "knob", 2, -100, 0, -100, "Decibel", -20, 0.5], ["Env2R", "RELEASE", 4, "knob", 3, 5, 10000, 400, "Time", 800, 1],
+    ["Env3A", "ATTACK", 5, "knob", 0, 0, 3000, 300, "Time", 150, 1], ["Env3D", "DECAY", 5, "knob", 1, 5, 10000, 1000, "Time", 800, 1],
+    ["Env3S", "SUSTAIN", 5, "knob", 2, -100, 0, 0, "Decibel", -20, 0.5], ["Env3R", "RELEASE", 5, "knob", 3, 5, 10000, 800, "Time", 800, 1]];
+const var MV = {};
+const var MOD_COMP = {};
+
+inline function lfoRateText(i)
+{
+    local pre = "Lfo" + (i + 1);
+    if (MV[pre + "Sync"] > 0.5) return Engine.getTempoName(Math.round(MV[pre + "Rate"] * 18));
+    return Engine.doubleToString(0.05 * Math.pow(400.0, MV[pre + "Rate"]), 2) + " Hz";
+}
+
+inline function applyModParam(id, v)
+{
+    MV[id] = v;
+    local i = 0;
+    for (i = 0; i < 4; i++)
+    {
+        local pre = "Lfo" + (i + 1);
+        if (id.indexOf(pre) == 0)
+        {
+            local lm = MOD_MODS[i];
+            local ix = LFO_IDX[i];
+            local sync = MV[pre + "Sync"] > 0.5;
+            if (id == pre + "Wave") lm.setAttribute(ix[2], Math.round(v) + 1);
+            else if (id == pre + "Fade") lm.setAttribute(ix[3], v);
+            else
+            {
+                lm.setAttribute(ix[1], sync ? 1 : 0);
+                lm.setAttribute(ix[0], sync ? Math.round(MV[pre + "Rate"] * 18) : 0.05 * Math.pow(400.0, MV[pre + "Rate"]));
+            }
+        }
+    }
+    for (i = 0; i < 2; i++)
+    {
+        local epre = "Env" + (i + 2);
+        if (id.indexOf(epre) == 0)
+        {
+            local em = MOD_MODS[4 + i];
+            local eix = ENV_IDX[i];
+            local stage = "ADSR".indexOf(id.substring(4, 5));
+            if (stage >= 0) em.setAttribute(eix[stage], v);
+        }
+    }
+}
+
+inline function onModParam(component, value)
+{
+    applyModParam(component.getId(), value);
+    ModPage.repaint();
+    refocusKeys();
+}
+
+const var ModPage = Content.addPanel("ModPage", 288, 60);
+Content.setPropertiesFromJSON("ModPage", {"width": 720, "height": 532, "allowCallbacks": "Clicks, Hover & Dragging", "visible": false});
+ModPage.data.hover = "";
+
+for (ms = 0; ms < MOD_PARAMS.length; ms++)
+{
+    var mp = MOD_PARAMS[ms];
+    var mk2 = Content.addKnob(mp[0], 0, 0);
+    Content.setPropertiesFromJSON(mp[0], {"mode": mp[8]});
+    Content.setPropertiesFromJSON(mp[0], {"parentComponent": "ModPage", "x": 214 + mp[4] * 60, "y": 76,
+        "width": 56, "height": 58, "text": mp[1], "min": mp[5], "max": mp[6], "stepSize": mp[10],
+        "middlePosition": mp[9], "defaultValue": mp[7], "saveInPreset": true, "isPluginParameter": false, "visible": false});
+    mk2.setValue(mp[7]);
+    mk2.setLocalLookAndFeel(knobLaf);
+    mk2.setControlCallback(onModParam);
+    MOD_COMP[mp[0]] = mk2;
+    MV[mp[0]] = mp[7];
+}
+
+inline function showModEditor(src)
+{
+    local i = 0;
+    for (i = 0; i < MOD_PARAMS.length; i++)
+    {
+        local mp = MOD_PARAMS[i];
+        MOD_COMP[mp[0]].showControl(mp[2] == src && mp[3] == "knob");
+    }
+}
+
+inline function stepModState(id, dir, count)
+{
+    local v = (Math.round(MV[id]) + dir + count) % count;
+    MOD_COMP[id].setValue(v);
+    applyModParam(id, v);
+}
+
+// geometry: sources list | source editor | connections
+const var MP_SRC_Y = 30;
+const var MP_ROW = 40;
+const var MP_CONN_Y = 30;
+const var MP_CROW = 34;
+const var MP_ROUTE = [[214, 300], [294, 300], [374, 300], [214, 332], [294, 332], [374, 332]];   // chip x, y (w 74, h 26)
+
+inline function modCard(g, x, w, title)
+{
+    g.setColour(T.s1);
+    g.fillRoundedRectangle([x, 0, w, 532], 8.0);
+    g.setColour(T.line);
+    g.drawRoundedRectangle([x + 0.5, 0.5, w - 1, 531], 8.0, 1.0);
+    g.setColour(T.tape);
+    g.fillRoundedRectangle([x, 0, w, 20], 6.0);
+    g.fillRect([x, 10, w, 10]);
+    g.setColour(T.onTape);
+    g.setFontWithSpacing(T.BOLD, 9, 0.18);
+    g.drawAlignedText(title, [x + 12, 0, w - 24, 20], "left");
+}
+
+ModPage.setPaintRoutine(function(g)
+{
+    var i = 0;
+    var hv = this.data.hover;
+    var sel = S.modSrc;
+    modCard(g, 0, 200, "SOURCES");
+    modCard(g, 206, 260, "EDIT  /  " + MOD_SOURCES[sel]);
+    modCard(g, 472, 248, "CONNECTIONS  " + CONNS.length);
+
+    // sources with live meters
+    for (i = 0; i < MOD_SOURCES.length; i++)
+    {
+        var ry = MP_SRC_Y + i * MP_ROW;
+        var on = (i == sel);
+        g.setColour(on ? Colours.withAlpha(MOD_COL[i], 0.14) : (hv == "src" + i ? T.s3 : T.s2));
+        g.fillRoundedRectangle([8, ry, 184, MP_ROW - 6], 5.0);
+        g.setColour(MOD_COL[i]);
+        g.fillRoundedRectangle([8, ry + 6, 4, MP_ROW - 18], 2.0);
+        g.setColour(T.txt);
+        g.setFont(T.BOLD, 12);
+        g.drawAlignedText(MOD_SOURCES[i], [20, ry, 100, MP_ROW - 6], "left");
+        var lvl = clamp01(Math.abs(MOD_MODS[i].getCurrentLevel()));
+        g.setColour(T.line);
+        g.fillRoundedRectangle([118, ry + 14, 50, 6], 3.0);
+        g.setColour(MOD_COL[i]);
+        g.fillRoundedRectangle([118, ry + 14, 50 * lvl, 6], 3.0);
+        if (SRC_COUNT[i] > 0)
+        {
+            g.setColour(MOD_COL[i]);
+            g.fillEllipse([174, ry + 9, 14, 14]);
+            g.setColour(T.onAccent);
+            g.setFont(T.BOLD, 9);
+            g.drawAlignedText("" + SRC_COUNT[i], [174, ry + 9, 14, 14], "centred");
+        }
+    }
+
+    // editor: knobs are components; steppers, toggles and readouts are drawn
+    var kind = MOD_KIND[sel];
+    g.setColour(T.faint);
+    g.setFont(T.FONT, 10);
+    g.drawFittedText(MOD_HELP[sel], [218, 28, 236, 40], "topLeft", 3, 1.0);
+    if (kind == "lfo")
+    {
+        var pre = "Lfo" + (sel + 1);
+        g.setColour(T.accentInk);
+        g.setFont(T.BOLD, 11);
+        g.drawAlignedText(lfoRateText(sel), [214, 138, 56, 14], "centred");
+        drawStepper(g, [338, 82, 120, 24], LFO_WAVES[Math.round(MV[pre + "Wave"])], hv == "wave");
+        var syn = MV[pre + "Sync"] > 0.5;
+        g.setColour(syn ? Colours.withAlpha(T.accent, 0.16) : (hv == "sync" ? T.s3 : T.s2));
+        g.fillRoundedRectangle([338, 112, 120, 24], 4.0);
+        g.setColour(syn ? T.accent : T.line);
+        g.drawRoundedRectangle([338.5, 112.5, 119, 23], 4.0, 1.0);
+        g.setColour(syn ? T.accentInk : T.dim);
+        g.setFontWithSpacing(T.BOLD, 9, 0.12);
+        g.drawAlignedText(syn ? "TEMPO SYNC  ON" : "TEMPO SYNC  OFF", [338, 112, 120, 24], "centred");
+    }
+    else if (kind != "env")
+    {
+        g.setColour(T.mute);
+        g.setFont(T.FONT, 10);
+        g.drawAlignedText("No settings: route it below.", [218, 90, 236, 16], "left");
+    }
+
+    // live trace of the selected source
+    g.setColour(T.well);
+    g.fillRoundedRectangle([214, 166, 244, 104], 4.0);
+    g.setColour(MOD_COL[sel]);
+    var hx = 0;
+    for (hx = 1; hx < 64; hx++)
+    {
+        var ia = (S.histPos + hx - 1) % 64;
+        var ib = (S.histPos + hx) % 64;
+        g.drawLine(216 + (hx - 1) * 3.8, 216 + hx * 3.8, 266 - MOD_HIST[ia] * 96, 266 - MOD_HIST[ib] * 96, 1.6);
+    }
+
+    // one-click routing chips
+    g.setColour(T.faint);
+    g.setFontWithSpacing(T.BOLD, 8, 0.16);
+    g.drawAlignedText("ROUTE " + MOD_SOURCES[sel] + " TO", [214, 282, 240, 14], "left");
+    for (i = 0; i < 6; i++)
+    {
+        var cr = MP_ROUTE[i];
+        var tg = MOD_TGT[i];
+        var linked = connIndex(MOD_SOURCES[sel], tg) >= 0;
+        var ok = Matrix.canConnect(MOD_SOURCES[sel], tg) || linked;
+        g.setColour(linked ? Colours.withAlpha(MOD_COL[sel], 0.18) : (hv == "route" + i ? T.s3 : T.s2));
+        g.fillRoundedRectangle([cr[0], cr[1], 74, 26], 4.0);
+        g.setColour(linked ? MOD_COL[sel] : (ok ? T.lineHi : T.line));
+        g.drawRoundedRectangle([cr[0] + 0.5, cr[1] + 0.5, 73, 25], 4.0, 1.0);
+        g.setColour(ok ? (linked ? T.txt : T.dim) : T.mute);
+        g.setFontWithSpacing(T.BOLD, 9, 0.1);
+        g.drawAlignedText(MOD_TGT_LABEL[i], [cr[0], cr[1], 74, 26], "centred");
+    }
+    g.setColour(T.faint);
+    g.setFont(T.FONT, 10);
+    g.drawFittedText("Or right-click CUTOFF, RESO, SEMI, LEVEL (SHAPE page), BODY or GRIT (PLAY page) and pick a source.", [214, 372, 244, 44], "topLeft", 3, 1.0);
+
+    // connections: source > target, depth bar (drag), mode, invert, remove
+    if (CONNS.length == 0)
+    {
+        g.setColour(T.mute);
+        g.setFont(T.FONT, 11);
+        g.drawFittedText("No connections yet. Pick a source on the left, then a target chip.", [484, 34, 224, 48], "topLeft", 3, 1.0);
+    }
+    for (i = 0; i < Math.min(CONNS.length, 14); i++)
+    {
+        var c = CONNS[i];
+        var cy = MP_CONN_Y + i * MP_CROW;
+        var sc = MOD_SOURCES.indexOf(c.Source);
+        var tix = MOD_TGT.indexOf(c.Target);
+        var pitch = (c.Target == "A Pitch");
+        var frac = pitch ? (c.Intensity + 12.0) / 24.0 : c.Intensity;
+        g.setColour(hv == "conn" + i ? T.s3 : T.s2);
+        g.fillRoundedRectangle([478, cy, 236, MP_CROW - 4], 4.0);
+        g.setColour(sc >= 0 ? MOD_COL[sc] : T.accent);
+        g.fillRoundedRectangle([478, cy + 5, 3, MP_CROW - 14], 1.5);
+        g.setColour(T.txt);
+        g.setFont(T.BOLD, 10);
+        g.drawAlignedText(c.Source + "  >  " + (tix >= 0 ? MOD_TGT_LABEL[tix] : c.Target), [486, cy + 1, 140, 14], "left");
+        g.setColour(T.line);
+        g.fillRoundedRectangle([486, cy + 19, 140, 5], 2.5);
+        g.setColour(sc >= 0 ? MOD_COL[sc] : T.accent);
+        g.fillRoundedRectangle([486, cy + 19, 140 * clamp01(frac), 5], 2.5);
+        g.setColour(T.dim);
+        g.setFont(T.FONT, 9);
+        g.drawAlignedText(pitch ? Engine.doubleToString(c.Intensity, 1) + " st" : Math.round(c.Intensity * 100) + "%", [580, cy + 1, 46, 14], "right");
+        var mi = MOD_MODES.indexOf(c.Mode);
+        g.setFont(T.BOLD, 8);
+        g.drawAlignedText(mi >= 0 ? MOD_MODE_SHORT[mi] : "" + c.Mode, [630, cy, 34, MP_CROW - 4], "centred");
+        g.setColour(c.Inverted ? T.accentInk : T.mute);
+        g.drawAlignedText("INV", [664, cy, 26, MP_CROW - 4], "centred");
+        g.setColour(hv == "del" + i ? T.clip : T.mute);
+        g.drawAlignedText("X", [690, cy, 20, MP_CROW - 4], "centred");
+    }
+});
+
+inline function modHit(x, y)
+{
+    local i = 0;
+    if (x < 200 && y >= MP_SRC_Y && y < MP_SRC_Y + MOD_SOURCES.length * MP_ROW)
+        return "src" + Math.floor((y - MP_SRC_Y) / MP_ROW);
+    for (i = 0; i < 6; i++)
+    {
+        local cr = MP_ROUTE[i];
+        if (x >= cr[0] && x < cr[0] + 74 && y >= cr[1] && y < cr[1] + 26) return "route" + i;
+    }
+    if (MOD_KIND[S.modSrc] == "lfo")
+    {
+        if (x >= 338 && x < 458 && y >= 82 && y < 106) return "wave";
+        if (x >= 338 && x < 458 && y >= 112 && y < 136) return "sync";
+    }
+    if (x >= 478 && x < 714 && y >= MP_CONN_Y)
+    {
+        local r = Math.floor((y - MP_CONN_Y) / MP_CROW);
+        if (r < Math.min(CONNS.length, 14))
+        {
+            if (x >= 690) return "del" + r;
+            if (x >= 664) return "inv" + r;
+            if (x >= 630) return "mode" + r;
+            return "conn" + r;
+        }
+    }
+    return "";
+}
+
+inline function setConnDepth(r, x)
+{
+    local c = CONNS[r];
+    local frac = clamp01((x - 486) / 140.0);
+    local val = c.Target == "A Pitch" ? Math.round(frac * 24.0 - 12.0) : frac;
+    c.Intensity = val;
+    Matrix.updateIntensity(c.Source, c.Target, val);
+}
+
+ModPage.setMouseCallback(function(event)
+{
+    if (event.mouseUp)
+    {
+        S.connDrag = -1;
+        refocusKeys();
+    }
+    var h = modHit(event.x, event.y);
+    if (event.drag && S.connDrag >= 0 && S.connDrag < CONNS.length)
+    {
+        setConnDepth(S.connDrag, event.x);
+        this.repaint();
+        return;
+    }
+    if (event.clicked)
+    {
+        var sel = S.modSrc;
+        if (h.indexOf("src") == 0)
+        {
+            S.modSrc = parseInt(h.substring(3, 5));
+            showModEditor(S.modSrc);
+        }
+        else if (h.indexOf("route") == 0)
+            toggleRoute(MOD_SOURCES[sel], MOD_TGT[parseInt(h.substring(5, 6))]);
+        else if (h == "wave")
+            stepModState("Lfo" + (sel + 1) + "Wave", event.x < 398 ? -1 : 1, LFO_WAVES.length);
+        else if (h == "sync")
+            stepModState("Lfo" + (sel + 1) + "Sync", 1, 2);
+        else if (h.indexOf("del") == 0)
+        {
+            var dc = CONNS[parseInt(h.substring(3, 5))];
+            Matrix.connect(dc.Source, dc.Target, false);
+            refreshConns();
+            updateVoiceFilter();
+        }
+        else if (h.indexOf("inv") == 0)
+        {
+            var ic = CONNS[parseInt(h.substring(3, 5))];
+            ic.Inverted = !ic.Inverted;
+            Matrix.updateConnectionData([ic]);
+        }
+        else if (h.indexOf("mode") == 0)
+        {
+            var mc = CONNS[parseInt(h.substring(4, 6))];
+            var nm = MOD_MODES[(MOD_MODES.indexOf(mc.Mode) + 1) % 3];
+            mc.Mode = nm;
+            Matrix.updateValueMode(mc.Source, mc.Target, nm);
+        }
+        else if (h.indexOf("conn") == 0)
+        {
+            S.connDrag = parseInt(h.substring(4, 6));
+            setConnDepth(S.connDrag, event.x);
+        }
+        this.repaint();
+    }
+    if (h != this.data.hover)
+    {
+        this.data.hover = h;
+        this.repaint();
+    }
+});
+
+// factory preset routings: clear, connect each row, then apply depth / mode / invert
+inline function applyPresetMod(p)
+{
+    local i = 0;
+    for (i = 0; i < MOD_PARAMS.length; i++)          // sources back to their defaults
+    {
+        local mp = MOD_PARAMS[i];
+        MOD_COMP[mp[0]].setValue(mp[7]);
+        applyModParam(mp[0], mp[7]);
+    }
+    Matrix.clearAllConnections();
+    if (isDefined(p.mod))
+    {
+        for (i = 0; i < p.mod.length; i++)
+        {
+            local row = p.mod[i];
+            Matrix.connect(row.Source, row.Target, true);
+        }
+        Matrix.updateConnectionData(p.mod);
+    }
+    refreshConns();
+    updateVoiceFilter();
+}
+
+// ============================================================================
 // PRESET LOADING
 // ============================================================================
 // hidden: remembers which factory sound is loaded, so a DAW session reopens
@@ -2095,6 +2665,7 @@ inline function refreshAll()
     Visualiser.repaint();
     MacroCard.repaint();
     ShapePage.repaint();
+    ModPage.repaint();
 }
 
 inline function loadPreset(idx)
@@ -2105,6 +2676,7 @@ inline function loadPreset(idx)
     PresetKey.setValue(p.id + "|d1");      // |d1 = this session also stores SHAPE values
     applyVoicing(p);
     setDeepFromPreset(p);
+    applyPresetMod(p);
     local mv = p.m;
     local i = 0;
     for (i = 0; i < 8; i++)
@@ -2163,6 +2735,8 @@ inline function loadKit(i)
     if (i < 0 || i >= LOOP_KITS.length) return;
     local kit = LOOP_KITS[i];
     S.kit = i;
+    if (i < S.kitTop) S.kitTop = i;
+    if (i >= S.kitTop + kitVis()) S.kitTop = i - kitVis() + 1;
     KitKey.setValue(kit.id);
     if (LoopSampler.getCurrentSampleMapId() != kit.map)
         LoopSampler.loadSampleMap(kit.map);
@@ -2282,6 +2856,25 @@ Visualiser.setTimerCallback(function()
         this.repaint();
         MacroCard.repaint();
     }
+    // matrix-owned knobs have no control callback (docs/16 rule R1): follow them here
+    var ok_ = 0;
+    for (ok_ = 0; ok_ < MATRIX_OWNED.length; ok_++)
+    {
+        var oid = MATRIX_OWNED[ok_];
+        var ov = DEEP_COMP[oid].getValue();
+        if (ov != DV[oid])
+        {
+            applyDeep(oid, ov);
+            ShapePage.repaint();
+            refocusKeys();
+        }
+    }
+    if (S.mode == 0 && S.page == 2)
+    {
+        MOD_HIST[S.histPos] = clamp01(Math.abs(MOD_MODS[S.modSrc].getCurrentLevel()));
+        S.histPos = (S.histPos + 1) % 64;
+        if (S.tick % 2 == 0) ModPage.repaint();
+    }
     if (S.tick % 4 == 0)
     {
         S.voices = Math.max(0, Engine.getNumVoices());     // can read negative with a bypassed sampler
@@ -2309,7 +2902,8 @@ inline function selfTest()
     if (tempoIndex("1/8D") < 0) ok = false;
     if (S.list.length < 40) ok = false;
     if (!matchesQuery(FACTORY_BANK[0], ["keys"])) ok = false;
-    if (LOOP_KITS.length != 3) ok = false;
+    if (LOOP_KITS.length < 3) ok = false;
+    if (LOOP_KITS[0].quarters != 8) ok = false;
     if (qwertyRange() != "C3-E4") ok = false;
     if (findKit(LOOP_KITS[1].id) != 1) ok = false;
     // SHAPE page (docs/16 Stage 1): every module attribute resolves, neutral defaults keep the filter off
@@ -2322,6 +2916,24 @@ inline function selfTest()
     if (M_WheelA.isBypassed()) ok = false;
     if (DV.BendKnob != 2) ok = false;
     if (findPreset(("" + PresetKey.getValue()).split("|")[0]) < 0) ok = false;
+    if (lfoRateText(1) != "1/8") { ok = false; Console.print("RF selftest lfo rate text " + lfoRateText(1)); }
+    // MOD (docs/16 Stage 2)
+    if (Matrix.getSourceList().length != 11) ok = false;
+    if (Matrix.getTargetList().length != 6) ok = false;
+    if (Matrix.canConnect("Env 2", "Grit")) ok = false;
+    for (ms = 0; ms < 4; ms++) { if (LFO_IDX[ms].indexOf(-1) >= 0) { ok = false; Console.print("RF selftest bad LFO attr " + ms); } }
+    for (ms = 0; ms < 2; ms++) { if (ENV_IDX[ms].indexOf(-1) >= 0) { ok = false; Console.print("RF selftest bad ENV attr " + ms); } }
+    if (!Matrix.connect("LFO 2", "Cutoff", true)) ok = false;
+    refreshConns();
+    if (CONNS.length != 1 || S.cutConn != 1) ok = false;
+    local mb = Matrix.toBase64();
+    Matrix.clearAllConnections();
+    Matrix.fromBase64(mb);
+    refreshConns();
+    if (CONNS.length != 1) ok = false;
+    Matrix.clearAllConnections();
+    refreshConns();
+    if (CONNS.length != 0) ok = false;
     applyDeep("CutoffKnob", 1200);
     if (FX_VFilter.isBypassed()) ok = false;
     applyDeep("CutoffKnob", 20000);

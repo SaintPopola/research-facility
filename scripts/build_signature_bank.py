@@ -68,13 +68,14 @@ VIBES = ["underwater", "rnb", "lofi", "slowed", "reggaeton", "house",
 #   dur = seconds per sample, loop = sustain loop
 # ---------------------------------------------------------------------------
 
-def P(id, name, cat, tags, gen, gp, m, v, z, dur, loop, desc, vl=1, d=None):
+def P(id, name, cat, tags, gen, gp, m, v, z, dur, loop, desc, vl=1, d=None, mod=None):
     """vl = velocity layers (1 or 2). Layer 1 (soft) is rendered with a gentler
     excitation from soften(); layer 2 is the recipe as written.
     d = optional SHAPE-page values {componentId: value}, checked against
-    scripts/deep_params.json (missing ids keep the registry default)."""
+    scripts/deep_params.json (missing ids keep the registry default).
+    mod = optional mod-matrix rows [{"Source", "Target", "Intensity", "Mode", "Inverted"}]."""
     return dict(id=id, name=name, cat=cat, tags=tags, gen=gen, gp=gp, m=m, v=v,
-                z=z, dur=dur, loop=loop, desc=desc, vl=vl, d=d or {})
+                z=z, dur=dur, loop=loop, desc=desc, vl=vl, d=d or {}, mod=mod or [])
 
 
 def V(atk=5, rel=600, reso=0.9, vel=0.5, lfo=0.2, dly="1/8D", subdec=1200, subsus=-30, trim=0.0):
@@ -704,6 +705,50 @@ PRESETS = [
 
 
 # ---------------------------------------------------------------------------
+# Instrument packs: extra recipes as JSON in assets/packs/instruments/*.json.
+# Each file is {"pack": "<pack name>", "presets": [<recipe>, ...]} where a
+# recipe has the same fields as P(): id, name, cat, tags, gen, gp, m, v, z,
+# dur, loop, desc and optional vl (1|2) and d (SHAPE values). v uses V() keys
+# and missing ones take V() defaults. Files load in name order, and the
+# recipes are appended to PRESETS, so build_loop_lines.py can use them too.
+# ---------------------------------------------------------------------------
+PACK_DIR = ROOT / "assets" / "packs"
+RECIPE_KEYS = {"id", "name", "cat", "tags", "gen", "gp", "m", "v", "z", "dur", "loop", "desc", "vl", "d", "mod"}
+
+
+def load_instrument_packs() -> list[dict]:
+    out = []
+    cats = {c for c, _ in CATEGORIES if c != "archive"}
+    vkeys = set(V().keys())
+    for f in sorted((PACK_DIR / "instruments").glob("*.json")):
+        data = json.loads(f.read_text())
+        pack = data.get("pack", f.stem)
+        for r in data["presets"]:
+            where = f"{f.name}:{r.get('id', '?')}"
+            extra = set(r) - RECIPE_KEYS
+            assert not extra, f"{where}: unknown fields {sorted(extra)}"
+            for k in ("id", "name", "cat", "tags", "gen", "gp", "m", "v", "z", "dur", "loop", "desc"):
+                assert k in r, f"{where}: missing {k}"
+            assert r["gen"] in dsp.GENERATORS, f"{where}: gen must be one of {sorted(dsp.GENERATORS)}"
+            assert r["cat"] in cats, f"{where}: cat must be one of {sorted(cats)}"
+            assert len(r["m"]) == 8, f"{where}: m needs 8 macro values"
+            assert 80 <= r["m"][0] <= 20000 and all(0.0 <= x <= 1.0 for x in r["m"][1:]), f"{where}: macro range"
+            assert set(r["v"]) <= vkeys, f"{where}: v keys must be from {sorted(vkeys)}"
+            assert len(r["z"]) == 3 and r["z"][0] <= r["z"][1] and r["z"][2] > 0, f"{where}: z = [lo, hi, step]"
+            assert 0.2 <= r["dur"] <= 12.0, f"{where}: dur seconds 0.2..12"
+            assert r.get("vl", 1) in (1, 2), f"{where}: vl is 1 or 2"
+            assert all(t == t.lower() for t in r["tags"]), f"{where}: tags lowercase"
+            out.append(P(r["id"], r["name"], r["cat"], list(r["tags"]), r["gen"], dict(r["gp"]),
+                         list(r["m"]), V(**r["v"]), tuple(r["z"]), float(r["dur"]), bool(r["loop"]),
+                         r["desc"], vl=r.get("vl", 1), d=r.get("d"), mod=r.get("mod")))
+            out[-1]["pack"] = pack
+    return out
+
+
+PRESETS.extend(load_instrument_packs())
+
+
+# ---------------------------------------------------------------------------
 # rendering
 # ---------------------------------------------------------------------------
 
@@ -982,6 +1027,44 @@ def check_deep(pid: str, d: dict, reg: dict) -> None:
         assert e["min"] <= v <= e["max"], f"{pid}: {k}={v} outside {e['min']}..{e['max']}"
 
 
+# Mod matrix (docs/16 Stage 2): source kinds decide which targets accept them.
+# Slots per target are [voice-start, time-variant, envelope] (Interface.js addModulatorTarget).
+MOD_SOURCE_KIND = {"LFO 1": "tv", "LFO 2": "tv", "LFO 3": "tv", "LFO 4": "tv", "Env 2": "env", "Env 3": "env",
+                   "Velocity": "vs", "Key": "vs", "Random": "vs", "Mod Wheel": "tv", "Aftertouch": "tv"}
+MOD_TARGET_SLOTS = {"A Pitch": (2, 2, 2), "A Level": (2, 2, 1), "Sub Level": (1, 2, 1),
+                    "Cutoff": (2, 2, 2), "Resonance": (1, 1, 1), "Grit": (0, 2, 0)}
+
+
+def check_mod(pid: str, rows: list) -> None:
+    """Build gate: every factory routing must name a real source/target pair the matrix can make."""
+    used = {}
+    for r in rows:
+        assert set(r) <= {"Source", "Target", "Intensity", "Mode", "Inverted"}, f"{pid}: mod row fields {sorted(r)}"
+        src, tgt = r["Source"], r["Target"]
+        assert src in MOD_SOURCE_KIND, f"{pid}: unknown mod source {src}"
+        assert tgt in MOD_TARGET_SLOTS, f"{pid}: unknown mod target {tgt}"
+        slot = {"vs": 0, "tv": 1, "env": 2}[MOD_SOURCE_KIND[src]]
+        used[(tgt, slot)] = used.get((tgt, slot), 0) + 1
+        assert used[(tgt, slot)] <= MOD_TARGET_SLOTS[tgt][slot], f"{pid}: no free {MOD_SOURCE_KIND[src]} slot on {tgt}"
+        lo, hi = (-12.0, 12.0) if tgt == "A Pitch" else (0.0, 1.0)
+        assert lo <= r.get("Intensity", 0.25) <= hi, f"{pid}: {src}>{tgt} intensity outside {lo}..{hi}"
+        assert r.get("Mode", "Scale") in ("Scale", "Unipolar", "Bipolar"), f"{pid}: mode {r.get('Mode')}"
+
+
+def check_sample_maps() -> None:
+    """Uniform voice handler gate (docs/16): one sample per key x velocity x round-robin in every map."""
+    import xml.etree.ElementTree as ET
+    for f in sorted(MAPS.glob("*.xml")):
+        seen = {}
+        for smp in ET.parse(f).getroot().iter("sample"):
+            a = smp.attrib
+            for k in range(int(a["LoKey"]), int(a["HiKey"]) + 1):
+                for v in range(int(a["LoVel"]), int(a["HiVel"]) + 1):
+                    key = (k, v, a.get("RRGroup", "1"))
+                    assert key not in seen, f"{f.name}: key {k} vel {v} starts two samples ({seen[key]}, {a['FileName']})"
+                    seen[key] = a["FileName"]
+
+
 def write_deep_params(reg: dict) -> None:
     js = ["// AUTO-GENERATED by scripts/build_signature_bank.py from scripts/deep_params.json - do not edit by hand.",
           "// SHAPE page controls (docs/16 Stage 1): geometry, ranges and defaults in one place.",
@@ -999,9 +1082,10 @@ def bank_records() -> list[dict]:
     reg = load_deep_registry()
     for p in PRESETS:
         check_deep(p["id"], p.get("d", {}), reg)
+        check_mod(p["id"], p.get("mod", []))
         recs.append(dict(id=p["id"], name=p["name"], cat=p["cat"], tags=p["tags"],
                          map=f"SIG_{p['id']}", m=[round(x, 4) for x in p["m"]], v=p["v"],
-                         desc=p["desc"], d=p.get("d", {})))
+                         desc=p["desc"], d=p.get("d", {}), mod=p.get("mod", [])))
     recs.extend(legacy_presets())
     return recs
 
@@ -1018,6 +1102,8 @@ def write_bank_data(recs) -> None:
         })
         if r.get("d"):
             js_recs[-1]["d"] = r["d"]
+        if r.get("mod"):
+            js_recs[-1]["mod"] = r["mod"]
     lines = [
         "// AUTO-GENERATED by scripts/build_signature_bank.py - do not edit by hand.",
         "// Research Facility factory bank: every sound the browser can load.",
@@ -1070,6 +1156,7 @@ def main() -> int:
     write_deep_params(load_deep_registry())
     recs = bank_records()
     write_bank_data(recs)
+    check_sample_maps()
     print(f"FactoryBank.js: {len(recs)} presets ({len(PRESETS)} signature + {len(recs) - len(PRESETS)} archive)")
     return 0
 
