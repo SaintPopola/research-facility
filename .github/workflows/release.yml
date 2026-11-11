@@ -31,7 +31,7 @@ jobs:
       - name: Download installer artifact
         uses: actions/download-artifact@v4
         with:
-          name: ResearchFacility-macOS-Installer-unsigned
+          name: SweetMelody-macOS-Installer-unsigned
           path: dist
 
       - name: Publish GitHub Release
@@ -44,7 +44,7 @@ jobs:
           {
             echo "## Research Facility — macOS"
             echo ""
-            echo "One-click installer: the **ResearchFacility-*.pkg** below installs the VST3 + AU"
+            echo "One-click installer: the **SweetMelody-*.pkg** below installs the VST3 + AU"
             echo "and the sound library — open your DAW and it's ready, no locate dialog."
             echo ""
             echo "> This build is **unsigned** (pre-release). macOS Gatekeeper will warn; if the"

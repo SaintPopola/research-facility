@@ -1,13 +1,13 @@
 #!/bin/bash
-# Research Facility — uninstaller. Double-click to remove the plugins + samples.
+# Sweet Melody (Research Facility) - uninstaller. Double-click to remove the plugins + samples.
 # (macOS .pkg installers don't create one automatically, so this ships alongside.)
 set -e
-echo "Removing Research Facility..."
+echo "Removing Sweet Melody..."
 
-rm -rf "/Library/Audio/Plug-Ins/VST3/ResearchFacility.vst3" 2>/dev/null || \
-  sudo rm -rf "/Library/Audio/Plug-Ins/VST3/ResearchFacility.vst3"
-rm -rf "/Library/Audio/Plug-Ins/Components/ResearchFacility.component" 2>/dev/null || \
-  sudo rm -rf "/Library/Audio/Plug-Ins/Components/ResearchFacility.component"
+rm -rf "/Library/Audio/Plug-Ins/VST3/Sweet Melody.vst3" "/Library/Audio/Plug-Ins/VST3/ResearchFacility.vst3" 2>/dev/null || \
+  sudo rm -rf "/Library/Audio/Plug-Ins/VST3/Sweet Melody.vst3" "/Library/Audio/Plug-Ins/VST3/ResearchFacility.vst3"
+rm -rf "/Library/Audio/Plug-Ins/Components/Sweet Melody.component" "/Library/Audio/Plug-Ins/Components/ResearchFacility.component" 2>/dev/null || \
+  sudo rm -rf "/Library/Audio/Plug-Ins/Components/Sweet Melody.component" "/Library/Audio/Plug-Ins/Components/ResearchFacility.component"
 sudo rm -rf "/Library/Application Support/Research Facility" 2>/dev/null || true
 rm -rf "$HOME/Library/Application Support/Research Facility" 2>/dev/null || true
 

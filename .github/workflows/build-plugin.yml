@@ -24,7 +24,7 @@ on:
 jobs:
   build_macos:
     name: macOS Universal
-    runs-on: macos-14    # Apple Silicon runner; covers arm64 + x86_64 via universal
+    runs-on: macos-15    # Apple Silicon runner (macos-14 image retired: 'configuration not supported'); universal build
 
     steps:
       - name: Checkout repo
@@ -190,7 +190,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ResearchFacility-macOS-VST3
+          name: SweetMelody-macOS-VST3
           path: |
             hise_project/ResearchFacility/Binaries/**/*.vst3
           if-no-files-found: warn
@@ -199,7 +199,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ResearchFacility-macOS-AU
+          name: SweetMelody-macOS-AU
           path: |
             hise_project/ResearchFacility/Binaries/**/*.component
           if-no-files-found: warn
@@ -208,8 +208,8 @@ jobs:
         if: success()
         run: |
           set -e
-          export RF_VST3="$(find hise_project/ResearchFacility/Binaries -name 'ResearchFacility.vst3' -type d | head -1)"
-          export RF_AU="$(find hise_project/ResearchFacility/Binaries -name 'ResearchFacility.component' -type d | head -1)"
+          export RF_VST3="$(find hise_project/ResearchFacility/Binaries -name 'Sweet Melody.vst3' -type d | head -1)"
+          export RF_AU="$(find hise_project/ResearchFacility/Binaries -name 'Sweet Melody.component' -type d | head -1)"
           echo "vst3=$RF_VST3"
           echo "au=$RF_AU"
           # samples come from the checked-out project Samples/ (RF_SAMPLES default);
@@ -221,7 +221,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ResearchFacility-macOS-Installer-unsigned
+          name: SweetMelody-macOS-Installer-unsigned
           path: dist/*.pkg
           if-no-files-found: warn
 
@@ -229,7 +229,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ResearchFacility-macOS-Binaries-debug
+          name: SweetMelody-macOS-Binaries-debug
           path: hise_project/ResearchFacility/Binaries/
           if-no-files-found: warn
           retention-days: 7
@@ -330,7 +330,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ResearchFacility-Windows-VST3
+          name: SweetMelody-Windows-VST3
           path: hise_project/ResearchFacility/Binaries/**/*.vst3
           if-no-files-found: warn
 
@@ -338,7 +338,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: ResearchFacility-Windows-Binaries-debug
+          name: SweetMelody-Windows-Binaries-debug
           path: hise_project/ResearchFacility/Binaries/
           if-no-files-found: warn
           retention-days: 7
@@ -445,7 +445,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ResearchFacility-Linux-VST3
+          name: SweetMelody-Linux-VST3
           path: |
             hise_project/ResearchFacility/Binaries/**/*.vst3
           if-no-files-found: warn
@@ -454,7 +454,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: ResearchFacility-Linux-Binaries-debug
+          name: SweetMelody-Linux-Binaries-debug
           path: hise_project/ResearchFacility/Binaries/
           if-no-files-found: warn
           retention-days: 7

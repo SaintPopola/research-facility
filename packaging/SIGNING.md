@@ -34,8 +34,8 @@ it auto-detects the identities and signs + notarizes end to end:
 
 ```sh
 cd ~/Desktop/ResearchFacility
-RF_VST3=/path/to/ResearchFacility.vst3 \
-RF_AU=/path/to/ResearchFacility.component \
+RF_VST3="/path/to/Sweet Melody.vst3" \
+RF_AU="/path/to/Sweet Melody.component" \
 RF_NOTARY_PROFILE=rf-notary \
 bash packaging/build_installer.sh
 ```

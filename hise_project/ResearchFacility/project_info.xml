@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <ProjectSettings>
-  <Name value="ResearchFacility" type="TEXT" description="Project Name"/>
+  <Name value="Sweet Melody" type="TEXT" description="Project Name"/>
   <Version value="0.2.0" type="TEXT" description="Project version"/>
-  <Description value="A sonic research lab for musicians. Discover sounds for your music." type="TEXT" description="Project description"/>
+  <Description value="Sweet Melody: melody-ready signature sounds by Research Facility." type="TEXT" description="Project description"/>
   <BundleIdentifier value="com.researchfacility.plugin" type="TEXT" description="Bundle Identifier"/>
   <PluginCode value="Rfac" type="TEXT" description="a 4 character ID code"/>
   <EmbedAudioFiles value="Yes" type="LIST" description="Embed Audio files in plugin"
@@ -23,6 +23,7 @@
   <SupportMonoFX value="No"/>
   <EnableMidiInputFX value="No"/>
   <VST3Support value="Yes"/>
+  <VST3Category value="Synth"/>
   <UseRawFrontend value="No"/>
   <ExpansionType value="Disabled"/>
   <EncryptionKey value="research-facility-v0"/>

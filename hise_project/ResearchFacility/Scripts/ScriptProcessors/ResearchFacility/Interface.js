@@ -1,5 +1,5 @@
 /* ============================================================================
-   Research Facility - Interface v0.2 "Signature Bank"
+   Sweet Melody (by Research Facility) - Interface v0.2 "Signature Bank"
 
    One-screen instrument: header (preset name, prev/next, favourite, meters),
    searchable browser (categories, vibe tags, favourites), live visualiser
@@ -584,10 +584,10 @@ Header.setPaintRoutine(function(g)
 
     g.setColour(T.txt);
     g.setFontWithSpacing(T.BOLD, 13, 0.12);
-    g.drawAlignedText("RESEARCH FACILITY", [44, 11, 230, 16], "left");
+    g.drawAlignedText("SWEET MELODY", [44, 11, 230, 16], "left");
     g.setColour(T.dim);
     g.setFontWithSpacing(T.FONT, 9, 0.18);
-    g.drawAlignedText("SIGNATURE BANK  /  V0.2", [44, 28, 230, 12], "left");
+    g.drawAlignedText("BY RESEARCH FACILITY  /  V0.2", [44, 28, 230, 12], "left");
 
     // preset display
     var hv = this.data.hover;
