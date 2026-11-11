@@ -88,7 +88,7 @@
    "subdec": 1600,
    "subsus": -30,
    "trim": 0.0,
-   "desc": "Tine piano with the highs and lows cut away, slow tape wobble and a long dark halo. Floating two-chord beds."
+   "desc": "Tine piano with highs and lows cut, slow tape wobble and a dark halo. Two-chord beds."
   },
   {
    "id": "half_speed_keys",
@@ -120,7 +120,7 @@
    "subdec": 1200,
    "subsus": -30,
    "trim": 0.0,
-   "desc": "Keys printed to tape at 0.85x speed: lower, slower wobble, darker top. Sits with slowed tracks."
+   "desc": "Keys printed to tape at 0.85x: slower wobble, darker top. Sits with slowed tracks."
   },
   {
    "id": "hushed_felt_grand",
@@ -184,7 +184,7 @@
    "subdec": 1200,
    "subsus": -30,
    "trim": 0.0,
-   "desc": "Warm, barky tine piano with chorus and a little drive. Neo-soul comping, behind the beat."
+   "desc": "Warm, barky tine piano with chorus and light drive. Neo-soul comping."
   },
   {
    "id": "dusk_poly_chords",
@@ -248,7 +248,7 @@
    "subdec": 1200,
    "subsus": -30,
    "trim": 0.0,
-   "desc": "Wide supersaw stab with a snappy filter, ducking to the beat. House and future-beats chords."
+   "desc": "Wide supersaw stab with a snappy filter, ducking to the beat. House chords."
   },
   {
    "id": "chorus_jangle_clean",
@@ -312,7 +312,7 @@
    "subdec": 1200,
    "subsus": -40,
    "trim": 0.0,
-   "desc": "Picked steel-string guitar spread wide with ringing open strings. Intimate verse to big chorus."
+   "desc": "Picked steel-string guitar spread wide, open strings ringing. Verse to big chorus."
   },
   {
    "id": "porch_nylon",
