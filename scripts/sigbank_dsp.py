@@ -731,6 +731,55 @@ def gen_glass_pad(note, n, p, rng):
     return l * e, r * e
 
 
+def gen_prepared(note, n, p, rng):
+    """Prepared piano: felt-piano strings plus inharmonic metal partials (bolts,
+    screws) and a decaying buzz/rattle (paper or a coin on the strings)."""
+    l, r = gen_felt_piano(note, n, p, rng)
+    f0 = mtof(note)
+    t = tvec(n)
+    metal = np.zeros(n)
+    for ratio, amp, t60 in p.get("metal", [(1.47, 0.35, 0.9), (2.83, 0.25, 0.6), (4.41, 0.18, 0.4), (6.9, 0.1, 0.25)]):
+        f = f0 * ratio
+        if f < SR * 0.45:
+            metal += amp * np.sin(2 * np.pi * f * t + rng.uniform(0, 6.28)) * np.exp(-6.907755 * t / t60)
+    rattle = noise(n, rng) * (0.5 + 0.5 * np.sign(np.sin(2 * np.pi * p.get("rattle_hz", 31.0) * t)))
+    rattle = svf(rattle, min(f0 * 6, 9000), 1.5, 1) * np.exp(-t / p.get("rattle_t", 0.35)) * p.get("rattle", 0.25)
+    m = p.get("metal_mix", 0.5)
+    return l + m * metal + rattle, r + m * metal + rattle
+
+
+def tape_age(l, r, p, rng):
+    """Generic tape treatment for any render: wow + flutter by variable-rate
+    resampling, head-bump low shelf, band-limit, hiss, optional crackle, and
+    a finite tape length (Mellotron-style 8 s strips)."""
+    n = l.shape[0]
+    t = tvec(n)
+    tp = p["tape"]
+    w = 2.0 ** ((tp.get("wow_c", 8.0) * np.sin(2 * np.pi * tp.get("wow_hz", 0.5) * t + rng.uniform(0, 6.28)) +
+                 tp.get("flutter_c", 3.0) * np.sin(2 * np.pi * tp.get("flutter_hz", 9.0) * t + rng.uniform(0, 6.28))) / 1200.0)
+    pos = np.clip(np.cumsum(w) - w[0], 0, n - 1)
+    idx = np.arange(n)
+    out = []
+    for ch in (l, r):
+        y = np.interp(pos, idx, ch)
+        y = y + tp.get("bump", 0.25) * svf(y, 110.0, 1.2, 1)                 # head bump
+        y = lp24(y, tp.get("lp", 7000))
+        hiss = svf(noise(n, rng), 6000, 0.5, 0) * tp.get("hiss", 0.004)
+        y = y + hiss
+        if tp.get("crackle", 0) > 0:
+            k = rng.random(n) < tp["crackle"] / SR * 40.0
+            y = y + svf(k * rng.standard_normal(n) * 0.3, 3000, 0.8, 1)
+        out.append(soft_clip(y, tp.get("sat", 1.2)))
+    length = tp.get("length_s", 0)
+    if length and length * SR < n:                                      # the tape strip runs out
+        cut = int(length * SR)
+        fade = np.ones(n)
+        fade[cut:] = 0.0
+        fade[cut - int(0.3 * SR):cut] = np.linspace(1.0, 0.0, int(0.3 * SR))
+        out = [o * fade for o in out]
+    return out[0], out[1]
+
+
 GENERATORS = {
     "tine_ep": gen_tine_ep,
     "felt_piano": gen_felt_piano,
@@ -747,4 +796,5 @@ GENERATORS = {
     "sub": gen_sub,
     "flute": gen_flute,
     "glass_pad": gen_glass_pad,
+    "prepared": gen_prepared,
 }

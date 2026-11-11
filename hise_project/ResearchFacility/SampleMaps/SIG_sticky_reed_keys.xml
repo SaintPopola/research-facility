@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<samplemap ID="SIG_sticky_reed_keys" SaveMode="1" RRGroupAmount="1.0" MicPositions=";"
+           CrossfadeGamma="1.0">
+  <sample ID="0" FileName="{PROJECT_FOLDER}SIG_sticky_reed_keys_36_v1.wav" Root="36" HiKey="38"
+          LoKey="0" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="96000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="1" FileName="{PROJECT_FOLDER}SIG_sticky_reed_keys_36_v2.wav" Root="36" HiKey="38"
+          LoKey="0" LoVel="85" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="96000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="2" FileName="{PROJECT_FOLDER}SIG_sticky_reed_keys_42_v1.wav" Root="42" HiKey="44"
+          LoKey="39" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="96000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="3" FileName="{PROJECT_FOLDER}SIG_sticky_reed_keys_42_v2.wav" Root="42" HiKey="44"
+          LoKey="39" LoVel="85" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="96000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="4" FileName="{PROJECT_FOLDER}SIG_sticky_reed_keys_48_v1.wav" Root="48" HiKey="50"
+          LoKey="45" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="96000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="5" FileName="{PROJECT_FOLDER}SIG_sticky_reed_keys_48_v2.wav" Root="48" HiKey="50"
+          LoKey="45" LoVel="85" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="96000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="6" FileName="{PROJECT_FOLDER}SIG_sticky_reed_keys_54_v1.wav" Root="54" HiKey="56"
+          LoKey="51" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="96000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="7" FileName="{PROJECT_FOLDER}SIG_sticky_reed_keys_54_v2.wav" Root="54" HiKey="56"
+          LoKey="51" LoVel="85" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="96000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="8" FileName="{PROJECT_FOLDER}SIG_sticky_reed_keys_60_v1.wav" Root="60" HiKey="62"
+          LoKey="57" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="96000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="9" FileName="{PROJECT_FOLDER}SIG_sticky_reed_keys_60_v2.wav" Root="60" HiKey="62"
+          LoKey="57" LoVel="85" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="96000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="10" FileName="{PROJECT_FOLDER}SIG_sticky_reed_keys_66_v1.wav" Root="66" HiKey="68"
+          LoKey="63" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="96000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="11" FileName="{PROJECT_FOLDER}SIG_sticky_reed_keys_66_v2.wav" Root="66" HiKey="68"
+          LoKey="63" LoVel="85" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="96000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="12" FileName="{PROJECT_FOLDER}SIG_sticky_reed_keys_72_v1.wav" Root="72" HiKey="74"
+          LoKey="69" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="96000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="13" FileName="{PROJECT_FOLDER}SIG_sticky_reed_keys_72_v2.wav" Root="72" HiKey="74"
+          LoKey="69" LoVel="85" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="96000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="14" FileName="{PROJECT_FOLDER}SIG_sticky_reed_keys_78_v1.wav" Root="78" HiKey="80"
+          LoKey="75" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="96000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="15" FileName="{PROJECT_FOLDER}SIG_sticky_reed_keys_78_v2.wav" Root="78" HiKey="80"
+          LoKey="75" LoVel="85" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="96000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="16" FileName="{PROJECT_FOLDER}SIG_sticky_reed_keys_84_v1.wav" Root="84" HiKey="86"
+          LoKey="81" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="96000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="17" FileName="{PROJECT_FOLDER}SIG_sticky_reed_keys_84_v2.wav" Root="84" HiKey="86"
+          LoKey="81" LoVel="85" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="96000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="18" FileName="{PROJECT_FOLDER}SIG_sticky_reed_keys_90_v1.wav" Root="90" HiKey="92"
+          LoKey="87" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="96000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="19" FileName="{PROJECT_FOLDER}SIG_sticky_reed_keys_90_v2.wav" Root="90" HiKey="92"
+          LoKey="87" LoVel="85" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="96000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="20" FileName="{PROJECT_FOLDER}SIG_sticky_reed_keys_96_v1.wav" Root="96" HiKey="127"
+          LoKey="93" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="96000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="21" FileName="{PROJECT_FOLDER}SIG_sticky_reed_keys_96_v2.wav" Root="96" HiKey="127"
+          LoKey="93" LoVel="85" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="96000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+</samplemap>

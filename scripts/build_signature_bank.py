@@ -312,6 +312,108 @@ PRESETS = [
       V(atk=1500, rel=2500, reso=1.6, vel=0.2, lfo=0.25, dly="1/4D", subsus=-30),
       (36, 72, 6), 8.0, True, "Beating tuned drone in the style of amp feedback. Swells under a section turn."),
 
+    # ================================================================ CLASSIC SYNTHS + PECULIAR PIANOS
+    # Original renders in the spirit of classic workstation/analog synths and odd
+    # pianos. Model names stay internal; preset names describe the sound.
+    P("warehouse_stab_piano", "Warehouse Stab Piano", "keys", ["house", "piano", "90s", "stab"],
+      "felt_piano", dict(hardness=0.95, t60=3.0, unison_c=2.0, post_shelf=(3000, 3.0), post_hp=90),
+      [12000, 0.10, 0.20, 0.60, 0.30, 0.15, 0.10, 0.20],
+      V(atk=1, rel=400, reso=0.8, vel=0.6, lfo=0.2, dly="1/8", subsus=-40),
+      (36, 96, 6), 3.0, False, "Bright, hard-hammered piano for 90s house chord stabs.", vl=2),
+    P("club_organ_stab", "Club Organ Stab", "chords", ["house", "organ", "90s", "stab"],
+      "organ", dict(bars=[(1, 1), (2, 0.85), (3, 0.6), (4, 0.5), (6, 0.35), (8, 0.2)], wow=1.0, lp=6000),
+      [8000, 0.15, 0.25, 0.50, 0.30, 0.15, 0.15, 0.25],
+      V(atk=2, rel=150, reso=0.8, vel=0.4, lfo=0.3, dly="1/8", subsus=-12),
+      (36, 96, 6), 3.0, True, "Hollow, punchy organ for house bass-lines and chord stabs."),
+    P("ensemble_poly_six", "Ensemble Poly Six", "chords", ["analog", "poly", "chorus", "80s"],
+      "supersaw", dict(voices=2, detune_c=6, lp=3200, reso=0.1, attack=0.005, decay=0.8, sustain=0.7),
+      [3500, 0.15, 0.55, 0.85, 0.35, 0.12, 0.05, 0.0],
+      V(atk=4, rel=400, reso=0.9, vel=0.45, lfo=0.25, dly="1/8D", subsus=-12),
+      (36, 96, 6), 3.0, True, "Six-voice analog poly with a thick ensemble chorus. Chords that glow.", vl=2),
+    P("glassline_poly", "Glassline Poly", "chords", ["analog", "poly", "modern", "pluck"],
+      "supersaw", dict(voices=2, pulse=1, detune_c=9, lp=900, fenv=3500, fenv_t=0.25, t60=1.5, attack=0.002),
+      [7000, 0.10, 0.35, 0.75, 0.35, 0.25, 0.10, 0.15],
+      V(atk=1, rel=350, reso=1.0, vel=0.5, lfo=0.3, dly="1/8D"),
+      (36, 96, 6), 2.2, False, "Modern analog poly pluck with a glassy pulse edge.", vl=2),
+    P("twin_filter_scream", "Twin Filter Scream", "leads", ["aggressive", "resonant", "lead", "analog"],
+      "supersaw", dict(voices=1, lp=1800, reso=0.8, drive_pre=2.5, hp=300, attack=0.005, sustain=0.9),
+      [6000, 0.0, 0.25, 0.40, 0.25, 0.20, 0.40, 0.0],
+      V(atk=3, rel=150, reso=1.6, vel=0.5, lfo=0.3, dly="1/8", subsus=-20),
+      (36, 96, 6), 2.5, True, "Screaming high-pass plus low-pass lead with resonant bite.", vl=2),
+    P("ladder_mono_bass", "Ladder Mono Bass", "bass", ["analog", "mono", "funk", "fat"],
+      "supersaw", dict(voices=3, detune_c=4, sub=0.3, lp=400, reso=0.3, fenv=2200, fenv_t=0.2, drive_pre=1.6,
+                       attack=0.002, decay=0.4, sustain=0.7),
+      [3500, 0.15, 0.0, 0.0, 0.0, 0.0, 0.25, 0.0],
+      V(atk=1, rel=90, reso=1.3, vel=0.6, lfo=0.1, subdec=200, subsus=-40),
+      (24, 60, 6), 2.5, True, "Three-oscillator ladder bass with a punchy filter snap.", vl=2),
+    P("ladder_lead", "Ladder Lead", "leads", ["analog", "mono", "solo", "vibrato"],
+      "supersaw", dict(voices=2, detune_c=6, lp=1500, reso=0.25, fenv=3000, fenv_t=0.3, drive_pre=1.4,
+                       vib_c=8, vib_delay=0.5, attack=0.003, sustain=0.85),
+      [5000, 0.10, 0.20, 0.40, 0.30, 0.25, 0.20, 0.0],
+      V(atk=3, rel=180, reso=1.2, vel=0.5, lfo=0.2, dly="1/4D", subsus=-20),
+      (36, 96, 6), 2.5, True, "Fat ladder-filter solo lead with delayed vibrato.", vl=2),
+    P("brass_memory_poly", "Brass Memory Poly", "chords", ["analog", "brass", "poly", "80s"],
+      "supersaw", dict(voices=3, detune_c=10, lp=1200, fenv=2400, fenv_t=0.35, attack=0.04, sustain=0.85, drive_pre=1.2),
+      [4500, 0.20, 0.30, 0.80, 0.40, 0.10, 0.15, 0.0],
+      V(atk=30, rel=500, reso=1.0, vel=0.5, lfo=0.2, dly="1/8D", subsus=-12),
+      (36, 96, 6), 3.0, True, "Big analog poly brass with a swelling filter.", vl=2),
+    P("prepared_bolt_piano", "Prepared Bolt Piano", "keys", ["prepared", "experimental", "percussive", "film"],
+      "prepared", dict(t60=5.0, hardness=0.35, metal_mix=0.5, rattle=0.2),
+      [9000, 0.0, 0.15, 0.60, 0.45, 0.15, 0.10, 0.0],
+      V(atk=1, rel=900, reso=0.8, vel=0.65, lfo=0.15, dly="1/4D", subsus=-40),
+      (36, 96, 6), 4.0, False, "Piano with bolts and paper on the strings: metal partials and a buzz.", vl=2),
+    P("toy_box_piano", "Toy Box Piano", "keys", ["toy", "music-box", "nursery", "lofi"],
+      "modal", dict(modes=[(1, 1, 1), (3.92, 0.45, 0.3), (9.58, 0.2, 0.12), (16.1, 0.08, 0.06)], t60=1.8, strike=0.35, beat_c=6.0),
+      [9000, 0.0, 0.20, 0.55, 0.40, 0.20, 0.05, 0.0],
+      V(atk=1, rel=500, reso=0.8, vel=0.6, lfo=0.2, dly="1/8D", subsus=-40),
+      (60, 102, 6), 2.5, False, "Tiny struck rods, a little out of tune. Nursery and lo-fi motifs.", vl=2),
+    P("saloon_tack_piano", "Saloon Tack Piano", "keys", ["honky-tonk", "tack", "vintage", "saloon"],
+      "prepared", dict(hardness=0.85, unison_c=14.0, t60=4.0, metal_mix=0.2, rattle=0.12, rattle_hz=60.0),
+      [10000, 0.0, 0.10, 0.50, 0.30, 0.05, 0.10, 0.0],
+      V(atk=1, rel=600, reso=0.8, vel=0.7, lfo=0.15, dly="1/8", subsus=-40),
+      (36, 96, 6), 3.5, False, "Detuned strings and tacks on the hammers. Saloon and ragtime colour.", vl=2),
+    P("leaning_upright", "Leaning Upright", "keys", ["detuned", "upright", "lofi", "warm"],
+      "felt_piano", dict(hardness=0.5, unison_c=5.0, t60=6.0, wow=3.0, tape=dict(wow_c=4, hiss=0.003, lp=9000)),
+      [7000, 0.0, 0.10, 0.50, 0.40, 0.10, 0.05, 0.0],
+      V(atk=2, rel=900, reso=0.7, vel=0.7, lfo=0.1, dly="1/8D", subsus=-40),
+      (36, 96, 6), 4.5, False, "An old upright nobody tunes, recorded to tape. Warm and wonky.", vl=2),
+    P("stage_electric_grand", "Stage Electric Grand", "keys", ["electric-grand", "80s", "ballad", "bright"],
+      "felt_piano", dict(hardness=0.75, t60=3.0, lp=7000, post_shelf=(2500, 3.0), post_hp=120),
+      [9000, 0.0, 0.40, 0.70, 0.35, 0.15, 0.05, 0.0],
+      V(atk=1, rel=600, reso=0.8, vel=0.65, lfo=0.2, dly="1/8D", subsus=-40),
+      (36, 96, 6), 3.5, False, "Thin, bright stage piano with pickup shimmer. 80s ballads.", vl=2),
+    P("sticky_reed_keys", "Sticky Reed Keys", "keys", ["60s", "reed", "plucky", "vintage"],
+      "reed_ep", dict(t60=1.2, drive=1.2, lp=3500),
+      [5000, 0.0, 0.30, 0.50, 0.30, 0.15, 0.10, 0.0],
+      V(atk=1, rel=250, reso=0.9, vel=0.6, lfo=0.25, dly="1/8"),
+      (36, 96, 6), 2.0, False, "Short plucked reeds with a sticky attack. 60s pop keys.", vl=2),
+    P("funk_pick_clav", "Funk Pick Clav", "keys", ["funk", "clav", "rhythmic", "bright"],
+      "karplus", dict(t60=1.2, bright=9000, damp=0.7, pos=0.06, body=0.0, post_hp=150),
+      [9000, 0.0, 0.25, 0.40, 0.15, 0.10, 0.15, 0.0],
+      V(atk=1, rel=120, reso=1.0, vel=0.7, lfo=0.3, dly="1/16"),
+      (36, 84, 4), 1.8, False, "Bright plucked-string keys for tight funk rhythm parts.", vl=2),
+    P("tape_strip_strings", "Tape Strip Strings", "pads", ["tape", "strings", "60s", "psych"],
+      "supersaw", dict(voices=3, detune_c=6, lp=3500, attack=0.15, sustain=1.0,
+                       tape=dict(wow_c=9, flutter_c=4, hiss=0.006, lp=5000, length_s=8.0)),
+      [4000, 0.0, 0.20, 0.60, 0.45, 0.05, 0.10, 0.0],
+      V(atk=60, rel=400, reso=0.8, vel=0.4, lfo=0.15, dly="1/4D", subsus=-20),
+      (36, 84, 6), 8.5, False, "Strings on 8-second tape strips: wobble, hiss, and they run out."),
+    P("tape_strip_flute", "Tape Strip Flute", "leads", ["tape", "flute", "psych", "lofi"],
+      "flute", dict(vib_c=10, breath=0.3, tape=dict(wow_c=10, flutter_c=4, hiss=0.006, lp=5000, length_s=8.0)),
+      [6000, 0.0, 0.20, 0.50, 0.45, 0.15, 0.10, 0.0],
+      V(atk=40, rel=300, reso=0.7, vel=0.45, lfo=0.2, dly="1/4D", subsus=-20),
+      (48, 96, 6), 8.5, False, "Breathy flute on a worn tape strip. Psych intros."),
+    P("optical_disc_organ", "Optical Disc Organ", "keys", ["lofi", "organ", "novelty", "crackle"],
+      "organ", dict(wow=6.0, lp=4000, decim=11025, tape=dict(wow_c=6, crackle=3.0, hiss=0.01, lp=4000)),
+      [3500, 0.10, 0.40, 0.40, 0.35, 0.10, 0.25, 0.0],
+      V(atk=8, rel=200, reso=0.8, vel=0.25, lfo=0.3, dly="1/8D", subsus=-12),
+      (36, 90, 6), 3.0, True, "Home organ read off a scratched optical disc. Crackle and wow."),
+    P("digital_glass_ep", "Digital Glass EP", "keys", ["fm", "80s", "glassy", "ballad"],
+      "fm_bell", dict(ratio=1.0, index=1.8, index_t=0.35, partial2=0.3, ratio2=14.0, t60=4.0, beat_c=3.0),
+      [10000, 0.0, 0.40, 0.70, 0.40, 0.15, 0.0, 0.0],
+      V(atk=1, rel=900, reso=0.7, vel=0.65, lfo=0.2, dly="1/8D", subsus=-40),
+      (36, 96, 6), 4.0, False, "Glassy digital FM electric piano with a bright tine ping. 80s ballads.", vl=2),
+
     # ================================================================ SIGNATURE BANK v0.2
     # ------------------------------------------------------------ KEYS
     P("night_drive_keys", "Night Drive Keys", "keys", ["underwater", "rnb", "late-night", "dark", "lofi"],
@@ -632,6 +734,7 @@ def write_wav24(path: Path, l: np.ndarray, r: np.ndarray, rng) -> None:
 
 SOFT_RULES = {
     # gen: {param: multiplier}  (missing params are left alone)
+    "prepared":   {"hardness": 0.5, "lp": 0.75, "rattle": 0.5, "metal_mix": 0.7},
     "tine_ep":    {"bark": 0.55, "tine": 0.6, "pickup": 0.6, "lp": 0.7},
     "felt_piano": {"hardness": 0.5, "lp": 0.75},
     "reed_ep":    {"drive": 0.7, "lp": 0.75},
@@ -645,7 +748,7 @@ SOFT_RULES = {
     "sub":        {"drive": 0.8, "h2": 0.6},
     "flute":      {"breath": 0.8},
 }
-SOFT_DEFAULT_LP = {"felt_piano": 3500, "modal": 5000, "voice": 3200, "karplus": 3000}
+SOFT_DEFAULT_LP = {"felt_piano": 3500, "prepared": 3500, "modal": 5000, "voice": 3200, "karplus": 3000}
 SOFT_LEVEL = 0.71          # soft layer sits ~3 dB under the hard layer
 
 
@@ -687,6 +790,8 @@ def render_voice(p, gp, note, n, rng):
     if gp.get("decim"):
         l = dsp.decimate(l, gp["decim"], gp.get("decim_drive", 0.0))
         r = dsp.decimate(r, gp["decim"], gp.get("decim_drive", 0.0))
+    if gp.get("tape"):
+        l, r = dsp.tape_age(l, r, gp, rng)
     if gp.get("reverse"):                      # reversed swell: ends on the attack
         l = l[::-1].copy()
         r = r[::-1].copy()
