@@ -41,6 +41,12 @@ jobs:
             || { echo "ERROR: generated bank data differs from the committed files"; exit 1; }
           ls hise_project/ResearchFacility/Samples/SIG_*.wav | wc -l
 
+      - name: Select Xcode 16.2
+        # macos-15 default is Xcode 16.4; 16.3+ ships a libc++ without the generic
+        # std::char_traits that older JUCE/HISE code relies on. 16.2 is the newest
+        # image Xcode before that change (macos-14 + Xcode 15.4 image is retired).
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app
+
       - name: Show toolchain
         run: |
           sw_vers
@@ -170,11 +176,15 @@ jobs:
           chmod +x "$BINARIES_DIR/batchCompileOSX"
           cd "$BINARIES_DIR"
           # Bypass xcpretty piping if it's not installed; raw xcodebuild output is fine in CI
-          if ! command -v xcpretty >/dev/null 2>&1; then
-            echo "xcpretty not on PATH — rewriting batchCompileOSX to skip it"
-            sed -i.bak 's| | xcpretty||g; s| | xcpretty ||g' batchCompileOSX || true
+          # raw xcodebuild output to a log (xcpretty hides compiler errors); print errors on failure
+          sed -i '' 's/ | xcpretty//' batchCompileOSX
+          if ! ./batchCompileOSX > xcodebuild.log 2>&1; then
+            echo "=== xcodebuild errors ==="
+            grep -E "error:|fatal error|Undefined symbols" -A 4 xcodebuild.log | head -120
+            tail -20 xcodebuild.log
+            exit 1
           fi
-          ./batchCompileOSX
+          tail -5 xcodebuild.log
 
           echo ""
           echo "=== Find built plugins ==="
@@ -241,6 +251,12 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
+      - name: Select Xcode 16.2
+        # macos-15 default is Xcode 16.4; 16.3+ ships a libc++ without the generic
+        # std::char_traits that older JUCE/HISE code relies on. 16.2 is the newest
+        # image Xcode before that change (macos-14 + Xcode 15.4 image is retired).
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app
 
       - name: Show toolchain
         run: |
@@ -371,11 +387,15 @@ jobs:
           chmod +x "$BINARIES_DIR/batchCompileOSX"
           cd "$BINARIES_DIR"
           # Bypass xcpretty piping if it's not installed; raw xcodebuild output is fine in CI
-          if ! command -v xcpretty >/dev/null 2>&1; then
-            echo "xcpretty not on PATH — rewriting batchCompileOSX to skip it"
-            sed -i.bak 's| | xcpretty||g; s| | xcpretty ||g' batchCompileOSX || true
+          # raw xcodebuild output to a log (xcpretty hides compiler errors); print errors on failure
+          sed -i '' 's/ | xcpretty//' batchCompileOSX
+          if ! ./batchCompileOSX > xcodebuild.log 2>&1; then
+            echo "=== xcodebuild errors ==="
+            grep -E "error:|fatal error|Undefined symbols" -A 4 xcodebuild.log | head -120
+            tail -20 xcodebuild.log
+            exit 1
           fi
-          ./batchCompileOSX
+          tail -5 xcodebuild.log
 
           echo ""
           echo "=== Find built plugins ==="
