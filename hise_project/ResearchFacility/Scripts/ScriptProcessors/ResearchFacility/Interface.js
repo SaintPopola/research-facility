@@ -172,7 +172,8 @@ const var S = {
     "strumNote": -1, "orbPhase": 0.0, "orbFrame": 0,
     "mode": 0, "kit": 0, "loopQ": -1, "shift": 0,
     "page": 0, "trim": 0.0, "vfIdle": true, "kitTop": 0,
-    "cutConn": 0, "modSrc": 0, "histPos": 0, "connDrag": -1
+    "cutConn": 0, "modSrc": 0, "histPos": 0, "connDrag": -1,
+    "focusTries": 0, "lastPaint": 0.0
 };
 
 const var FAV = {};
@@ -837,6 +838,9 @@ Header.loadImage("{PROJECT_FOLDER}sm_logo.png", "logo");
 
 Header.setPaintRoutine(function(g)
 {
+    var nowT = Engine.getUptime();
+    if (nowT - S.lastPaint > 1.0) armFocus();      // editor (re)opened: the clock repaints this every 133 ms
+    S.lastPaint = nowT;
     var p = FACTORY_BANK[S.cur];
     var col = catColour(p.cat);
 
@@ -1209,6 +1213,7 @@ Content.setPropertiesFromJSON("SearchField", {
 
 inline function onSearch(component, value)
 {
+    FocusClock.stopTimer();
     S.query = value;
     S.scroll = 0;
     buildList();
@@ -1862,6 +1867,23 @@ inline function refocusKeys()
     Keys.grabFocus();
 }
 
+// grabFocus only works once the window is on screen. onInit runs before that, and a
+// host re-creates the editor every time the plugin window opens, so keep asking for
+// ~3 s after the interface starts or reappears (armFocus), then stop.
+const var FocusClock = Engine.createTimerObject();
+FocusClock.setTimerCallback(function()
+{
+    refocusKeys();
+    S.focusTries = S.focusTries + 1;
+    if (S.focusTries >= 10) this.stopTimer();
+});
+
+inline function armFocus()
+{
+    S.focusTries = 0;
+    FocusClock.startTimer(300);
+}
+
 inline function shiftOctave(d)
 {
     local ns = S.shift + d;
@@ -1990,6 +2012,7 @@ inline function setPage(pg)
     Header.repaint();
     ShapePage.repaint();
     ModPage.repaint();
+    refocusKeys();
 }
 
 inline function stepState(id, dir, count)
@@ -2743,6 +2766,7 @@ inline function loadKit(i)
     S.loopQ = -1;
     applyFeel();
     refreshAll();
+    refocusKeys();
 }
 
 inline function setMode(m)
@@ -2955,8 +2979,23 @@ inline function selfTest()
                   " list=" + S.list.length + " q=" + TEMPO_Q + " map=" + SamplerA.getCurrentSampleMapId() + " " + t2 + t3);
     if (!ok) Console.print(RF_SELFTEST_FAILED.length);    // unknown id -> load reports an error
 }
+// Standalone app: a MIDI keyboard should just play. HISE keeps every MIDI input off
+// until enabled in its device settings (which this interface never shows), so turn
+// them all on. Inside a DAW the host routes MIDI and this does nothing.
+inline function enableAllMidiInputs()
+{
+    local devs = Settings.getMidiInputDevices();
+    local i = 0;
+    for (i = 0; i < devs.length; i++)
+    {
+        if (!Settings.isMidiInputEnabled(devs[i])) Settings.toggleMidiInput(devs[i], true);
+    }
+}
+if (!Engine.isPlugin()) enableAllMidiInputs();
+
 selfTest();
 refreshKeyTints();
+armFocus();
 
 function onNoteOn()
 {
