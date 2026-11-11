@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<samplemap ID="SIG_garage_reese_floor" SaveMode="1" RRGroupAmount="1.0" MicPositions=";"
+           CrossfadeGamma="1.0">
+  <sample ID="0" FileName="{PROJECT_FOLDER}SIG_garage_reese_floor_24.wav" Root="24" HiKey="26"
+          LoKey="0" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="144000"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="141936" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="1" FileName="{PROJECT_FOLDER}SIG_garage_reese_floor_30.wav" Root="30" HiKey="32"
+          LoKey="27" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="144000"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="142445" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="2" FileName="{PROJECT_FOLDER}SIG_garage_reese_floor_36.wav" Root="36" HiKey="38"
+          LoKey="33" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="144000"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="141936" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="3" FileName="{PROJECT_FOLDER}SIG_garage_reese_floor_42.wav" Root="42" HiKey="44"
+          LoKey="39" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="144000"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="142445" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="4" FileName="{PROJECT_FOLDER}SIG_garage_reese_floor_48.wav" Root="48" HiKey="50"
+          LoKey="45" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="144000"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="142303" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="5" FileName="{PROJECT_FOLDER}SIG_garage_reese_floor_54.wav" Root="54" HiKey="56"
+          LoKey="51" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="144000"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="142445" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="6" FileName="{PROJECT_FOLDER}SIG_garage_reese_floor_60.wav" Root="60" HiKey="127"
+          LoKey="57" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="144000"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="142486" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+</samplemap>

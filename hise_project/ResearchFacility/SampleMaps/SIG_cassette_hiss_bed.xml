@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<samplemap ID="SIG_cassette_hiss_bed" SaveMode="1" RRGroupAmount="1.0" MicPositions=";"
+           CrossfadeGamma="1.0">
+  <sample ID="0" FileName="{PROJECT_FOLDER}SIG_cassette_hiss_bed_36.wav" Root="36" HiKey="41"
+          LoKey="0" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="286560" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="1" FileName="{PROJECT_FOLDER}SIG_cassette_hiss_bed_48.wav" Root="48" HiKey="53"
+          LoKey="42" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="286560" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="2" FileName="{PROJECT_FOLDER}SIG_cassette_hiss_bed_60.wav" Root="60" HiKey="65"
+          LoKey="54" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="286560" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="3" FileName="{PROJECT_FOLDER}SIG_cassette_hiss_bed_72.wav" Root="72" HiKey="77"
+          LoKey="66" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="286560" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="4" FileName="{PROJECT_FOLDER}SIG_cassette_hiss_bed_84.wav" Root="84" HiKey="127"
+          LoKey="78" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="286560" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+</samplemap>
