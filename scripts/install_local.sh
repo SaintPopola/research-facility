@@ -7,7 +7,7 @@
 # 2. backs up any installed copy, removes the old "ResearchFacility" bundles
 #    (same plug-in IDs, so hosts must never see both)
 # 3. installs to ~/Library/Audio/Plug-Ins/{VST3,Components}
-# 4. syncs the Signature Bank samples into the plug-in's AppData folder
+# 4. clones the rendered samples into the plug-in's AppData folder (APFS, no extra space)
 # 5. flushes the AU cache and runs `auval -strict`
 set -euo pipefail
 
@@ -44,11 +44,16 @@ for b in "$VST3_DIR/Sweet Melody.vst3" "$AU_DIR/Sweet Melody.component"; do
   codesign --force --deep -s - "$b"
 done
 
+# Samples must live OUTSIDE ~/Desktop: macOS privacy (TCC) blocks a plug-in's
+# first file open there behind an "access your Desktop folder" prompt (the host
+# hangs until someone answers). Copy as APFS clones (cp -c): no extra disk space.
+# HISE reads LinkOSX from the AppData ROOT.
+SAMPLES_SRC="$ROOT/hise_project/ResearchFacility/Samples"
+ls "$SAMPLES_SRC"/SIG_*.wav >/dev/null 2>&1 || python3 "$ROOT/scripts/build_signature_bank.py"
 mkdir -p "$APPDATA"
-rsync -a "$ROOT/hise_project/ResearchFacility/Samples/"*.wav "$APPDATA/"
-# HISE reads LinkOSX from the AppData root, pointing at the Samples folder
+rm -f "$APPDATA"/SIG_*.wav
+cp -c "$SAMPLES_SRC"/*.wav "$APPDATA/"
 printf '%s' "$APPDATA" > "$(dirname "$APPDATA")/LinkOSX"
-rm -f "$APPDATA/LinkOSX"
 
 killall -9 AudioComponentRegistrar 2>/dev/null || true
 sleep 2
