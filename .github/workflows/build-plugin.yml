@@ -129,7 +129,11 @@ jobs:
           # Use plain `export` (not export_ci) because export_ci IGNORES the
           # global HISE path per docs and expects HISE.app to be inside the
           # source tree. Plain export honors set_hise_folder OR -h: inline.
-          "$HISE_BIN" export "$PRESET" -h:"$HISE_SRC" -t:instrument -p:VST_AU -a:x86x64
+          set -o pipefail
+          "$HISE_BIN" export "$PRESET" -h:"$HISE_SRC" -t:instrument -p:VST_AU -a:x86x64 2>&1 | tee hise_export.log
+          # HISE 4.1 export does not fail on HiseScript errors: gate on the Interface self-test
+          if grep -E "Line [0-9]+, column [0-9]+:" hise_export.log; then echo "ERROR: HiseScript error during export"; exit 1; fi
+          grep -q "RF selftest PASS" hise_export.log || { echo "ERROR: Interface self-test did not report PASS"; exit 1; }
 
           echo ""
           echo "=== Patch generated .jucer to disable Intel IPP ==="
@@ -351,7 +355,11 @@ jobs:
           # Use plain `export` (not export_ci) because export_ci IGNORES the
           # global HISE path per docs and expects HISE.app to be inside the
           # source tree. Plain export honors set_hise_folder OR -h: inline.
-          "$HISE_BIN" export "$PRESET" -h:"$HISE_SRC" -t:standalone -a:x86x64
+          set -o pipefail
+          "$HISE_BIN" export "$PRESET" -h:"$HISE_SRC" -t:standalone -a:x86x64 2>&1 | tee hise_export.log
+          # HISE 4.1 export does not fail on HiseScript errors: gate on the Interface self-test
+          if grep -E "Line [0-9]+, column [0-9]+:" hise_export.log; then echo "ERROR: HiseScript error during export"; exit 1; fi
+          grep -q "RF selftest PASS" hise_export.log || { echo "ERROR: Interface self-test did not report PASS"; exit 1; }
 
           echo ""
           echo "=== Patch generated .jucer to disable Intel IPP ==="
