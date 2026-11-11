@@ -67,8 +67,8 @@
           <ChildProcessors/>
           <RoutingMatrix NumSourceChannels="2" Channel0="0" Send0="-1" Channel1="1" Send1="-1"/>
         </Processor>
-        <Processor Type="Chorus" ID="Chorus" Bypassed="0" Gain="0" Rate="0.5"
-                   Width="0.55" Feedback="0.25" Delay="0.5">
+        <Processor Type="Chorus" ID="Chorus" Bypassed="0" Gain="0" Rate="0.49"
+                   Width="0.45" Feedback="0.5" Delay="0.5">
           <ChildProcessors/>
         </Processor>
         <Processor Type="Delay" ID="Space Delay" Bypassed="0" DelayTimeLeft="7" DelayTimeRight="8" FeedbackLeft="0.3" FeedbackRight="0.26" LowPassFreq="5500" HiPassFreq="220" Mix="0.1" TempoSync="1">

@@ -65,8 +65,8 @@ jobs:
       - name: Clone HISE source (4.1.0)
         if: steps.cache-hise.outputs.cache-hit != 'true'
         run: |
-          git clone --depth 1 --branch 4.1.0 https://github.com/christophhart/HISE.git "$GITHUB_WORKSPACE/hise-source" || \
-            git clone --depth 1 https://github.com/christophhart/HISE.git "$GITHUB_WORKSPACE/hise-source"
+          # pinned: never fall back to develop (it would silently build a different HISE)
+          git clone --depth 1 --branch 4.1.0 https://github.com/christophhart/HISE.git "$GITHUB_WORKSPACE/hise-source"
           cd "$GITHUB_WORKSPACE/hise-source"
           git submodule update --init --depth 1 JUCE
           # Make Projucer available at the path batchCompileOSX expects
@@ -196,6 +196,17 @@ jobs:
           find "$GITHUB_WORKSPACE/hise_project/ResearchFacility/Binaries" -name "*.vst3" -o -name "*.component" 2>/dev/null | head -20
           ls -la "$GITHUB_WORKSPACE/hise_project/ResearchFacility/Binaries/" 2>/dev/null || true
 
+      - name: Validate AU (auval -strict)
+        run: |
+          set -e
+          AU="$(find hise_project/ResearchFacility/Binaries -name 'Sweet Melody.component' -type d | head -1)"
+          mkdir -p "$HOME/Library/Audio/Plug-Ins/Components"
+          ditto "$AU" "$HOME/Library/Audio/Plug-Ins/Components/Sweet Melody.component"
+          killall -9 AudioComponentRegistrar 2>/dev/null || true
+          sleep 3
+          auval -strict -v aumu Rfac Rfac | tee auval.log | tail -40
+          grep -q "AU VALIDATION SUCCEEDED" auval.log
+
       - name: Upload VST3 artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -276,8 +287,8 @@ jobs:
       - name: Clone HISE source (4.1.0)
         if: steps.cache-hise.outputs.cache-hit != 'true'
         run: |
-          git clone --depth 1 --branch 4.1.0 https://github.com/christophhart/HISE.git "$GITHUB_WORKSPACE/hise-source" || \
-            git clone --depth 1 https://github.com/christophhart/HISE.git "$GITHUB_WORKSPACE/hise-source"
+          # pinned: never fall back to develop (it would silently build a different HISE)
+          git clone --depth 1 --branch 4.1.0 https://github.com/christophhart/HISE.git "$GITHUB_WORKSPACE/hise-source"
           cd "$GITHUB_WORKSPACE/hise-source"
           git submodule update --init --depth 1 JUCE
           # Make Projucer available at the path batchCompileOSX expects

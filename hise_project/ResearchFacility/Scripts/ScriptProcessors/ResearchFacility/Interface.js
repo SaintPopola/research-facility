@@ -290,13 +290,15 @@ inline function applyMacro(i, v)
     }
     else if (i == 2)     // MOTION
     {
-        setA(FX_Chorus, A.cRate, 0.08 + v * 2.2);
-        setA(FX_Chorus, A.cFb, 0.1 + v * 0.35);
+        // HISE Chorus params are normalised (Chorus.cpp 4.1.0):
+        // Hz = 10^(3 * Rate - 2), feedback = 1.9 * Feedback - 0.95 (0.5 = none)
+        setA(FX_Chorus, A.cRate, 0.392 + v * 0.343);          // 0.15 Hz .. 1.6 Hz
+        setA(FX_Chorus, A.cFb, 0.5 + v * 0.12);               // none .. +0.23
         M_Move.setIntensity(v * 0.3);
     }
     else if (i == 3)     // WIDTH
     {
-        setA(FX_Chorus, A.cWid, v);
+        setA(FX_Chorus, A.cWid, 0.15 + v * 0.6);              // modulation depth
         setA(FX_Reverb, A.rWid, 0.4 + v * 0.6);
     }
     else if (i == 4)     // SPACE
