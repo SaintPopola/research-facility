@@ -1487,11 +1487,12 @@ inline function buildSpectrum()
         local d0 = binDb(BA[i], BN[i]);
         if (d0 > -100.0) mx = Math.max(mx, d0 + TD[i]);
     }
-    if (mx > -200.0) F.top = ease(F.top, Math.range(mx, -60.0, 12.0), 0.05, 2.5);   // auto ceiling follows real signal only
+    local live = F.lvl > 0.02;                     // the output is audible (master peak above about -59 dB)
+    if (live && mx > -200.0) F.top = ease(F.top, Math.range(mx, -60.0, 12.0), 0.05, 2.5);   // ceiling follows real signal only
     for (i = 0; i < NPT; i++)
     {
         local db = binDb(BA[i], BN[i]);
-        local tg = db < -100.0 ? 0.0 : clamp01((db + TD[i] - (F.top - 78.0)) / 78.0);   // silence is flat, not the tilt line
+        local tg = (!live || db < -100.0) ? 0.0 : clamp01((db + TD[i] - (F.top - 78.0)) / 78.0);   // silence settles flat, not on the tilt
         SY[i] = SY[i] + (tg - SY[i]) * (tg > SY[i] ? 0.6 : 0.15);
         if (SY[i] >= PKV[i]) { PKV[i] = SY[i]; PKT[i] = F.t; }
         else if (F.t - PKT[i] > 1.0) PKV[i] = Math.max(0.0, PKV[i] - 0.007);
