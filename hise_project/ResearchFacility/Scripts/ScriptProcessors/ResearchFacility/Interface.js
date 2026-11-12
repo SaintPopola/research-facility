@@ -1482,11 +1482,16 @@ inline function buildSpectrum()
     local py = 0.0;
     local mx = -200.0;
     specBins();
-    for (i = 0; i < NPT; i++) mx = Math.max(mx, binDb(BA[i], BN[i]) + TD[i]);
-    F.top = ease(F.top, Math.range(mx, -60.0, 12.0), 0.05, 2.5);          // auto ceiling: quiet sounds still draw
     for (i = 0; i < NPT; i++)
     {
-        local tg = clamp01((binDb(BA[i], BN[i]) + TD[i] - (F.top - 78.0)) / 78.0);
+        local d0 = binDb(BA[i], BN[i]);
+        if (d0 > -100.0) mx = Math.max(mx, d0 + TD[i]);
+    }
+    if (mx > -200.0) F.top = ease(F.top, Math.range(mx, -60.0, 12.0), 0.05, 2.5);   // auto ceiling follows real signal only
+    for (i = 0; i < NPT; i++)
+    {
+        local db = binDb(BA[i], BN[i]);
+        local tg = db < -100.0 ? 0.0 : clamp01((db + TD[i] - (F.top - 78.0)) / 78.0);   // silence is flat, not the tilt line
         SY[i] = SY[i] + (tg - SY[i]) * (tg > SY[i] ? 0.6 : 0.15);
         if (SY[i] >= PKV[i]) { PKV[i] = SY[i]; PKT[i] = F.t; }
         else if (F.t - PKT[i] > 1.0) PKV[i] = Math.max(0.0, PKV[i] - 0.007);
@@ -1664,7 +1669,7 @@ Visualiser.setPaintRoutine(function(g)
         g.fillRect([gx, SY0, 1, SH]);
         g.setColour(T.glassDim);
         g.setFont(T.FONT, 8);
-        g.drawAlignedText(gl[k], [gx + 3, SY0 + SH - 12, 30, 10], "left");
+        g.drawAlignedText(gl[k], [gx + 3, SY0 + 2, 30, 10], "left");      // top of the plot: clear of the scope inset
     }
     for (k = 1; k < 4; k++)
     {
