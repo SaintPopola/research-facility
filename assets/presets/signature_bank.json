@@ -4404,7 +4404,7 @@
    "dly": "1/4D",
    "subdec": 1200,
    "subsus": -60,
-   "trim": 0.0,
+   "trim": 1.5,
    "desc": "Rubbed glass rims: a near-pure tone that swells in under a faint 5 Hz shimmer. Slow legato, two notes at most.",
    "d": {
     "DriftKnob": 4.0,
@@ -4566,7 +4566,7 @@
    "dly": "1/8D",
    "subdec": 200,
    "subsus": -60,
-   "trim": 0.0,
+   "trim": -8.5,
    "desc": "Hard-clipped 808 with a two-octave dive and a pushed 110 Hz bump for car walls and phone speakers.",
    "d": {
     "DriftKnob": 0.0,
@@ -4641,7 +4641,7 @@
    "dly": "1/8",
    "subdec": 1200,
    "subsus": -60,
-   "trim": 0.0,
+   "trim": 8.0,
    "desc": "Hollow organ bass with a clicky third harmonic that dies away fast. Octave-jumping off-beat house lines.",
    "d": {
     "AmpDecKnob": 320,
@@ -4974,7 +4974,7 @@
    "subdec": 1200,
    "subsus": -30,
    "trim": 0.0,
-   "desc": "Breathy stacked 'ah-oh' pitched down four semitones on tape with a grainy stretch flutter. Angelic cloud-rap beds."
+   "desc": "Breathy stacked 'ah' choir pitched down four semitones on tape with a grainy stretch flutter. Angelic cloud-rap beds."
   },
   {
    "id": "hiccup",

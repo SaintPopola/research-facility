@@ -526,8 +526,7 @@
    "gp": {
     "singers": 6,
     "vowels": [
-     "a",
-     "o"
+     "a"
     ],
     "vib_c": 4,
     "spread_c": 10,
@@ -573,7 +572,7 @@
    "dur": 6.0,
    "loop": true,
    "vl": 2,
-   "desc": "Breathy stacked 'ah-oh' pitched down four semitones on tape with a grainy stretch flutter. Angelic cloud-rap beds."
+   "desc": "Breathy stacked 'ah' choir pitched down four semitones on tape with a grainy stretch flutter. Angelic cloud-rap beds."
   },
   {
    "id": "hiccup",
