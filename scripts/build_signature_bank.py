@@ -993,6 +993,47 @@ LEGACY_CAT = {"Pads": "pads", "Plucks": "plucks", "Basses": "bass", "Leads": "le
 LEGACY_ENV = {"pads": (600, 2400), "plucks": (2, 600), "bass": (2, 300), "leads": (10, 400)}
 
 
+def _read_wav(path: Path):
+    """PCM 16 / 24-bit (or 32-bit int) WAV -> float32 stereo array [n, 2]."""
+    with wave.open(str(path)) as w:
+        ch, sw, n = w.getnchannels(), w.getsampwidth(), w.getnframes()
+        raw = w.readframes(n)
+    if sw == 2:
+        x = np.frombuffer(raw, "<i2").astype(np.float32) / 32768.0
+    elif sw == 3:
+        b = np.frombuffer(raw, np.uint8).reshape(-1, 3).astype(np.int32)
+        v = b[:, 0] | (b[:, 1] << 8) | (b[:, 2] << 16)
+        x = (np.where(v >= 1 << 23, v - (1 << 24), v)).astype(np.float32) / 8388608.0
+    else:
+        x = np.frombuffer(raw, "<i4").astype(np.float32) / 2147483648.0
+    x = x.reshape(-1, ch)
+    return np.repeat(x, 2, axis=1) if ch == 1 else x[:, :2]
+
+
+def archive_trim(smap: str, group: str) -> float:
+    """Level-match an archive map to the Signature Bank: loudest zone's 1 s body RMS -> 0.12
+    (the render_preset target). Basses are measured above 80 Hz so a sub is not read as loud
+    as its energy and turned down too far. Capped so peak + the +2.5 dB air shelf <= -3 dBFS."""
+    from scipy.signal import butter, sosfilt
+    xml = (MAPS / f"{smap}.xml").read_text()
+    files = sorted(set(re.findall(r'FileName="\{PROJECT_FOLDER\}([^"]+)"', xml)))
+    sos = butter(2, 80.0, "highpass", fs=SR, output="sos")
+    rms_max, peak = 1e-9, 1e-9
+    for fn in files:
+        f = SAMPLES / fn
+        if not f.exists():
+            continue
+        x = _read_wav(f)
+        peak = max(peak, float(np.abs(x).max()))
+        body = x[: int(1.0 * SR)]
+        if group == "bass":
+            body = sosfilt(sos, body, axis=0)
+        rms_max = max(rms_max, math.sqrt(float(np.mean(body ** 2))))
+    trim = 20.0 * math.log10(0.12 / rms_max)
+    cap = -3.0 - 2.5 - 20.0 * math.log10(peak)
+    return round(min(trim, cap), 1)
+
+
 def legacy_presets() -> list[dict]:
     """The original 53-specimen Lab library, kept as the ARCHIVE category."""
     out = []
@@ -1019,7 +1060,7 @@ def legacy_presets() -> list[dict]:
             m=[tone, 0.25, max(0.0, min(1.0, (mot_hz - 0.1) / 2.5)), float(vals.get("WidthKnob", 0.5)),
                float(vals.get("LengthKnob", 0.25)), 0.12, float(vals.get("DriveKnob", 0.1)), 0.0],
             v=V(atk=atk, rel=rel, reso=max(0.5, min(4.5, q)), vel=0.4, lfo=max(0.05, min(4.0, mot_hz)),
-                subsus=-6 if group in ("pads", "leads") else -30),
+                subsus=-6 if group in ("pads", "leads") else -30, trim=archive_trim(smap, group)),
             desc=f"Original Research Facility lab specimen ({f.parent.name.lower()[:-1]}).",
         ))
     return out

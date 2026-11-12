@@ -173,7 +173,7 @@ const var S = {
     "lvlL": 0.0, "lvlR": 0.0, "voices": 0, "cpu": 0.0,
     "strumNote": -1, "orbPhase": 0.0, "orbFrame": 0,
     "mode": 0, "kit": 0, "loopQ": -1, "shift": 0, "playShift": 0,
-    "page": 0, "trim": 0.0, "vfIdle": true, "kitTop": 0, "lastLpCut": 0,
+    "page": 0, "trim": 0.0, "vfIdle": true, "kitTop": 0, "lastLpCut": 0, "fullPreload": false,
     "cutConn": 0, "modSrc": 0, "histPos": 0, "connDrag": -1,
     "focusTries": 0, "lastPaint": 0.0, "dragSrc": -1, "dragging": false
 };
@@ -380,6 +380,7 @@ const var A = {
     "pFreqS":M_PumpS.getAttributeIndex("Frequency"),
     "mFreq": M_Move.getAttributeIndex("Frequency"),
     "gainA": VoiceA.getAttributeIndex("Gain"),
+    "preload": VoiceA.getAttributeIndex("PreloadSize"),
     "gainS": SubSyn.getAttributeIndex("Gain"),
     "vfFreq":  FX_VFilter.getAttributeIndex("Frequency"),
     "vfQ":     FX_VFilter.getAttributeIndex("Q"),
@@ -572,6 +573,15 @@ inline function applyDeep(id, v)
 // fixed voicing = what a preset sets that has no control (safe to re-run on session restore)
 inline function applyVoicing(p)
 {
+    // archive maps are single long samples: streamed (8192 preload) they hit the sampler's pitch
+    // clamp above about root + 37 semitones and stop rising. Load them whole (files ~0.5 MB);
+    // the Signature Bank keeps streaming. Changes only when the category flips.
+    local wantFull = (p.cat == "archive");
+    if (wantFull != S.fullPreload)
+    {
+        setA(VoiceA, A.preload, wantFull ? -1 : 8192);
+        S.fullPreload = wantFull;
+    }
     if (SamplerA.getCurrentSampleMapId() != p.map)
         SamplerA.loadSampleMap(p.map);
     setA(FX_Filter, A.fQ, p.reso);
