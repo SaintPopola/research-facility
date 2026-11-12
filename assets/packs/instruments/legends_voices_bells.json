@@ -1,0 +1,646 @@
+{
+ "pack": "Legends Voices and Bells",
+ "presets": [
+  {
+   "id": "haunted_box",
+   "name": "Haunted Music Box",
+   "cat": "bells",
+   "tags": [
+    "trap",
+    "bells",
+    "dark",
+    "music-box",
+    "hip-hop",
+    "legend"
+   ],
+   "gen": "fm_bell",
+   "gp": {
+    "ratio": 2.0,
+    "index": 2.5,
+    "index_t": 0.4,
+    "t60": 3.5,
+    "beat_c": 3.0,
+    "partial2": 0.25,
+    "ratio2": 2.0,
+    "post_shelf": [
+     6000,
+     -9.0
+    ]
+   },
+   "m": [
+    6000,
+    0.0,
+    0.2,
+    0.7,
+    0.6,
+    0.3,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 1400,
+    "reso": 0.7,
+    "vel": 0.6,
+    "lfo": 0.15,
+    "dly": "1/4D",
+    "subsus": -60
+   },
+   "z": [
+    60,
+    96,
+    3
+   ],
+   "dur": 4.0,
+   "loop": false,
+   "vl": 2,
+   "desc": "Hollow FM music-box bell: odd partials, an octave sparkle and a dark top. Minor-key trap motifs over a choir bed."
+  },
+  {
+   "id": "iron_tonk",
+   "name": "Iron Tonk Bell",
+   "cat": "bells",
+   "tags": [
+    "phonk",
+    "cowbell",
+    "808",
+    "brazilian-phonk",
+    "drift",
+    "legend"
+   ],
+   "gen": "modal",
+   "gp": {
+    "modes": [
+     [
+      1.0,
+      0.2245,
+      1.0
+     ],
+     [
+      2.0,
+      0.0354,
+      1.0
+     ],
+     [
+      3.0,
+      0.3215,
+      1.0
+     ],
+     [
+      4.0,
+      0.0515,
+      1.0
+     ],
+     [
+      5.0,
+      0.1114,
+      1.0
+     ],
+     [
+      6.0,
+      0.0273,
+      1.0
+     ],
+     [
+      7.0,
+      0.0465,
+      1.0
+     ],
+     [
+      9.0,
+      0.0246,
+      1.0
+     ],
+     [
+      1.481,
+      0.3648,
+      1.0
+     ],
+     [
+      2.962,
+      0.061,
+      1.0
+     ],
+     [
+      4.443,
+      0.2313,
+      1.0
+     ],
+     [
+      5.924,
+      0.0282,
+      1.0
+     ],
+     [
+      7.405,
+      0.0635,
+      1.0
+     ],
+     [
+      10.367,
+      0.0287,
+      1.0
+     ]
+    ],
+    "t60": 0.32,
+    "strike": 0.08,
+    "beat_c": 0.5,
+    "attack": 0.0005,
+    "post_hp": 300
+   },
+   "m": [
+    9000,
+    0.0,
+    0.0,
+    0.2,
+    0.1,
+    0.08,
+    0.6,
+    0.15
+   ],
+   "v": {
+    "atk": 0,
+    "rel": 180,
+    "reso": 0.7,
+    "vel": 0.5,
+    "lfo": 0.1,
+    "dly": "1/16",
+    "subsus": -60
+   },
+   "z": [
+    60,
+    84,
+    3
+   ],
+   "dur": 0.8,
+   "loop": false,
+   "vl": 2,
+   "d": {
+    "AmpDecKnob": 18,
+    "AmpSusKnob": -10
+   },
+   "desc": "Two clanging pulse tones about a flat fifth apart through a band-pass, with a fast two-stage decay. Push GRIT for drift-phonk cowbell leads."
+  },
+  {
+   "id": "pixel_bell",
+   "name": "Pixel Bell FM",
+   "cat": "bells",
+   "tags": [
+    "plugg",
+    "fm",
+    "bell",
+    "pluck",
+    "hip-hop",
+    "legend"
+   ],
+   "gen": "fm_bell",
+   "gp": {
+    "ratio": 1.0,
+    "index": 1.8,
+    "index_t": 0.25,
+    "t60": 8.0,
+    "beat_c": 1.5,
+    "partial2": 0.12,
+    "ratio2": 14.0
+   },
+   "m": [
+    12000,
+    0.0,
+    0.35,
+    0.8,
+    0.35,
+    0.2,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 300,
+    "reso": 0.7,
+    "vel": 0.6,
+    "lfo": 0.3,
+    "dly": "1/8",
+    "subsus": -60,
+    "trim": 5.0
+   },
+   "z": [
+    48,
+    93,
+    3
+   ],
+   "dur": 3.0,
+   "loop": false,
+   "vl": 2,
+   "d": {
+    "AmpDecKnob": 900,
+    "AmpSusKnob": -10.5
+   },
+   "desc": "Bright 1:1 FM bell-pluck with a glassy high tine that settles to a soft held tone. Plugg melodies with ping-pong echo."
+  },
+  {
+   "id": "eight_hertz",
+   "name": "Eight Hertz Bronze",
+   "cat": "bells",
+   "tags": [
+    "gamelan",
+    "bronze",
+    "shimmer",
+    "bells",
+    "mythical",
+    "legend"
+   ],
+   "gen": "modal",
+   "gp": {
+    "modes": [
+     [
+      1.0,
+      1.0,
+      1.0
+     ],
+     [
+      1.01818,
+      0.85,
+      1.0
+     ],
+     [
+      2.76,
+      0.45,
+      0.5
+     ],
+     [
+      2.81018,
+      0.3825,
+      0.5
+     ],
+     [
+      5.4,
+      0.22,
+      0.28
+     ],
+     [
+      5.49817,
+      0.187,
+      0.28
+     ],
+     [
+      8.93,
+      0.1,
+      0.15
+     ],
+     [
+      9.09235,
+      0.085,
+      0.15
+     ]
+    ],
+    "t60": 4.5,
+    "strike": 0.25,
+    "beat_c": 0.5,
+    "lp": 10000
+   },
+   "m": [
+    12000,
+    0.0,
+    0.1,
+    0.3,
+    0.4,
+    0.1,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 1500,
+    "reso": 0.7,
+    "vel": 0.6,
+    "lfo": 0.2,
+    "dly": "1/8",
+    "subsus": -60
+   },
+   "z": [
+    55,
+    85,
+    3
+   ],
+   "dur": 5.0,
+   "loop": false,
+   "vl": 2,
+   "desc": "Bronze bars struck in tuned pairs that beat against each other, about 8 Hz in the middle register. Shimmering interlocking figures."
+  },
+  {
+   "id": "helium_chop",
+   "name": "Helium Soul Chop",
+   "cat": "vox",
+   "tags": [
+    "chipmunk",
+    "soul",
+    "vocal-chop",
+    "varispeed",
+    "hip-hop",
+    "legend"
+   ],
+   "gen": "voice",
+   "gp": {
+    "singers": 3,
+    "vowels": [
+     "a"
+    ],
+    "vib_c": 10,
+    "spread_c": 8,
+    "breath": 0.06,
+    "attack": 0.04,
+    "decay": 0.5,
+    "sustain": 0.7,
+    "lp": 11000,
+    "post_hp": 220,
+    "post_shelf": [
+     2800,
+     4.0
+    ]
+   },
+   "m": [
+    11000,
+    0.0,
+    0.15,
+    0.4,
+    0.2,
+    0.1,
+    0.1,
+    0.0
+   ],
+   "v": {
+    "atk": 2,
+    "rel": 220,
+    "reso": 0.8,
+    "vel": 0.5,
+    "lfo": 0.2,
+    "dly": "1/8",
+    "subsus": -60,
+    "trim": 1.5
+   },
+   "z": [
+    48,
+    84,
+    3
+   ],
+   "dur": 3.0,
+   "loop": true,
+   "vl": 2,
+   "desc": "Small bright soul-singer stack with thin lows, a lifted top and an 11 kHz ceiling. Sped-up soul hooks."
+  },
+  {
+   "id": "stamp_stutter",
+   "name": "Stamp and Stutter",
+   "cat": "vox",
+   "tags": [
+    "funk",
+    "montagem",
+    "vocal-chop",
+    "stutter",
+    "brazilian-phonk",
+    "legend"
+   ],
+   "gen": "voice",
+   "gp": {
+    "singers": 1,
+    "vowels": [
+     "a",
+     "o"
+    ],
+    "t60": 0.45,
+    "attack": 0.003,
+    "vib_c": 0,
+    "breath": 0.05,
+    "lp": 4500,
+    "post_hp": 300,
+    "post_shelf": [
+     1800,
+     4.0
+    ]
+   },
+   "m": [
+    4500,
+    0.0,
+    0.1,
+    0.3,
+    0.2,
+    0.25,
+    0.3,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 90,
+    "reso": 0.8,
+    "vel": 0.4,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subsus": -60
+   },
+   "z": [
+    48,
+    84,
+    3
+   ],
+   "dur": 1.0,
+   "loop": false,
+   "vl": 2,
+   "desc": "Dry, phone-band shouted syllable. Retrigger it in 16ths with a little GRIT for funk stamps and stutters."
+  },
+  {
+   "id": "eight_second",
+   "name": "Eight-Second Seraphs",
+   "cat": "vox",
+   "tags": [
+    "tape",
+    "choir",
+    "60s",
+    "psych",
+    "cinematic",
+    "legend"
+   ],
+   "gen": "voice",
+   "gp": {
+    "singers": 8,
+    "vowels": [
+     "a"
+    ],
+    "vib_c": 6,
+    "breath": 0.08,
+    "attack": 0.25,
+    "post_hp": 120,
+    "tape": {
+     "length_s": 8.0,
+     "wow_c": 8,
+     "wow_hz": 0.6,
+     "flutter_c": 3,
+     "flutter_hz": 9,
+     "lp": 8000,
+     "hiss": 0.0004,
+     "bump": 0.25,
+     "sat": 1.2
+    }
+   },
+   "m": [
+    8000,
+    0.0,
+    0.15,
+    0.5,
+    0.45,
+    0.05,
+    0.1,
+    0.0
+   ],
+   "v": {
+    "atk": 60,
+    "rel": 150,
+    "reso": 0.7,
+    "vel": 0.0,
+    "lfo": 0.1,
+    "dly": "1/4D",
+    "subsus": -60
+   },
+   "z": [
+    43,
+    76,
+    3
+   ],
+   "dur": 8.5,
+   "loop": false,
+   "vl": 1,
+   "desc": "Eight-voice 'aah' on worn tape strips: soft start, wow, hiss, and every note runs out at eight seconds."
+  },
+  {
+   "id": "halo_smear",
+   "name": "Halo Smear Choir",
+   "cat": "vox",
+   "tags": [
+    "cloud-rap",
+    "choir",
+    "stretched",
+    "slowed",
+    "vocal",
+    "legend"
+   ],
+   "gen": "voice",
+   "gp": {
+    "singers": 6,
+    "vowels": [
+     "a",
+     "o"
+    ],
+    "vib_c": 4,
+    "spread_c": 10,
+    "breath": 0.1,
+    "attack": 0.6,
+    "lp": 6000,
+    "slow": 0.79,
+    "tape": {
+     "wow_c": 3,
+     "wow_hz": 0.3,
+     "flutter_c": 7,
+     "flutter_hz": 11,
+     "lp": 6500,
+     "hiss": 0.0003,
+     "bump": 0.15,
+     "sat": 1.1
+    }
+   },
+   "m": [
+    5000,
+    0.0,
+    0.2,
+    0.9,
+    0.85,
+    0.45,
+    0.05,
+    0.0
+   ],
+   "v": {
+    "atk": 700,
+    "rel": 3000,
+    "reso": 0.8,
+    "vel": 0.4,
+    "lfo": 0.1,
+    "dly": "1/4D",
+    "subsus": -30
+   },
+   "z": [
+    48,
+    84,
+    3
+   ],
+   "dur": 6.0,
+   "loop": true,
+   "vl": 2,
+   "desc": "Breathy stacked 'ah-oh' pitched down four semitones on tape with a grainy stretch flutter. Angelic cloud-rap beds."
+  },
+  {
+   "id": "hiccup",
+   "name": "Hiccup Honeycomb",
+   "cat": "vox",
+   "tags": [
+    "uk-garage",
+    "2-step",
+    "vocal-chop",
+    "syllables",
+    "house",
+    "legend"
+   ],
+   "gen": "voice",
+   "gp": {
+    "singers": 1,
+    "vowels": [
+     "a",
+     "o",
+     "e",
+     "i",
+     "u"
+    ],
+    "t60": 0.3,
+    "attack": 0.004,
+    "vib_c": 0,
+    "breath": 0.04,
+    "post_hp": 250,
+    "tape": {
+     "wow_c": 1.5,
+     "wow_hz": 1.0,
+     "flutter_c": 1.0,
+     "flutter_hz": 9,
+     "lp": 14000,
+     "hiss": 0.0001,
+     "bump": 0.2,
+     "sat": 1.6
+    }
+   },
+   "m": [
+    9000,
+    0.0,
+    0.1,
+    0.4,
+    0.15,
+    0.25,
+    0.15,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 80,
+    "reso": 0.8,
+    "vel": 0.4,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subsus": -60
+   },
+   "z": [
+    48,
+    84,
+    3
+   ],
+   "dur": 0.8,
+   "loop": false,
+   "vl": 2,
+   "desc": "Tiny vowel-gliding syllable, tape-glued and short. Play it like a drum for 2-step vocal hiccups."
+  }
+ ]
+}

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<samplemap ID="SIG_wet_rim_seraph" SaveMode="1" RRGroupAmount="1.0" MicPositions=";"
+           CrossfadeGamma="1.0">
+  <sample ID="0" FileName="{PROJECT_FOLDER}SIG_wet_rim_seraph_72.wav" Root="72" HiKey="73"
+          LoKey="0" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="144000"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="142486" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="1" FileName="{PROJECT_FOLDER}SIG_wet_rim_seraph_75.wav" Root="75" HiKey="76"
+          LoKey="74" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="144000"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="142495" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="2" FileName="{PROJECT_FOLDER}SIG_wet_rim_seraph_78.wav" Root="78" HiKey="79"
+          LoKey="77" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="144000"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="142510" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="3" FileName="{PROJECT_FOLDER}SIG_wet_rim_seraph_81.wav" Root="81" HiKey="82"
+          LoKey="80" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="144000"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="142527" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="4" FileName="{PROJECT_FOLDER}SIG_wet_rim_seraph_84.wav" Root="84" HiKey="85"
+          LoKey="83" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="144000"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="142532" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="5" FileName="{PROJECT_FOLDER}SIG_wet_rim_seraph_87.wav" Root="87" HiKey="88"
+          LoKey="86" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="144000"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="142534" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="6" FileName="{PROJECT_FOLDER}SIG_wet_rim_seraph_90.wav" Root="90" HiKey="91"
+          LoKey="89" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="144000"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="142542" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="7" FileName="{PROJECT_FOLDER}SIG_wet_rim_seraph_93.wav" Root="93" HiKey="94"
+          LoKey="92" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="144000"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="142555" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="8" FileName="{PROJECT_FOLDER}SIG_wet_rim_seraph_96.wav" Root="96" HiKey="127"
+          LoKey="95" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="144000"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="142555" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+</samplemap>

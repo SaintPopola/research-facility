@@ -1,0 +1,1387 @@
+{
+ "pack": "Legends Synths",
+ "presets": [
+  {
+   "id": "seven_sun_saw",
+   "name": "Seven Sun Saw",
+   "cat": "chords",
+   "tags": [
+    "supersaw",
+    "future-bass",
+    "trance",
+    "chords",
+    "pump",
+    "legend"
+   ],
+   "gen": "supersaw",
+   "gp": {
+    "voices": 7,
+    "detune_c": 18.5,
+    "spread": 0.0,
+    "drift_c": 0.3,
+    "lp": 14000,
+    "keytrack": 0.0,
+    "reso": 0.0,
+    "hp": 80,
+    "attack": 0.005,
+    "decay": 0.5,
+    "sustain": 1.0
+   },
+   "m": [
+    9000,
+    0.15,
+    0.2,
+    0.8,
+    0.35,
+    0.2,
+    0.2,
+    0.5
+   ],
+   "v": {
+    "atk": 5,
+    "rel": 600,
+    "reso": 0.9,
+    "vel": 0.4,
+    "lfo": 0.25,
+    "dly": "1/8D",
+    "subsus": -14
+   },
+   "z": [
+    36,
+    96,
+    3
+   ],
+   "dur": 3.5,
+   "loop": true,
+   "desc": "Seven free-running saws with a measured centre-heavy detune, printed mono with a thin bottom. Wide only through the FX.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 1.0
+   }
+  },
+  {
+   "id": "anthem_brass_stab",
+   "name": "Anthem Brass Stab",
+   "cat": "chords",
+   "tags": [
+    "hip-hop",
+    "brass",
+    "stab",
+    "workstation",
+    "2000s",
+    "legend"
+   ],
+   "gen": "supersaw",
+   "gp": {
+    "voices": 4,
+    "detune_c": 8,
+    "lp": 2200,
+    "keytrack": 0.5,
+    "fenv": 4000,
+    "fenv_t": 0.25,
+    "attack": 0.008,
+    "decay": 0.22,
+    "sustain": 0.55,
+    "drive_pre": 1.3,
+    "sub": 0.2,
+    "post_shelf": [
+     1200,
+     3.0
+    ]
+   },
+   "m": [
+    9000,
+    0.1,
+    0.25,
+    0.7,
+    0.4,
+    0.05,
+    0.1,
+    0.0
+   ],
+   "v": {
+    "atk": 4,
+    "rel": 140,
+    "reso": 0.9,
+    "vel": 0.6,
+    "lfo": 0.2,
+    "dly": "1/8",
+    "subsus": -24
+   },
+   "z": [
+    36,
+    84,
+    3
+   ],
+   "dur": 3.0,
+   "loop": true,
+   "desc": "Fat workstation-style synth brass: quick filter bite, octave-down weight, a forward 1 kHz horn band. Anthem stabs.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 3.0
+   }
+  },
+  {
+   "id": "smoked_horn_section",
+   "name": "Smoked Horn Section",
+   "cat": "chords",
+   "tags": [
+    "reggaeton",
+    "brass",
+    "dirty",
+    "dark",
+    "latin",
+    "legend"
+   ],
+   "gen": "supersaw",
+   "gp": {
+    "voices": 3,
+    "detune_c": 6,
+    "lp": 1300,
+    "keytrack": 0.4,
+    "reso": 0.1,
+    "fenv": 2000,
+    "fenv_t": 0.25,
+    "attack": 0.012,
+    "decay": 0.5,
+    "sustain": 0.75,
+    "drive": 2.2,
+    "tape": {
+     "wow_c": 0,
+     "flutter_c": 0,
+     "bump": 0.2,
+     "lp": 4500,
+     "hiss": 0.002,
+     "sat": 1.6
+    }
+   },
+   "m": [
+    3500,
+    0.25,
+    0.2,
+    0.5,
+    0.2,
+    0.1,
+    0.4,
+    0.0
+   ],
+   "v": {
+    "atk": 10,
+    "rel": 220,
+    "reso": 1.0,
+    "vel": 0.55,
+    "lfo": 0.2,
+    "dly": "1/8",
+    "subsus": -12
+   },
+   "z": [
+    31,
+    79,
+    3
+   ],
+   "dur": 3.0,
+   "loop": true,
+   "desc": "Low synth horn section printed through a dark clip: dirty, nothing bright. Off-beat minor stabs over a dembow.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 5.0
+   }
+  },
+  {
+   "id": "far_apart_duo",
+   "name": "Far Apart Duo",
+   "cat": "chords",
+   "tags": [
+    "spanish-alt",
+    "minimal",
+    "stereo",
+    "analog",
+    "latin",
+    "legend"
+   ],
+   "gen": "supersaw",
+   "gp": {
+    "voices": 2,
+    "pulse": 1,
+    "detune_c": 5,
+    "spread": 0.9,
+    "drift_c": 2.0,
+    "lp": 1100,
+    "keytrack": 0.5,
+    "reso": 0.2,
+    "fenv": 2700,
+    "fenv_t": 0.1,
+    "attack": 0.005,
+    "decay": 0.6,
+    "sustain": 0.7
+   },
+   "m": [
+    5000,
+    0.0,
+    0.15,
+    1.0,
+    0.2,
+    0.25,
+    0.1,
+    0.0
+   ],
+   "v": {
+    "atk": 5,
+    "rel": 400,
+    "reso": 1.0,
+    "vel": 0.5,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subsus": -60
+   },
+   "z": [
+    36,
+    84,
+    3
+   ],
+   "dur": 4.0,
+   "loop": true,
+   "desc": "A filtered saw on the left and a thin pulse on the right, a few cents apart. Two elements, far apart.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 4.0
+   }
+  },
+  {
+   "id": "rain_neon_brass",
+   "name": "Rain Neon Brass",
+   "cat": "chords",
+   "tags": [
+    "cinematic",
+    "brass",
+    "swell",
+    "80s",
+    "lush",
+    "legend"
+   ],
+   "gen": "supersaw",
+   "gp": {
+    "voices": 2,
+    "pulse": 1,
+    "detune_c": 3,
+    "spread": 0.4,
+    "drift_c": 4.0,
+    "lp": 3600,
+    "keytrack": 0.5,
+    "reso": 0.1,
+    "hp": 110,
+    "attack": 0.06,
+    "decay": 0.5,
+    "sustain": 1.0
+   },
+   "m": [
+    3500,
+    0.2,
+    0.2,
+    0.7,
+    0.85,
+    0.12,
+    0.05,
+    0.0
+   ],
+   "v": {
+    "atk": 180,
+    "rel": 1600,
+    "reso": 1.0,
+    "vel": 0.5,
+    "lfo": 0.15,
+    "dly": "1/4D",
+    "subsus": -18
+   },
+   "z": [
+    36,
+    84,
+    3
+   ],
+   "dur": 4.0,
+   "loop": true,
+   "desc": "Two-layer analog brass that swells open under your touch and falls off the ribbon. Rain-soaked city chords.",
+   "vl": 2,
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 3200,
+    "ResoKnob": 1.2,
+    "FEnvAmtKnob": 0.55,
+    "FAtkKnob": 250,
+    "FDecKnob": 1400,
+    "FSusKnob": -6,
+    "FRelKnob": 1600,
+    "FKeyKnob": 0.5,
+    "FVelKnob": 0.5,
+    "DriftKnob": 9.0,
+    "VibKnob": 0.12,
+    "VibRateKnob": 5.5,
+    "VibDelayKnob": 600,
+    "BendKnob": 12
+   }
+  },
+  {
+   "id": "kaleido_sweep_poly",
+   "name": "Kaleido Sweep Poly",
+   "cat": "chords",
+   "tags": [
+    "psych",
+    "chorus",
+    "indie",
+    "chords",
+    "analog",
+    "legend"
+   ],
+   "gen": "supersaw",
+   "gp": {
+    "voices": 1,
+    "detune_c": 0.0,
+    "drift_c": 0.0,
+    "lp": 1600,
+    "keytrack": 0.5,
+    "reso": 0.1,
+    "hp": 150,
+    "attack": 0.015,
+    "decay": 0.8,
+    "sustain": 0.7
+   },
+   "m": [
+    1600,
+    0.15,
+    0.6,
+    0.75,
+    0.45,
+    0.15,
+    0.15,
+    0.0
+   ],
+   "v": {
+    "atk": 15,
+    "rel": 500,
+    "reso": 0.9,
+    "vel": 0.45,
+    "lfo": 0.15,
+    "dly": "1/4D",
+    "subsus": -20
+   },
+   "z": [
+    36,
+    84,
+    3
+   ],
+   "dur": 4.0,
+   "loop": true,
+   "desc": "One stable oscillator per voice, a darkened saw printed dry so a phaser and chorus can swirl it. Psych-pop beds.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 4.0
+   }
+  },
+  {
+   "id": "hillside_lament",
+   "name": "Hillside Lament",
+   "cat": "pads",
+   "tags": [
+    "funk-mineiro",
+    "strings",
+    "lament",
+    "brazilian-funk",
+    "dark",
+    "legend"
+   ],
+   "gen": "supersaw",
+   "gp": {
+    "voices": 2,
+    "detune_c": 6,
+    "lp": 2200,
+    "keytrack": 0.4,
+    "attack": 0.35,
+    "decay": 1.0,
+    "sustain": 0.8,
+    "decim": 24000,
+    "decim_drive": 0.05
+   },
+   "m": [
+    2400,
+    0.1,
+    0.25,
+    0.75,
+    0.75,
+    0.15,
+    0.1,
+    0.0
+   ],
+   "v": {
+    "atk": 350,
+    "rel": 1800,
+    "reso": 0.8,
+    "vel": 0.35,
+    "lfo": 0.1,
+    "dly": "1/4D",
+    "subsus": -30
+   },
+   "z": [
+    36,
+    84,
+    3
+   ],
+   "dur": 4.0,
+   "loop": true,
+   "desc": "Cheap, grainy phone-ROM strings in a big hall. Minor chords held for bars, an empty bar before the drop.",
+   "vl": 2
+  },
+  {
+   "id": "coastline_chorus_pad",
+   "name": "Coastline Chorus Pad",
+   "cat": "pads",
+   "tags": [
+    "chorus",
+    "pad",
+    "synth-pop",
+    "indie",
+    "dco",
+    "legend"
+   ],
+   "gen": "supersaw",
+   "gp": {
+    "voices": 1,
+    "detune_c": 0.0,
+    "drift_c": 0.0,
+    "sub": 0.3,
+    "noise": 0.06,
+    "lp": 2400,
+    "keytrack": 0.5,
+    "reso": 0.15,
+    "hp": 90,
+    "attack": 0.25,
+    "decay": 1.5,
+    "sustain": 1.0
+   },
+   "m": [
+    1800,
+    0.2,
+    0.4,
+    0.85,
+    0.3,
+    0.1,
+    0.05,
+    0.2
+   ],
+   "v": {
+    "atk": 600,
+    "rel": 1800,
+    "reso": 1.0,
+    "vel": 0.3,
+    "lfo": 0.12,
+    "dly": "1/4D",
+    "subdec": 1600,
+    "subsus": -18
+   },
+   "z": [
+    36,
+    84,
+    4
+   ],
+   "dur": 4.5,
+   "loop": true,
+   "desc": "Steady one-oscillator pad with a sub an octave down and a breath of noise, printed dry for a slow stereo chorus.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 1.5
+   }
+  },
+  {
+   "id": "mono_memory_pad",
+   "name": "Mono Memory Pad",
+   "cat": "pads",
+   "tags": [
+    "mono",
+    "pad",
+    "nostalgic",
+    "house",
+    "tape",
+    "legend"
+   ],
+   "gen": "supersaw",
+   "gp": {
+    "voices": 4,
+    "detune_c": 14,
+    "spread": 0.0,
+    "noise": 0.12,
+    "lp": 2800,
+    "keytrack": 0.4,
+    "reso": 0.1,
+    "hp": 150,
+    "attack": 0.15,
+    "decay": 2.0,
+    "sustain": 0.85,
+    "tape": {
+     "wow_c": 3,
+     "wow_hz": 0.6734,
+     "flutter_c": 1,
+     "flutter_hz": 9.09,
+     "bump": 0.2,
+     "lp": 9000,
+     "hiss": 0.003,
+     "sat": 1.3
+    }
+   },
+   "m": [
+    7000,
+    0.15,
+    0.1,
+    0.15,
+    0.2,
+    0.05,
+    0.1,
+    0.2
+   ],
+   "v": {
+    "atk": 400,
+    "rel": 2500,
+    "reso": 0.8,
+    "vel": 0.3,
+    "lfo": 0.1,
+    "dly": "1/4D",
+    "subsus": -24
+   },
+   "z": [
+    36,
+    84,
+    4
+   ],
+   "dur": 4.0,
+   "loop": true,
+   "desc": "A wide unison pad collapsed to mono and glued on tape. Narrow, close and instantly nostalgic.",
+   "vl": 2
+  },
+  {
+   "id": "first_light_bellpad",
+   "name": "First Light Bellpad",
+   "cat": "pads",
+   "tags": [
+    "la-synthesis",
+    "bell",
+    "pad",
+    "80s",
+    "digital",
+    "legend"
+   ],
+   "gen": "modal",
+   "gp": {
+    "modes": [
+     [
+      1,
+      1.0,
+      1.0
+     ],
+     [
+      2,
+      0.6,
+      0.9
+     ],
+     [
+      3,
+      0.3,
+      0.8
+     ],
+     [
+      4,
+      0.2,
+      0.7
+     ],
+     [
+      6,
+      0.08,
+      0.5
+     ],
+     [
+      5,
+      0.3,
+      0.18
+     ],
+     [
+      9,
+      0.16,
+      0.12
+     ],
+     [
+      12,
+      0.07,
+      0.08
+     ],
+     [
+      16,
+      0.04,
+      0.06
+     ]
+    ],
+    "t60": 12.0,
+    "strike": 0.35,
+    "beat_c": 4.0,
+    "lp": 9000,
+    "post_shelf": [
+     10000,
+     2.0
+    ]
+   },
+   "m": [
+    12000,
+    0.05,
+    0.3,
+    0.75,
+    0.6,
+    0.15,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 2000,
+    "reso": 0.9,
+    "vel": 0.45,
+    "lfo": 0.15,
+    "dly": "1/4D",
+    "subsus": -30
+   },
+   "z": [
+    48,
+    96,
+    4
+   ],
+   "dur": 6.0,
+   "loop": false,
+   "desc": "A struck glassy attack over a warm sustained body, bell partials fading into the pad. Late-80s digital dawn.",
+   "vl": 2
+  },
+  {
+   "id": "cruise_whistle_lead",
+   "name": "Cruise Whistle Lead",
+   "cat": "leads",
+   "tags": [
+    "g-funk",
+    "lead",
+    "whine",
+    "glide",
+    "hip-hop",
+    "legend"
+   ],
+   "gen": "sub",
+   "gp": {
+    "h2": 0.28,
+    "drive": 1.4,
+    "sustain": 1.0
+   },
+   "m": [
+    9000,
+    0.0,
+    0.1,
+    0.3,
+    0.25,
+    0.12,
+    0.15,
+    0.0
+   ],
+   "v": {
+    "atk": 15,
+    "rel": 120,
+    "reso": 1.0,
+    "vel": 0.3,
+    "lfo": 0.2,
+    "dly": "1/16",
+    "subsus": -60
+   },
+   "z": [
+    57,
+    96,
+    3
+   ],
+   "dur": 2.5,
+   "loop": true,
+   "desc": "High, near-sine whine with a touch of second harmonic that brightens when you dig in. Mod wheel for vibrato. West-coast leads.",
+   "vl": 2,
+   "d": {
+    "VibKnob": 0.25,
+    "VibRateKnob": 5.5,
+    "VibDelayKnob": 300,
+    "ViaWheelKnob": 1,
+    "DriftKnob": 3.0
+   }
+  },
+  {
+   "id": "tinnitus_siren",
+   "name": "Tinnitus Siren",
+   "cat": "leads",
+   "tags": [
+    "bruxaria",
+    "mandelao",
+    "siren",
+    "high",
+    "brazilian-phonk",
+    "legend"
+   ],
+   "gen": "glass_pad",
+   "gp": {
+    "partials": [
+     [
+      1,
+      1.0
+     ],
+     [
+      1.004052,
+      0.6
+     ]
+    ],
+    "air": 0.0,
+    "attack": 0.005
+   },
+   "m": [
+    12000,
+    0.0,
+    0.1,
+    0.4,
+    0.5,
+    0.3,
+    0.2,
+    0.0
+   ],
+   "v": {
+    "atk": 5,
+    "rel": 150,
+    "reso": 0.7,
+    "vel": 0.2,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subsus": -60,
+    "trim": -6.0
+   },
+   "z": [
+    72,
+    108,
+    3
+   ],
+   "dur": 4.0,
+   "loop": true,
+   "desc": "Piercing pure tone doubled 7 cents sharp so it beats like ringing ears. Play it high and keep it quiet.",
+   "d": {
+    "VibKnob": 0.15,
+    "VibRateKnob": 5.5,
+    "VibDelayKnob": 200,
+    "ViaWheelKnob": 0,
+    "BendKnob": 12,
+    "DriftKnob": 0.0
+   }
+  },
+  {
+   "id": "broken_platter_cumbia",
+   "name": "Broken Platter Cumbia",
+   "cat": "leads",
+   "tags": [
+    "cumbia",
+    "rebajada",
+    "slowed",
+    "accordion",
+    "sonidero",
+    "latin",
+    "legend"
+   ],
+   "gen": "supersaw",
+   "gp": {
+    "voices": 3,
+    "pulse": 1,
+    "detune_c": 9,
+    "spread": 0.3,
+    "drift_c": 1.0,
+    "lp": 3200,
+    "keytrack": 0.2,
+    "attack": 0.035,
+    "decay": 0.5,
+    "sustain": 1.0,
+    "post_shelf": [
+     1200,
+     3.0
+    ],
+    "slow": 0.8
+   },
+   "m": [
+    3200,
+    0.1,
+    0.35,
+    0.3,
+    0.2,
+    0.3,
+    0.1,
+    0.0
+   ],
+   "v": {
+    "atk": 35,
+    "rel": 120,
+    "reso": 0.8,
+    "vel": 0.4,
+    "lfo": 0.25,
+    "dly": "1/4D",
+    "subsus": -30
+   },
+   "z": [
+    48,
+    84,
+    3
+   ],
+   "dur": 3.0,
+   "loop": true,
+   "desc": "Three wet-tuned reeds played off a turntable running slow: deeper, darker and watery. Sonidero melodies.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 3.0
+   }
+  },
+  {
+   "id": "altiplano_breath",
+   "name": "Altiplano Breath",
+   "cat": "leads",
+   "tags": [
+    "quena",
+    "andean",
+    "flute",
+    "breath",
+    "latin",
+    "legend"
+   ],
+   "gen": "flute",
+   "gp": {
+    "vib_c": 0,
+    "breath": 0.35,
+    "attack": 0.05,
+    "chorus": 0,
+    "post_shelf": [
+     4000,
+     -4.0
+    ]
+   },
+   "m": [
+    6000,
+    0.0,
+    0.2,
+    0.5,
+    0.45,
+    0.15,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 40,
+    "rel": 300,
+    "reso": 0.7,
+    "vel": 0.45,
+    "lfo": 0.2,
+    "dly": "1/4D",
+    "subsus": -60
+   },
+   "z": [
+    66,
+    93,
+    3
+   ],
+   "dur": 5.0,
+   "loop": true,
+   "desc": "Dark, breathy notched-flute tone with a chiff on every note and a live singer's vibrato. Andean minor phrases.",
+   "d": {
+    "VibKnob": 0.18,
+    "VibRateKnob": 5.2,
+    "VibDelayKnob": 350,
+    "ViaWheelKnob": 0,
+    "DriftKnob": 3.0
+   }
+  },
+  {
+   "id": "wet_rim_seraph",
+   "name": "Wet Rim Seraph",
+   "cat": "leads",
+   "tags": [
+    "glass",
+    "ethereal",
+    "mythical",
+    "lead",
+    "friction",
+    "legend"
+   ],
+   "gen": "sub",
+   "gp": {
+    "h2": 0.0,
+    "drive": 0.5,
+    "sustain": 1.0,
+    "post_hp": 350
+   },
+   "m": [
+    9000,
+    0.0,
+    0.15,
+    0.6,
+    0.5,
+    0.1,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 180,
+    "rel": 1400,
+    "reso": 0.7,
+    "vel": 0.4,
+    "lfo": 0.2,
+    "dly": "1/4D",
+    "subsus": -60
+   },
+   "z": [
+    72,
+    96,
+    3
+   ],
+   "dur": 3.0,
+   "loop": true,
+   "desc": "Rubbed glass rims: a near-pure tone that swells in under a faint 5 Hz shimmer. Slow legato, two notes at most.",
+   "d": {
+    "DriftKnob": 4.0,
+    "VibKnob": 0.04,
+    "VibRateKnob": 5.0,
+    "VibDelayKnob": 300,
+    "ViaWheelKnob": 0
+   }
+  },
+  {
+   "id": "ribbon_wraith",
+   "name": "Ribbon Wraith",
+   "cat": "leads",
+   "tags": [
+    "ribbon",
+    "ethereal",
+    "film",
+    "mythical",
+    "lead",
+    "legend"
+   ],
+   "gen": "sub",
+   "gp": {
+    "h2": 0.03,
+    "drive": 1.5,
+    "sustain": 1.0,
+    "post_shelf": [
+     4500,
+     -6.0
+    ]
+   },
+   "m": [
+    4500,
+    0.0,
+    0.1,
+    0.5,
+    0.35,
+    0.05,
+    0.05,
+    0.0
+   ],
+   "v": {
+    "atk": 15,
+    "rel": 400,
+    "reso": 0.7,
+    "vel": 0.1,
+    "lfo": 0.2,
+    "dly": "1/4D",
+    "subsus": -60
+   },
+   "z": [
+    48,
+    96,
+    3
+   ],
+   "dur": 2.5,
+   "loop": true,
+   "desc": "A soft, peak-limited sine that glides on a 12-semitone bend and sings with the mod wheel. Haunted film lines.",
+   "d": {
+    "BendKnob": 12,
+    "VibKnob": 0.3,
+    "VibRateKnob": 5.5,
+    "VibDelayKnob": 0,
+    "ViaWheelKnob": 1,
+    "DriftKnob": 2.0
+   }
+  },
+  {
+   "id": "hillside_lament_horn",
+   "name": "Hillside Lament Horn",
+   "cat": "leads",
+   "tags": [
+    "funk-mineiro",
+    "horn",
+    "lament",
+    "brazilian-funk",
+    "dark",
+    "legend"
+   ],
+   "gen": "supersaw",
+   "gp": {
+    "voices": 2,
+    "pulse": 1,
+    "detune_c": 3,
+    "lp": 1800,
+    "keytrack": 0.4,
+    "fenv": 3600,
+    "fenv_t": 0.5,
+    "attack": 0.06,
+    "decay": 0.6,
+    "sustain": 0.85,
+    "decim": 24000,
+    "decim_drive": 0.05
+   },
+   "m": [
+    3000,
+    0.1,
+    0.2,
+    0.5,
+    0.75,
+    0.15,
+    0.1,
+    0.0
+   ],
+   "v": {
+    "atk": 60,
+    "rel": 600,
+    "reso": 0.8,
+    "vel": 0.45,
+    "lfo": 0.1,
+    "dly": "1/4D",
+    "subsus": -30
+   },
+   "z": [
+    45,
+    84,
+    3
+   ],
+   "dur": 4.0,
+   "loop": true,
+   "desc": "Mournful phone-ROM horn with a late vibrato. Answers the strings in two or three notes.",
+   "vl": 2,
+   "d": {
+    "VibKnob": 0.12,
+    "VibRateKnob": 5.0,
+    "VibDelayKnob": 400,
+    "ViaWheelKnob": 0,
+    "DriftKnob": 4.0
+   }
+  },
+  {
+   "id": "molasses_glide_sub",
+   "name": "Molasses Glide Sub",
+   "cat": "bass",
+   "tags": [
+    "808",
+    "trap",
+    "glide",
+    "sub",
+    "drill",
+    "legend"
+   ],
+   "gen": "808",
+   "gp": {
+    "drop_st": 3.0,
+    "drop_t": 0.02,
+    "t60": 3.0,
+    "drive": 1.8,
+    "click": 0.08
+   },
+   "m": [
+    18000,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.2,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 250,
+    "reso": 0.7,
+    "vel": 0.35,
+    "lfo": 0.1,
+    "subdec": 200,
+    "subsus": -60
+   },
+   "z": [
+    24,
+    60,
+    3
+   ],
+   "dur": 3.5,
+   "loop": false,
+   "desc": "Long-decay kick played as a bassline: a quick strike chirp, a small sigh, then a sustained sine with bite.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 0.0,
+    "BendKnob": 12
+   }
+  },
+  {
+   "id": "paredao_pressure",
+   "name": "Paredao Pressure",
+   "cat": "bass",
+   "tags": [
+    "808",
+    "phonk",
+    "automotivo",
+    "mandelao",
+    "distorted",
+    "legend"
+   ],
+   "gen": "808",
+   "gp": {
+    "drop_st": 24,
+    "drop_t": 0.045,
+    "t60": 0.9,
+    "drive": 4.5,
+    "click": 0.3,
+    "tape": {
+     "wow_c": 0,
+     "flutter_c": 0,
+     "bump": 0.4,
+     "lp": 14000,
+     "hiss": 0.0,
+     "sat": 2.0
+    }
+   },
+   "m": [
+    20000,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.7,
+    0.0
+   ],
+   "v": {
+    "atk": 0,
+    "rel": 60,
+    "reso": 0.7,
+    "vel": 0.4,
+    "lfo": 0.1,
+    "subdec": 200,
+    "subsus": -60
+   },
+   "z": [
+    24,
+    60,
+    3
+   ],
+   "dur": 1.6,
+   "loop": false,
+   "desc": "Hard-clipped 808 with a two-octave dive and a pushed 110 Hz bump for car walls and phone speakers.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 0.0,
+    "BendKnob": 12
+   }
+  },
+  {
+   "id": "lowland_growl_bass",
+   "name": "Lowland Growl Bass",
+   "cat": "bass",
+   "tags": [
+    "analog",
+    "mono",
+    "ladder",
+    "funk",
+    "growl",
+    "legend"
+   ],
+   "gen": "supersaw",
+   "gp": {
+    "voices": 3,
+    "detune_c": 3.5,
+    "drift_c": 3.0,
+    "sub": 0.4,
+    "lp": 330,
+    "keytrack": 0.5,
+    "reso": 0.25,
+    "fenv": 1430,
+    "fenv_t": 0.09,
+    "drive_pre": 2.0,
+    "drive": 1.8,
+    "attack": 0.001,
+    "decay": 0.6,
+    "sustain": 0.85
+   },
+   "m": [
+    3500,
+    0.1,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.3,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 90,
+    "reso": 1.3,
+    "vel": 0.6,
+    "lfo": 0.1,
+    "subdec": 200,
+    "subsus": -40
+   },
+   "z": [
+    24,
+    72,
+    3
+   ],
+   "dur": 3.0,
+   "loop": true,
+   "desc": "Three-oscillator ladder bass overdriven back into itself: a fast filter snap, then a fat growl.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 5.0
+   }
+  },
+  {
+   "id": "warehouse_click_organ",
+   "name": "Warehouse Click Organ",
+   "cat": "bass",
+   "tags": [
+    "house",
+    "organ",
+    "bass",
+    "90s",
+    "click",
+    "legend"
+   ],
+   "gen": "modal",
+   "gp": {
+    "modes": [
+     [
+      0.5,
+      0.5,
+      1.0
+     ],
+     [
+      1,
+      1.0,
+      1.0
+     ],
+     [
+      2,
+      0.4,
+      0.8
+     ],
+     [
+      3,
+      0.25,
+      0.014
+     ]
+    ],
+    "t60": 10.0,
+    "strike": 0.3,
+    "beat_c": 0.3,
+    "lp": 3500,
+    "post_hp": 28
+   },
+   "m": [
+    2500,
+    0.0,
+    0.15,
+    0.3,
+    0.15,
+    0.05,
+    0.1,
+    0.2
+   ],
+   "v": {
+    "atk": 0,
+    "rel": 60,
+    "reso": 0.7,
+    "vel": 0.4,
+    "lfo": 0.1,
+    "dly": "1/8",
+    "subsus": -60
+   },
+   "z": [
+    24,
+    60,
+    3
+   ],
+   "dur": 1.6,
+   "loop": false,
+   "desc": "Hollow organ bass with a clicky third harmonic that dies away fast. Octave-jumping off-beat house lines.",
+   "vl": 2,
+   "d": {
+    "AmpDecKnob": 320,
+    "AmpSusKnob": -14,
+    "DriftKnob": 0.0
+   }
+  },
+  {
+   "id": "wet_wire_squelch",
+   "name": "Wet Wire Squelch",
+   "cat": "bass",
+   "tags": [
+    "acid",
+    "squelch",
+    "resonant",
+    "mono",
+    "house",
+    "legend"
+   ],
+   "gen": "supersaw",
+   "gp": {
+    "voices": 1,
+    "drift_c": 0.5,
+    "lp": 5000,
+    "keytrack": 0.3,
+    "reso": 0.0,
+    "attack": 0.001,
+    "t60": 2.5
+   },
+   "m": [
+    2400,
+    0.0,
+    0.0,
+    0.0,
+    0.05,
+    0.1,
+    0.3,
+    0.0
+   ],
+   "v": {
+    "atk": 0,
+    "rel": 10,
+    "reso": 1.6,
+    "vel": 0.4,
+    "lfo": 0.1,
+    "dly": "1/16",
+    "subsus": -60
+   },
+   "z": [
+    24,
+    60,
+    3
+   ],
+   "dur": 2.5,
+   "loop": false,
+   "desc": "Bare saw with a fixed decay into a live resonant ladder whose envelope snaps shut. Ride the cutoff.",
+   "vl": 2,
+   "d": {
+    "FTypeKnob": 1,
+    "CutoffKnob": 2200,
+    "ResoKnob": 4.5,
+    "FEnvAmtKnob": 0.85,
+    "FAtkKnob": 0,
+    "FDecKnob": 220,
+    "FSusKnob": -100,
+    "FRelKnob": 60,
+    "FKeyKnob": 0.4,
+    "FVelKnob": 0.35,
+    "DriftKnob": 0.0
+   }
+  }
+ ]
+}
