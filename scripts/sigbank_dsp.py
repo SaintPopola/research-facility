@@ -291,7 +291,9 @@ def gen_tine_ep(note, n, p, rng):
     amp = env_exp(n, t60, a=0.0015)
     bark = p.get("bark", 1.2)
     idx = bark * (0.35 + 0.65 * np.exp(-t / (0.08 + 0.10 * (1 - reg))))
-    mult = wow(n, p.get("wow", 0.0), rate=p.get("wow_rate", 0.55), rng=rng) if p.get("wow", 0.0) > 0 else 1.0
+    # np.ones, not the scalar 1.0: cumsum of a scalar is ONE sample, which froze the phase and turned
+    # every no-wow tine preset into a pitchless FM thump (fundamental measured at -79 dB)
+    mult = wow(n, p.get("wow", 0.0), rate=p.get("wow_rate", 0.55), rng=rng) if p.get("wow", 0.0) > 0 else np.ones(n)
     ph = np.cumsum(f0 * mult) / SR
     mod = np.sin(2 * np.pi * ph * 1.0 + 0.3)
     car = np.sin(2 * np.pi * ph + idx * mod)
