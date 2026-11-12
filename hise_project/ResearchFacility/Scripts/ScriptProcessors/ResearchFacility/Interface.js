@@ -173,7 +173,7 @@ const var S = {
     "lvlL": 0.0, "lvlR": 0.0, "voices": 0, "cpu": 0.0,
     "strumNote": -1, "orbPhase": 0.0, "orbFrame": 0,
     "mode": 0, "kit": 0, "loopQ": -1, "shift": 0, "playShift": 0,
-    "page": 0, "trim": 0.0, "vfIdle": true, "kitTop": 0, "hasPlayMacros": false,
+    "page": 0, "trim": 0.0, "vfIdle": true, "kitTop": 0,
     "cutConn": 0, "modSrc": 0, "histPos": 0, "connDrag": -1,
     "focusTries": 0, "lastPaint": 0.0, "dragSrc": -1, "dragging": false
 };
@@ -2512,10 +2512,7 @@ inline function resetMacros()
     local p = FACTORY_BANK[S.cur];
     if (S.mode == 1)
     {
-        for (i = 0; i < 8; i++)
-        {
-            if (LOOP_FX[i] >= 0) { MACROS[i].setValue(LOOP_FX[i]); applyMacro(i, LOOP_FX[i]); }
-        }
+        applyLoopFx();
         return;
     }
     for (i = 0; i < 8; i++)
@@ -3700,9 +3697,25 @@ inline function loadKit(i)
     refreshAll();
 }
 
-// LOOPS macro state: TONE wide open, a little SPACE, no ECHO / GRIT / PUMP (-1 = keep)
-const var LOOP_FX = [20000, -1, -1, -1, 0.15, 0.0, 0.0, 0.0];
-const var PLAY_MACROS = [950, 0, 0, 0, 0, 0, 0, 0];
+// LOOPS FX state, set on the modules: the 8 macros are host parameters, so rewriting
+// them on a mode switch would show up as automation in Live and dirty the set
+inline function applyLoopFx()
+{
+    setA(FX_Filter, A.fFreq, 20000);           // TONE wide open
+    setA(FX_Reverb, A.rWet, 0.08);             // a little SPACE
+    setA(FX_Reverb, A.rDry, 1.0);
+    setA(FX_Delay, A.eMix, 0.0);               // no ECHO
+    setA(FX_Drive, A.dSat, 0.0);               // no GRIT
+    setA(FX_Drive, A.dWet, 0.0);
+    M_PumpA.setIntensity(0.0);                 // no PUMP
+    M_PumpS.setIntensity(0.0);
+}
+
+inline function reapplyMacros()
+{
+    local i = 0;
+    for (i = 0; i < 8; i++) applyMacro(i, MACROS[i].getValue());
+}
 
 inline function setMode(m)
 {
@@ -3710,26 +3723,8 @@ inline function setMode(m)
     S.mode = m;
     // loops run through the instrument's master FX: a dark instrument preset (low TONE, big
     // SPACE/ECHO) muffled every kit. LOOPS gets a clean FX state; PLAY gets its macros back.
-    local mi = 0;
-    if (m == 1)
-    {
-        for (mi = 0; mi < 8; mi++) PLAY_MACROS[mi] = MACROS[mi].getValue();
-        S.hasPlayMacros = true;
-        for (mi = 0; mi < 8; mi++)
-        {
-            local lv = LOOP_FX[mi] >= 0 ? LOOP_FX[mi] : MACROS[mi].getValue();
-            MACROS[mi].setValue(lv);
-            applyMacro(mi, lv);
-        }
-    }
-    else if (S.hasPlayMacros)
-    {
-        for (mi = 0; mi < 8; mi++)
-        {
-            MACROS[mi].setValue(PLAY_MACROS[mi]);
-            applyMacro(mi, PLAY_MACROS[mi]);
-        }
-    }
+    if (m == 1) applyLoopFx();
+    else reapplyMacros();
     ModeKey.setValue(m == 1 ? "loops" : "inst");
     allPreviewOff();
     Engine.allNotesOff();
@@ -3845,8 +3840,7 @@ Visualiser.setTimerCallback(function()
     }
 
     // full-rate when something is moving, 6 fps when idle (CPU)
-    var edOpen = (Engine.getUptime() - S.lastPaint) < 1.0;    // the header paints every 133 ms while an editor exists
-    var visOn = edOpen && !(S.mode == 0 && S.page > 0);
+    var visOn = !(S.mode == 0 && S.page > 0);      // HISE suspends panel timers while no editor is open
     if (visOn && (loud || anyP || F.lvl > 0.01 || (S.tick % 5 == 0)))
     {
         updateFeatures();
@@ -3868,8 +3862,8 @@ Visualiser.setTimerCallback(function()
             ShapePage.repaint();
         }
     }
-    if (edOpen && S.mode == 0 && S.page == 1 && S.tick % 3 == 0) ShapePage.repaint();   // dock meters + badges
-    if (edOpen && S.mode == 0 && S.page == 2)
+    if (S.mode == 0 && S.page == 1 && S.tick % 3 == 0) ShapePage.repaint();   // dock meters + badges
+    if (S.mode == 0 && S.page == 2)
     {
         MOD_HIST[S.histPos] = clamp01(Math.abs(MOD_MODS[S.modSrc].getCurrentLevel()));
         S.histPos = (S.histPos + 1) % 64;
@@ -3907,7 +3901,12 @@ inline function selfTest()
     setMode(1);                                   // LOOPS: the loop zone sits on the Mac keys' home octave
     if (LOOP_FIRST_NOTE != 60) { ok = false; Console.print("RF selftest loop zone " + LOOP_FIRST_NOTE); }
     if (loopLabel(60) != "K1" || loopLabel(75) != "A4" || macKeyFor(60) != "A" || macKeyFor(75) != "P") { ok = false; Console.print("RF selftest loop labels " + loopLabel(60) + macKeyFor(60)); }
-    if (MACROS[0].getValue() != 20000) { ok = false; Console.print("RF selftest loop fx tone " + MACROS[0].getValue()); }
+    if (FX_Filter.getAttribute(A.fFreq) < 19999) { ok = false; Console.print("RF selftest loop fx tone " + FX_Filter.getAttribute(A.fFreq)); }
+    local kmaps = LoopSampler.getSampleMapList();
+    for (ms = 0; ms < LOOP_KITS.length; ms++)
+    {
+        if (kmaps.indexOf(LOOP_KITS[ms].map) < 0) { ok = false; Console.print("RF selftest kit map missing " + LOOP_KITS[ms].map); }
+    }
     if (SearchField.get("visible")) { ok = false; Console.print("RF selftest search visible in LOOPS"); }
     setMode(0);
     if (qwertyRange() != "C3-E4") { ok = false; Console.print("RF selftest play keys " + qwertyRange()); }
@@ -4007,7 +4006,7 @@ inline function enableAllMidiInputs()
 }
 if (!Engine.isPlugin()) enableAllMidiInputs();
 
-selfTest();
+if (Engine.isHISE()) selfTest();       // CI exports run in HISE; a shipped plug-in never toggles modes or the matrix at load
 refreshKeyTints();
 armFocus();
 
