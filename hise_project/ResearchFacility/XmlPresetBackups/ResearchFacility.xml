@@ -184,7 +184,7 @@
     </Processor>
     <Processor Type="StreamingSampler" ID="Voice A" Bypassed="0" Gain="0.9"
                Balance="0" VoiceLimit="64" KillFadeTime="20" IconColour="0"
-               PreloadSize="8192" BufferSize="4096" VoiceAmount="64" SamplerRepeatMode="-2147483648"
+               PreloadSize="8192" BufferSize="4096" VoiceAmount="64" SamplerRepeatMode="3"
                RRGroupAmount="1" PitchTracking="1" OneShot="0" CrossfadeGroups="0"
                Purged="0" Reversed="0" NumChannels="2"
                Group0Table="24...............vO...f+....9C...vO"
@@ -366,7 +366,7 @@
     </Processor>
     <Processor Type="StreamingSampler" ID="Loop Lines" Bypassed="1" Gain="1.0"
                Balance="0" VoiceLimit="16" KillFadeTime="20" IconColour="0"
-               PreloadSize="8192" BufferSize="4096" VoiceAmount="16" SamplerRepeatMode="-2147483648"
+               PreloadSize="8192" BufferSize="4096" VoiceAmount="16" SamplerRepeatMode="0"
                RRGroupAmount="1" PitchTracking="1" OneShot="0" CrossfadeGroups="0"
                Purged="0" Reversed="0" NumChannels="2"
                Group0Table="24...............vO...f+....9C...vO"

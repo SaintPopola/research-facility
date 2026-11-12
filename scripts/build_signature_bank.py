@@ -1046,7 +1046,7 @@ def check_deep(pid: str, d: dict, reg: dict) -> None:
 # Slots per target are [voice-start, time-variant, envelope] (Interface.js addModulatorTarget).
 MOD_SOURCE_KIND = {"LFO 1": "tv", "LFO 2": "tv", "LFO 3": "tv", "LFO 4": "tv", "Env 2": "env", "Env 3": "env",
                    "Velocity": "vs", "Key": "vs", "Random": "vs", "Mod Wheel": "tv", "Aftertouch": "tv"}
-MOD_TARGET_SLOTS = {"A Pitch": (2, 2, 2), "A Level": (2, 2, 1), "Sub Level": (1, 2, 1),
+MOD_TARGET_SLOTS = {"A Pitch": (2, 2, 2), "A Level": (2, 2, 0), "Sub Level": (1, 2, 0),   # no env slot on gain targets
                     "Cutoff": (2, 2, 2), "Resonance": (1, 1, 1), "Grit": (0, 2, 0)}
 
 

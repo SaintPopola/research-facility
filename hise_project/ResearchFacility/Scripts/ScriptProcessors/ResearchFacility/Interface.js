@@ -173,7 +173,7 @@ const var S = {
     "lvlL": 0.0, "lvlR": 0.0, "voices": 0, "cpu": 0.0,
     "strumNote": -1, "orbPhase": 0.0, "orbFrame": 0,
     "mode": 0, "kit": 0, "loopQ": -1, "shift": 0, "playShift": 0,
-    "page": 0, "trim": 0.0, "vfIdle": true, "kitTop": 0,
+    "page": 0, "trim": 0.0, "vfIdle": true, "kitTop": 0, "lastLpCut": 0,
     "cutConn": 0, "modSrc": 0, "histPos": 0, "connDrag": -1,
     "focusTries": 0, "lastPaint": 0.0, "dragSrc": -1, "dragging": false
 };
@@ -401,6 +401,11 @@ const var A = {
     "subSat":  SubSyn.getAttributeIndex("SaturationAmount")
 };
 
+// sampler repeat mode: retriggering a held key must not stack voices
+// (XML had an invalid enum that fell through to DoNothing)
+setA(VoiceA, VoiceA.getAttributeIndex("SamplerRepeatMode"), 3);           // KillSecondOldestNote
+setA(LoopsSynth, LoopsSynth.getAttributeIndex("SamplerRepeatMode"), 0);   // KillNote: a loop restarts
+
 // SHAPE values by control id (registry defaults until a preset or the user sets them)
 const var DV = {};
 for (dp = 0; dp < DEEP_PARAMS.length; dp++) DV[DEEP_PARAMS[dp].id] = DEEP_PARAMS[dp]["default"];
@@ -451,7 +456,6 @@ inline function applyMacro(i, v)
     {
         setA(FX_Reverb, A.rWet, v * 0.55);
         setA(FX_Reverb, A.rRoom, 0.45 + v * 0.5);
-        setA(FX_Reverb, A.rDry, 1.0 - v * 0.2);
     }
     else if (i == 5)     // ECHO
     {
@@ -492,12 +496,26 @@ inline function applyALevel()
 inline function updateVoiceFilter()
 {
     local lp = Math.round(DV.FTypeKnob) <= 2;
-    local idle = lp && DV.CutoffKnob >= 19990 && DV.FEnvAmtKnob < 0.001 && DV.FKeyKnob < 0.001 && DV.FVelKnob < 0.001 && S.cutConn == 0;
+    local hp = DEEP_FILTER_TYPES[Math.round(DV.FTypeKnob)][1] == 7;
+    local open = (lp && DV.CutoffKnob >= 19990) || (hp && DV.CutoffKnob <= 21);     // a filter that changes nothing
+    local idle = open && DV.FEnvAmtKnob < 0.001 && DV.FKeyKnob < 0.001 && DV.FVelKnob < 0.001 && S.cutConn == 0;
     if (idle != S.vfIdle)
     {
         FX_VFilter.setBypassed(idle);
         S.vfIdle = idle;
     }
+}
+
+// cutoff is matrix-owned (no control callback): move the knob and the module together
+inline function setCutoff(hz)
+{
+    if (isDefined(DEEP_COMP.CutoffKnob))
+    {
+        DEEP_COMP.CutoffKnob.setValue(hz);
+        DEEP_COMP.CutoffKnob.changed();
+    }
+    DV.CutoffKnob = hz;
+    setA(FX_VFilter, A.vfFreq, hz);
 }
 
 // one place that turns a SHAPE value into module settings
@@ -513,7 +531,15 @@ inline function applyDeep(id, v)
     else if (id == "FTypeKnob")
     {
         local ft = DEEP_FILTER_TYPES[Math.round(v)];
+        local isLp = Math.round(v) <= 2;
+        local isHp = ft[1] == 7;
+        local cut = DV.CutoffKnob;
         setA(FX_VFilter, A.vfMode, ft[1]);
+        // keep the sound audible: HP starts wide open at the bottom, BAND / NOTCH in the middle,
+        // and going back to a low-pass restores the last low-pass cutoff
+        if (isLp && S.lastLpCut > 0 && cut != S.lastLpCut) setCutoff(S.lastLpCut);
+        else if (isHp && cut >= 19990) { S.lastLpCut = cut; setCutoff(20); }
+        else if (!isLp && !isHp && cut >= 19990) { S.lastLpCut = cut; setCutoff(1000); }
         updateVoiceFilter();
     }
     else if (id == "CutoffKnob") { setA(FX_VFilter, A.vfFreq, v); updateVoiceFilter(); }
@@ -1035,21 +1061,21 @@ Browser.setPaintRoutine(function(g)
         {
             k = S.kitTop + kr;
             var kt = LOOP_KITS[k];
-            var ky = 36 + kr * KIT_ROW;
+            var rowY = 36 + kr * KIT_ROW;
             var kon = (k == S.kit);
             g.setColour(kon ? Colours.withAlpha(T.accent, 0.12) : T.s2);
-            g.fillRoundedRectangle([10, ky, 236, KIT_ROW - 4], 6.0);
+            g.fillRoundedRectangle([10, rowY, 236, KIT_ROW - 4], 6.0);
             if (kon)
             {
                 g.setColour(T.accent);
-                g.fillRoundedRectangle([10, ky + 7, 3, KIT_ROW - 18], 1.5);
+                g.fillRoundedRectangle([10, rowY + 7, 3, KIT_ROW - 18], 1.5);
             }
             g.setColour(T.txt);
             g.setFont(T.BOLD, 13);
-            g.drawAlignedText(kt.name, [22, ky + 2, 220, 18], "left");
+            g.drawAlignedText(kt.name, [22, rowY + 2, 220, 18], "left");
             g.setColour(T.dim);
             g.setFont(T.FONT, 10);
-            g.drawAlignedText(kt.bpm + " BPM  /  " + kt.key + "  /  " + kt.tags.join(", "), [22, ky + 19, 220, 16], "left");
+            g.drawAlignedText(kt.bpm + " BPM  /  " + kt.key + "  /  " + kt.tags.join(", "), [22, rowY + 19, 220, 16], "left");
         }
         var ly = 36 + kvis * KIT_ROW + 14;
         g.setColour(T.dim);
@@ -1732,14 +1758,14 @@ inline function flashOK()               // WCAG 2.3.1: never more than 3 luminan
     return true;
 }
 
-inline function kx(x, k) { return VPX + (x - VPX) * (1.0 + k * (CAM.dz + CAM.kz)) - k * (CAM.x + CAM.sx); }
-inline function ky(y, k) { return VPY + (y - VPY) * (1.0 + k * (CAM.dz + CAM.kz)) - k * (CAM.y - CAM.sy); }
+inline function camX(x, k) { return VPX + (x - VPX) * (1.0 + k * (CAM.dz + CAM.kz)) - k * (CAM.x + CAM.sx); }
+inline function camY(y, k) { return VPY + (y - VPY) * (1.0 + k * (CAM.dz + CAM.kz)) - k * (CAM.y - CAM.sy); }
 
 inline function placeArea(b, k, dy)     // a static path's init bounds -> its camera rect (sub-pixel)
 {
     local sc = 1.0 + k * (CAM.dz + CAM.kz);
-    AR[0] = kx(b[0], k);
-    AR[1] = ky(b[1], k) + dy;
+    AR[0] = camX(b[0], k);
+    AR[1] = camY(b[1], k) + dy;
     AR[2] = b[2] * sc;
     AR[3] = b[3] * sc;
     return AR;
@@ -1903,7 +1929,7 @@ Visualiser.setPaintRoutine(function(g)
     if (STG.full)
     {
         g.setColour(Colours.withAlpha(wc, 0.03 + 0.05 * STG.haze));
-        g.fillEllipse([kx(60.0, 0.3), ky(8.0, 0.3), 600, 120]);
+        g.fillEllipse([camX(60.0, 0.3), camY(8.0, 0.3), 600, 120]);
     }
     // L4 truss + blinders
     g.setColour(0xFF2A3139);
@@ -1924,8 +1950,8 @@ Visualiser.setPaintRoutine(function(g)
     {
         for (k = 0; k < 4; k++)
         {
-            var lx = kx(LAMP_X[k], K_TRUSS);
-            var ly = ky(36.0, K_TRUSS);
+            var lx = camX(LAMP_X[k], K_TRUSS);
+            var ly = camY(36.0, K_TRUSS);
             g.setColour(Colours.withAlpha(0xFFFFF1D6, 0.12 * bl));
             g.fillEllipse([lx - 14, ly - 14, 28, 28]);
             g.setColour(Colours.withAlpha(0xFFFFF1D6, 0.35 * bl));
@@ -1953,7 +1979,7 @@ Visualiser.setPaintRoutine(function(g)
         {
             var rr = (26.0 + ra * 330.0) * (0.8 + 0.4 * MACROS[1].getValue());
             g.setColour(Colours.withAlpha(wc, (1.0 - ra / 0.7) * 0.45 * RINGS[k][1]));
-            g.drawEllipse([kx(VPX, K_DECK) - rr, ky(210.0, K_DECK) - 0.18 * rr, 2.0 * rr, 0.36 * rr], 1.5 + 2.0 * (1.0 - ra / 0.7));
+            g.drawEllipse([camX(VPX, K_DECK) - rr, camY(210.0, K_DECK) - 0.18 * rr, 2.0 * rr, 0.36 * rr], 1.5 + 2.0 * (1.0 - ra / 0.7));
         }
     }
     for (k = 0; k < NP; k++)
@@ -2341,10 +2367,10 @@ inline function buildBeams(lk, trip, kickNow)
             local tl = fl ? 0.15 * lk.tilt : lk.tilt * (0.6 + 0.4 * Math.sin(Math.PI * STG.beat / lk.bars + RANK[i]));
             local L = (fl ? 300.0 : 330.0) * (1.0 - 0.35 * tl);
             local k1 = k0 + (fl ? 0.2 : 0.9) * tl;
-            local x0 = kx(RIG_X[i], k0);
-            local y0 = ky(RIG_Y[i], k0);
-            local x1 = kx(RIG_X[i] + L * Math.sin(BPAN[i]), k1);
-            local y1 = ky(RIG_Y[i] + L * Math.cos(BPAN[i]), k1);
+            local x0 = camX(RIG_X[i], k0);
+            local y0 = camY(RIG_Y[i], k0);
+            local x1 = camX(RIG_X[i] + L * Math.sin(BPAN[i]), k1);
+            local y1 = camY(RIG_Y[i] + L * Math.cos(BPAN[i]), k1);
             local w = Math.sqrt(BI[i]);
             local w1 = (8.0 + 22.0 * tl) * w * (0.6 + 0.4 * haze);
             local c = i % 2;
@@ -2367,8 +2393,8 @@ inline function buildCO2()
     local h = 150.0 * (1.0 - Math.exp(-a / 0.07)) * (0.7 + 0.6 * MACROS[1].getValue());   // BODY sizes the jets
     for (i = 0; i < 4; i++)
     {
-        local x = kx(CO2_X[i], K_DECK);
-        local y = ky(206.0, K_DECK);
+        local x = camX(CO2_X[i], K_DECK);
+        local y = camY(206.0, K_DECK);
         beamQuad(CO2, x, y, x, y - h, 4.0, 10.0 + 0.25 * h);
         beamQuad(CO2C, x, y, x, y - 0.8 * h, 2.0, 3.0 + 0.1 * h);
     }
@@ -3128,8 +3154,10 @@ Matrix.setEditCallback(function(targetId)
 });
 Matrix.setNumModulationSlots([2, 2, 1]);
 Matrix.addModulatorTarget({"ID": "A Pitch", "Target": "Voice A", "Component": "ASemiKnob", "Chain": Matrix.Pitch, "Slots": [2, 2, 2], "AddConstUIMod": true});
-Matrix.addModulatorTarget({"ID": "A Level", "Target": "Voice A", "Component": "ALevelKnob", "Chain": Matrix.Gain, "Slots": [2, 2, 1]});
-Matrix.addModulatorTarget({"ID": "Sub Level", "Target": "Sub", "Component": "BodyKnob", "Chain": Matrix.Gain, "Slots": [1, 2, 1]});
+// Level targets take NO envelope slot: the matrix never bypasses the first envelope receiver in a
+// gain chain, and unconnected it is a gate that kills the voice at key-up (RELEASE did nothing)
+Matrix.addModulatorTarget({"ID": "A Level", "Target": "Voice A", "Component": "ALevelKnob", "Chain": Matrix.Gain, "Slots": [2, 2, 0]});
+Matrix.addModulatorTarget({"ID": "Sub Level", "Target": "Sub", "Component": "BodyKnob", "Chain": Matrix.Gain, "Slots": [1, 2, 0]});
 Matrix.addModulatorTarget({"ID": "Cutoff", "Target": "Voice Filter", "Component": "CutoffKnob", "Chain": Matrix.Frequency, "Slots": [2, 2, 2]});
 Matrix.addModulatorTarget({"ID": "Resonance", "Target": "Voice Filter", "Component": "ResoKnob", "Chain": 3, "Slots": [1, 1, 1]});
 Matrix.addModulatorTarget({"ID": "Grit", "Target": "Drive", "Component": "GritKnob", "Chain": 0, "Slots": [0, 2, 0]});
@@ -3647,6 +3675,11 @@ inline function onPresetKey(component, value)
     // session restore: re-apply the fixed voicing only (the visible controls restore
     // their own saved values, including any tweaks the user made). Sessions saved
     // before the SHAPE page have no "|d1": give them the preset's own SHAPE values.
+    if (("" + value) == "" || ("" + value) == "0")
+    {
+        loadPreset(Math.max(0, findPreset(FACTORY_DEFAULT)));
+        return;
+    }
     local parts = ("" + value).split("|");
     local idx = findPreset(parts[0]);
     if (idx < 0) return;
@@ -3703,12 +3736,14 @@ inline function applyLoopFx()
 {
     setA(FX_Filter, A.fFreq, 20000);           // TONE wide open
     setA(FX_Reverb, A.rWet, 0.08);             // a little SPACE
-    setA(FX_Reverb, A.rDry, 1.0);
     setA(FX_Delay, A.eMix, 0.0);               // no ECHO
     setA(FX_Drive, A.dSat, 0.0);               // no GRIT
     setA(FX_Drive, A.dWet, 0.0);
     M_PumpA.setIntensity(0.0);                 // no PUMP
     M_PumpS.setIntensity(0.0);
+    setA(FX_Chorus, A.cWid, 0.0);              // no chorus wobble on the loops
+    setA(FX_Chorus, A.cFb, 0.5);               // 0.5 = no feedback (normalised, Chorus.cpp)
+    M_Move.setIntensity(0.0);                  // no filter movement
 }
 
 inline function reapplyMacros()
@@ -3750,6 +3785,7 @@ ModeKey.setControlCallback(onModeKey);
 
 inline function onKitKey(component, value)
 {
+    if (("" + value) == "" || ("" + value) == "0") { loadKit(0); return; }   // fresh instance
     local k = findKit(value);
     if (k >= 0) loadKit(k);
 }
@@ -3958,6 +3994,7 @@ inline function selfTest()
     if (Matrix.getSourceList().length != 11) ok = false;
     if (Matrix.getTargetList().length != 6) ok = false;
     if (Matrix.canConnect("Env 2", "Grit")) ok = false;
+    if (Matrix.canConnect("Env 2", "A Level") || Matrix.canConnect("Env 3", "Sub Level")) { ok = false; Console.print("RF selftest env slot on a gain target"); }
     for (ms = 0; ms < 4; ms++) { if (LFO_IDX[ms].indexOf(-1) >= 0) { ok = false; Console.print("RF selftest bad LFO attr " + ms); } }
     for (ms = 0; ms < 2; ms++) { if (ENV_IDX[ms].indexOf(-1) >= 0) { ok = false; Console.print("RF selftest bad ENV attr " + ms); } }
     if (!Matrix.connect("LFO 2", "Cutoff", true)) ok = false;

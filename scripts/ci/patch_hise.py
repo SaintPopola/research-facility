@@ -156,6 +156,30 @@ NS_NEW = b"""        if (window != nil && [window canBecomeKeyWindow])
     }"""
 
 
+# --- HISE: time-stretch start reads one uninitialised sample ---------------------------
+# skipTimestretchSilenceAtStart wrote trunc(latency) samples into a buffer sized for
+# float* (not float) and never cleared, while skipLatency consumes roundToInt(latency):
+# one garbage sample entered the stretcher state, and a NaN could latch in the master FX.
+SS_MARK = b"Sweet Melody patch: clean stretch start"
+SS_OLD = b"""	auto numBeforeOutput = stretcher.getLatency(stretchRatio);
+
+	StereoChannelData data = loader.fillVoiceBuffer(*getTemporaryVoiceBuffer(), numBeforeOutput);
+
+	auto outL = (float*)alloca(sizeof(float*) * numBeforeOutput);
+	auto outR = (float*)alloca(sizeof(float*) * numBeforeOutput);
+"""
+SS_NEW = b"""	// """ + SS_MARK + b""": one integer sample count everywhere, float-sized, zeroed
+	const int numBeforeOutput = roundToInt(stretcher.getLatency(stretchRatio));
+
+	StereoChannelData data = loader.fillVoiceBuffer(*getTemporaryVoiceBuffer(), numBeforeOutput);
+
+	auto outL = (float*)alloca(sizeof(float) * (size_t)jmax(1, numBeforeOutput));
+	auto outR = (float*)alloca(sizeof(float) * (size_t)jmax(1, numBeforeOutput));
+	FloatVectorOperations::clear(outL, jmax(1, numBeforeOutput));
+	FloatVectorOperations::clear(outR, jmax(1, numBeforeOutput));
+"""
+
+
 def patch(path: Path, pairs) -> None:
     data = path.read_bytes()
     for old, new, label in pairs:
@@ -166,7 +190,8 @@ def patch(path: Path, pairs) -> None:
     path.write_bytes(data)
 
 
-TARGETS = ["hi_core/hi_components/floating_layout/FloatingTile.cpp",
+TARGETS = ["hi_streaming/hi_streaming/StreamingSamplerVoice.cpp",
+           "hi_core/hi_components/floating_layout/FloatingTile.cpp",
            "hi_core/hi_components/keyboard/CustomKeyboard.h",
            "hi_core/hi_components/keyboard/CustomKeyboard.cpp",
            "JUCE/modules/juce_gui_basics/native/juce_mac_NSViewComponentPeer.mm"]
@@ -203,6 +228,11 @@ def main() -> int:
         d2 = ns.read_bytes()
         ns.write_bytes(d2.replace(eol(d2, NS_NEW), eol(d2, NS_OLD)))
         print("patch_hise: reverted the embedded-view focus attempt")
+
+    ss = root / "hi_streaming" / "hi_streaming" / "StreamingSamplerVoice.cpp"
+    if pristine or SS_MARK not in ss.read_bytes():
+        patch(ss, [(SS_OLD, SS_NEW, "skipTimestretchSilenceAtStart")])
+        print("patch_hise: stretch start fixed in", ss.name)
 
     kh = root / "hi_core" / "hi_components" / "keyboard" / "CustomKeyboard.h"
     kc = root / "hi_core" / "hi_components" / "keyboard" / "CustomKeyboard.cpp"

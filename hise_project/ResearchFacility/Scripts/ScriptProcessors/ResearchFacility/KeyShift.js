@@ -3,8 +3,8 @@
 
    The on-screen keyboard (and the Mac keyboard mapped to it) sends on MIDI
    channel 16. This script moves only those notes by Globals.keyShift octaves
-   ("[" / "]" in the Interface) and hands them on as channel 1, so notes from
-   the host on any other channel are never touched.
+   ("[" / "]" in the Interface). The channel is left alone (the samplers take every
+   channel, and the uniform voice handler must see the same event it allocated).
 
    Mac-keyboard notes come from JUCE's MidiKeyboardComponent, which maps the
    QWERTY row to MIDI 60-76 (base octave 5, CustomKeyboard.cpp:236). Only
@@ -38,7 +38,6 @@ function onNoteOn()
         if (ksTarget > 127) ksTarget = 127;
         SHIFT_OF[Message.getEventId() % 1024] = ksTarget - ksNote;
         Message.setNoteNumber(ksTarget);
-        Message.setChannel(1);
     }
 }
 
@@ -48,14 +47,11 @@ function onNoteOff()
     {
         ksOff = SHIFT_OF[Message.getEventId() % 1024];
         Message.setNoteNumber(Message.getNoteNumber() + ksOff);
-        Message.setChannel(1);
     }
 }
 
 function onController()
 {
-    if (Message.getChannel() == 16)
-        Message.setChannel(1);
 }
 
 function onTimer()
