@@ -82,6 +82,10 @@ jobs:
           PY=python3; command -v python3 >/dev/null 2>&1 || PY=python
           "$PY" scripts/ci/patch_hise.py "$GITHUB_WORKSPACE/hise-source"
 
+      - name: Stamp build id (shown in the plug-in header)
+        shell: bash
+        run: printf 'const var BUILD_SHA = "%s";\n' "${GITHUB_SHA::7}" > hise_project/ResearchFacility/Scripts/BuildInfo.js
+
       - name: Install xcpretty (for batchCompileOSX)
         run: gem install --user-install xcpretty || sudo gem install xcpretty
 
@@ -316,6 +320,10 @@ jobs:
           PY=python3; command -v python3 >/dev/null 2>&1 || PY=python
           "$PY" scripts/ci/patch_hise.py "$GITHUB_WORKSPACE/hise-source"
 
+      - name: Stamp build id (shown in the plug-in header)
+        shell: bash
+        run: printf 'const var BUILD_SHA = "%s";\n' "${GITHUB_SHA::7}" > hise_project/ResearchFacility/Scripts/BuildInfo.js
+
       - name: Install xcpretty (for batchCompileOSX)
         run: gem install --user-install xcpretty || sudo gem install xcpretty
 
@@ -472,6 +480,10 @@ jobs:
           PY=python3; command -v python3 >/dev/null 2>&1 || PY=python
           "$PY" scripts/ci/patch_hise.py "$GITHUB_WORKSPACE/hise-source"
 
+      - name: Stamp build id (shown in the plug-in header)
+        shell: bash
+        run: printf 'const var BUILD_SHA = "%s";\n' "${GITHUB_SHA::7}" > hise_project/ResearchFacility/Scripts/BuildInfo.js
+
       - name: Extract bundled SDKs (ASIO + VST3 ship in-repo as sdk.zip)
         shell: bash
         run: |
@@ -585,6 +597,10 @@ jobs:
         run: |
           PY=python3; command -v python3 >/dev/null 2>&1 || PY=python
           "$PY" scripts/ci/patch_hise.py "$GITHUB_WORKSPACE/hise-source"
+
+      - name: Stamp build id (shown in the plug-in header)
+        shell: bash
+        run: printf 'const var BUILD_SHA = "%s";\n' "${GITHUB_SHA::7}" > hise_project/ResearchFacility/Scripts/BuildInfo.js
 
       - name: Extract bundled SDKs
         run: |

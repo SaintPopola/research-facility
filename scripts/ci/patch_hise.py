@@ -61,11 +61,38 @@ H_ADD = H_ANCHOR + b"""
 
 	TopLevelKeyForwarder keyForwarder { *this };
 	juce::Component::SafePointer<juce::Component> keyForwardTarget;
+
+	// Keys forwarded from the top level are not this component's own focus, so its
+	// focusLost never fires for them: hold A, click the host, release A = stuck note.
+	// Ten times a second, if the window lost the keyboard (or a text field took it),
+	// release whatever the QWERTY row still holds, once.
+	struct FocusWatch : public juce::Timer
+	{
+		FocusWatch(CustomKeyboard& k) : kb(k) {}
+		void timerCallback() override
+		{
+			auto peer = kb.getPeer();
+			const bool keysLive = peer != nullptr && peer->isFocused()
+				&& dynamic_cast<juce::TextEditor*>(juce::Component::getCurrentlyFocusedComponent()) == nullptr;
+			if (!keysLive && !released)
+			{
+				kb.MidiKeyboardComponent::focusLost(juce::Component::focusChangedDirectly);
+				released = true;
+			}
+			if (keysLive)
+				released = false;
+		}
+		CustomKeyboard& kb;
+		bool released = true;
+	};
+	FocusWatch focusWatch { *this };
 """
 C_DTOR = b"CustomKeyboard::~CustomKeyboard()\n{\n"
 C_DTOR_NEW = C_DTOR + b"""	// """ + KB_MARK + b""": detach from the top-level component
 	if (keyForwardTarget != nullptr)
 		keyForwardTarget->removeKeyListener(&keyForwarder);
+
+	focusWatch.stopTimer();
 
 """
 C_APPEND_ANCHOR = b"void CustomKeyboard::buttonClicked(Button* b)\n"
@@ -87,6 +114,8 @@ void CustomKeyboard::parentHierarchyChanged()
 			keyForwardTarget = top;
 		}
 	}
+
+	focusWatch.startTimer(100);
 }
 
 """
@@ -137,27 +166,48 @@ def patch(path: Path, pairs) -> None:
     path.write_bytes(data)
 
 
+TARGETS = ["hi_core/hi_components/floating_layout/FloatingTile.cpp",
+           "hi_core/hi_components/keyboard/CustomKeyboard.h",
+           "hi_core/hi_components/keyboard/CustomKeyboard.cpp",
+           "JUCE/modules/juce_gui_basics/native/juce_mac_NSViewComponentPeer.mm"]
+
+
+def restore_pristine(root: Path) -> bool:
+    """git checkout the target files so the patch below always applies to upstream 4.1.0."""
+    import subprocess
+    ok = True
+    for rel in TARGETS:
+        repo = root / "JUCE" if rel.startswith("JUCE/") else root
+        path = rel[len("JUCE/"):] if rel.startswith("JUCE/") else rel
+        if not (repo / path).exists():
+            continue
+        r = subprocess.run(["git", "-C", str(repo), "checkout", "--", path], capture_output=True, text=True)
+        ok = ok and r.returncode == 0
+    return ok
+
+
 def main() -> int:
     root = Path(sys.argv[1])
+    pristine = restore_pristine(root)
+    print("patch_hise: target files restored from git" if pristine else "patch_hise: git restore unavailable, using markers")
     ft = root / "hi_core" / "hi_components" / "floating_layout" / "FloatingTile.cpp"
     d = ft.read_bytes()
     if FT_MARK in d:
         ft.write_bytes(d.replace(eol(d, FT_NEW), eol(d, FT_OLD)))
         print("patch_hise: reverted the floating-tile focus attempt")
 
+    # the embedded-view grabFocus branch (an earlier attempt) could never run: a shared peer sets
+    # window = [viewToAttachTo window] in its constructor. Restore the file if a cache has it.
     ns = root / "JUCE" / "modules" / "juce_gui_basics" / "native" / "juce_mac_NSViewComponentPeer.mm"
-    if not ns.exists():
-        print("patch_hise: no", ns.name, "(only the macOS build needs it), skipped")
-    elif NS_MARK in ns.read_bytes():
-        print("patch_hise: embedded-view focus already applied")
-    else:
-        patch(ns, [(NS_OLD, NS_NEW, "NSViewComponentPeer::grabFocus")])
-        print("patch_hise: embedded-view focus applied to", ns.name)
+    if ns.exists() and NS_MARK in ns.read_bytes():
+        d2 = ns.read_bytes()
+        ns.write_bytes(d2.replace(eol(d2, NS_NEW), eol(d2, NS_OLD)))
+        print("patch_hise: reverted the embedded-view focus attempt")
 
     kh = root / "hi_core" / "hi_components" / "keyboard" / "CustomKeyboard.h"
     kc = root / "hi_core" / "hi_components" / "keyboard" / "CustomKeyboard.cpp"
-    if KB_MARK in kh.read_bytes() and KB_MARK in kc.read_bytes():
-        print("patch_hise: key forwarding already applied")
+    if not pristine and KB_MARK in kh.read_bytes() and KB_MARK in kc.read_bytes():
+        print("patch_hise: key forwarding already applied (no git: cannot refresh)")
         return 0
     patch(kh, [(H_ANCHOR, H_ADD, "header")])
     patch(kc, [(C_DTOR, C_DTOR_NEW, "destructor"), (C_APPEND_ANCHOR, C_FUNC + C_APPEND_ANCHOR, "parentHierarchyChanged")])
