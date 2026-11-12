@@ -76,6 +76,12 @@ jobs:
             cp -R "JUCE/projucer/Projucer.app" "tools/Projucer/Projucer.app"
           fi
 
+      - name: Patch HISE source (Sweet Melody keyboard focus)
+        shell: bash
+        run: |
+          PY=python3; command -v python3 >/dev/null 2>&1 || PY=python
+          "$PY" scripts/ci/patch_hise.py "$GITHUB_WORKSPACE/hise-source"
+
       - name: Install xcpretty (for batchCompileOSX)
         run: gem install --user-install xcpretty || sudo gem install xcpretty
 
@@ -303,6 +309,12 @@ jobs:
             cp -R "JUCE/projucer/Projucer.app" "tools/Projucer/Projucer.app"
           fi
 
+      - name: Patch HISE source (Sweet Melody keyboard focus)
+        shell: bash
+        run: |
+          PY=python3; command -v python3 >/dev/null 2>&1 || PY=python
+          "$PY" scripts/ci/patch_hise.py "$GITHUB_WORKSPACE/hise-source"
+
       - name: Install xcpretty (for batchCompileOSX)
         run: gem install --user-install xcpretty || sudo gem install xcpretty
 
@@ -453,6 +465,12 @@ jobs:
         run: |
           git clone --depth 1 --branch 4.1.0 https://github.com/christophhart/HISE.git "$GITHUB_WORKSPACE/hise-source"
 
+      - name: Patch HISE source (Sweet Melody keyboard focus)
+        shell: bash
+        run: |
+          PY=python3; command -v python3 >/dev/null 2>&1 || PY=python
+          "$PY" scripts/ci/patch_hise.py "$GITHUB_WORKSPACE/hise-source"
+
       - name: Extract bundled SDKs (ASIO + VST3 ship in-repo as sdk.zip)
         shell: bash
         run: |
@@ -560,6 +578,12 @@ jobs:
         if: steps.cache-hise-src.outputs.cache-hit != 'true'
         run: |
           git clone --depth 1 --branch 4.1.0 https://github.com/christophhart/HISE.git "$GITHUB_WORKSPACE/hise-source"
+
+      - name: Patch HISE source (Sweet Melody keyboard focus)
+        shell: bash
+        run: |
+          PY=python3; command -v python3 >/dev/null 2>&1 || PY=python
+          "$PY" scripts/ci/patch_hise.py "$GITHUB_WORKSPACE/hise-source"
 
       - name: Extract bundled SDKs
         run: |
