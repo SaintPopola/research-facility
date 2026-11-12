@@ -97,6 +97,36 @@ def eol(data: bytes, text: bytes) -> bytes:
     return text.replace(b"\n", b"\r\n") if b"\r\n" in data else text
 
 
+# --- JUCE: an embedded plugin view can take the keyboard ------------------------------
+# NSViewComponentPeer::grabFocus only acts when the peer owns its NSWindow. A plugin editor
+# is embedded in the host's window (window == nil), so nothing in the plugin could ever make
+# it first responder and Live kept the keys until the user clicked into the plugin. When the
+# host window holding the view is the key window, make the view its first responder.
+NS_MARK = b"Sweet Melody patch: embedded view first responder"
+NS_OLD = b"""        if (window != nil && [window canBecomeKeyWindow])
+        {
+            [window makeKeyWindow];
+            [window makeFirstResponder: view];
+
+            viewFocusGain();
+        }
+    }"""
+NS_NEW = b"""        if (window != nil && [window canBecomeKeyWindow])
+        {
+            [window makeKeyWindow];
+            [window makeFirstResponder: view];
+
+            viewFocusGain();
+        }
+        else if (window == nil && [view window] != nil && [[view window] isKeyWindow])
+        {
+            // """ + NS_MARK + b""": plugin editors live in the host's window
+            [[view window] makeFirstResponder: view];
+            viewFocusGain();
+        }
+    }"""
+
+
 def patch(path: Path, pairs) -> None:
     data = path.read_bytes()
     for old, new, label in pairs:
@@ -114,6 +144,15 @@ def main() -> int:
     if FT_MARK in d:
         ft.write_bytes(d.replace(eol(d, FT_NEW), eol(d, FT_OLD)))
         print("patch_hise: reverted the floating-tile focus attempt")
+
+    ns = root / "JUCE" / "modules" / "juce_gui_basics" / "native" / "juce_mac_NSViewComponentPeer.mm"
+    if not ns.exists():
+        print("patch_hise: no", ns.name, "(only the macOS build needs it), skipped")
+    elif NS_MARK in ns.read_bytes():
+        print("patch_hise: embedded-view focus already applied")
+    else:
+        patch(ns, [(NS_OLD, NS_NEW, "NSViewComponentPeer::grabFocus")])
+        print("patch_hise: embedded-view focus applied to", ns.name)
 
     kh = root / "hi_core" / "hi_components" / "keyboard" / "CustomKeyboard.h"
     kc = root / "hi_core" / "hi_components" / "keyboard" / "CustomKeyboard.cpp"

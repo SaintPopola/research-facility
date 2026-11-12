@@ -171,7 +171,7 @@ const var S = {
     "lastNote": -1, "lastVel": 0, "quiet": 0, "tick": 0,
     "lvlL": 0.0, "lvlR": 0.0, "voices": 0, "cpu": 0.0,
     "strumNote": -1, "orbPhase": 0.0, "orbFrame": 0,
-    "mode": 0, "kit": 0, "loopQ": -1, "shift": 0,
+    "mode": 0, "kit": 0, "loopQ": -1, "shift": 0, "playShift": 0,
     "page": 0, "trim": 0.0, "vfIdle": true, "kitTop": 0,
     "cutConn": 0, "modSrc": 0, "histPos": 0, "connDrag": -1,
     "focusTries": 0, "lastPaint": 0.0, "dragSrc": -1, "dragging": false
@@ -3617,6 +3617,16 @@ inline function setMode(m)
 {
     if (m == S.mode) return;
     S.mode = m;
+    // the loops sit on MIDI 48-63 (C2-D#3) but the Mac keys play 60-76: LOOPS moves them an
+    // octave down so every one of the 16 loops is on a Mac key; PLAY gets its own octave back
+    if (m == 1)
+    {
+        S.playShift = S.shift;
+        S.shift = -1;
+    }
+    else
+        S.shift = S.playShift;
+    Globals.keyShift = S.shift;
     ModeKey.setValue(m == 1 ? "loops" : "inst");
     allPreviewOff();
     Engine.allNotesOff();
@@ -3788,6 +3798,10 @@ inline function selfTest()
     if (S.list.length < 40) ok = false;
     if (!matchesQuery(FACTORY_BANK[0], ["keys"])) ok = false;
     if (LOOP_KITS.length < 3) ok = false;
+    setMode(1);                                   // LOOPS: Mac keys must land on the loop zone
+    if (qwertyRange() != "C2-E3") { ok = false; Console.print("RF selftest loops keys " + qwertyRange()); }
+    setMode(0);
+    if (qwertyRange() != "C3-E4") { ok = false; Console.print("RF selftest play keys " + qwertyRange()); }
     // VisCore (docs/18): sizes must match the rings or copyReadBuffer throws
     SpecBuf.copyReadBuffer(SPEC);
     ScopeBuf.copyReadBuffer([SCL, SCR]);
