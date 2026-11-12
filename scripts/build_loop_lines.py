@@ -189,14 +189,28 @@ def render_loop(kit, lane, take):
     loop_l = buf_l[:n_loop] + buf_l[n_loop:]
     loop_r = buf_r[:n_loop] + buf_r[n_loop:]
     rms = math.sqrt(float(np.mean((loop_l ** 2 + loop_r ** 2) * 0.5))) + 1e-12
-    gain = 0.22 / rms                           # +6 dB: HISE time-stretch output is x0.5 (doc 15)
-    loop_l *= gain
-    loop_r *= gain
-    peak = max(np.abs(loop_l).max(), np.abs(loop_r).max())
-    if peak > 0.9:
-        loop_l *= 0.9 / peak
-        loop_r *= 0.9 / peak
-    return loop_l, loop_r
+    base = 0.22 / rms                           # +6 dB: HISE time-stretch output is x0.5 (doc 15)
+    gain = base
+    out_l, out_r = soft_knee(loop_l * gain), soft_knee(loop_r * gain)
+    for _ in range(2):                          # make-up: very peaky lanes lose RMS in the knee
+        now = math.sqrt(float(np.mean((out_l ** 2 + out_r ** 2) * 0.5))) + 1e-12
+        gain_next = min(gain * 0.22 / now, base * 2.0)   # never more than +6 dB over the plain RMS gain
+        if gain_next < gain * 1.05:
+            break
+        gain = gain_next
+        out_l, out_r = soft_knee(loop_l * gain), soft_knee(loop_r * gain)
+    return out_l, out_r
+
+
+def soft_knee(x, knee=0.5, ceil=0.95):
+    """Peaks above the knee bend smoothly toward the ceiling (tanh), below it nothing changes.
+    A hard peak cap after RMS normalisation left peaky one-shot lanes (cowbell, plucks) 7-10 dB
+    under sustained lanes; the knee keeps their loudness and only rounds the transient tips."""
+    a = np.abs(x)
+    over = a > knee
+    y = x.copy()
+    y[over] = np.sign(x[over]) * (knee + (ceil - knee) * np.tanh((a[over] - knee) / (ceil - knee)))
+    return y
 
 
 def main() -> int:
