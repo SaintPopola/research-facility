@@ -779,6 +779,11 @@ inline function matchesQuery(p, toks)
     return true;
 }
 
+// sounds shown under ALL (the 50 archive presets have their own tab)
+reg VISIBLE_COUNT = 0;
+for (vc = 0; vc < FACTORY_BANK.length; vc++)
+    if (FACTORY_BANK[vc].cat != "archive") VISIBLE_COUNT = VISIBLE_COUNT + 1;
+
 inline function buildList()
 {
     S.list.clear();
@@ -1010,6 +1015,7 @@ Browser.setPaintRoutine(function(g)
         g.setFontWithSpacing(T.FONT, 9, 0.18);
         g.drawAlignedText("LOOP KITS", [16, 14, 120, 14], "left");
         var kvis = kitVis();
+        S.kitTop = Math.range(S.kitTop, 0, Math.max(0, LOOP_KITS.length - kvis));
         if (LOOP_KITS.length > kvis)
         {
             g.setColour(T.dim);
@@ -1074,7 +1080,14 @@ Browser.setPaintRoutine(function(g)
     {
         g.setColour(T.faint);
         g.setFont(T.FONT, 12);
-        g.drawAlignedText("Search " + FACTORY_BANK.length + " sounds", [42, 12, 190, 30], "left");
+        g.drawAlignedText("Search " + VISIBLE_COUNT + " sounds", [42, 12, 190, 30], "left");
+    }
+    else
+    {
+        // clear button: an active query hides most sounds, so it must be visible and one click away
+        g.setColour(S.hoverItem == "clearq" ? T.txt : T.dim);
+        g.setFont(T.BOLD, 13);
+        g.drawAlignedText("x", [214, 12, 26, 30], "centred");
     }
 
     // category pills
@@ -1196,7 +1209,7 @@ Browser.setPaintRoutine(function(g)
 // editable search field on top of the browser card
 const var SearchField = Content.addLabel("SearchField", 16 + 40, 60 + 15);
 Content.setPropertiesFromJSON("SearchField", {
-    "width": 196, "height": 24,
+    "width": 172, "height": 24,
     "text": "",
     "editable": true,
     "updateEachKey": true,
@@ -1205,7 +1218,7 @@ Content.setPropertiesFromJSON("SearchField", {
     "fontName": "Oxygen",
     "fontSize": 13,
     "alignment": "left",
-    "textColour": 0xFFE8ECEF,
+    "textColour": 0xFF1C2127,              // T.txt: the query must be readable on the porcelain well
     "bgColour": 0x00000000,
     "itemColour": 0x00000000,
     "itemColour2": 0x00000000,
@@ -1227,6 +1240,7 @@ SearchField.setControlCallback(onSearch);
 inline function browserHit(x, y)
 {
     local k = 0;
+    if (S.query != "" && x >= 214 && x < 240 && y >= 12 && y < 42) return "clearq";
     for (k = 0; k < PILLS.length; k++)
     {
         local pl = PILLS[k];
@@ -1323,6 +1337,15 @@ Browser.setMouseCallback(function(event)
         else if (hit == "scroll")
         {
             scrollFromY(event.y);
+        }
+        else if (hit == "clearq")
+        {
+            S.query = "";
+            SearchField.set("text", "");
+            S.scroll = 0;
+            buildList();
+            scrollToCurrent();
+            Header.repaint();
         }
         else if (hit == "clear")
         {
@@ -3674,6 +3697,7 @@ inline function setMode(m)
         S.loopQ = -1;
         applyFeel();
     }
+    SearchField.showControl(m == 0);   // in LOOPS it lay over the kit header + arrows and stole the note keys
     setPage(S.page);
     refreshAll();
 }
@@ -3836,8 +3860,11 @@ inline function selfTest()
     setMode(1);                                   // LOOPS: Mac keys must land on the loop zone
     if (qwertyRange() != "C2-E3") { ok = false; Console.print("RF selftest loops keys " + qwertyRange()); }
     if (loopLabel(48) != "K1" || loopLabel(63) != "A4" || macKeyFor(48) != "A") { ok = false; Console.print("RF selftest loop labels " + loopLabel(48) + macKeyFor(48)); }
+    if (SearchField.get("visible")) { ok = false; Console.print("RF selftest search visible in LOOPS"); }
     setMode(0);
     if (qwertyRange() != "C3-E4") { ok = false; Console.print("RF selftest play keys " + qwertyRange()); }
+    if (!SearchField.get("visible")) ok = false;
+    if (VISIBLE_COUNT != S.list.length) { ok = false; Console.print("RF selftest visible " + VISIBLE_COUNT + " vs " + S.list.length); }
     // VisCore (docs/18): sizes must match the rings or copyReadBuffer throws
     SpecBuf.copyReadBuffer(SPEC);
     ScopeBuf.copyReadBuffer([SCL, SCR]);
