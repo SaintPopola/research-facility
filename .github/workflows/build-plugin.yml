@@ -251,6 +251,7 @@ jobs:
 
       - name: Upload installer (unsigned)
         if: always()
+        continue-on-error: true     # 1.2 GB upload can drop (ECONNRESET); the plugin artifacts above are what installs
         uses: actions/upload-artifact@v4
         with:
           name: SweetMelody-macOS-Installer-unsigned

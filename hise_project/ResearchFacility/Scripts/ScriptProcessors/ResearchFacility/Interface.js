@@ -173,7 +173,7 @@ const var S = {
     "mode": 0, "kit": 0, "loopQ": -1, "shift": 0,
     "page": 0, "trim": 0.0, "vfIdle": true, "kitTop": 0,
     "cutConn": 0, "modSrc": 0, "histPos": 0, "connDrag": -1,
-    "focusTries": 0, "lastPaint": 0.0
+    "focusTries": 0, "lastPaint": 0.0, "dragSrc": -1, "dragging": false
 };
 
 const var FAV = {};
@@ -1599,6 +1599,11 @@ knobLaf.registerFunction("drawRotarySlider", function(g, obj)
 
     // matrix target: outer arc from the knob value to the live modulated value
     var ti = MOD_TGT_COMP.indexOf(obj.id);
+    if (S.dragging && ti >= 0 && Content.getComponentUnderDrag() == obj.id)
+    {
+        g.setColour(Colours.withAlpha(MOD_COL[Math.max(0, S.dragSrc)], 0.25));
+        g.fillEllipse([cx - R - 6, cy - R - 6, (R + 6) * 2.0, (R + 6) * 2.0]);
+    }
     if (ti >= 0 && TGT_COUNT[ti] > 0)
     {
         var mv = Matrix.getModValue(obj.id);
@@ -1919,7 +1924,10 @@ const var SP_HELP = ["Main layer level and feel, plus the sine sub underneath it
 const var SP_HIT = {"ftype": [190, 28, 158, 24], "subOct": [8, 124, 158, 24], "via": [554, 200, 158, 24]};
 
 const var ShapePage = Content.addPanel("ShapePage", 288, 60);
-Content.setPropertiesFromJSON("ShapePage", {"width": SP_W, "height": SP_H, "allowCallbacks": "Clicks & Hover", "visible": false});
+Content.setPropertiesFromJSON("ShapePage", {"width": SP_W, "height": SP_H, "allowCallbacks": "Clicks, Hover & Dragging", "visible": false});
+const var SP_CARD_H = 462;           // cards stop here; the source dock sits below (docs/16 Stage 3)
+const var DOCK_Y = 470;
+const var DOCK_CHIP = [8, 496, 60, 28];   // first chip x, y, w, h; chips step 64 px
 ShapePage.data.hover = "";
 
 const var DEEP_COMP = {};
@@ -2077,9 +2085,9 @@ ShapePage.setPaintRoutine(function(g)
         var cd = SP_CARDS[c];
         var cx = cd[1];
         g.setColour(T.s1);
-        g.fillRoundedRectangle([cx, 0, SP_CW, SP_H], 8.0);
+        g.fillRoundedRectangle([cx, 0, SP_CW, SP_CARD_H], 8.0);
         g.setColour(T.line);
-        g.drawRoundedRectangle([cx + 0.5, 0.5, SP_CW - 1, SP_H - 1], 8.0, 1.0);
+        g.drawRoundedRectangle([cx + 0.5, 0.5, SP_CW - 1, SP_CARD_H - 1], 8.0, 1.0);
         g.setColour(T.tape);
         g.fillRoundedRectangle([cx, 0, SP_CW, 20], 6.0);
         g.fillRect([cx, 10, SP_CW, 10]);
@@ -2090,7 +2098,43 @@ ShapePage.setPaintRoutine(function(g)
         g.fillRect([cx + 12, 404, SP_CW - 24, 1]);
         g.setColour(T.faint);
         g.setFont(T.FONT, 10);
-        g.drawFittedText(SP_HELP[c], [cx + 12, 414, SP_CW - 24, 60], "topLeft", 5, 1.0);
+        g.drawFittedText(SP_HELP[c], [cx + 12, 410, SP_CW - 24, 48], "topLeft", 4, 1.0);
+    }
+
+    // source dock: drag a chip onto CUTOFF, RESO, SEMI or LEVEL (click opens it on the MOD page)
+    g.setColour(T.s1);
+    g.fillRoundedRectangle([0, DOCK_Y, SP_W, SP_H - DOCK_Y], 8.0);
+    g.setColour(T.line);
+    g.drawRoundedRectangle([0.5, DOCK_Y + 0.5, SP_W - 1, SP_H - DOCK_Y - 1], 8.0, 1.0);
+    g.setColour(T.tape);
+    g.fillRoundedRectangle([0, DOCK_Y, SP_W, 20], 6.0);
+    g.fillRect([0, DOCK_Y + 10, SP_W, 10]);
+    g.setColour(T.onTape);
+    g.setFontWithSpacing(T.BOLD, 9, 0.18);
+    g.drawAlignedText("MOD SOURCES  /  DRAG ONTO CUTOFF, RESO, SEMI OR LEVEL", [12, DOCK_Y, 600, 20], "left");
+    var dc = 0;
+    for (dc = 0; dc < MOD_SOURCES.length; dc++)
+    {
+        var dx = DOCK_CHIP[0] + dc * 64;
+        var dy = DOCK_CHIP[1];
+        var hot = (hv == "chip" + dc) || (S.dragging && S.dragSrc == dc);
+        g.setColour(hot ? Colours.withAlpha(MOD_COL[dc], 0.2) : T.s2);
+        g.fillRoundedRectangle([dx, dy, DOCK_CHIP[2], DOCK_CHIP[3]], 5.0);
+        g.setColour(MOD_COL[dc]);
+        g.drawRoundedRectangle([dx + 0.5, dy + 0.5, DOCK_CHIP[2] - 1, DOCK_CHIP[3] - 1], 5.0, 1.0);
+        var dl = clamp01(Math.abs(MOD_MODS[dc].getCurrentLevel()));
+        g.fillRoundedRectangle([dx + 4, dy + DOCK_CHIP[3] - 5, (DOCK_CHIP[2] - 8) * dl, 2], 1.0);
+        g.setColour(T.txt);
+        g.setFont(T.BOLD, 9);
+        g.drawAlignedText(MOD_SOURCES[dc], [dx, dy, DOCK_CHIP[2], DOCK_CHIP[3] - 4], "centred");
+        if (SRC_COUNT[dc] > 0)
+        {
+            g.setColour(MOD_COL[dc]);
+            g.fillEllipse([dx + DOCK_CHIP[2] - 9, dy - 3, 11, 11]);
+            g.setColour(T.onAccent);
+            g.setFont(T.BOLD, 7);
+            g.drawAlignedText("" + SRC_COUNT[dc], [dx + DOCK_CHIP[2] - 9, dy - 3, 11, 11], "centred");
+        }
     }
 
     // section captions
@@ -2127,11 +2171,78 @@ ShapePage.setPaintRoutine(function(g)
     drawEnv(g, [376, 298, 150, 84], AttackKnob.getValue(), DV.AmpHoldKnob, DV.AmpDecKnob, as, ReleaseKnob.getValue(), 0.0, T.accent);
 });
 
+inline function dockChipAt(x, y)
+{
+    if (y < DOCK_CHIP[1] || y >= DOCK_CHIP[1] + DOCK_CHIP[3] || x < DOCK_CHIP[0]) return -1;
+    local i = Math.floor((x - DOCK_CHIP[0]) / 64);
+    if (i >= MOD_SOURCES.length || (x - DOCK_CHIP[0]) - i * 64 >= DOCK_CHIP[2]) return -1;
+    return i;
+}
+
+// drag-to-modulate (4.1.0 ScriptPanel.startInternalDrag): drop a source on a matrix target knob
+inline function startSourceDrag(srcIndex)
+{
+    S.dragSrc = srcIndex;
+    S.dragging = true;
+    ShapePage.startInternalDrag({
+        "area": [0, 0, 96, 30],
+        "paintRoutine": function(g, obj)
+        {
+            var sc = MOD_COL[S.dragSrc];
+            g.setColour(Colours.withAlpha(sc, obj.valid ? 0.95 : 0.6));
+            g.fillRoundedRectangle([1, 1, 94, 28], 6.0);
+            g.setColour(T.onAccent);
+            g.setFont(T.BOLD, 10);
+            var ti = MOD_TGT_COMP.indexOf(obj.target);
+            g.drawAlignedText(MOD_SOURCES[S.dragSrc] + (obj.valid && ti >= 0 ? "  >  " + MOD_TGT_LABEL[ti] : ""), [0, 0, 96, 30], "centred");
+        },
+        "isValid": function(targetId)
+        {
+            var ti = MOD_TGT_COMP.indexOf(targetId);
+            return ti >= 0 && Matrix.canConnect(MOD_SOURCES[S.dragSrc], MOD_TGT[ti]);
+        },
+        "dragCallback": function(isValid, targetId)
+        {
+            var ti = MOD_TGT_COMP.indexOf(targetId);
+            if (isValid && ti >= 0)
+            {
+                var dSrc = MOD_SOURCES[S.dragSrc];
+                var dTgt = MOD_TGT[ti];
+                if (connIndex(dSrc, dTgt) < 0)
+                {
+                    Matrix.connect(dSrc, dTgt, true);
+                    Matrix.updateIntensity(dSrc, dTgt, dTgt == "A Pitch" ? 1.0 : 0.25);   // Pigments-style 25% start
+                }
+                refreshConns();
+                updateVoiceFilter();
+            }
+            S.dragging = false;
+            ShapePage.repaint();
+            refocusKeys();
+        }
+    });
+}
+
 ShapePage.setMouseCallback(function(event)
 {
-    if (event.mouseUp) refocusKeys();
+    if (event.mouseUp)
+    {
+        refocusKeys();
+        if (!event.drag && S.dragSrc >= 0 && !S.dragging && dockChipAt(event.x, event.y) == S.dragSrc)
+        {
+            S.modSrc = S.dragSrc;       // click (no drag): open this source on the MOD page
+            setPage(2);
+        }
+        S.dragSrc = -1;
+    }
+    var ch = dockChipAt(event.mouseDownX, event.mouseDownY);
+    if (event.clicked && dockChipAt(event.x, event.y) >= 0) S.dragSrc = dockChipAt(event.x, event.y);
+    if (event.drag && !S.dragging && ch >= 0 && (Math.abs(event.dragX) + Math.abs(event.dragY)) > 4)
+        startSourceDrag(ch);
     var h = "";
-    if (inRect(SP_HIT.ftype, event.x, event.y)) h = "ftype";
+    var hc = dockChipAt(event.x, event.y);
+    if (hc >= 0) h = "chip" + hc;
+    else if (inRect(SP_HIT.ftype, event.x, event.y)) h = "ftype";
     else if (inRect(SP_HIT.subOct, event.x, event.y)) h = "subOct";
     else if (inRect(SP_HIT.via, event.x, event.y)) h = "via";
     if (event.clicked)
