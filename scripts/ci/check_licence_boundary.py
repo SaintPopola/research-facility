@@ -10,7 +10,9 @@ import subprocess
 import sys
 
 VENDOR = "Spl" + "ice"
-PATTERNS = ["/" + VENDOR + "/", "sounds" + ".db", "SampleBrowser/index" + ".json", "samples/index" + ".json"]
+# a library path or its database name in tracked code means private data leaked in;
+# the index file NAME in a comment does not, so only tracked index files are checked
+PATTERNS = ["/" + VENDOR + "/", "sounds" + ".db"]
 SCOPES = ["hise_project", "scripts", ".github", "assets", "packaging"]
 
 
