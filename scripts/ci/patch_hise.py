@@ -92,9 +92,15 @@ void CustomKeyboard::parentHierarchyChanged()
 """
 
 
+def eol(data: bytes, text: bytes) -> bytes:
+    """Windows checkouts use CRLF (git autocrlf): match the file's line endings."""
+    return text.replace(b"\n", b"\r\n") if b"\r\n" in data else text
+
+
 def patch(path: Path, pairs) -> None:
     data = path.read_bytes()
     for old, new, label in pairs:
+        old, new = eol(data, old), eol(data, new)
         if data.count(old) != 1:
             raise SystemExit(f"patch_hise: {label}: expected one anchor in {path}, found {data.count(old)}")
         data = data.replace(old, new)
@@ -106,7 +112,7 @@ def main() -> int:
     ft = root / "hi_core" / "hi_components" / "floating_layout" / "FloatingTile.cpp"
     d = ft.read_bytes()
     if FT_MARK in d:
-        ft.write_bytes(d.replace(FT_NEW, FT_OLD))
+        ft.write_bytes(d.replace(eol(d, FT_NEW), eol(d, FT_OLD)))
         print("patch_hise: reverted the floating-tile focus attempt")
 
     kh = root / "hi_core" / "hi_components" / "keyboard" / "CustomKeyboard.h"
