@@ -1352,6 +1352,241 @@ const var ScopeBuf = Synth.getDisplayBufferSource("Scope").getDisplayBuffer(0);
 SpecBuf.setActive(true);
 ScopeBuf.setActive(true);
 
+// ===== VisCore (docs/18 Stage 1): the timer builds every path, the paint routine only draws =====
+// FFT: Overlap must stay 0 with the Analyser module; the scope ring is pinned to stereo so
+// copyReadBuffer([L, R]) can feed a true XY view (verified at the 4.1.0 tag, docs/18).
+SpecBuf.setRingBufferProperties({"BufferLength": 8192, "Overlap": 0.0, "WindowType": "Blackman Harris", "Decay": 0.75, "UsePeakDecay": true});
+ScopeBuf.setRingBufferProperties({"NumChannels": 2, "BufferLength": 4096});
+const var SPEC = Buffer.create(SpecBuf.getReadBuffer().length);
+const var SCL = Buffer.create(ScopeBuf.getReadBuffer().length);
+const var SCR = Buffer.create(ScopeBuf.getReadBuffer().length);
+const var F = {"t": 0.0, "up": 0.0, "dt": 0.033, "lvl": 0.0, "low": 0.0, "lo0": 0.0, "tK": -9.0, "kick": 0.0,
+               "top": -30.0, "sr": 0.0, "scGain": 1.0, "xy": false};
+const var VD = {"tint": 0xFF3FE3F2, "scene": "LAB"};
+
+// scene colours (glass only, docs/18): the first matching tag wins, then the category
+const var SCENE_TAGS = ["underwater", "slowed", "reggaeton", "house", "future-bass", "808", "vocal-chop", "lofi", "rnb", "dark", "lush"];
+const var SCENE_NAME = ["DEEP", "SYRUP", "PERREO", "CLUB", "PRISM", "THUMP", "CHOP", "TAPE", "VELVET", "NOIR", "BLOOM"];
+const var SCENE_HEX = [0xFF2AA8D8, 0xFF9C7BFF, 0xFFFF4FA3, 0xFF4D8DFF, 0xFF8AF3FF, 0xFFD7E1EA, 0xFFFFD45C, 0xFFF29A8E, 0xFFE06BFF, 0xFF6B7FA6, 0xFF5EE8B5];
+const var CAT_SCENE = {"bass": 5, "vox": 6, "pads": 10, "bells": 4, "chords": 8, "guitar": 7};
+
+inline function buildVD(p)
+{
+    local i = 0;
+    local hit = -1;
+    for (i = 0; i < SCENE_TAGS.length; i++)
+    {
+        if (hit < 0 && p.tags.indexOf(SCENE_TAGS[i]) >= 0) hit = i;
+    }
+    if (hit < 0 && isDefined(CAT_SCENE[p.cat])) hit = CAT_SCENE[p.cat];
+    VD.tint = hit >= 0 ? SCENE_HEX[hit] : 0xFF3FE3F2;
+    VD.scene = hit >= 0 ? SCENE_NAME[hit] : "LAB";
+}
+
+inline function ease(v, target, tauA, tauR)          // time-based: same speed at 30 or 6 fps
+{
+    local tau = target > v ? tauA : tauR;
+    return v + (target - v) * (1.0 - Math.exp(-F.dt / tau));
+}
+
+// ===== V1 SIGNAL RIDGE: 128-point log spectrum, +4.5 dB/oct tilt, peak hold, 12 past rows =====
+const var NPT = 128;
+const var RN = 12;
+const var RP = 48;
+const var SX0 = 16.0;
+const var SY0 = 44.0;
+const var SW = 652.0;
+const var SH = 176.0;
+const var BA = [];
+const var BN = [];
+const var TD = [];
+const var SY = [];
+const var PKV = [];
+const var PKT = [];
+for (vi = 0; vi < NPT; vi++)
+{
+    BA.push(0); BN.push(1);
+    TD.push(4.5 * Math.log(20.0 * Math.pow(1000.0, (vi + 0.5) / NPT) / 1000.0) / Math.log(2.0));
+    SY.push(0.0); PKV.push(0.0); PKT.push(0.0);
+}
+const var RROW = [];
+for (vi = 0; vi < RN; vi++)
+{
+    var rr = [];
+    for (vj = 0; vj < RP; vj++) rr.push(0.0);
+    RROW.push(rr);
+}
+reg rHead = 0;
+const var LIVE = Content.createPath();
+const var FILL = Content.createPath();
+const var HOTS = Content.createPath();
+const var PEAK = Content.createPath();
+const var RIDG = [Content.createPath(), Content.createPath(), Content.createPath(), Content.createPath()];
+const var SCOPE_P = [Content.createPath(), Content.createPath(), Content.createPath()];
+reg sHead = 0;
+const var RINGS = [[-9.0, 0.0], [-9.0, 0.0], [-9.0, 0.0], [-9.0, 0.0]];   // V4 thump: [start time, strength]
+reg ringNext = 0;
+
+inline function specBins()
+{
+    local sr = Engine.getSampleRate();
+    if (sr <= 0) sr = 48000.0;
+    if (sr == F.sr) return;
+    F.sr = sr;
+    local k = SPEC.length / sr;
+    local i = 0;
+    for (i = 0; i < NPT; i++)
+    {
+        local f0 = 20.0 * Math.pow(1000.0, i / NPT);
+        local f1 = 20.0 * Math.pow(1000.0, (i + 1) / NPT);
+        BA[i] = Math.max(0, Math.round(f0 * k) - 1);
+        BN[i] = Math.max(1, Math.round(f1 * k) - 1 - BA[i]);
+    }
+}
+
+inline function binDb(a, n)
+{
+    return Engine.getDecibelsForGainFactor(Math.max(SPEC.getMagnitude(a, n), 0.0000001));
+}
+
+inline function captureRow()
+{
+    local j = 0;
+    local a = 0;
+    local row = RROW[rHead];
+    for (j = 0; j < RP; j++) row[j] = SY[Math.round(j * (NPT - 1) / (RP - 1))];
+    rHead = (rHead + 1) % RN;
+    for (a = 0; a < 4; a++) RIDG[a].clear();
+    for (a = 1; a < RN; a++)                              // a = age; the live trace is drawn separately
+    {
+        local rw = RROW[(rHead + RN - 1 - a) % RN];
+        local grp = RIDG[(a % 4 == 0) ? 3 : (a < 4 ? 2 : (a < 8 ? 1 : 0))];
+        local ox = a * 5.0;
+        local oy = a * 5.5;
+        local sx = 1.0 - a * 0.02;
+        local sy = 0.8 * (1.0 - a * 0.035);
+        for (j = 0; j < RP; j++)
+        {
+            local x = SX0 + ox + SW * sx * j / (RP - 1);
+            local y = SY0 + SH - oy - SH * sy * rw[j];
+            if (j == 0) grp.startNewSubPath(x, y);
+            else grp.lineTo(x, y);
+        }
+    }
+}
+
+inline function buildSpectrum()
+{
+    local i = 0;
+    local px = 0.0;
+    local py = 0.0;
+    local mx = -200.0;
+    specBins();
+    for (i = 0; i < NPT; i++) mx = Math.max(mx, binDb(BA[i], BN[i]) + TD[i]);
+    F.top = ease(F.top, Math.range(mx, -60.0, 12.0), 0.05, 2.5);          // auto ceiling: quiet sounds still draw
+    for (i = 0; i < NPT; i++)
+    {
+        local tg = clamp01((binDb(BA[i], BN[i]) + TD[i] - (F.top - 78.0)) / 78.0);
+        SY[i] = SY[i] + (tg - SY[i]) * (tg > SY[i] ? 0.6 : 0.15);
+        if (SY[i] >= PKV[i]) { PKV[i] = SY[i]; PKT[i] = F.t; }
+        else if (F.t - PKT[i] > 1.0) PKV[i] = Math.max(0.0, PKV[i] - 0.007);
+    }
+    LIVE.clear(); FILL.clear(); HOTS.clear(); PEAK.clear();
+    for (i = 0; i < NPT; i++)
+    {
+        local sv = 0.25 * SY[Math.max(0, i - 1)] + 0.5 * SY[i] + 0.25 * SY[Math.min(NPT - 1, i + 1)];
+        local x = SX0 + SW * i / (NPT - 1);
+        local y = SY0 + SH * (1.0 - sv);
+        if (i == 0)
+        {
+            LIVE.startNewSubPath(x, y);
+            FILL.startNewSubPath(x, SY0 + SH);
+            FILL.lineTo(x, y);
+            PEAK.startNewSubPath(x, SY0 + SH * (1.0 - PKV[i]));
+        }
+        else
+        {
+            LIVE.quadraticTo(px, py, (px + x) * 0.5, (py + y) * 0.5);
+            FILL.quadraticTo(px, py, (px + x) * 0.5, (py + y) * 0.5);
+            PEAK.lineTo(x, SY0 + SH * (1.0 - PKV[i]));
+            if (sv > 0.72) { HOTS.startNewSubPath(px, py); HOTS.lineTo(x, y); }   // loud = lighter
+        }
+        px = x;
+        py = y;
+    }
+    LIVE.lineTo(px, py);
+    FILL.lineTo(px, py);
+    FILL.lineTo(px, SY0 + SH);
+    FILL.closeSubPath();
+    if (S.tick % 2 == 0 && F.lvl > 0.02) captureRow();    // 15 Hz; silence freezes the landscape
+}
+
+// ===== V3 PHOSPHOR SCOPE: rising-edge trigger (a held note stands still), afterglow, XY =====
+inline function buildScope()
+{
+    local n = SCL.length;
+    local i = 0;
+    local trig = 0;
+    local pk = 0.0005;
+    for (i = 0; i < n; i += 16) pk = Math.max(pk, Math.max(Math.abs(SCL[i]), Math.abs(SCR[i])));
+    F.scGain = ease(F.scGain, Math.min(1.0 / pk, 30.0), 0.05, 0.6);
+    sHead = (sHead + 1) % 3;
+    local P = SCOPE_P[sHead];
+    P.clear();
+    if (F.xy)
+    {
+        for (i = 0; i < n; i += 16)                       // goniometer: mono is vertical, width spreads it
+        {
+            local m = (SCL[i] + SCR[i]) * 0.707 * F.scGain * 0.45;
+            local sd = (SCL[i] - SCR[i]) * 0.707 * F.scGain * 0.45;
+            local x = 104.0 + Math.range(sd, -1.0, 1.0) * 29.0;
+            local y = 243.0 - Math.range(m, -1.0, 1.0) * 29.0;
+            if (i == 0) P.startNewSubPath(x, y);
+            else P.lineTo(x, y);
+        }
+        return;
+    }
+    for (i = 1; i < n / 2; i++)
+    {
+        if (trig == 0 && SCL[i - 1] < 0.0 && SCL[i] >= 0.0) trig = i;
+    }
+    for (i = 0; i < 88; i++)
+    {
+        local v = SCL[Math.min(n - 1, trig + i * 12)] * F.scGain * 0.85;
+        local x = 18.0 + i * 2.0;
+        local y = 243.0 - Math.range(v, -1.0, 1.0) * 27.0;
+        if (i == 0) P.startNewSubPath(x, y);
+        else P.lineTo(x, y);
+    }
+}
+
+inline function updateFeatures()
+{
+    local up = Engine.getUptime();
+    local d = up - F.up;
+    F.dt = (d > 0.0 && d < 0.25) ? d : 0.033;
+    F.up = up;
+    F.t = F.t + F.dt;
+    SpecBuf.copyReadBuffer(SPEC);
+    ScopeBuf.copyReadBuffer([SCL, SCR]);
+    local pk = Math.max(Engine.getMasterPeakLevel(0), Engine.getMasterPeakLevel(1));
+    F.lvl = ease(F.lvl, clamp01((Engine.getDecibelsForGainFactor(pk) + 60.0) / 60.0), 0.010, 0.300);
+    specBins();
+    local lo = clamp01((binDb(Math.max(0, Math.round(40.0 * SPEC.length / F.sr) - 1), Math.max(1, Math.round(80.0 * SPEC.length / F.sr))) - (F.top - 78.0)) / 78.0);
+    F.low = ease(F.low, lo, 0.01, 0.18);
+    if (lo - F.lo0 > 0.06 + 0.2 * F.low && F.t - F.tK > 0.334 && F.lvl > 0.1)   // real low-band onset, max 3 per second
+    {
+        F.tK = F.t;
+        RINGS[ringNext][0] = F.t;
+        RINGS[ringNext][1] = clamp01((lo - F.lo0) * 5.0);
+        ringNext = (ringNext + 1) % 4;
+        F.kick = 1.0;
+    }
+    F.lo0 = lo;
+    F.kick = ease(F.kick, 0.0, 0.01, 0.15);
+}
+
+
 const var VIS_W = 720;
 const var VIS_H = 292;
 const var SPEC_AREA = [16, 44, 652, 176];
@@ -1363,12 +1598,13 @@ Content.setPropertiesFromJSON("Visualiser", {"width": VIS_W, "height": VIS_H,
     "allowCallbacks": "Clicks, Hover & Dragging"});
 Visualiser.data.hover = false;
 Visualiser.data.hoverPlay = false;
-Visualiser.loadImage("{PROJECT_FOLDER}sm_backdrop.png", "backdrop");
+Visualiser.loadImage("{PROJECT_FOLDER}sm_backdrop_dim.png", "backdrop");   // pre-composited plate (scripts/build_vis_assets.py)
 Visualiser.loadImage("{PROJECT_FOLDER}sm_orb_strip.png", "orb");
 
 inline function noteToX(n)
 {
-    return 24.0 + clamp01((n - 30.0) / 72.0) * 640.0;
+    local f = 440.0 * Math.pow(2.0, (n - 69.0) / 12.0);    // same log axis as the spectrum (20 Hz .. 20 kHz)
+    return SX0 + SW * clamp01(Math.log(f / 20.0) / Math.log(1000.0));
 }
 
 inline function spawnParticles(note, vel)
@@ -1394,20 +1630,11 @@ Visualiser.setPaintRoutine(function(g)
     var k = 0;
     var col = S.col;
 
-    g.setGradientFill([T.glassHi, 0, 0, T.glass, 0, VIS_H, false]);
-    g.fillRoundedRectangle([0, 0, VIS_W, VIS_H], 6.0);
-    g.setGradientFill([Colours.withAlpha(col, 0.10), 340, 140, 0x00000000, 340, 420, true]);
-    g.fillRoundedRectangle([0, 0, VIS_W, VIS_H], 8.0);
-    // 3D specimen-chamber backdrop, dimmed so the live traces stay readable
-    g.setOpacity(0.5);
-    g.drawImage("backdrop", [1, 1, VIS_W - 2, VIS_H - 2], 0, 0);
-    g.setOpacity(1.0);
-    g.setGradientFill([0x0013171C, 0, 110, 0xF213171C, 0, VIS_H, false]);
-    g.fillRoundedRectangle([0, 0, VIS_W, VIS_H], 8.0);
+    var tint = VD.tint;
+    // chamber plate: glass, backdrop, fade, vignette and sheen baked into one image (docs/18 static-stack fix)
+    g.drawImage("backdrop", [0, 0, VIS_W, VIS_H], 0, 0);
     g.setColour(T.bevelDark);
     g.drawRoundedRectangle([0.5, 0.5, VIS_W - 1, VIS_H - 1], 6.0, 1.0);
-    g.setColour(T.sheen);
-    g.fillRoundedRectangle([1, 1, VIS_W - 2, VIS_H * 0.3], 6.0);
 
     // holographic orb: spins faster and glows brighter with the output level
     var lvl = Math.max(S.lvlL, S.lvlR);
@@ -1415,10 +1642,35 @@ Visualiser.setPaintRoutine(function(g)
     g.drawImage("orb", [252, 24, 184, 184], 0, S.orbFrame * 256);
     g.setOpacity(1.0);
 
-    // measurement grid
-    g.setColour(T.glassLine);
-    for (k = 1; k < 10; k++) g.fillRect([16 + k * 65.2, 44, 1, 176]);
-    for (k = 1; k < 4; k++) g.fillRect([16, 44 + k * 44, 652, 1]);
+    // V4 thump: shockwave rings from the core on real low-band onsets
+    for (k = 0; k < 4; k++)
+    {
+        var ra = F.t - RINGS[k][0];
+        if (ra >= 0.0 && ra < 0.7)
+        {
+            var rr = 26.0 + ra * 230.0;
+            g.setColour(Colours.withAlpha(tint, (1.0 - ra / 0.7) * 0.45 * RINGS[k][1]));
+            g.drawEllipse([344 - rr, 116 - rr, rr * 2.0, rr * 2.0], 1.5 + 2.0 * (1.0 - ra / 0.7));
+        }
+    }
+
+    // measurement grid: decades on the same log axis as the spectrum
+    var gf = [100.0, 1000.0, 10000.0];
+    var gl = ["100", "1k", "10k"];
+    for (k = 0; k < 3; k++)
+    {
+        var gx = SX0 + SW * Math.log(gf[k] / 20.0) / Math.log(1000.0);
+        g.setColour(T.glassLine);
+        g.fillRect([gx, SY0, 1, SH]);
+        g.setColour(T.glassDim);
+        g.setFont(T.FONT, 8);
+        g.drawAlignedText(gl[k], [gx + 3, SY0 + SH - 12, 30, 10], "left");
+    }
+    for (k = 1; k < 4; k++)
+    {
+        g.setColour(T.glassLine);
+        g.fillRect([SX0, SY0 + k * 44, SW, 1]);
+    }
 
     // header labels
     g.setColour(T.glassDim);
@@ -1432,12 +1684,26 @@ Visualiser.setPaintRoutine(function(g)
         g.drawAlignedText(Engine.getMidiNoteName(S.lastNote) + "   VEL " + S.lastVel, [140, 14, 150, 14], "left");   // clear of the PREVIEW pill
     }
 
-    // FFT (path pins its own top + bottom, so scaling into the area is exact)
-    var sp = SpecBuf.createPath([0, 0, 652, 176], [0.0, 1.0, 0, 8192], 0.0);
-    g.setGradientFill([Colours.withAlpha(col, 0.38), 0, 44, Colours.withAlpha(col, 0.02), 0, 220, false]);
-    g.fillPath(sp, SPEC_AREA);
-    g.setColour(Colours.withAlpha(T.glow, 0.9));
-    g.drawPath(sp, SPEC_AREA, 1.5);
+    // V1 signal ridge: past rows (oblique), solid breathing fill, glow stack, hot crests, peak hold
+    var rc = Colours.mix(T.glassDim, tint, 0.55);
+    var ralpha = [0.10, 0.20, 0.34, 0.48];
+    for (k = 0; k < 4; k++)
+    {
+        g.setColour(Colours.withAlpha(rc, ralpha[k]));
+        g.drawPath(RIDG[k], false, k == 3 ? 1.2 : 1.0);
+    }
+    g.setColour(Colours.withAlpha(tint, 0.10 + 0.14 * F.lvl));
+    g.fillPath(FILL, false);
+    g.setColour(Colours.withAlpha(T.glow, 0.07 * (0.6 + 0.4 * F.lvl)));
+    g.drawPath(LIVE, false, 7.0);
+    g.setColour(Colours.withAlpha(T.glow, 0.20 * (0.6 + 0.4 * F.lvl)));
+    g.drawPath(LIVE, false, 3.5);
+    g.setColour(Colours.withAlpha(T.glow, 0.95));
+    g.drawPath(LIVE, false, 1.6);
+    g.setColour(Colours.withAlpha(T.glowCore, 0.8));
+    g.drawPath(HOTS, false, 0.9);
+    g.setColour(Colours.withAlpha(T.glassDim, 0.6));
+    g.drawPath(PEAK, false, 1.0);
 
     // held-note beams
     for (k = 24; k < 108; k++)
@@ -1447,7 +1713,7 @@ Visualiser.setPaintRoutine(function(g)
         {
             var bx = noteToX(k);
             var bh = 30 + 140 * hv / 127.0;
-            g.setGradientFill([Colours.withAlpha(col, 0.0), bx, 220 - bh, Colours.withAlpha(col, 0.55), bx, 220, false]);
+            g.setGradientFill([Colours.withAlpha(tint, 0.0), bx, 220 - bh, Colours.withAlpha(tint, 0.55), bx, 220, false]);
             g.fillRect([bx - 1.5, 220 - bh, 3, bh]);
         }
     }
@@ -1459,7 +1725,7 @@ Visualiser.setPaintRoutine(function(g)
         if (life > 0.0)
         {
             var sz = PS[k] * (0.6 + 0.4 * life);
-            g.setColour(Colours.withAlpha(col, life * 0.85));
+            g.setColour(Colours.withAlpha(tint, life * 0.85));
             g.fillEllipse([PX[k] - sz * 0.5, PY[k] - sz * 0.5, sz, sz]);
         }
     }
@@ -1467,12 +1733,17 @@ Visualiser.setPaintRoutine(function(g)
     // scope inset
     g.setColour(T.glass);
     g.fillRoundedRectangle([16, 210, 180, 66], 6.0);
-    var scp = ScopeBuf.createPath([0, 0, 176, 58], [-1.0, 1.0, 0, 4096], 0.0);
-    g.setColour(Colours.withAlpha(T.onGlass, 0.75));
-    g.drawPath(scp, [18, 214, 176, 58], 1.0);
+    g.setColour(T.glassLine);
+    g.fillRect([18, 243, 176, 1]);
+    for (k = 2; k >= 0; k--)                                     // afterglow: the two older traces fade out
+    {
+        var sa = k == 0 ? 0.95 : (k == 1 ? 0.35 : 0.15);
+        g.setColour(Colours.withAlpha(T.glow, sa));
+        g.drawPath(SCOPE_P[(sHead + 3 - k) % 3], false, k == 0 ? 1.4 : 1.0);
+    }
     g.setColour(T.glassDim);
     g.setFontWithSpacing(T.FONT, 8, 0.18);
-    g.drawAlignedText("SCOPE", [22, 212, 60, 12], "left");
+    g.drawAlignedText(F.xy ? "XY  /  WIDTH" : "SCOPE  /  CLICK FOR XY", [22, 212, 170, 12], "left");
 
     // description + tags
     var p = FACTORY_BANK[S.cur];
@@ -1480,9 +1751,9 @@ Visualiser.setPaintRoutine(function(g)
     g.setColour(T.onGlass);
     g.setFont(T.FONT, 11);
     g.drawAlignedText(S.mode == 1 ? (lk.name + " loop kit: 16 original 2-bar loops at " + lk.bpm + " BPM in " + lk.key + ".") : p.desc, [210, 238, 460, 16], "left");
-    g.setColour(col);
+    g.setColour(tint);
     g.setFontWithSpacing(T.FONT, 9, 0.1);
-    g.drawAlignedText(S.mode == 1 ? "KEYS C2  /  BASS E2  /  PLUCK G#2  /  AIR C3" : p.tags.join("  /  ").toUpperCase(), [210, 258, 460, 14], "left");
+    g.drawAlignedText(S.mode == 1 ? "KEYS C2  /  BASS E2  /  PLUCK G#2  /  AIR C3" : VD.scene + "   " + p.tags.join("  /  ").toUpperCase(), [210, 258, 460, 14], "left");
 
     // preview button
     var pb = Visualiser.data.hoverPlay;
@@ -1536,6 +1807,12 @@ inline function strumAt(x, y)
 
 Visualiser.setMouseCallback(function(event)
 {
+    if (event.clicked && event.x >= 16 && event.x < 196 && event.y >= 210 && event.y < 276)
+    {
+        F.xy = !F.xy;
+        refocusKeys();
+        return;
+    }
     if (event.mouseUp) refocusKeys();
     var inPlay = (event.x >= 600 && event.x < 704 && event.y >= 10 && event.y < 32);
     if (inPlay != this.data.hoverPlay)
@@ -2811,6 +3088,7 @@ inline function loadPreset(idx)
     applyVoicing(p);
     setDeepFromPreset(p);
     applyPresetMod(p);
+    buildVD(p);
     local mv = p.m;
     local i = 0;
     for (i = 0; i < 8; i++)
@@ -2839,6 +3117,7 @@ inline function onPresetKey(component, value)
     if (idx < 0) return;
     S.cur = idx;
     applyVoicing(FACTORY_BANK[idx]);
+    buildVD(FACTORY_BANK[idx]);
     if (parts.length < 2) setDeepFromPreset(FACTORY_BANK[idx]);
     scrollToCurrent();
     refreshAll();
@@ -2986,10 +3265,14 @@ Visualiser.setTimerCallback(function()
     }
 
     // full-rate when something is moving, 6 fps when idle (CPU)
-    if (loud || anyP || (S.tick % 5 == 0))
+    var visOn = !(S.mode == 0 && S.page > 0);
+    if (visOn && (loud || anyP || F.lvl > 0.01 || (S.tick % 5 == 0)))
     {
+        updateFeatures();
+        buildSpectrum();
+        buildScope();
         this.repaint();
-        MacroCard.repaint();
+        if (S.mode == 0 && (MACROS[2].getValue() > 0.01 || MACROS[7].getValue() > 0.01)) MacroCard.repaint();
     }
     // matrix-owned knobs have no control callback (docs/16 rule R1): follow them here
     var ok_ = 0;
@@ -3038,6 +3321,15 @@ inline function selfTest()
     if (S.list.length < 40) ok = false;
     if (!matchesQuery(FACTORY_BANK[0], ["keys"])) ok = false;
     if (LOOP_KITS.length < 3) ok = false;
+    // VisCore (docs/18): sizes must match the rings or copyReadBuffer throws
+    SpecBuf.copyReadBuffer(SPEC);
+    ScopeBuf.copyReadBuffer([SCL, SCR]);
+    if (SPEC.length != 8192) { ok = false; Console.print("RF selftest SPEC length " + SPEC.length); }
+    updateFeatures();
+    buildSpectrum();
+    buildScope();
+    buildVD(FACTORY_BANK[0]);
+    if (VD.scene != "DEEP") { ok = false; Console.print("RF selftest scene " + VD.scene); }
     if (LOOP_KITS[0].quarters != 8) ok = false;
     if (qwertyRange() != "C3-E4") ok = false;
     if (findKit(LOOP_KITS[1].id) != 1) ok = false;
