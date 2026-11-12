@@ -173,7 +173,7 @@ const var S = {
     "lvlL": 0.0, "lvlR": 0.0, "voices": 0, "cpu": 0.0,
     "strumNote": -1, "orbPhase": 0.0, "orbFrame": 0,
     "mode": 0, "kit": 0, "loopQ": -1, "shift": 0, "playShift": 0,
-    "page": 0, "trim": 0.0, "vfIdle": true, "kitTop": 0, "lastLpCut": 0, "fullPreload": false,
+    "page": 0, "trim": 0.0, "vfIdle": true, "kitTop": 0, "lastLpCut": 0, "fullPreload": false, "latch": false,
     "cutConn": 0, "modSrc": 0, "histPos": 0, "connDrag": -1,
     "focusTries": 0, "lastPaint": 0.0, "dragSrc": -1, "dragging": false
 };
@@ -1091,6 +1091,13 @@ Browser.setPaintRoutine(function(g)
         g.setColour(T.dim);
         g.setFontWithSpacing(T.FONT, 9, 0.18);
         g.drawAlignedText("LANES  /  4 TAKES EACH", [16, ly, 220, 14], "left");
+        g.setColour(S.latch ? Colours.withAlpha(T.accent, 0.16) : T.s2);
+        g.fillRoundedRectangle([160, ly - 3, 86, 20], 10.0);
+        g.setColour(S.latch ? T.accent : T.lineHi);
+        g.drawRoundedRectangle([160.5, ly - 2.5, 85, 19], 10.0, 1.0);
+        g.setColour(S.latch ? T.accentInk : T.dim);
+        g.setFontWithSpacing(T.BOLD, 8, 0.12);
+        g.drawAlignedText(S.latch ? "LATCH  ON" : "LATCH  OFF", [160, ly - 3, 86, 20], "centred");
         for (k = 0; k < 4; k++)
         {
             g.setColour(LANE_COL[k]);
@@ -1104,7 +1111,7 @@ Browser.setPaintRoutine(function(g)
         }
         g.setColour(T.faint);
         g.setFont(T.FONT, 10);
-        g.drawMultiLineText("Play MIDI C3 to D#4 or Mac keys A to P (labels on the piano). Loops follow the host tempo; one key per take.", [16, ly + 136], 224, "left", 0.0);
+        g.drawMultiLineText("Play MIDI C3 to D#4 or Mac keys A to P (labels on the piano). Loops follow the host tempo. LATCH: a press starts a loop, the next press stops it.", [16, ly + 136], 224, "left", 0.0);
         return;
     }
 
@@ -1329,6 +1336,12 @@ Browser.setMouseCallback(function(event)
         }
         else if (event.clicked && event.y >= 36 && event.y < 36 + kv * KIT_ROW)
             loadKit(S.kitTop + Math.floor((event.y - 36) / KIT_ROW));
+        else
+        {
+            var lly = 36 + kv * KIT_ROW + 14;
+            if (event.clicked && event.x >= 160 && event.x < 246 && event.y >= lly - 3 && event.y < lly + 17)
+                setLatch(!S.latch);
+        }
         return;
     }
     var hit = browserHit(event.x, event.y);
@@ -3762,6 +3775,38 @@ inline function reapplyMacros()
     for (i = 0; i < 8; i++) applyMacro(i, MACROS[i].getValue());
 }
 
+inline function clearLoopHeld()
+{
+    local n = 0;
+    for (n = 60; n <= 75; n++) HELD[n] = 0;
+    refreshKeyTints();
+}
+
+inline function syncLatchKeys()
+{
+    local n = 0;
+    local m = Globals.latchMask;
+    for (n = 60; n <= 75; n++)
+    {
+        if (HELD[n] > 0 && Math.floor(m / Math.pow(2, n - 60)) % 2 == 0)
+        {
+            HELD[n] = 0;
+            Engine.setKeyColour(n, keyTint(n));
+        }
+    }
+}
+
+inline function setLatch(on)
+{
+    S.latch = on;
+    Globals.loopLatch = on;
+    Engine.allNotesOff();                            // switching latch off must not leave loops running
+    Globals.latchEpoch = Globals.latchEpoch + 1;
+    Globals.latchMask = 0;
+    clearLoopHeld();
+    Browser.repaint();
+}
+
 inline function setMode(m)
 {
     if (m == S.mode) return;
@@ -3783,6 +3828,10 @@ inline function setMode(m)
         applyFeel();
     }
     SearchField.showControl(m == 0);   // in LOOPS it lay over the kit header + arrows and stole the note keys
+    Globals.loopMode = (m == 1);
+    Globals.latchEpoch = Globals.latchEpoch + 1;     // allNotesOff above ended every latched loop
+    Globals.latchMask = 0;
+    clearLoopHeld();
     setPage(S.page);
     refreshAll();
 }
@@ -3916,6 +3965,7 @@ Visualiser.setTimerCallback(function()
         if (S.tick % 2 == 0) ModPage.repaint();
     }
     if (S.mode == 1 && S.tick % 30 == 0) applyFeel();          // host tempo or device rate changed
+    if (S.mode == 1 && S.latch) syncLatchKeys();
     if (S.tick % 4 == 0)
     {
         S.voices = Math.max(0, Engine.getNumVoices());     // can read negative with a bypassed sampler
@@ -3954,6 +4004,10 @@ inline function selfTest()
         if (kmaps.indexOf(LOOP_KITS[ms].map) < 0) { ok = false; Console.print("RF selftest kit map missing " + LOOP_KITS[ms].map); }
     }
     if (SearchField.get("visible")) { ok = false; Console.print("RF selftest search visible in LOOPS"); }
+    if (!Globals.loopMode) { ok = false; Console.print("RF selftest loopMode not handed to KeyShift"); }
+    setLatch(true);
+    if (!Globals.loopLatch) ok = false;
+    setLatch(false);
     setMode(0);
     if (qwertyRange() != "C3-E4") { ok = false; Console.print("RF selftest play keys " + qwertyRange()); }
     if (!SearchField.get("visible")) ok = false;
