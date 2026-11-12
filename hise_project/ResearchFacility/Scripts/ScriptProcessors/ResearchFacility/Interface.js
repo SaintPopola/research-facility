@@ -1056,7 +1056,7 @@ Browser.setPaintRoutine(function(g)
         }
         g.setColour(T.faint);
         g.setFont(T.FONT, 10);
-        g.drawMultiLineText("Hold keys or sequence them in a clip. Loops follow the host tempo; one key per take.", [16, ly + 136], 224, "left", 0.0);
+        g.drawMultiLineText("Play MIDI C2 to D#3 or Mac keys A to P (labels on the piano). Loops follow the host tempo; one key per take.", [16, ly + 136], 224, "left", 0.0);
         return;
     }
 
@@ -2529,6 +2529,21 @@ inline function keyIsDown(n, rawDown)
     return rawDown;
 }
 
+// LOOPS: which lane/take a key triggers, and the Mac key that plays it (QWERTY row, JUCE order)
+const var LANE_SHORT = ["K", "B", "P", "A"];          // KEYS BASS PLUCK AIR
+const var MAC_ROW = ["A", "W", "S", "E", "D", "F", "T", "G", "Y", "H", "U", "J", "K", "O", "L", "P", ";"];
+inline function loopLabel(n)
+{
+    if (S.mode != 1 || n < LOOP_FIRST_NOTE || n >= LOOP_FIRST_NOTE + 16) return "";
+    local i = n - LOOP_FIRST_NOTE;
+    return LANE_SHORT[Math.floor(i / 4)] + (i % 4 + 1);
+}
+inline function macKeyFor(n)
+{
+    local i = n - (QWERTY_LO + S.shift * 12);
+    return (i >= 0 && i < MAC_ROW.length) ? MAC_ROW[i] : "";
+}
+
 keyLaf.registerFunction("drawWhiteNote", function(g, obj)
 {
     var a = obj.area;
@@ -2548,6 +2563,16 @@ keyLaf.registerFunction("drawWhiteNote", function(g, obj)
     {
         g.setColour(obj.keyColour);
         g.fillRoundedRectangle([x + 2, y + h - 26, w - 4, 8], 3.0);
+    }
+    var ll = loopLabel(obj.noteNumber);
+    if (ll != "")
+    {
+        g.setColour(isDown ? T.bg : T.txt);
+        g.setFont(T.BOLD, 10);
+        g.drawAlignedText(ll, [x, y + h - 44, w, 12], "centred");        // lane + take on the key
+        g.setColour(isDown ? T.bg : 0xFF6B737D);
+        g.setFont(T.FONT, 8);
+        g.drawAlignedText(macKeyFor(obj.noteNumber), [x, y + h - 56, w, 10], "centred");
     }
     if (obj.noteNumber % 12 == 0)
     {
@@ -2574,6 +2599,16 @@ keyLaf.registerFunction("drawBlackNote", function(g, obj)
     }
     g.setColour(0x14FFFFFF);
     g.fillRoundedRectangle([a[0] + 2, a[1] + a[3] - 8, a[2] - 4, 4], 2.0);
+    var bll = loopLabel(obj.noteNumber);
+    if (bll != "")
+    {
+        g.setColour(isDown ? T.bg : T.onFrame);
+        g.setFont(T.BOLD, 8);
+        g.drawAlignedText(bll, [a[0], a[1] + a[3] - 30, a[2], 10], "centred");
+        g.setColour(T.onFrameDim);
+        g.setFont(T.FONT, 7);
+        g.drawAlignedText(macKeyFor(obj.noteNumber), [a[0], a[1] + a[3] - 40, a[2], 9], "centred");
+    }
 });
 
 const var Keys = Content.addFloatingTile("Keys", 19, 594);
@@ -3633,7 +3668,7 @@ inline function setMode(m)
     VoiceA.setBypassed(m == 1);
     SubSyn.setBypassed(m == 1);
     LoopsSynth.setBypassed(m == 0);
-    paintLoopKeys(m == 1);
+    paintLoopKeys(m == 1);         // also repaints the piano, so the loop labels appear or go
     if (m == 1)
     {
         S.loopQ = -1;
@@ -3800,6 +3835,7 @@ inline function selfTest()
     if (LOOP_KITS.length < 3) ok = false;
     setMode(1);                                   // LOOPS: Mac keys must land on the loop zone
     if (qwertyRange() != "C2-E3") { ok = false; Console.print("RF selftest loops keys " + qwertyRange()); }
+    if (loopLabel(48) != "K1" || loopLabel(63) != "A4" || macKeyFor(48) != "A") { ok = false; Console.print("RF selftest loop labels " + loopLabel(48) + macKeyFor(48)); }
     setMode(0);
     if (qwertyRange() != "C3-E4") { ok = false; Console.print("RF selftest play keys " + qwertyRange()); }
     // VisCore (docs/18): sizes must match the rings or copyReadBuffer throws
