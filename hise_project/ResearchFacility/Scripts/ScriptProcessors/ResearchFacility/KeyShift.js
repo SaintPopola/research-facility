@@ -19,6 +19,9 @@ Globals.loopMode = false;      // set by the Interface: LOOPS page active
 Globals.loopLatch = false;     // LATCH toggle: a press starts a loop, the next press of that key stops it
 Globals.latchEpoch = 0;        // bumped by the Interface after all-notes-off, so stale latches clear
 Globals.latchMask = 0;         // bit (note - 60) set while that lane loop is latched; the Interface lights keys from it
+Globals.latchOnNote = -1;      // last latched press (the deferred Interface never receives artificial events,
+Globals.latchOnVel = 0;        // ScriptProcessorModules.cpp DeferredExecutioner skips them), so its
+Globals.latchOnCount = 0;      // note readout and particles read these instead
 
 // LOOPS latch (needs this non-deferred script: the Interface defers its MIDI callbacks).
 // A latched press becomes an artificial note whose key-up is dropped; HISE re-inserts an
@@ -80,6 +83,9 @@ function onNoteOn()
         {
             LATCH[lzNote] = Message.makeArtificial();     // first press: keep it going
             Globals.latchMask = Globals.latchMask + LBIT[lzNote - 60];
+            Globals.latchOnNote = lzNote;
+            Globals.latchOnVel = Message.getVelocity();
+            Globals.latchOnCount = Globals.latchOnCount + 1;
         }
     }
 }

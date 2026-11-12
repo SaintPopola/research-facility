@@ -173,7 +173,7 @@ const var S = {
     "lvlL": 0.0, "lvlR": 0.0, "voices": 0, "cpu": 0.0,
     "strumNote": -1, "orbPhase": 0.0, "orbFrame": 0,
     "mode": 0, "kit": 0, "loopQ": -1, "shift": 0, "playShift": 0,
-    "page": 0, "trim": 0.0, "vfIdle": true, "kitTop": 0, "lastLpCut": 0, "fullPreload": false, "latch": false,
+    "page": 0, "trim": 0.0, "vfIdle": true, "kitTop": 0, "lastLpCut": 0, "fullPreload": false, "latch": false, "latchSeen": 0,
     "cutConn": 0, "modSrc": 0, "histPos": 0, "connDrag": -1,
     "focusTries": 0, "lastPaint": 0.0, "dragSrc": -1, "dragging": false
 };
@@ -636,7 +636,7 @@ const var QWERTY_HI = 76;
 inline function keyTint(n)
 {
     if (S.mode == 1 && n >= LOOP_FIRST_NOTE && n < LOOP_FIRST_NOTE + 16)
-        return Colours.withAlpha(LANE_COL[Math.floor((n - LOOP_FIRST_NOTE) / 4)], 0.5);
+        return Colours.withAlpha(LANE_COL[Math.floor((n - LOOP_FIRST_NOTE) / 4)], (S.latch && HELD[n] > 0) ? 0.95 : 0.5);
     if (S.mode == 2 && SM.playLo >= 0 && n >= SM.playLo && n <= SM.playHi)
         return Colours.withAlpha(T.accent, (n == 60 && SM.playForm == 1) ? 0.55 : 0.28);   // C3 = the song key
     if (n >= QWERTY_LO + S.shift * 12 && n <= QWERTY_HI + S.shift * 12)
@@ -909,8 +909,8 @@ Header.setPaintRoutine(function(g)
     g.setFontWithSpacing(T.BOLD, 13, 0.12);
     g.drawAlignedText("SWEET MELODY", [54, 11, 230, 16], "left");
     g.setColour(T.onFrameDim);
-    g.setFontWithSpacing(T.FONT, 9, 0.18);
-    g.drawAlignedText("BY RESEARCH FACILITY  /  V0.2  " + BUILD_SHA, [54, 28, 230, 12], "left");   // which build is loaded
+    g.setFontWithSpacing(T.FONT, 9, 0.06);
+    g.drawAlignedText("BY RESEARCH FACILITY  V0.2  " + BUILD_SHA, [54, 28, 240, 12], "left");   // which build is loaded (must fit before the LCD at x 300)
 
     // preset display
     var hv = this.data.hover;
@@ -1082,7 +1082,7 @@ Browser.setPaintRoutine(function(g)
         g.setFontWithSpacing(T.FONT, 9, 0.18);
         g.drawAlignedText("LOOP KITS", [16, 14, 120, 14], "left");
         var kvis = kitVis();
-        S.kitTop = Math.range(S.kitTop, 0, Math.max(0, LOOP_KITS.length - kvis));
+        S.kitTop = Math.round(Math.range(S.kitTop, 0, Math.max(0, LOOP_KITS.length - kvis)));   // Math.range returns a double: "1.0-7.0"
         if (LOOP_KITS.length > kvis)
         {
             g.setColour(T.dim);
@@ -3809,16 +3809,37 @@ inline function clearLoopHeld()
     refreshKeyTints();
 }
 
+// Latched loops are artificial notes, and a deferred script never receives artificial
+// events (DeferredExecutioner skips them), so this script cannot see a latch start or stop.
+// KeyShift publishes the latch mask and the last latched press; the held-key state, key
+// tint, note readout and particles follow them here (every visualiser tick in LOOPS).
 inline function syncLatchKeys()
 {
     local n = 0;
     local m = Globals.latchMask;
+    local on = false;
     for (n = 60; n <= 75; n++)
     {
-        if (HELD[n] > 0 && Math.floor(m / Math.pow(2, n - 60)) % 2 == 0)
+        on = Math.floor(m / Math.pow(2, n - 60)) % 2 == 1;
+        if (on && HELD[n] == 0)
+        {
+            HELD[n] = Globals.latchOnNote == n ? Math.max(1, Globals.latchOnVel) : 100;
+            Engine.setKeyColour(n, keyTint(n));
+        }
+        else if (!on && HELD[n] > 0)
         {
             HELD[n] = 0;
             Engine.setKeyColour(n, keyTint(n));
+        }
+    }
+    if (Globals.latchOnCount != S.latchSeen)
+    {
+        S.latchSeen = Globals.latchOnCount;
+        if (Globals.latchOnNote >= 0)
+        {
+            S.lastNote = Globals.latchOnNote;
+            S.lastVel = Globals.latchOnVel;
+            spawnParticles(Globals.latchOnNote, Globals.latchOnVel);
         }
     }
 }
