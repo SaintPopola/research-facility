@@ -637,6 +637,8 @@ inline function keyTint(n)
 {
     if (S.mode == 1 && n >= LOOP_FIRST_NOTE && n < LOOP_FIRST_NOTE + 16)
         return Colours.withAlpha(LANE_COL[Math.floor((n - LOOP_FIRST_NOTE) / 4)], 0.5);
+    if (S.mode == 2 && SM.playLo >= 0 && n >= SM.playLo && n <= SM.playHi)
+        return Colours.withAlpha(T.accent, (n == 60 && SM.playForm == 1) ? 0.55 : 0.28);   // C3 = the song key
     if (n >= QWERTY_LO + S.shift * 12 && n <= QWERTY_HI + S.shift * 12)
         return Colours.withAlpha(T.accent, 0.28);
     return 0x00000000;
@@ -879,6 +881,9 @@ Bg.setPaintRoutine(function(g)
 // ============================================================================
 // HEADER
 // ============================================================================
+// page switch segments: PLAY 36, SHAPE 40, MOD 34, LOOPS 40, SAMPLES 52 (docs/21 geometry)
+const var HDR_SEG_X = [734, 770, 810, 844, 884];
+const var HDR_SEG_W = [36, 40, 34, 40, 52];
 const var Header = Content.addPanel("Header", 0, 0);
 Content.setPropertiesFromJSON("Header", {"width": 1024, "height": 52, "allowCallbacks": "Clicks & Hover"});
 Header.data.hover = "";
@@ -924,8 +929,8 @@ Header.setPaintRoutine(function(g)
     g.fillRect([336, 16, 1, 20]);
     g.fillRect([688, 16, 1, 20]);
 
-    if (S.mode == 1) col = T.accentOnFrame;
-    var lbl = S.mode == 1 ? "LOOPS" : catLabel(p.cat);
+    if (S.mode >= 1) col = T.accentOnFrame;
+    var lbl = S.mode == 1 ? "LOOPS" : (S.mode == 2 ? "SAMPLES" : catLabel(p.cat));
     var cw = Math.round(lbl.length * 6.6 + 14);
     g.setColour(Colours.withAlpha(col, 0.16));
     g.fillRoundedRectangle([348, 17, cw, 18], 4.0);
@@ -936,7 +941,10 @@ Header.setPaintRoutine(function(g)
     g.setColour(T.lcdText);
     g.setFont(T.BOLD, 16);
     var kitNow = LOOP_KITS[S.kit];
-    g.drawAlignedText(S.mode == 1 ? kitNow.name : p.name, [348 + cw + 10, 8, 250 - cw, 36], "left");
+    var smpIx = S.mode == 2 ? smpSelItem() : -1;
+    var lcdName = S.mode == 1 ? kitNow.name : p.name;
+    if (S.mode == 2) lcdName = smpIx >= 0 ? SM.items[smpIx].n : (SM.loaded ? "Pick a sound" : "Samples");
+    g.drawAlignedText(lcdName, [348 + cw + 10, 8, 250 - cw, 36], "left");
 
     var pos = S.list.indexOf(S.cur);
     var tot = S.list.length;
@@ -945,6 +953,14 @@ Header.setPaintRoutine(function(g)
     if (S.mode == 1)
     {
         g.drawAlignedText(kitNow.bpm + " BPM  " + kitNow.key, [536, 8, 140, 36], "right");
+    }
+    else if (S.mode == 2)
+    {
+        if (SM.sel >= 0) g.drawAlignedText((SM.sel + 1) + "/" + SM.res.length, [586, 8, 60, 36], "right");
+        var sfav = smpIsFav(smpIx);
+        g.setColour(sfav ? T.loopG : (hv == "heart" ? T.onFrame : T.onFrameDim));
+        if (sfav) g.fillPath(HEART, [656, 19, 16, 14]);
+        else g.drawPath(HEART, [656, 19, 16, 14], 1.4);
     }
     else
     {
@@ -956,37 +972,37 @@ Header.setPaintRoutine(function(g)
         else g.drawPath(HEART, [656, 19, 16, 14], 1.4);
     }
 
-    // PLAY | SHAPE | LOOPS switch (PLAY and SHAPE are the instrument's two pages)
+    // PLAY | SHAPE | MOD | LOOPS | SAMPLES switch (the first three are the instrument's pages)
     g.setColour(T.frameDeep);
-    g.fillRoundedRectangle([732, 12, 164, 28], 14.0);
+    g.fillRoundedRectangle([732, 12, 206, 28], 14.0);
     g.setColour(T.frameHi);
-    g.drawRoundedRectangle([732.5, 12.5, 163, 27], 14.0, 1.0);
-    var seg = S.mode == 1 ? 3 : S.page;
+    g.drawRoundedRectangle([732.5, 12.5, 205, 27], 14.0, 1.0);
+    var seg = S.mode == 1 ? 3 : (S.mode == 2 ? 4 : S.page);
     g.setColour(Colours.withAlpha(T.accentOnFrame, 0.2));
-    g.fillRoundedRectangle([734 + seg * 40, 14, 40, 24], 12.0);
+    g.fillRoundedRectangle([HDR_SEG_X[seg], 14, HDR_SEG_W[seg], 24], 12.0);
     g.setFontWithSpacing(T.BOLD, 8, 0.08);
-    var segs = [["PLAY", "play"], ["SHAPE", "shape"], ["MOD", "mod"], ["LOOPS", "loops"]];
+    var segs = [["PLAY", "play"], ["SHAPE", "shape"], ["MOD", "mod"], ["LOOPS", "loops"], ["SAMPLES", "samples"]];
     var si = 0;
-    for (si = 0; si < 4; si++)
+    for (si = 0; si < 5; si++)
     {
         var sg = segs[si];
         g.setColour(seg == si ? T.accentOnFrame : (hv == sg[1] ? T.onFrame : T.onFrameDim));
-        g.drawAlignedText(sg[0], [734 + si * 40, 14, 40, 24], "centred");
+        g.drawAlignedText(sg[0], [HDR_SEG_X[si], 14, HDR_SEG_W[si], 24], "centred");
     }
 
     // performance readout + meters
     g.setColour(T.onFrameDim);
     g.setFontWithSpacing(T.FONT, 8, 0.12);
     var vs = S.voices < 10 ? "0" + S.voices : "" + S.voices;
-    g.drawAlignedText("VOX " + vs, [904, 12, 44, 12], "left");
-    g.drawAlignedText("CPU " + Math.round(S.cpu) + "%", [904, 28, 44, 12], "left");
+    g.drawAlignedText("VOX " + vs, [944, 12, 44, 12], "left");
+    g.drawAlignedText("CPU " + Math.round(S.cpu) + "%", [944, 28, 44, 12], "left");
     g.setColour(T.frameHi);
-    g.fillRoundedRectangle([950, 15, 56, 5], 2.0);
-    g.fillRoundedRectangle([950, 30, 56, 5], 2.0);
+    g.fillRoundedRectangle([988, 15, 28, 5], 2.0);
+    g.fillRoundedRectangle([988, 30, 28, 5], 2.0);
     g.setColour(S.lvlL > 0.97 ? T.warn : T.accentOnFrame);
-    g.fillRoundedRectangle([950, 15, 56 * S.lvlL, 5], 2.0);
+    g.fillRoundedRectangle([988, 15, 28 * S.lvlL, 5], 2.0);
     g.setColour(S.lvlR > 0.97 ? T.warn : T.accentOnFrame);
-    g.fillRoundedRectangle([950, 30, 56 * S.lvlR, 5], 2.0);
+    g.fillRoundedRectangle([988, 30, 28 * S.lvlR, 5], 2.0);
 });
 
 Header.setMouseCallback(function(event)
@@ -999,10 +1015,11 @@ Header.setMouseCallback(function(event)
         else if (event.x >= 688 && event.x < 724) h = "next";
         else if (event.x >= 648 && event.x < 680) h = "heart";
         else if (event.x >= 336 && event.x < 688) h = "name";
-        else if (event.x >= 734 && event.x < 774) h = "play";
-        else if (event.x >= 774 && event.x < 814) h = "shape";
-        else if (event.x >= 814 && event.x < 854) h = "mod";
-        else if (event.x >= 854 && event.x < 894) h = "loops";
+        else if (event.x >= 734 && event.x < 770) h = "play";
+        else if (event.x >= 770 && event.x < 810) h = "shape";
+        else if (event.x >= 810 && event.x < 844) h = "mod";
+        else if (event.x >= 844 && event.x < 884) h = "loops";
+        else if (event.x >= 884 && event.x < 936) h = "samples";
     }
     if (event.clicked)
     {
@@ -1010,6 +1027,14 @@ Header.setMouseCallback(function(event)
         else if (h == "shape") { setMode(0); setPage(1); }
         else if (h == "mod") { setMode(0); setPage(2); }
         else if (h == "loops") setMode(1);
+        else if (h == "samples") setMode(2);
+        else if (S.mode == 2)
+        {
+            if (h == "prev") smpStep(-1);
+            else if (h == "next") smpStep(1);
+            else if (h == "heart") smpToggleFav(smpSelItem());
+            else if (h == "name") smpPlayRes(SM.sel < 0 ? 0 : SM.sel);
+        }
         else if (S.mode == 1)
         {
             if (h == "prev") loadKit((S.kit + LOOP_KITS.length - 1) % LOOP_KITS.length);
@@ -2868,7 +2893,7 @@ inline function setPage(pg)
     S.page = pg;
     local shape = (S.mode == 0 && pg == 1);
     local mod = (S.mode == 0 && pg == 2);
-    local play = !shape && !mod;
+    local play = !shape && !mod && S.mode != 2;
     local i = 0;
     ShapePage.showControl(shape);
     ModPage.showControl(mod);
@@ -3719,7 +3744,9 @@ inline function onPresetKey(component, value)
 }
 PresetKey.setControlCallback(onPresetKey);
 
-// hidden: INSTRUMENT / LOOPS mode and the loaded loop kit, saved in DAW sessions
+include("SamplesPage.js");      // docs/21 SAMPLES: rail, results, audition, PLAY KEYS (SongKey + PlayItem restore first)
+
+// hidden: INSTRUMENT / LOOPS / SAMPLES mode and the loaded loop kit, saved in DAW sessions
 const var ModeKey = Content.addLabel("ModeKey", 0, 0);
 Content.setPropertiesFromJSON("ModeKey", {"saveInPreset": true, "visible": false,
     "width": 1, "height": 1, "editable": false, "text": "inst"});
@@ -3810,17 +3837,18 @@ inline function setLatch(on)
 inline function setMode(m)
 {
     if (m == S.mode) return;
+    if (S.mode == 2) smpLeave();
     S.mode = m;
     // loops run through the instrument's master FX: a dark instrument preset (low TONE, big
     // SPACE/ECHO) muffled every kit. LOOPS gets a clean FX state; PLAY gets its macros back.
     if (m == 1) applyLoopFx();
     else reapplyMacros();
-    ModeKey.setValue(m == 1 ? "loops" : "inst");
+    ModeKey.setValue(m == 1 ? "loops" : (m == 2 ? "samples" : "inst"));
     allPreviewOff();
     Engine.allNotesOff();
-    VoiceA.setBypassed(m == 1);
-    SubSyn.setBypassed(m == 1);
-    LoopsSynth.setBypassed(m == 0);
+    VoiceA.setBypassed(m != 0);
+    SubSyn.setBypassed(m != 0);
+    LoopsSynth.setBypassed(m != 1);
     paintLoopKeys(m == 1);         // also repaints the piano, so the loop labels appear or go
     if (m == 1)
     {
@@ -3828,6 +3856,7 @@ inline function setMode(m)
         applyFeel();
     }
     SearchField.showControl(m == 0);   // in LOOPS it lay over the kit header + arrows and stole the note keys
+    if (m == 2) smpEnter();
     Globals.loopMode = (m == 1);
     Globals.latchEpoch = Globals.latchEpoch + 1;     // allNotesOff above ended every latched loop
     Globals.latchMask = 0;
@@ -3838,7 +3867,7 @@ inline function setMode(m)
 
 inline function onModeKey(component, value)
 {
-    setMode(value == "loops" ? 1 : 0);
+    setMode(value == "loops" ? 1 : (value == "samples" ? 2 : 0));
 }
 ModeKey.setControlCallback(onModeKey);
 
@@ -3935,7 +3964,7 @@ Visualiser.setTimerCallback(function()
     }
 
     // full-rate when something is moving, 6 fps when idle (CPU)
-    var visOn = !(S.mode == 0 && S.page > 0);      // HISE suspends panel timers while no editor is open
+    var visOn = !(S.mode == 0 && S.page > 0) && S.mode != 2;      // HISE suspends panel timers while no editor is open
     if (visOn && (loud || anyP || F.lvl > 0.01 || (S.tick % 5 == 0)))
     {
         updateFeatures();
@@ -4008,7 +4037,21 @@ inline function selfTest()
     setLatch(true);
     if (!Globals.loopLatch) ok = false;
     setLatch(false);
+    setMode(2);                                   // SAMPLES (docs/21)
+    if (SmpLoops.getTimestretchOptions().Mode != "TempoSynced") { ok = false; Console.print("RF selftest Sample Loops not TempoSynced"); }
+    if (SmpLoopsSynth.isBypassed() || !VoiceA.isBypassed() || !LoopsSynth.isBypassed()) { ok = false; Console.print("RF selftest SAMPLES bypass states"); }
+    if (!FX_Reverb.isBypassed()) { ok = false; Console.print("RF selftest SAMPLES not RAW"); }
+    if (!SmpRail.get("visible") || Browser.get("visible") || Visualiser.get("visible")) { ok = false; Console.print("RF selftest SAMPLES panels"); }
+    if (ModeKey.getValue() != "samples") ok = false;
+    if (smpShift({"key": 1, "mode": 1}) != 0) ok = false;          // no song key: no shift
+    SM.songRoot = 5; SM.songMode = 1;                               // F minor
+    if (smpShift({"key": 1, "mode": 1}) != 4) { ok = false; Console.print("RF selftest key shift C#m->Fm " + smpShift({"key": 1, "mode": 1})); }
+    if (smpShift({"key": 8, "mode": 0}) != 0) ok = false;           // Ab major is F minor's relative major
+    SM.songRoot = -1;
+    if (SM.loaded && SM.res.length == 0 && SM.items.length > 0) Console.print("RF selftest SAMPLES: index loaded, filter empty");
+    if (SM.loaded) Console.print("RF selftest SAMPLES " + smpFmtInt(SM.items.length) + " sounds, " + SM.res.length + " shown, " + SM.status);
     setMode(0);
+    if (FX_Reverb.isBypassed() || !SmpLoopsSynth.isBypassed() || SmpRail.get("visible")) { ok = false; Console.print("RF selftest SAMPLES leave"); }
     if (qwertyRange() != "C3-E4") { ok = false; Console.print("RF selftest play keys " + qwertyRange()); }
     if (!SearchField.get("visible")) ok = false;
     if (VISIBLE_COUNT != S.list.length) { ok = false; Console.print("RF selftest visible " + VISIBLE_COUNT + " vs " + S.list.length); }
@@ -4113,6 +4156,7 @@ armFocus();
 
 function onNoteOn()
 {
+    if (Message.getChannel() == 15) return;   // SAMPLES auditions: slot notes, not keys the player pressed
     var n = Message.getNoteNumber();
     var v = Message.getVelocity();
     HELD[n] = v;
@@ -4123,6 +4167,7 @@ function onNoteOn()
 }
 function onNoteOff()
 {
+    if (Message.getChannel() == 15) return;
     var n = Message.getNoteNumber();
     HELD[n] = 0;
     Engine.setKeyColour(n, keyTint(n));

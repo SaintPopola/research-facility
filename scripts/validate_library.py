@@ -34,7 +34,8 @@ OPTIONAL_FIELDS = [
     "musical.tags",
 ]
 
-ALLOWED_LICENSES = {"CC0", "CC-BY", "research-facility-original", "stable-audio-open-1.0", "splice-royalty-free"}
+# personal-use subscription libraries are never committed or shipped (docs/21 licence boundary)
+ALLOWED_LICENSES = {"CC0", "CC-BY", "research-facility-original", "stable-audio-open-1.0"}
 FORBIDDEN_LICENSES = {"CC-BY-NC", "Sampling+", "CC-BY-SA", "non-commercial"}
 
 AUDIO_EXTENSIONS = {".wav", ".aif", ".aiff", ".flac", ".ogg"}

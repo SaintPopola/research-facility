@@ -10,6 +10,10 @@
           <ChildProcessors/>
           <Content/>
         </Processor>
+        <Processor Type="ScriptProcessor" ID="SampleRouter" Bypassed="0">
+          <ChildProcessors/>
+          <Content/>
+        </Processor>
         <Processor Type="ScriptProcessor" ID="Interface" Bypassed="0">
           <ChildProcessors/>
           <Content/>
@@ -385,6 +389,141 @@
                        Retrigger="1" Intensity="1" AttackCurve="0" DecayCurve="0"
                        Attack="5" AttackLevel="0" Hold="0" Decay="300" Sustain="0"
                        Release="60" EcoMode="1">
+              <ChildProcessors>
+                <Processor Type="ModulatorChain" ID="Attack Time" Bypassed="0" Intensity="1"><ChildProcessors/></Processor>
+                <Processor Type="ModulatorChain" ID="Attack Level" Bypassed="0" Intensity="1"><ChildProcessors/></Processor>
+                <Processor Type="ModulatorChain" ID="Decay Time" Bypassed="0" Intensity="1"><ChildProcessors/></Processor>
+                <Processor Type="ModulatorChain" ID="Sustain Level" Bypassed="0" Intensity="1"><ChildProcessors/></Processor>
+                <Processor Type="ModulatorChain" ID="Release Time" Bypassed="0" Intensity="1"><ChildProcessors/></Processor>
+              </ChildProcessors>
+            </Processor>
+          </ChildProcessors>
+        </Processor>
+        <Processor Type="ModulatorChain" ID="PitchModulation" Bypassed="0" Intensity="1">
+          <ChildProcessors/>
+        </Processor>
+        <Processor Type="EffectChain" ID="FX" Bypassed="0">
+          <ChildProcessors/>
+        </Processor>
+      </ChildProcessors>
+      <RoutingMatrix NumSourceChannels="2" Channel0="0" Send0="-1" Channel1="1" Send1="-1"/>
+    </Processor>
+    <Processor Type="StreamingSampler" ID="Sample Loops" Bypassed="1" Gain="1.0"
+               Balance="0" VoiceLimit="16" KillFadeTime="20" IconColour="0"
+               PreloadSize="8192" BufferSize="4096" VoiceAmount="16" SamplerRepeatMode="0"
+               RRGroupAmount="1" PitchTracking="1" OneShot="0" CrossfadeGroups="0"
+               Purged="0" Reversed="0" NumChannels="2"
+               Group0Table="24...............vO...f+....9C...vO"
+               SampleMapID="">
+      <ChildProcessors>
+        <Processor Type="MidiProcessorChain" ID="Midi Processor" Bypassed="0">
+          <ChildProcessors>
+            <Processor Type="ScriptProcessor" ID="SmpLoopsIn" Bypassed="0">
+              <ChildProcessors/>
+              <Content/>
+            </Processor>
+          </ChildProcessors>
+        </Processor>
+        <Processor Type="ModulatorChain" ID="GainModulation" Bypassed="0" Intensity="1">
+          <ChildProcessors>
+            <Processor Type="Velocity" ID="Sample Loops Vel" Bypassed="0" Intensity="0" Bipolar="0"
+                       UseTable="0" Inverted="0" DecibelMode="0">
+              <ChildProcessors/>
+            </Processor>
+            <Processor Type="AHDSR" ID="Sample Loops Env" Bypassed="0" Monophonic="0"
+                       Retrigger="1" Intensity="1" AttackCurve="0" DecayCurve="0"
+                       Attack="2" AttackLevel="0" Hold="0" Decay="300" Sustain="0"
+                       Release="40" EcoMode="1">
+              <ChildProcessors>
+                <Processor Type="ModulatorChain" ID="Attack Time" Bypassed="0" Intensity="1"><ChildProcessors/></Processor>
+                <Processor Type="ModulatorChain" ID="Attack Level" Bypassed="0" Intensity="1"><ChildProcessors/></Processor>
+                <Processor Type="ModulatorChain" ID="Decay Time" Bypassed="0" Intensity="1"><ChildProcessors/></Processor>
+                <Processor Type="ModulatorChain" ID="Sustain Level" Bypassed="0" Intensity="1"><ChildProcessors/></Processor>
+                <Processor Type="ModulatorChain" ID="Release Time" Bypassed="0" Intensity="1"><ChildProcessors/></Processor>
+              </ChildProcessors>
+            </Processor>
+          </ChildProcessors>
+        </Processor>
+        <Processor Type="ModulatorChain" ID="PitchModulation" Bypassed="0" Intensity="1">
+          <ChildProcessors/>
+        </Processor>
+        <Processor Type="EffectChain" ID="FX" Bypassed="0">
+          <ChildProcessors/>
+        </Processor>
+      </ChildProcessors>
+      <RoutingMatrix NumSourceChannels="2" Channel0="0" Send0="-1" Channel1="1" Send1="-1"/>
+    </Processor>
+    <Processor Type="StreamingSampler" ID="Sample Hits" Bypassed="1" Gain="1.0"
+               Balance="0" VoiceLimit="16" KillFadeTime="20" IconColour="0"
+               PreloadSize="8192" BufferSize="4096" VoiceAmount="16" SamplerRepeatMode="0"
+               RRGroupAmount="1" PitchTracking="1" OneShot="0" CrossfadeGroups="0"
+               Purged="0" Reversed="0" NumChannels="2"
+               Group0Table="24...............vO...f+....9C...vO"
+               SampleMapID="">
+      <ChildProcessors>
+        <Processor Type="MidiProcessorChain" ID="Midi Processor" Bypassed="0">
+          <ChildProcessors>
+            <Processor Type="ScriptProcessor" ID="SmpHitsIn" Bypassed="0">
+              <ChildProcessors/>
+              <Content/>
+            </Processor>
+          </ChildProcessors>
+        </Processor>
+        <Processor Type="ModulatorChain" ID="GainModulation" Bypassed="0" Intensity="1">
+          <ChildProcessors>
+            <Processor Type="Velocity" ID="Sample Hits Vel" Bypassed="0" Intensity="0" Bipolar="0"
+                       UseTable="0" Inverted="0" DecibelMode="0">
+              <ChildProcessors/>
+            </Processor>
+            <Processor Type="AHDSR" ID="Sample Hits Env" Bypassed="0" Monophonic="0"
+                       Retrigger="1" Intensity="1" AttackCurve="0" DecayCurve="0"
+                       Attack="2" AttackLevel="0" Hold="0" Decay="300" Sustain="0"
+                       Release="50" EcoMode="1">
+              <ChildProcessors>
+                <Processor Type="ModulatorChain" ID="Attack Time" Bypassed="0" Intensity="1"><ChildProcessors/></Processor>
+                <Processor Type="ModulatorChain" ID="Attack Level" Bypassed="0" Intensity="1"><ChildProcessors/></Processor>
+                <Processor Type="ModulatorChain" ID="Decay Time" Bypassed="0" Intensity="1"><ChildProcessors/></Processor>
+                <Processor Type="ModulatorChain" ID="Sustain Level" Bypassed="0" Intensity="1"><ChildProcessors/></Processor>
+                <Processor Type="ModulatorChain" ID="Release Time" Bypassed="0" Intensity="1"><ChildProcessors/></Processor>
+              </ChildProcessors>
+            </Processor>
+          </ChildProcessors>
+        </Processor>
+        <Processor Type="ModulatorChain" ID="PitchModulation" Bypassed="0" Intensity="1">
+          <ChildProcessors/>
+        </Processor>
+        <Processor Type="EffectChain" ID="FX" Bypassed="0">
+          <ChildProcessors/>
+        </Processor>
+      </ChildProcessors>
+      <RoutingMatrix NumSourceChannels="2" Channel0="0" Send0="-1" Channel1="1" Send1="-1"/>
+    </Processor>
+    <Processor Type="StreamingSampler" ID="Sample Play" Bypassed="1" Gain="1.0"
+               Balance="0" VoiceLimit="16" KillFadeTime="20" IconColour="0"
+               PreloadSize="8192" BufferSize="4096" VoiceAmount="16" SamplerRepeatMode="0"
+               RRGroupAmount="1" PitchTracking="1" OneShot="0" CrossfadeGroups="0"
+               Purged="0" Reversed="0" NumChannels="2"
+               Group0Table="24...............vO...f+....9C...vO"
+               SampleMapID="">
+      <ChildProcessors>
+        <Processor Type="MidiProcessorChain" ID="Midi Processor" Bypassed="0">
+          <ChildProcessors>
+            <Processor Type="ScriptProcessor" ID="SmpPlayIn" Bypassed="0">
+              <ChildProcessors/>
+              <Content/>
+            </Processor>
+          </ChildProcessors>
+        </Processor>
+        <Processor Type="ModulatorChain" ID="GainModulation" Bypassed="0" Intensity="1">
+          <ChildProcessors>
+            <Processor Type="Velocity" ID="Sample Play Vel" Bypassed="0" Intensity="0.35" Bipolar="0"
+                       UseTable="0" Inverted="0" DecibelMode="0">
+              <ChildProcessors/>
+            </Processor>
+            <Processor Type="AHDSR" ID="Sample Play Env" Bypassed="0" Monophonic="0"
+                       Retrigger="1" Intensity="1" AttackCurve="0" DecayCurve="0"
+                       Attack="2" AttackLevel="0" Hold="0" Decay="300" Sustain="0"
+                       Release="120" EcoMode="1">
               <ChildProcessors>
                 <Processor Type="ModulatorChain" ID="Attack Time" Bypassed="0" Intensity="1"><ChildProcessors/></Processor>
                 <Processor Type="ModulatorChain" ID="Attack Level" Bypassed="0" Intensity="1"><ChildProcessors/></Processor>

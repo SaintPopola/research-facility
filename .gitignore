@@ -93,3 +93,11 @@ __pycache__/
 
 # local Python environments (autosampler)
 .venv*/
+
+# SAMPLES page (docs/21): the private index, user data and renders live in the
+# plug-in's AppData folder only. Belt and braces in case one is copied here.
+**/SampleBrowser/
+**/samples/index.json
+**/samples/user.json
+**/samples/drag/
+**/sounds.db
