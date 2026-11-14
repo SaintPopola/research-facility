@@ -972,7 +972,11 @@ def loop_points(p, l, r, note):
         c2 = np.concatenate([[0.0], np.cumsum(seg_.astype(np.float64) ** 2)])
         en = c2[xf:] - c2[:-xf]
         cr = num / (np.sqrt(en * float(np.dot(ref, ref))) + 1e-12)
-        kk_ = int(np.argmax(cr))
+        # near-ties (a steady tone matches at every period) are broken by position, not by
+        # float noise: the candidate closest to the natural end within 0.005 of the best.
+        # CI and a local render must pick the same end (the drift check compares maps).
+        top = float(cr.max())
+        kk_ = int(np.nonzero(cr >= top - 0.005)[0][-1])
         return lo_ + kk_, float(cr[kk_])
 
     le, cbest = best_end(lo)
