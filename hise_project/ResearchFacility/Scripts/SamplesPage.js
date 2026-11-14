@@ -59,7 +59,7 @@ const var SM = {
     "lastEvt": -1, "startAt": 0.0, "offAt": -1.0, "playedAt": 0.0,
     "fav": {}, "plays": {}, "hidden": {}, "over": {}, "hist": [], "saveAt": -1.0,
     "playKeys": -1, "playForm": -1, "playLo": -1, "playHi": -1, "pendingPlayId": "",
-    "grid": "", "dragging": false, "hoverR": "", "hoverA": "", "hoverRow": -1, "tick": 0,
+    "grid": "", "fixMode": -1, "hiddenCount": 0, "dragging": false, "hoverR": "", "hoverA": "", "hoverRow": -1, "tick": 0,
     "reindexDone": false, "reindexCode": 0
 };
 
@@ -113,7 +113,7 @@ inline function smpFeel(it)
     local r = smpHost() / it.bpm;
     local m = 1.0;
     local comp = smpRate() / it.sr;
-    while (r / m > 1.45 && it.nq * m * 2 * comp <= 128) m = m * 2;
+    while (r / m > 1.45 && it.nq * m * 2 * comp <= 512) m = m * 2;
     while (r / m < 0.7 && it.nq * m / 2 >= 1) m = m / 2;
     return m;
 }
@@ -225,6 +225,19 @@ inline function smpLoadIndex()
         return;
     }
     SM.missing = false;
+    // positions die with the old array (doc 23 B5): remember ids, stop the audition, save pending user data
+    local keepSel = (SM.sel >= 0 && SM.sel < SM.res.length) ? SM.items[SM.res[SM.sel]].id : "";
+    local keepLike = SM.like >= 0 ? SM.items[SM.like].id : "";
+    local keepKeys = SM.playKeys >= 0 ? SM.items[SM.playKeys].id : SM.pendingPlayId;
+    if (SM.items.length > 0)
+    {
+        smpStopAudition();
+        if (SM.saveAt > 0) smpSaveUser();
+    }
+    SM.like = -1;
+    SM.playKeys = -1;
+    SM.sel = -1;
+    SM.res = [];
     SM.items = d.items;
     SM.built = d.built;
     SM.genres = d.genres;
@@ -268,15 +281,24 @@ inline function smpLoadIndex()
         SM.topGenres.push(best);
         SM.genreOn.push(0);
     }
+    SM.hiddenCount = 0;
+    for (i = 0; i < SM.items.length; i++)
+        if (SM.hidden[SM.items[i].id] == 1) SM.hiddenCount = SM.hiddenCount + 1;
     SM.loaded = true;
     SM.page = -1;
+    if (keepLike != "" && isDefined(SM.idx[keepLike])) SM.like = SM.idx[keepLike];
     SM.status = "Indexed " + SM.built.replace("T", " ").substring(0, 16);
-    smpRefilter(true);
-    if (SM.pendingPlayId != "")
+    smpRefilter(false);
+    if (keepSel != "" && isDefined(SM.idx[keepSel]))
     {
-        local pk = SM.idx[SM.pendingPlayId];
-        SM.pendingPlayId = "";
-        if (isDefined(pk)) smpSetPlayKeys(pk);
+        SM.sel = SM.res.indexOf(SM.idx[keepSel]);
+        smpEnsureVisible();
+    }
+    SM.pendingPlayId = "";
+    if (keepKeys != "")
+    {
+        if (isDefined(SM.idx[keepKeys])) smpSetPlayKeys(SM.idx[keepKeys]);
+        else smpSetPlayKeys(-1);              // that sound left the library
     }
 }
 
@@ -406,11 +428,18 @@ inline function smpSortKey(ix)
     return (it.key < 0 ? 24 : it.key * 2 + Math.max(0, it.mode)) * 4000 + Math.min(fit, 3999);
 }
 
+inline function smpCmpPair(pa, pb)
+{
+    if (pa[0] != pb[0]) return pa[0] - pb[0];
+    return pa[1] - pb[1];
+}
+
 inline function smpRefilter(keepSel)
 {
     local keys = [];
     local i = 0;
     local selId = (SM.sel >= 0 && SM.sel < SM.res.length) ? SM.res[SM.sel] : -1;
+    SM.want = -1;
     smpParseQuery(SM.query);
     if (SM.sort == 3 && SM.rnd.length != SM.items.length)
     {
@@ -428,11 +457,21 @@ inline function smpRefilter(keepSel)
     }
     else
     {
-        for (i = 0; i < SM.items.length; i++)
-            if (smpPass(i)) keys.push(smpSortKey(i) * SMP_PACK + i);
-        keys.sort();
         SM.res = [];
-        for (i = 0; i < keys.length; i++) SM.res.push(keys[i] % SMP_PACK);
+        if (SM.items.length <= SMP_PACK)
+        {
+            for (i = 0; i < SM.items.length; i++)
+                if (smpPass(i)) keys.push(smpSortKey(i) * SMP_PACK + i);
+            keys.sort();                                   // numeric, fast
+            for (i = 0; i < keys.length; i++) SM.res.push(keys[i] % SMP_PACK);
+        }
+        else
+        {
+            for (i = 0; i < SM.items.length; i++)
+                if (smpPass(i)) keys.push([smpSortKey(i), i]);
+            keys.sort(smpCmpPair);                         // slower, no size limit
+            for (i = 0; i < keys.length; i++) SM.res.push(keys[i][1]);
+        }
     }
     SM.sel = -1;
     if (keepSel && selId >= 0) SM.sel = SM.res.indexOf(selId);
@@ -470,9 +509,15 @@ inline function smpZone(it, slot)
 // quarters the stretcher must assume so the loop plays at host tempo: bars x 4 x feel,
 // times device rate / file rate (4.1.0 plays the file at the device rate without
 // resampling when it stretches, so the rate ratio only reaches the pitch)
+// real length of a resampled one-shot: down 12 st plays twice as long
+inline function smpHitLen(it)
+{
+    return it.dur * Math.pow(2.0, -smpShift(it) / 12.0);
+}
+
 inline function smpLoopNq(it)
 {
-    return Math.min(128.0, it.nq * smpFeel(it) * smpRate() / it.sr);
+    return it.nq * smpFeel(it) * smpRate() / it.sr;      // options NumQuarters is not clamped (ModulatorSampler.h fromJSON)
 }
 
 // set the option value for this loop; changing it kills the sampler's voices, so it
@@ -665,7 +710,8 @@ inline function smpSetPlayKeys(ix)
             SmpPlay.setTimestretchOptions(o);
             SM.playNq = -1.0;
         }
-        local rt = it.root >= 0 ? it.root : 60;
+        local rt0 = it.root >= 0 ? it.root : 60;
+        local rt = rt0 + 12 * Math.round((60 - rt0) / 12.0);   // 808s sit at MIDI 24-34: fold to around C3
         z.LoKey = Math.max(0, rt - 24);
         z.HiKey = Math.min(127, rt + 24);
         z.Root = rt;
@@ -761,7 +807,7 @@ inline function smpFixKey(ix, root, md)
     local it = SM.items[ix];
     SM.over[it.id] = {"key": root, "mode": root < 0 ? -1 : md};
     it.key = root;
-    it.mode = root < 0 ? -1 : md;
+    it.mode = root < 0 ? -1 : md;           // md: 0 major, 1 minor, -1 root only
     it.kc = 3;
     smpSaveSoon();
     smpKeysChanged();
@@ -778,6 +824,7 @@ inline function smpSimilar(ix)
 inline function smpHide(ix)
 {
     if (ix < 0) return;
+    if (SM.hidden[SM.items[ix].id] != 1) SM.hiddenCount = SM.hiddenCount + 1;
     SM.hidden[SM.items[ix].id] = 1;
     smpSaveSoon();
     smpStopAudition();
@@ -868,7 +915,7 @@ inline function smpRailHit(x, y)
         {
             local col = Math.floor((x - 12) / 58);
             local row = Math.floor((y - 88) / 27);
-            return "g" + Math.round(row * 4 + col);       // g0 = NONE, g1..g12 = C..B
+            return "g" + Math.round(row * 4 + col);       // g0 = NONE, g1..g12 = C..B, g13..g15 = MAJ MIN ROOT (fix only)
         }
         return "gclose";
     }
@@ -902,6 +949,7 @@ inline function smpRailHit(x, y)
         if (x >= 12 && x < 124) return "favonly";
         if (x >= 132 && x < 244) return "unheard";
     }
+    if (SM.hiddenCount > 0 && y >= 440 && y < 460 && x >= 132 && x < 244) return "unhide";
     if (y >= 488 && y < 512)
     {
         if (x >= 128 && x < 184) return "rescan";
@@ -954,15 +1002,19 @@ SmpRail.setPaintRoutine(function(g)
         g.setColour(T.lineHi);
         g.drawRoundedRectangle([8.5, 86.5, 239, 113], 6.0, 1.0);
         var cur = SM.grid == "song" ? SM.songRoot : (smpSelItem() >= 0 ? SM.items[smpSelItem()].key : -1);
-        for (k = 0; k < 13; k++)
+        var ncell = SM.grid == "song" ? 13 : 16;
+        var mtxt = ["MAJ", "MIN", "ROOT"];
+        for (k = 0; k < ncell; k++)
         {
             var gx = 12 + (k % 4) * 58;
             var gy = 90 + Math.floor(k / 4) * 27;
-            smpPill(g, [gx, gy, 54, 22], k == 0 ? "NONE" : SMP_KEYS[k - 1], cur == k - 1, hv == "g" + k);
+            if (k >= 13) smpPill(g, [gx, gy, 54, 22], mtxt[k - 13], SM.fixMode == (k == 13 ? 0 : (k == 14 ? 1 : -1)), hv == "g" + k);
+            else smpPill(g, [gx, gy, 54, 22], k == 0 ? "NONE" : SMP_KEYS[k - 1], cur == k - 1, hv == "g" + k);
         }
         g.setColour(T.faint);
         g.setFont(T.FONT, 9);
-        g.drawAlignedText(SM.grid == "song" ? "Song key" : "Fix this sound's key", [70, 172, 170, 22], "centred");
+        if (SM.grid == "song") g.drawAlignedText("Song key", [70, 172, 170, 22], "centred");
+        else g.drawAlignedText("Fix this sound's key", [12, 200, 232, 16], "left");
         return;
     }
 
@@ -1011,7 +1063,8 @@ SmpRail.setPaintRoutine(function(g)
 
     g.setColour(T.faint);
     g.setFont(T.FONT, 9);
-    g.drawMultiLineText("Up / Down  step and play\nReturn  play     Esc  stop\nB  heart     M  more like this\nBackspace  previous sound", [12, 400], 232, "left", 2.0);
+    g.drawMultiLineText("Up / Down  step and play\nReturn  play     Esc  stop\nB  heart     M  more like this\nBackspace  previous sound\nShift + Backspace  hide sound", [12, 396], 232, "left", 1.0);
+    if (SM.hiddenCount > 0) smpPill(g, [132, 440, 112, 20], "UNHIDE " + SM.hiddenCount, false, hv == "unhide");
 
     g.setColour(T.dim);
     g.setFont(T.FONT, 9);
@@ -1034,10 +1087,16 @@ SmpRail.setMouseCallback(function(event)
             if (h.indexOf("g") == 0 && h != "gclose")
             {
                 var gk = parseInt(h.substring(1, h.length)) - 1;
+                if (gk >= 12 && SM.grid == "fix")
+                {
+                    SM.fixMode = gk == 12 ? 0 : (gk == 13 ? 1 : -1);    // pick the mode, keep the grid open
+                    this.repaint();
+                    return;
+                }
                 if (gk <= 11)
                 {
                     if (SM.grid == "song") smpSetSongKey(gk, SM.songMode);
-                    else smpFixKey(smpSelItem(), gk, SM.songMode);
+                    else smpFixKey(smpSelItem(), gk, SM.fixMode);
                 }
             }
             SM.grid = "";
@@ -1072,6 +1131,13 @@ SmpRail.setMouseCallback(function(event)
         else if (h == "favonly") { SM.favOnly = !SM.favOnly; smpRefilter(true); }
         else if (h == "unheard") { SM.unheard = !SM.unheard; smpRefilter(true); }
         else if (h == "rescan") smpRescan();
+        else if (h == "unhide")
+        {
+            SM.hidden = {};
+            SM.hiddenCount = 0;
+            smpSaveSoon();
+            smpRefilter(true);
+        }
         else if (h == "clear")
         {
             SM.cats = [1, 1, 1, 1, 0, 0, 0];
@@ -1318,9 +1384,9 @@ SmpAudition.setPaintRoutine(function(g)
     }
     if (playing && now >= SM.startAt)
     {
-        var len = it.f == 1 ? it.nq * smpFeel(it) * 60.0 / smpHost() : it.dur;
+        var len = it.f == 1 ? it.nq * smpFeel(it) * 60.0 / smpHost() : smpHitLen(it);
         var ph = len > 0 ? ((now - SM.startAt) % len) / len : 0;
-        if (it.f == 0) ph = Math.min(1.0, (now - SM.startAt) / Math.max(0.05, it.dur));
+        if (it.f == 0) ph = Math.min(1.0, (now - SM.startAt) / Math.max(0.05, smpHitLen(it)));
         g.setColour(T.glowCore);
         g.fillRect([16 + 412 * ph, 30, 2, 52]);
     }
@@ -1337,17 +1403,11 @@ SmpAudition.setPaintRoutine(function(g)
         smpPill(g, [12 + sp * 40, 92, 38, 22], SMP_SPEED_TXT[sp], SM.speed == sp, hv == "sp" + sp);
     drawStepper(g, [180, 92, 96, 22], "PITCH " + (SM.semi > 0 ? "+" : "") + SM.semi, hv == "pitch-" || hv == "pitch+");
     drawStepper(g, [284, 92, 64, 22], (SM.oct > 0 ? "+" : "") + SM.oct, hv == "oct-" || hv == "oct+");
-    smpPill(g, [356, 92, 76, 22], "REPEAT", false, false);
-    g.setColour(Colours.withAlpha(T.s1, 0.6));
-    g.fillRoundedRectangle([356, 92, 76, 22], 11.0);
     drawStepper(g, [444, 92, 80, 22], (SM.level > 0 ? "+" : "") + SM.level + " dB", hv == "lvl-" || hv == "lvl+");
 
     smpPill(g, [12, 120, 96, 22], SM.playKeys == ix ? "ON KEYS" : "PLAY KEYS", SM.playKeys == ix, hv == "playkeys");
     smpPill(g, [116, 120, 84, 22], "SIMILAR", SM.like == ix, hv == "similar");
     smpPill(g, [208, 120, 84, 22], "FIX KEY", false, hv == "fixkey");
-    smpPill(g, [300, 120, 84, 22], "+ STACK", false, false);
-    g.setColour(Colours.withAlpha(T.s1, 0.6));
-    g.fillRoundedRectangle([300, 120, 84, 22], 11.0);
 
     // DRAG chip: the original file; it says what the host must do to match
     g.setColour(hv == "drag" ? T.capHi : T.cap);
@@ -1399,7 +1459,7 @@ SmpAudition.setMouseCallback(function(event)
         else if (h == "lvl+") { SM.level = Math.min(12, SM.level + 1); smpKeysChanged(); }
         else if (h == "playkeys") smpSetPlayKeys(SM.playKeys == ix ? -1 : ix);
         else if (h == "similar") smpSimilar(ix);
-        else if (h == "fixkey") { SM.grid = "fix"; SmpRail.repaint(); }
+        else if (h == "fixkey") { SM.grid = "fix"; SM.fixMode = SM.items[ix].mode; SmpRail.repaint(); }
         this.repaint();
     }
     if (h != SM.hoverA)
@@ -1439,7 +1499,7 @@ SmpClock.setTimerCallback(function()
         // the router has seen the note: it starts after Globals.smpDelay
         SM.lastEvt = Globals.smpEvt;
         SM.startAt = SM.playedAt + Globals.smpDelay;
-        if (!SM.playLoop) SM.offAt = SM.startAt + SM.items[SM.playIt].dur + 0.05;
+        if (!SM.playLoop) SM.offAt = SM.startAt + smpHitLen(SM.items[SM.playIt]) + 0.05;
     }
     if (SM.offAt > 0 && now >= SM.offAt)
     {
@@ -1509,6 +1569,7 @@ inline function smpRawFx(raw)
     FX_Chorus.setBypassed(raw);
     FX_Delay.setBypassed(raw);
     FX_Reverb.setBypassed(raw);
+    FX_Air.setBypassed(raw);
 }
 
 inline function smpEnter()

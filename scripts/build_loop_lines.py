@@ -176,6 +176,8 @@ def render_loop(kit, lane, take):
         l, r = cache[key]
         hold = int(length * spb * SR)
         env = np.ones(n)
+        fi = min(n, int(0.001 * SR))           # 1 ms fade-in: no onset step from any generator (doc 23 B3)
+        env[:fi] = np.linspace(0.0, 1.0, fi)
         rel = int(min(0.25, 0.6 * length * spb + 0.05) * SR)
         if hold + rel < n:
             env[hold:hold + rel] = np.linspace(1.0, 0.0, rel)

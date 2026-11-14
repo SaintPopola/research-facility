@@ -327,6 +327,7 @@ const var FX_Drive  = Synth.getEffect("Drive");
 const var FX_Chorus = Synth.getEffect("Chorus");
 const var FX_Delay  = Synth.getEffect("Space Delay");
 const var FX_Reverb = Synth.getEffect("Master Reverb");
+const var FX_Air    = Synth.getEffect("Air EQ");     // +2.5 dB @ 120 Hz, +2 dB @ 9 kHz: instrument colour only (doc 23 B8)
 const var M_Amp     = Synth.getModulator("Amp Env");
 const var M_SubEnv  = Synth.getModulator("Sub Env");
 const var M_Vel     = Synth.getModulator("Vel Gain");
@@ -4135,6 +4136,7 @@ inline function setMode(m)
     SubSyn.setBypassed(m != 0);
     LoopsSynth.setBypassed(m != 1);
     paintLoopKeys(m == 1);         // also repaints the piano, so the loop labels appear or go
+    FX_Air.setBypassed(m != 0);    // LOOPS and SAMPLES play clean
     if (m == 1) buildVD(kitLookOf(LOOP_KITS[S.kit]));
     else buildVD(FACTORY_BANK[S.cur]);
     if (m == 1)
@@ -4330,6 +4332,8 @@ inline function selfTest()
     if (!FX_Reverb.isBypassed()) { ok = false; Console.print("RF selftest SAMPLES not RAW"); }
     if (!SmpRail.get("visible") || Browser.get("visible") || Visualiser.get("visible")) { ok = false; Console.print("RF selftest SAMPLES panels"); }
     if (ModeKey.getValue() != "samples") ok = false;
+    if (smpRailHit(50, 160) != "f0" || smpRailHit(200, 160) != "f2") { ok = false; Console.print("RF selftest FORM pill ids " + smpRailHit(50, 160)); }   // doc 23 B4
+    if (FX_Air.isBypassed() == false) { ok = false; Console.print("RF selftest Air EQ colours SAMPLES"); }                                           // doc 23 B8
     if (smpShift({"key": 1, "mode": 1}) != 0) ok = false;          // no song key: no shift
     SM.songRoot = 5; SM.songMode = 1;                               // F minor
     if (smpShift({"key": 1, "mode": 1}) != 4) { ok = false; Console.print("RF selftest key shift C#m->Fm " + smpShift({"key": 1, "mode": 1})); }

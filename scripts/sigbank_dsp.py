@@ -306,7 +306,8 @@ def gen_tine_ep(note, n, p, rng):
     # pickup asymmetry: adds even harmonics, more on loud attack
     asym = p.get("pickup", 0.35)
     x = x + asym * (x * x) * np.exp(-t / 0.4)
-    x = x - np.mean(x[:2048])
+    # no mean subtraction: after the 1.5 ms amp attack it stepped sample 0 to -mean (up to
+    # -0.85 FS at a loop seam, doc 23 B3); the 30 Hz high-pass below removes the DC smoothly
     x = hp(x, 30.0)
     if p.get("lp", 0) > 0:
         x = lp24(x, p["lp"] * (0.6 + 0.8 * reg), 0.05)
