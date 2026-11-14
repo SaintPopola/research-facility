@@ -117,7 +117,7 @@
               </ChildProcessors>
             </Processor>
             <Processor Type="LFO" ID="LFO 3" Bypassed="0" Intensity="1"
-                       Bipolar="0" Frequency="11" FadeIn="0" WaveformType="7"
+                       Bipolar="0" Frequency="11" FadeIn="0" WaveformType="2"
                        Legato="0" TempoSync="1" SmoothingTime="1" LoopEnabled="1"
                        PhaseOffset="0" SyncToMasterClock="1" IgnoreNoteOn="1"
                        CustomWaveform="" StepData="4.......">
@@ -127,7 +127,7 @@
               </ChildProcessors>
             </Processor>
             <Processor Type="LFO" ID="LFO 4" Bypassed="0" Intensity="1"
-                       Bipolar="0" Frequency="0" FadeIn="0" WaveformType="6"
+                       Bipolar="0" Frequency="0" FadeIn="0" WaveformType="1"
                        Legato="1" TempoSync="1" SmoothingTime="6" LoopEnabled="1"
                        PhaseOffset="0" SyncToMasterClock="0" IgnoreNoteOn="0"
                        CustomWaveform="" StepData="4.......">

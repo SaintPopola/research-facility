@@ -436,7 +436,7 @@ inline function smpRefilter(keepSel)
     }
     SM.sel = -1;
     if (keepSel && selId >= 0) SM.sel = SM.res.indexOf(selId);
-    SM.top = SM.sel >= 0 ? Math.floor(SM.sel / SMP_ROWS) * SMP_ROWS : 0;
+    SM.top = SM.sel >= 0 ? Math.round(Math.floor(SM.sel / SMP_ROWS) * SMP_ROWS) : 0;
     SM.page = -1;               // the next audition loads the map for its page
     SmpRail.repaint();
     SmpResults.repaint();
@@ -556,7 +556,7 @@ inline function smpStopAudition()
 inline function smpEnsureVisible()
 {
     if (SM.sel < 0) return;
-    if (SM.sel < SM.top || SM.sel >= SM.top + SMP_ROWS) SM.top = Math.floor(SM.sel / SMP_ROWS) * SMP_ROWS;
+    if (SM.sel < SM.top || SM.sel >= SM.top + SMP_ROWS) SM.top = Math.round(Math.floor(SM.sel / SMP_ROWS) * SMP_ROWS);
 }
 
 inline function smpNoteHistory(ix)
@@ -799,8 +799,7 @@ inline function smpBack()
             if (r >= 0)
             {
                 SM.hist.removeElement(SM.hist.length - 1);
-                smpPlayRes(r);
-                SM.hist.removeElement(SM.hist.length - 1);   // smpPlayRes logged it again
+                smpPlayRes(r);       // smpNoteHistory skips a repeat, so nothing to remove here
                 return;
             }
         }
@@ -869,7 +868,7 @@ inline function smpRailHit(x, y)
         {
             local col = Math.floor((x - 12) / 58);
             local row = Math.floor((y - 88) / 27);
-            return "g" + (row * 4 + col);       // g0 = NONE, g1..g12 = C..B
+            return "g" + Math.round(row * 4 + col);       // g0 = NONE, g1..g12 = C..B
         }
         return "gclose";
     }
@@ -881,7 +880,7 @@ inline function smpRailHit(x, y)
     }
     for (k = 0; k < 7; k++)
         if (x >= SR_CHIP[k][0] && x < SR_CHIP[k][0] + 56 && y >= SR_CHIP[k][1] && y < SR_CHIP[k][1] + 20) return "c" + k;
-    if (y >= 152 && y < 174 && x >= 12 && x < 244) return "f" + Math.floor((x - 12) / 77.4);
+    if (y >= 152 && y < 174 && x >= 12 && x < 244) return "f" + Math.round(Math.min(2, Math.floor((x - 12) / 77.4)));
     if (y >= 180 && y < 202)
     {
         if (x >= 12 && x < 124) return "fitkey";
@@ -890,7 +889,7 @@ inline function smpRailHit(x, y)
     if (y >= 208 && y < 286 && x >= 12 && x < 244)
     {
         local gi = Math.floor((y - 208) / 26) * 3 + Math.floor((x - 12) / 78);
-        if (gi < SM.topGenres.length) return "ge" + gi;
+        if (gi < SM.topGenres.length) return "ge" + Math.round(gi);
     }
     if (y >= 304 && y < 326)
     {
@@ -1215,7 +1214,7 @@ SmpResults.setPaintRoutine(function(g)
 SmpResults.setMouseCallback(function(event)
 {
     var row = event.y >= 44 ? Math.floor((event.y - 44) / SMP_ROW_H) : -1;
-    var r = (row >= 0 && row < SMP_ROWS) ? SM.top + row : -1;
+    var r = (row >= 0 && row < SMP_ROWS) ? Math.round(SM.top + row) : -1;
     if (r >= SM.res.length) r = -1;
     if (event.mouseUp)
     {
@@ -1233,7 +1232,7 @@ SmpResults.setMouseCallback(function(event)
     if (event.drag && !SM.dragging)
     {
         var drow = event.mouseDownY >= 44 ? Math.floor((event.mouseDownY - 44) / SMP_ROW_H) : -1;
-        var dr = SM.top + drow;
+        var dr = Math.round(SM.top + drow);
         if (drow >= 0 && drow < SMP_ROWS && dr < SM.res.length && (Math.abs(event.dragX) > 4 || Math.abs(event.dragY) > 4))
         {
             SM.dragging = true;
@@ -1268,7 +1267,7 @@ inline function smpAudHit(x, y)
 {
     if (y >= 92 && y < 114)
     {
-        if (x >= 12 && x < 172) return "sp" + Math.floor((x - 12) / 40);
+        if (x >= 12 && x < 172) return "sp" + Math.round(Math.floor((x - 12) / 40));
         if (x >= 180 && x < 228) return "pitch-";
         if (x >= 228 && x < 276) return "pitch+";
         if (x >= 284 && x < 316) return "oct-";

@@ -15,6 +15,7 @@
    ============================================================================ */
 
 Globals.keyShift = 0;
+Globals.macVel = 110;          // Mac-key velocity, set by the Interface (digits 1-5)
 Globals.loopMode = false;      // set by the Interface: LOOPS page active
 Globals.loopLatch = false;     // LATCH toggle: a press starts a loop, the next press of that key stops it
 Globals.latchEpoch = 0;        // bumped by the Interface after all-notes-off, so stale latches clear
@@ -55,7 +56,10 @@ function onNoteOn()
         // Mac keys always send velocity 127 (JUCE MidiKeyboardComponent default);
         // mouse clicks take velocity from click height, so they play the key clicked
         if (ksNote >= 60 && ksNote <= 76 && Message.getVelocity() == 127)
+        {
             ksOff = Globals.keyShift * 12;
+            Message.setVelocity(Globals.macVel);    // JUCE sends 127 for every Mac key (doc 23 B9)
+        }
         ksTarget = ksNote + ksOff;
         if (ksTarget < 0) ksTarget = 0;
         if (ksTarget > 127) ksTarget = 127;

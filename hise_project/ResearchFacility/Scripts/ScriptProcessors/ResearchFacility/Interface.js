@@ -173,7 +173,7 @@ const var S = {
     "lvlL": 0.0, "lvlR": 0.0, "voices": 0, "cpu": 0.0,
     "strumNote": -1, "orbPhase": 0.0, "orbFrame": 0,
     "mode": 0, "kit": 0, "loopQ": -1, "shift": 0, "playShift": 0,
-    "page": 0, "trim": 0.0, "vfIdle": true, "kitTop": 0, "lastLpCut": 0, "fullPreload": false, "latch": false, "latchSeen": 0,
+    "page": 0, "trim": 0.0, "vfIdle": true, "kitTop": 0, "lastLpCut": 0, "fullPreload": false, "latch": false, "latchSeen": 0, "lfx": [20000, 0.08, 0.0, 5, 60], "lfxDrag": -1, "uiReady": false, "undo": 0, "snapA": 0, "snapB": 0, "ab": "A", "noSnap": false, "macVel": 110, "shiftKeep": 0,
     "cutConn": 0, "modSrc": 0, "histPos": 0, "connDrag": -1,
     "focusTries": 0, "lastPaint": 0.0, "dragSrc": -1, "dragging": false
 };
@@ -626,6 +626,11 @@ inline function applyFeel()
         o.NumQuarters = qn;
         LoopSampler.setTimestretchOptions(o);
         S.loopQ = qn;
+        // setTimestretchOptions (and a kit's loadSampleMap) kill every voice, latched loops
+        // included: forget the latches so keys do not stay lit and the next press starts
+        Globals.latchEpoch = Globals.latchEpoch + 1;
+        Globals.latchMask = 0;
+        clearLoopHeld();
     }
 }
 
@@ -1136,7 +1141,7 @@ Browser.setPaintRoutine(function(g)
         }
         g.setColour(T.faint);
         g.setFont(T.FONT, 10);
-        g.drawMultiLineText("Play MIDI C3 to D#4 or Mac keys A to P (labels on the piano). Loops follow the host tempo. LATCH: a press starts a loop, the next press stops it.", [16, ly + 136], 224, "left", 0.0);
+        g.drawMultiLineText("Play MIDI C3 to D#4 or the Mac keys shown on the piano. Loops follow the host tempo. LATCH: a press starts a loop, the next press stops it.", [16, ly + 136], 224, "left", 0.0);
         return;
     }
 
@@ -2076,8 +2081,11 @@ Visualiser.setPaintRoutine(function(g)
     g.drawRoundedRectangle([0.5, 0.5, VIS_W - 1, VIS_H - 1], 6.0, 1.0);
     g.setColour(T.glassDim);
     g.setFontWithSpacing(T.FONT, 9, 0.18);
-    g.drawAlignedText("STAGE  /  " + TRIP_NM[STG.tripI], [16, 14, 120, 14], "left");   // click cycles the show level
-    g.drawAlignedText("MAC KEYS " + qwertyRange() + "   [  ]", [300, 14, 290, 14], "right");
+    g.setColour(T.glassLine);
+    g.drawRoundedRectangle([12.5, 10.5, 124, 21], 10.0, 1.0);                          // a visible stepper
+    g.setColour(T.glassDim);
+    g.drawAlignedText("STAGE  /  " + TRIP_NM[STG.tripI] + "  >", [22, 14, 112, 14], "left");   // click cycles the show level
+    g.drawAlignedText("MAC KEYS " + qwertyRange() + "  VEL " + S.macVel + "   [ ]  1-5", [300, 14, 290, 14], "right");
     if (S.lastNote >= 0)
     {
         g.setColour(T.onGlass);
@@ -2109,8 +2117,10 @@ Visualiser.setPaintRoutine(function(g)
         g.setFontWithSpacing(T.FONT, 9, 0.1);
         g.drawAlignedText(S.mode == 1 ? "KEYS C3  /  BASS E3  /  PLUCK G#3  /  AIR C4" : VD.scene + "   " + p.tags.join("  /  ").toUpperCase(), [210, 258, 460, 14], "left");
     }
-    // preview pill
-    var pb = Visualiser.data.hoverPlay;
+    // preview pill (instrument only: LOOPS plays its lanes from the keys)
+    var pb = Visualiser.data.hoverPlay && S.mode == 0;
+    if (S.mode == 0)
+    {
     g.setColour(pb ? Colours.withAlpha(T.glow, 0.22) : T.glassHi);
     g.fillRoundedRectangle([600, 10, 104, 22], 11.0);
     g.setColour(pb ? T.glow : T.glassDim);
@@ -2120,6 +2130,7 @@ Visualiser.setPaintRoutine(function(g)
     g.setColour(pb ? T.onGlass : T.glassDim);
     g.setFontWithSpacing(T.BOLD, 9, 0.12);
     g.drawAlignedText("PREVIEW", [624, 10, 72, 22], "centred");
+    }
     // output meters
     var mh = 176;
     g.setColour(T.glassHi);
@@ -2140,7 +2151,7 @@ Visualiser.setPaintRoutine(function(g)
         g.drawAlignedText((S.mode == 1 ? lkit.name : p.name).toUpperCase(), [SX0, SY0 + 44, SW, 30], "centred");
         g.setColour(Colours.withAlpha(T.onGlass, 0.45));
         g.setFontWithSpacing(T.FONT, 11, 0.16);
-        g.drawAlignedText("PLAY A KEY  /  CLICK THE CROWD TO STRUM  /  PRESS PREVIEW", [SX0, SY0 + 84, SW, 20], "centred");
+        g.drawAlignedText(S.mode == 1 ? "PLAY A LANE KEY  /  LATCH HOLDS A LOOP" : "PLAY A KEY  /  CLICK THE CROWD TO STRUM  /  PRESS PREVIEW", [SX0, SY0 + 84, SW, 20], "centred");
     }
 });
 
@@ -2167,6 +2178,7 @@ Visualiser.setMouseCallback(function(event)
     {
         STG.tripI = (STG.tripI + 1) % 4;                              // HOUSE / CHILL / SHOW / RAVE
         STG.trip = TRIP_LV[STG.tripI];
+        TripKey.setValue("" + STG.tripI);
         refocusKeys();
         this.repaint();
         return;
@@ -2206,7 +2218,7 @@ const var MC_X = 288;
 const var MC_Y = 364;
 
 const var MacroCard = Content.addPanel("MacroCard", MC_X, MC_Y);
-Content.setPropertiesFromJSON("MacroCard", {"width": 720, "height": 216, "allowCallbacks": "Clicks & Hover"});
+Content.setPropertiesFromJSON("MacroCard", {"width": 720, "height": 216, "allowCallbacks": "Clicks, Hover & Dragging"});
 MacroCard.data.hover = "";
 
 const var knobLaf = Content.createLocalLookAndFeel();
@@ -2494,8 +2506,10 @@ inline function updateStage()           // once per tick, after updateFeatures /
 
 inline function onMacro(component, value)
 {
+    // host automation in LOOPS or SAMPLES is kept on the knob and applied when PLAY returns
+    // (reapplyMacros); the loops have their own LOOP FX
     local i = MACROS.indexOf(component);
-    if (i >= 0) applyMacro(i, value);
+    if (i >= 0 && S.mode == 0) applyMacro(i, value);
     MacroCard.repaint();
 }
 for (mk = 0; mk < 8; mk++) MACROS[mk].setControlCallback(onMacro);
@@ -2530,7 +2544,42 @@ MacroCard.setPaintRoutine(function(g)
     g.fillRect([0, 10, 720, 10]);
     g.setColour(T.onTape);
     g.setFontWithSpacing(T.BOLD, 9, 0.18);
-    g.drawAlignedText("MACROS", [14, 0, 200, 20], "left");
+    g.drawAlignedText(S.mode == 1 ? "LOOP FX" : "MACROS", [14, 0, 200, 20], "left");
+    var bh = this.data.hover;
+
+    if (S.mode == 1)
+    {
+        // five sliders that act on the loops only (saved with the set, not host parameters)
+        for (k = 0; k < 5; k++)
+        {
+            var ly = 34 + k * 30;
+            var lt = lfxNorm(k, S.lfx[k]);
+            g.setColour(T.dim);
+            g.setFontWithSpacing(T.BOLD, 9, 0.12);
+            g.drawAlignedText(LFX_NAME[k], [16, ly, 80, 20], "left");
+            g.setColour(T.well);
+            g.fillRoundedRectangle([100, ly + 6, 420, 8], 4.0);
+            g.setColour(bh == "l" + k || S.lfxDrag == k ? T.accentHi : T.accent);
+            g.fillRoundedRectangle([100, ly + 6, Math.max(8, 420 * lt), 8], 4.0);
+            g.setColour(T.capLight);
+            g.fillEllipse([100 + 420 * lt - 7, ly + 3, 14, 14]);
+            g.setColour(T.capRing);
+            g.drawEllipse([100 + 420 * lt - 7, ly + 3, 14, 14], 1.5);
+            g.setColour(T.txt);
+            g.setFont(T.MONO, 11);
+            g.drawAlignedText(lfxText(k, S.lfx[k]), [532, ly, 90, 20], "left");
+        }
+        g.setColour(T.faint);
+        g.setFont(T.FONT, 10);
+        g.drawAlignedText("Loops only. Saved with your set.", [532, 186, 180, 16], "left");
+        var rb = bh == "RESET";
+        g.setColour(rb ? T.onTape : Colours.withAlpha(T.onTape, 0.12));
+        g.drawRoundedRectangle([624.5, 2.5, 91, 15], 7.0, 1.0);
+        g.setColour(rb ? T.onTape : T.onTapeDim);
+        g.setFontWithSpacing(T.BOLD, 8, 0.12);
+        g.drawAlignedText("RESET", [624, 2, 92, 16], "centred");
+        return;
+    }
 
     // live modulation rings (real modulator output) around MOTION and PUMP
     var mods = [[2, M_Move.getCurrentLevel(), T.mLfo], [7, M_PumpA.getCurrentLevel(), T.mEnv]];
@@ -2552,18 +2601,21 @@ MacroCard.setPaintRoutine(function(g)
         }
     }
 
-    // buttons
-    var bh = this.data.hover;
-    var btns = [["VARIATION", 520], ["RESET", 624]];
-    for (k = 0; k < 2; k++)
+    // buttons: UNDO, A / B compare, VARIATION, RESET
+    var btns = [["UNDO", 316, 72], ["A", 400, 46], ["B", 452, 46], ["VARIATION", 520, 92], ["RESET", 624, 92]];
+    for (k = 0; k < 5; k++)
     {
         var b = btns[k];
         var hot = (bh == b[0]);
-        g.setColour(hot ? T.onTape : Colours.withAlpha(T.onTape, 0.12));
-        g.drawRoundedRectangle([b[1] + 0.5, 2.5, 91, 15], 7.0, 1.0);
-        g.setColour(hot ? T.onTape : T.onTapeDim);
+        var lit = (b[0] == S.ab);
+        var dead = (b[0] == "UNDO" && !isDefined(S.undo.cur));
+        g.setColour(lit ? Colours.withAlpha(T.accentOnFrame, 0.25) : 0x00000000);
+        g.fillRoundedRectangle([b[1] + 0.5, 2.5, b[2] - 1, 15], 7.0);
+        g.setColour(hot || lit ? T.onTape : Colours.withAlpha(T.onTape, 0.12));
+        g.drawRoundedRectangle([b[1] + 0.5, 2.5, b[2] - 1, 15], 7.0, 1.0);
+        g.setColour(dead ? Colours.withAlpha(T.onTapeDim, 0.4) : (hot || lit ? T.onTape : T.onTapeDim));
         g.setFontWithSpacing(T.BOLD, 8, 0.12);
-        g.drawAlignedText(b[0], [b[1], 2, 92, 16], "centred");
+        g.drawAlignedText(b[0], [b[1], 2, b[2], 16], "centred");
     }
 
     // lower strip: envelope + voicing readout
@@ -2578,6 +2630,82 @@ MacroCard.setPaintRoutine(function(g)
     g.drawAlignedText("Hover a knob for its value. Every macro is automatable from the host.", [190, 172, 510, 16], "left");
 });
 
+// ---- snapshots (doc 23 B7): preset, 8 macros, A/R, every SHAPE and MOD value, the matrix
+inline function takeSnap()
+{
+    local sn = {"cur": S.cur, "m": [], "atk": AttackKnob.getValue(), "rel": ReleaseKnob.getValue(), "dv": {}, "mv": {}, "mx": Matrix.toBase64()};
+    local i = 0;
+    for (i = 0; i < 8; i++) sn.m.push(MACROS[i].getValue());
+    for (i = 0; i < DEEP_PARAMS.length; i++) sn.dv[DEEP_PARAMS[i].id] = DV[DEEP_PARAMS[i].id];
+    for (i = 0; i < MOD_PARAMS.length; i++) sn.mv[MOD_PARAMS[i][0]] = MV[MOD_PARAMS[i][0]];
+    return sn;
+}
+
+inline function restoreSnap(sn)
+{
+    local i = 0;
+    local id = "";
+    if (!isDefined(sn.cur)) return;
+    if (sn.cur != S.cur)
+    {
+        S.noSnap = true;
+        loadPreset(sn.cur);
+        S.noSnap = false;
+    }
+    for (i = 0; i < DEEP_PARAMS.length; i++)
+    {
+        id = DEEP_PARAMS[i].id;
+        if (isDefined(sn.dv[id])) { DEEP_COMP[id].setValue(sn.dv[id]); applyDeep(id, sn.dv[id]); }
+    }
+    for (i = 0; i < MOD_PARAMS.length; i++)
+    {
+        id = MOD_PARAMS[i][0];
+        if (isDefined(sn.mv[id])) { MOD_COMP[id].setValue(sn.mv[id]); applyModParam(id, sn.mv[id]); }
+    }
+    if (sn.mx == "") Matrix.clearAllConnections();
+    else Matrix.fromBase64(sn.mx);
+    ModState.setValue(sn.mx);
+    refreshConns();
+    for (i = 0; i < 8; i++)
+    {
+        MACROS[i].setValue(sn.m[i]);
+        applyMacro(i, sn.m[i]);
+    }
+    AttackKnob.setValue(sn.atk);
+    applyAttack(sn.atk);
+    ReleaseKnob.setValue(sn.rel);
+    applyRelease(sn.rel);
+    updateVoiceFilter();
+    syncProxies();
+    refreshAll();
+}
+
+// before anything that rewrites the sound: preset load, VARIATION, RESET
+inline function snapForUndo()
+{
+    if (!S.uiReady || S.noSnap) return;
+    S.undo = takeSnap();
+}
+
+inline function undoSound()
+{
+    if (!isDefined(S.undo.cur)) return;
+    local now = takeSnap();
+    restoreSnap(S.undo);
+    S.undo = now;                    // a second UNDO is a redo
+}
+
+inline function pickAB(slot)
+{
+    if (slot == S.ab) return;
+    if (S.ab == "A") S.snapA = takeSnap();
+    else S.snapB = takeSnap();
+    local target = slot == "A" ? S.snapA : S.snapB;
+    S.ab = slot;
+    if (isDefined(target.cur)) restoreSnap(target);
+    MacroCard.repaint();
+}
+
 // RESET: the preset's macros and attack/release only. SHAPE values and MOD routings stay
 // (reloading the preset wiped them with no undo).
 inline function resetMacros()
@@ -2586,9 +2714,14 @@ inline function resetMacros()
     local p = FACTORY_BANK[S.cur];
     if (S.mode == 1)
     {
+        S.lfx = [20000, 0.08, 0.0, 5, 60];
+        LoopFxKey.setValue(S.lfx.join("|"));
         applyLoopFx();
+        MacroCard.repaint();
         return;
     }
+    if (S.mode != 0) return;
+    snapForUndo();
     for (i = 0; i < 8; i++)
     {
         MACROS[i].setValue(p.m[i]);
@@ -2604,6 +2737,8 @@ inline function resetMacros()
 inline function variation()
 {
     local i = 0;
+    if (S.mode != 0) return;           // the macros drive the instrument's master FX, not the loops
+    snapForUndo();
     for (i = 0; i < 8; i++)
     {
         local k = MACROS[i];
@@ -2617,17 +2752,44 @@ inline function variation()
 
 MacroCard.setMouseCallback(function(event)
 {
-    if (event.mouseUp) refocusKeys();
+    if (event.mouseUp)
+    {
+        refocusKeys();
+        if (S.lfxDrag >= 0) { S.lfxDrag = -1; LoopFxKey.setValue(S.lfx.join("|")); this.repaint(); }
+    }
     var h = "";
     if (event.y >= 1 && event.y < 19)
     {
-        if (event.x >= 520 && event.x < 612) h = "VARIATION";
-        else if (event.x >= 624 && event.x < 716) h = "RESET";
+        if (event.x >= 624 && event.x < 716) h = "RESET";
+        else if (S.mode == 0)
+        {
+            if (event.x >= 316 && event.x < 388) h = "UNDO";
+            else if (event.x >= 400 && event.x < 446) h = "A";
+            else if (event.x >= 452 && event.x < 498) h = "B";
+            else if (event.x >= 520 && event.x < 612) h = "VARIATION";
+        }
+    }
+    if (S.mode == 1)
+    {
+        // LOOP FX sliders: rows at y 34 + k * 30, track x 100 .. 520
+        var row = Math.round(Math.floor((event.y - 34) / 30));
+        if (h == "" && row >= 0 && row < 5 && event.x >= 90 && event.x < 530) h = "l" + row;
+        var drow = Math.round(Math.floor((event.mouseDownY - 34) / 30));
+        if ((event.clicked || event.drag) && drow >= 0 && drow < 5 && event.mouseDownX >= 90 && event.mouseDownX < 530)
+        {
+            S.lfxDrag = drow;
+            S.lfx[drow] = lfxFromNorm(drow, (event.x - 100) / 420.0);
+            applyLoopFx();
+            if (event.clicked) LoopFxKey.setValue(S.lfx.join("|"));
+            this.repaint();
+        }
     }
     if (event.clicked)
     {
         if (h == "VARIATION") variation();
         else if (h == "RESET") resetMacros();
+        else if (h == "UNDO") undoSound();
+        else if (h == "A" || h == "B") pickAB(h);
     }
     if (h != this.data.hover)
     {
@@ -2794,6 +2956,27 @@ inline function onOctaveUp(event) { shiftOctave(1); }
 Content.setKeyPressCallback("[", onOctaveDown);
 Content.setKeyPressCallback("]", onOctaveUp);
 
+// Mac-key velocity (doc 23 B9): JUCE sends 127 for every Mac key; KeyShift swaps in this value.
+// Digits 1-5 are not note keys.
+const var MAC_VELS = [40, 64, 90, 110, 127];
+Globals.macVel = 110;
+inline function setMacVel(i)
+{
+    S.macVel = MAC_VELS[i];
+    Globals.macVel = S.macVel;
+    Visualiser.repaint();
+}
+inline function onMacVel1(event) { setMacVel(0); }
+inline function onMacVel2(event) { setMacVel(1); }
+inline function onMacVel3(event) { setMacVel(2); }
+inline function onMacVel4(event) { setMacVel(3); }
+inline function onMacVel5(event) { setMacVel(4); }
+Content.setKeyPressCallback("1", onMacVel1);
+Content.setKeyPressCallback("2", onMacVel2);
+Content.setKeyPressCallback("3", onMacVel3);
+Content.setKeyPressCallback("4", onMacVel4);
+Content.setKeyPressCallback("5", onMacVel5);
+
 // ============================================================================
 // SHAPE PAGE (docs/16 Stage 1): hard-wired deep edit. Every control comes from
 // Scripts/DeepParams.js (generated from scripts/deep_params.json). Created
@@ -2899,9 +3082,10 @@ inline function setPage(pg)
     ModPage.showControl(mod);
     Visualiser.showControl(play);
     MacroCard.showControl(play);
-    for (i = 0; i < 8; i++) MACROS[i].showControl(play);
-    AttackKnob.showControl(play);
-    ReleaseKnob.showControl(play);
+    for (i = 0; i < 8; i++) MACROS[i].showControl(play && S.mode == 0);   // LOOPS draws LOOP FX in this card
+    AttackKnob.showControl(play && S.mode == 0);
+    ReleaseKnob.showControl(play && S.mode == 0);
+    MacroCard.repaint();
     showModEditor(mod ? S.modSrc : -1);
     if (shape) syncProxies();
     Header.repaint();
@@ -3097,7 +3281,7 @@ inline function startSourceDrag(srcIndex)
                 if (connIndex(dSrc, dTgt) < 0)
                 {
                     Matrix.connect(dSrc, dTgt, true);
-                    Matrix.updateIntensity(dSrc, dTgt, dTgt == "A Pitch" ? 1.0 : 0.25);   // Pigments-style 25% start
+                    Matrix.updateIntensity(dSrc, dTgt, dTgt == "A Pitch" ? 0.15 : 0.25);   // Pigments-style 25% start; pitch starts at 15 cents
                 }
                 refreshConns();
                 updateVoiceFilter();
@@ -3248,7 +3432,7 @@ inline function toggleRoute(src, tgt)
     else if (Matrix.canConnect(src, tgt))
     {
         Matrix.connect(src, tgt, true);
-        Matrix.updateIntensity(src, tgt, tgt == "A Pitch" ? 1.0 : 0.25);
+        Matrix.updateIntensity(src, tgt, tgt == "A Pitch" ? 0.15 : 0.25);
     }
     refreshConns();
     updateVoiceFilter();
@@ -3292,13 +3476,13 @@ for (ms = 4; ms < 6; ms++)
 // [id, label, source index, kind, column, min, max, default, mode, middle, step]
 const var MOD_PARAMS = [
     ["Lfo1Rate", "RATE", 0, "knob", 0, 0, 1, 0.2778, "Linear", 0.5, 0.001], ["Lfo1Fade", "FADE", 0, "knob", 1, 0, 3000, 0, "Time", 500, 1],
-    ["Lfo1Sync", "SYNC", 0, "state", 0, 0, 1, 1, "Linear", 0.5, 1], ["Lfo1Wave", "WAVE", 0, "state", 0, 0, 6, 0, "Linear", 3, 1],
+    ["Lfo1Sync", "SYNC", 0, "state", 0, 0, 1, 1, "Linear", 0.5, 1], ["Lfo1Wave", "WAVE", 0, "state", 0, 0, 4, 0, "Linear", 3, 1],
     ["Lfo2Rate", "RATE", 1, "knob", 0, 0, 1, 0.4444, "Linear", 0.5, 0.001], ["Lfo2Fade", "FADE", 1, "knob", 1, 0, 3000, 0, "Time", 500, 1],
     ["Lfo2Sync", "SYNC", 1, "state", 0, 0, 1, 1, "Linear", 0.5, 1], ["Lfo2Wave", "WAVE", 1, "state", 0, 0, 6, 1, "Linear", 3, 1],
     ["Lfo3Rate", "RATE", 2, "knob", 0, 0, 1, 0.6111, "Linear", 0.5, 0.001], ["Lfo3Fade", "FADE", 2, "knob", 1, 0, 3000, 0, "Time", 500, 1],
-    ["Lfo3Sync", "SYNC", 2, "state", 0, 0, 1, 1, "Linear", 0.5, 1], ["Lfo3Wave", "WAVE", 2, "state", 0, 0, 6, 6, "Linear", 3, 1],
+    ["Lfo3Sync", "SYNC", 2, "state", 0, 0, 1, 1, "Linear", 0.5, 1], ["Lfo3Wave", "WAVE", 2, "state", 0, 0, 4, 1, "Linear", 3, 1],
     ["Lfo4Rate", "RATE", 3, "knob", 0, 0, 1, 0.0, "Linear", 0.5, 0.001], ["Lfo4Fade", "FADE", 3, "knob", 1, 0, 3000, 0, "Time", 500, 1],
-    ["Lfo4Sync", "SYNC", 3, "state", 0, 0, 1, 1, "Linear", 0.5, 1], ["Lfo4Wave", "WAVE", 3, "state", 0, 0, 6, 5, "Linear", 3, 1],
+    ["Lfo4Sync", "SYNC", 3, "state", 0, 0, 1, 1, "Linear", 0.5, 1], ["Lfo4Wave", "WAVE", 3, "state", 0, 0, 4, 0, "Linear", 3, 1],
     ["Env2A", "ATTACK", 4, "knob", 0, 0, 3000, 5, "Time", 150, 1], ["Env2D", "DECAY", 4, "knob", 1, 5, 10000, 600, "Time", 800, 1],
     ["Env2S", "SUSTAIN", 4, "knob", 2, -100, 0, -100, "Decibel", -20, 0.5], ["Env2R", "RELEASE", 4, "knob", 3, 5, 10000, 400, "Time", 800, 1],
     ["Env3A", "ATTACK", 5, "knob", 0, 0, 3000, 300, "Time", 150, 1], ["Env3D", "DECAY", 5, "knob", 1, 5, 10000, 1000, "Time", 800, 1],
@@ -3536,7 +3720,7 @@ ModPage.setPaintRoutine(function(g)
         g.fillRoundedRectangle([486, cy + 19, 140 * clamp01(frac), 5], 2.5);
         g.setColour(T.dim);
         g.setFont(T.FONT, 9);
-        g.drawAlignedText(pitch ? Engine.doubleToString(c.Intensity, 1) + " st" : Math.round(c.Intensity * 100) + "%", [580, cy + 1, 46, 14], "right");
+        g.drawAlignedText(pitch ? (Math.abs(c.Intensity) < 1.0 ? Math.round(c.Intensity * 100) + " ct" : Engine.doubleToString(c.Intensity, 2) + " st") : Math.round(c.Intensity * 100) + "%", [580, cy + 1, 46, 14], "right");
         var mi = MOD_MODES.indexOf(c.Mode);
         g.setFont(T.BOLD, 8);
         g.drawAlignedText(mi >= 0 ? MOD_MODE_SHORT[mi] : "" + c.Mode, [630, cy, 34, MP_CROW - 4], "centred");
@@ -3580,7 +3764,7 @@ inline function setConnDepth(r, x)
 {
     local c = CONNS[r];
     local frac = clamp01((x - 486) / 140.0);
-    local val = c.Target == "A Pitch" ? Math.round(frac * 24.0 - 12.0) : frac;
+    local val = c.Target == "A Pitch" ? Math.round((frac * 24.0 - 12.0) * 100) / 100.0 : frac;   // 0.01 st: wow, drift, vibrato
     c.Intensity = val;
     Matrix.updateIntensity(c.Source, c.Target, val);
 }
@@ -3694,6 +3878,7 @@ inline function loadPreset(idx)
 {
     if (idx < 0 || idx >= FACTORY_BANK.length) return;
     local p = FACTORY_BANK[idx];
+    snapForUndo();                         // UNDO brings back the sound you had, edits included
     S.cur = idx;
     PresetKey.setValue(p.id + "|d1");      // |d1 = this session also stores SHAPE values
     applyVoicing(p);
@@ -3744,7 +3929,30 @@ inline function onPresetKey(component, value)
 }
 PresetKey.setControlCallback(onPresetKey);
 
-include("SamplesPage.js");      // docs/21 SAMPLES: rail, results, audition, PLAY KEYS (SongKey + PlayItem restore first)
+include("SamplesPage.js");
+
+const var LoopFxKey = Content.addLabel("LoopFxKey", 0, 0);
+Content.setPropertiesFromJSON("LoopFxKey", {"saveInPreset": true, "visible": false, "width": 1, "height": 1, "editable": false, "text": ""});
+inline function onLoopFxKey(component, value)
+{
+    local parts = ("" + value).split("|");
+    local i = 0;
+    if (parts.length != 5) return;
+    for (i = 0; i < 5; i++) S.lfx[i] = Math.range(parseFloat(parts[i]), LFX_LO[i], LFX_HI[i]);
+    if (S.mode == 1) applyLoopFx();
+}
+LoopFxKey.setControlCallback(onLoopFxKey);
+
+const var TripKey = Content.addLabel("TripKey", 0, 0);
+Content.setPropertiesFromJSON("TripKey", {"saveInPreset": true, "visible": false, "width": 1, "height": 1, "editable": false, "text": "2"});
+inline function onTripKey(component, value)
+{
+    local ti = parseInt("" + value);
+    if (ti < 0 || ti > 3) return;
+    STG.tripI = ti;
+    STG.trip = TRIP_LV[ti];
+}
+TripKey.setControlCallback(onTripKey);      // docs/21 SAMPLES: rail, results, audition, PLAY KEYS (SongKey + PlayItem restore first)
 
 // hidden: INSTRUMENT / LOOPS / SAMPLES mode and the loaded loop kit, saved in DAW sessions
 const var ModeKey = Content.addLabel("ModeKey", 0, 0);
@@ -3765,6 +3973,24 @@ inline function findKit(id)
     return -1;
 }
 
+// a kit has tags but no instrument category; 808 is in half the kits, so it does not pick the
+// rig, and the phonk strobe is kept for phonk kits that are not horror-themed
+inline function kitLookOf(kit)
+{
+    local tg = [];
+    local i = 0;
+    local spooky = kit.tags.indexOf("horror") >= 0 || kit.tags.indexOf("haunted") >= 0 || kit.tags.indexOf("eerie") >= 0;
+    for (i = 0; i < kit.tags.length; i++)
+    {
+        local t = kit.tags[i];
+        if (t == "808") continue;
+        if (t == "phonk" && spooky) continue;
+        tg.push(t);
+    }
+    if (spooky && tg.indexOf("dark") < 0) tg.push("dark");
+    return {"tags": tg, "cat": "keys"};
+}
+
 inline function loadKit(i)
 {
     if (i < 0 || i >= LOOP_KITS.length) return;
@@ -3773,6 +3999,7 @@ inline function loadKit(i)
     if (i < S.kitTop) S.kitTop = i;
     if (i >= S.kitTop + kitVis()) S.kitTop = i - kitVis() + 1;
     KitKey.setValue(kit.id);
+    if (S.mode == 1) buildVD(kitLookOf(kit));
     if (LoopSampler.getCurrentSampleMapId() != kit.map)
         LoopSampler.loadSampleMap(kit.map);
     S.loopQ = -1;
@@ -3782,11 +4009,46 @@ inline function loadKit(i)
 
 // LOOPS FX state, set on the modules: the 8 macros are host parameters, so rewriting
 // them on a mode switch would show up as automation in Live and dirty the set
+// LOOP FX (doc 23 B2): the loops get their own TONE / SPACE / ECHO / ATTACK / RELEASE.
+// They are not host parameters (moving the 8 macros on a mode switch would write
+// automation into the set) and are saved with the session in the hidden LoopFxKey.
+const var M_LoopEnv = Synth.getModulator("Loop Env");
+const var LE_ATK = M_LoopEnv.getAttributeIndex("Attack");
+const var LE_REL = M_LoopEnv.getAttributeIndex("Release");
+const var LFX_NAME = ["TONE", "SPACE", "ECHO", "ATTACK", "RELEASE"];
+const var LFX_LO = [200, 0.0, 0.0, 1, 20];
+const var LFX_HI = [20000, 0.5, 0.4, 400, 2000];
+const var LFX_LOG = [true, false, false, true, true];
+
+inline function lfxNorm(i, v)
+{
+    if (LFX_LOG[i]) return clamp01(Math.log(v / LFX_LO[i]) / Math.log(LFX_HI[i] / LFX_LO[i]));
+    return clamp01((v - LFX_LO[i]) / (LFX_HI[i] - LFX_LO[i]));
+}
+
+inline function lfxFromNorm(i, t)
+{
+    if (LFX_LOG[i]) return LFX_LO[i] * Math.pow(LFX_HI[i] / LFX_LO[i], clamp01(t));
+    return LFX_LO[i] + (LFX_HI[i] - LFX_LO[i]) * clamp01(t);
+}
+
+inline function lfxText(i, v)
+{
+    if (i == 0) return v >= 19500 ? "OPEN" : (v >= 1000 ? Engine.doubleToString(v / 1000.0, 1) + " kHz" : Math.round(v) + " Hz");
+    if (i == 1 || i == 2) return Math.round(v * 200) + "%";
+    return Math.round(v) + " ms";
+}
+
 inline function applyLoopFx()
 {
-    setA(FX_Filter, A.fFreq, 20000);           // TONE wide open
-    setA(FX_Reverb, A.rWet, 0.08);             // a little SPACE
-    setA(FX_Delay, A.eMix, 0.0);               // no ECHO
+    setA(FX_Filter, A.fFreq, S.lfx[0]);        // TONE
+    setA(FX_Reverb, A.rWet, S.lfx[1]);         // SPACE
+    setA(FX_Reverb, A.rRoom, 0.55 + S.lfx[1] * 0.6);
+    setA(FX_Delay, A.eMix, S.lfx[2]);          // ECHO
+    setA(FX_Delay, A.eFbL, 0.3);
+    setA(FX_Delay, A.eFbR, 0.27);
+    M_LoopEnv.setAttribute(LE_ATK, S.lfx[3]);
+    M_LoopEnv.setAttribute(LE_REL, S.lfx[4]);
     setA(FX_Drive, A.dSat, 0.0);               // no GRIT
     setA(FX_Drive, A.dWet, 0.0);
     M_PumpA.setIntensity(0.0);                 // no PUMP
@@ -3859,6 +4121,8 @@ inline function setMode(m)
 {
     if (m == S.mode) return;
     if (S.mode == 2) smpLeave();
+    if (S.mode == 1 && S.shiftKeep != 0) { S.shift = S.shiftKeep; Globals.keyShift = S.shift; S.shiftKeep = 0; }
+    if (m == 1 && S.shift != 0) { S.shiftKeep = S.shift; S.shift = 0; Globals.keyShift = 0; }   // lanes sit on the home octave
     S.mode = m;
     // loops run through the instrument's master FX: a dark instrument preset (low TONE, big
     // SPACE/ECHO) muffled every kit. LOOPS gets a clean FX state; PLAY gets its macros back.
@@ -3871,6 +4135,8 @@ inline function setMode(m)
     SubSyn.setBypassed(m != 0);
     LoopsSynth.setBypassed(m != 1);
     paintLoopKeys(m == 1);         // also repaints the piano, so the loop labels appear or go
+    if (m == 1) buildVD(kitLookOf(LOOP_KITS[S.kit]));
+    else buildVD(FACTORY_BANK[S.cur]);
     if (m == 1)
     {
         S.loopQ = -1;
@@ -4174,6 +4440,7 @@ if (!Engine.isPlugin()) enableAllMidiInputs();
 if (Engine.isHISE()) selfTest();       // CI exports run in HISE; a shipped plug-in never toggles modes or the matrix at load
 refreshKeyTints();
 armFocus();
+S.uiReady = true;
 
 function onNoteOn()
 {
