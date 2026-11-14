@@ -192,6 +192,20 @@ def drift(n, rng, cents=3.0, rate=0.25):
     return 2.0 ** (c / 1200.0)
 
 
+def wrng(p, rng):
+    """Random source for wow / tape speed (doc 25 B9 wow_lock): one phase per PRESET, so the
+    notes of a chord drift together like one tape instead of apart."""
+    return np.random.default_rng(p["_wseed"]) if "_wseed" in p else rng
+
+
+def dc_block(x, hz=5.0):
+    """One-pole DC blocker from zero state (doc 25 B7): removes offset without the
+    sample-0 step that subtracting the mean made."""
+    from scipy.signal import lfilter
+    rr = math.exp(-2.0 * math.pi * hz / SR)
+    return lfilter([1.0, -1.0], [1.0, -rr], x)
+
+
 def wow(n, depth_cents=6.0, rate=0.55, flutter_cents=1.5, rng=None):
     """Tape wow + flutter multiplier."""
     t = tvec(n)
@@ -293,7 +307,7 @@ def gen_tine_ep(note, n, p, rng):
     idx = bark * (0.35 + 0.65 * np.exp(-t / (0.08 + 0.10 * (1 - reg))))
     # np.ones, not the scalar 1.0: cumsum of a scalar is ONE sample, which froze the phase and turned
     # every no-wow tine preset into a pitchless FM thump (fundamental measured at -79 dB)
-    mult = wow(n, p.get("wow", 0.0), rate=p.get("wow_rate", 0.55), rng=rng) if p.get("wow", 0.0) > 0 else np.ones(n)
+    mult = wow(n, p.get("wow", 0.0), rate=p.get("wow_rate", 0.55), rng=wrng(p, rng)) if p.get("wow", 0.0) > 0 else np.ones(n)
     ph = np.cumsum(f0 * mult) / SR
     mod = np.sin(2 * np.pi * ph * 1.0 + 0.3)
     car = np.sin(2 * np.pi * ph + idx * mod)
@@ -359,7 +373,7 @@ def gen_felt_piano(note, n, p, rng):
         r = lp24(r, p["lp"] * (0.7 + 0.6 * reg))
     if p.get("wow", 0) > 0:
         # apply wow by resampling read positions
-        m = wow(n, p["wow"], rate=p.get("wow_rate", 0.55), rng=rng)
+        m = wow(n, p["wow"], rate=p.get("wow_rate", 0.55), rng=wrng(p, rng))
         pos = np.cumsum(m) - m[0]
         pos = np.clip(pos, 0, n - 1)
         l = np.interp(pos, np.arange(n), l)
@@ -373,7 +387,7 @@ def gen_reed_ep(note, n, p, rng):
     t = tvec(n)
     reg = np.clip((note - 36) / 60.0, 0, 1)
     amp = env_exp(n, p.get("t60", 3.0) * (1.2 - 0.6 * reg), a=0.002)
-    m = wow(n, p.get("wow", 0.0), rng=rng) if p.get("wow", 0) > 0 else np.ones(n)
+    m = wow(n, p.get("wow", 0.0), rng=wrng(p, rng)) if p.get("wow", 0) > 0 else np.ones(n)
     fr = f0 * m
     x = 0.6 * np.sin(2 * np.pi * np.cumsum(fr) / SR) + 0.45 * pulse(fr, 0.42)
     bite = 1.0 + 2.5 * np.exp(-t / 0.06)
@@ -388,7 +402,7 @@ def gen_organ(note, n, p, rng):
     """Soft drawbar organ: sine harmonics 16'-8'-4'-2 2/3', key click, wow."""
     f0 = mtof(note)
     t = tvec(n)
-    m = wow(n, p.get("wow", 4.0), rng=rng)
+    m = wow(n, p.get("wow", 4.0), rng=wrng(p, rng))
     ph = np.cumsum(f0 * m) / SR
     bars = p.get("bars", [(0.5, 0.6), (1.0, 1.0), (2.0, 0.5), (3.0, 0.3), (4.0, 0.18)])
     x = np.zeros(n)
@@ -499,6 +513,10 @@ def gen_karplus(note, n, p, rng):
     return l, r
 
 
+XP_C = math.cos(math.pi / 8)          # equal-power cross-pan: mostly one side, some of the other
+XP_S = math.sin(math.pi / 8)
+
+
 def gen_modal(note, n, p, rng):
     """Modal / additive bank: list of (ratio, amp, t60_scale). Bells, marimba,
     kalimba, music box, celeste."""
@@ -514,13 +532,14 @@ def gen_modal(note, n, p, rng):
         if f > SR * 0.45:
             continue
         beat = p.get("beat_c", 1.5)
-        for side, d in ((0, -beat), (1, beat)):
-            s = amp * np.sin(2 * np.pi * f * 2 ** (d / 1200) * t + rng.uniform(0, 6.28)) * \
-                np.exp(-6.907755 * t / max(base_t60 * t60s, 0.02))
-            if side == 0:
-                l += s
-            else:
-                r += s
+        ph = rng.uniform(0, 6.28)
+        dec = amp * np.exp(-6.907755 * t / max(base_t60 * t60s, 0.02))
+        pa = np.sin(2 * np.pi * f * 2 ** (-beat / 1200) * t + ph) * dec
+        pb = np.sin(2 * np.pi * f * 2 ** (beat / 1200) * t + ph) * dec
+        # doc 25 B8: a random phase per side cancelled up to -16 dB in mono; a shared phase and
+        # an equal-power cross-pan keep the beating and the width, and sum safely
+        l += XP_C * pa + XP_S * pb
+        r += XP_S * pa + XP_C * pb
     strike = p.get("strike", 0.0)
     if strike > 0:
         nz = noise(n, rng) * np.exp(-t / 0.004) * strike
@@ -534,7 +553,7 @@ def gen_modal(note, n, p, rng):
         l = lp24(l, p["lp"] * (0.7 + 0.6 * reg))
         r = lp24(r, p["lp"] * (0.7 + 0.6 * reg))
     if p.get("wow", 0) > 0:
-        m = wow(n, p["wow"], rng=rng)
+        m = wow(n, p["wow"], rng=wrng(p, rng))
         pos = np.clip(np.cumsum(m) - m[0], 0, n - 1)
         l = np.interp(pos, np.arange(n), l)
         r = np.interp(pos, np.arange(n), r)
@@ -720,13 +739,12 @@ def gen_glass_pad(note, n, p, rng):
         f = f0 * ratio
         if f > SR * 0.45:
             continue
-        for side, d in ((0, -3.0), (1, 3.0)):
-            s = g * np.sin(2 * np.pi * f * 2 ** (d / 1200) * t + rng.uniform(0, 6.28)) * \
-                (0.75 + 0.25 * np.sin(2 * np.pi * rng.uniform(0.1, 0.4) * t + rng.uniform(0, 6.28)))
-            if side == 0:
-                l += s
-            else:
-                r += s
+        ph = rng.uniform(0, 6.28)
+        am = g * (0.75 + 0.25 * np.sin(2 * np.pi * rng.uniform(0.1, 0.4) * t + rng.uniform(0, 6.28)))
+        pa = np.sin(2 * np.pi * f * 2 ** (-3.0 / 1200) * t + ph) * am
+        pb = np.sin(2 * np.pi * f * 2 ** (3.0 / 1200) * t + ph) * am
+        l += XP_C * pa + XP_S * pb             # mono-safe doublet (doc 25 B8)
+        r += XP_S * pa + XP_C * pb
     air = svf(noise(n, rng), 7000, 0.6, 2) * p.get("air", 0.04)
     l += air
     r += svf(noise(n, rng), 7000, 0.6, 2) * p.get("air", 0.04)
@@ -748,6 +766,9 @@ def gen_prepared(note, n, p, rng):
     rattle = noise(n, rng) * (0.5 + 0.5 * np.sign(np.sin(2 * np.pi * p.get("rattle_hz", 31.0) * t)))
     rattle = svf(rattle, min(f0 * 6, 9000), 1.5, 1) * np.exp(-t / p.get("rattle_t", 0.35)) * p.get("rattle", 0.25)
     m = p.get("metal_mix", 0.5)
+    ramp = np.clip(t / max(p.get("attack", 0.002), 0.001), 0, 1)       # doc 25 B7: no onset step
+    metal *= ramp
+    rattle *= ramp
     return l + m * metal + rattle, r + m * metal + rattle
 
 
@@ -758,8 +779,9 @@ def tape_age(l, r, p, rng):
     n = l.shape[0]
     t = tvec(n)
     tp = p["tape"]
-    w = 2.0 ** ((tp.get("wow_c", 8.0) * np.sin(2 * np.pi * tp.get("wow_hz", 0.5) * t + rng.uniform(0, 6.28)) +
-                 tp.get("flutter_c", 3.0) * np.sin(2 * np.pi * tp.get("flutter_hz", 9.0) * t + rng.uniform(0, 6.28))) / 1200.0)
+    wr = wrng(p, rng)
+    w = 2.0 ** ((tp.get("wow_c", 8.0) * np.sin(2 * np.pi * tp.get("wow_hz", 0.5) * t + wr.uniform(0, 6.28)) +
+                 tp.get("flutter_c", 3.0) * np.sin(2 * np.pi * tp.get("flutter_hz", 9.0) * t + wr.uniform(0, 6.28))) / 1200.0)
     pos = np.clip(np.cumsum(w) - w[0], 0, n - 1)
     idx = np.arange(n)
     out = []

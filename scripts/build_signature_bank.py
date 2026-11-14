@@ -26,6 +26,7 @@ import argparse
 import hashlib
 import json
 import math
+import os
 import re
 import sys
 import wave
@@ -716,11 +717,24 @@ PACK_DIR = ROOT / "assets" / "packs"
 RECIPE_KEYS = {"id", "name", "cat", "tags", "gen", "gp", "m", "v", "z", "dur", "loop", "desc", "vl", "d", "mod"}
 
 
+def pack_files(folder: Path) -> list[Path]:
+    """Pack JSON files in a folder. With SM_TRACKED_PACKS=1 only files git tracks, so a
+    local render matches CI exactly while new packs are still being written."""
+    files = sorted(folder.glob("*.json"))
+    if os.environ.get("SM_TRACKED_PACKS") == "1":
+        import subprocess
+        out = subprocess.run(["git", "ls-files", "--", str(folder)], capture_output=True, text=True,
+                             cwd=str(folder)).stdout.split()
+        tracked = {Path(folder, Path(x).name).resolve() for x in out}
+        files = [f for f in files if f.resolve() in tracked]
+    return files
+
+
 def load_instrument_packs() -> list[dict]:
     out = []
     cats = {c for c, _ in CATEGORIES if c != "archive"}
     vkeys = set(V().keys())
-    for f in sorted((PACK_DIR / "instruments").glob("*.json")):
+    for f in pack_files(PACK_DIR / "instruments"):
         data = json.loads(f.read_text())
         pack = data.get("pack", f.stem)
         for r in data["presets"]:
@@ -840,6 +854,8 @@ def render_voice(p, gp, note, n, rng):
     tune: render higher and shorter, then stretch back (pitch, envelopes and
     spectrum all drop together, like tape at that speed)."""
     gen = dsp.GENERATORS[p["gen"]]
+    gp = dict(gp)
+    gp["_wseed"] = seed_for(p["id"] + ":wow", 0)     # doc 25 B9: one wow phase per preset
     slow = gp.get("slow", 1.0)
     if slow < 1.0:
         n_r = int(n * slow)
@@ -862,7 +878,9 @@ def render_voice(p, gp, note, n, rng):
         r[:fade] *= np.linspace(0.0, 1.0, fade)
     l = post_eq(np.nan_to_num(l), gp)
     r = post_eq(np.nan_to_num(r), gp)
-    return l - np.mean(l), r - np.mean(r)
+    # doc 25 B7: subtracting the mean stepped sample 0 to -mean (5-24% of peak on 16 presets);
+    # a 5 Hz DC blocker from zero state removes the offset with no onset step
+    return dsp.dc_block(l), dsp.dc_block(r)
 
 
 def write_wav16(path: Path, l: np.ndarray, r: np.ndarray, rng) -> None:
@@ -879,16 +897,95 @@ def write_wav16(path: Path, l: np.ndarray, r: np.ndarray, rng) -> None:
         w.writeframes(inter.tobytes())
 
 
-def loop_points(p, n, note):
+def loud400(l, r):
+    """RMS of the loudest 400 ms (100 ms hop), after processing (doc 25 B2). The old
+    first-second window under-read slow attacks and over-read plucks."""
+    e = (l.astype(np.float64) ** 2 + r.astype(np.float64) ** 2) * 0.5
+    w = int(0.4 * SR)
+    if len(e) <= w:
+        return math.sqrt(float(np.mean(e)) + 1e-12)
+    c = np.concatenate([[0.0], np.cumsum(e)])
+    st = np.arange(0, len(e) - w + 1, int(0.1 * SR))
+    return math.sqrt(float(np.max((c[st + w] - c[st]) / w)) + 1e-12)
+
+
+def tail_db(l, r, sec=0.3):
+    """Level of the last `sec` seconds relative to the peak (dB)."""
+    a = np.maximum(np.abs(l), np.abs(r))
+    pk = float(a.max()) + 1e-12
+    k = max(1, int(sec * SR))
+    return 20.0 * math.log10(math.sqrt(float(np.mean(a[-k:] ** 2))) / pk + 1e-12)
+
+
+def decay_end(l, r, floor_db=-60.0):
+    """Sample where the sound has decayed `floor_db` below its peak, plus 50 ms."""
+    a = np.maximum(np.abs(l), np.abs(r))
+    blk = int(0.01 * SR)
+    nb_ = len(a) // blk
+    env = a[: nb_ * blk].reshape(nb_, blk).max(axis=1)
+    thr = env.max() * 10 ** (floor_db / 20.0)
+    above = np.nonzero(env > thr)[0]
+    last = int(above[-1]) if len(above) else 0
+    return min(len(a), (last + 1) * blk + int(0.05 * SR))
+
+
+ONESHOT_CAP_S = 12.0
+
+
+def zone_render(p, gp, note, n_base, rng_seed):
+    """One-shot zones were cut at the preset's dur while still loud (doc 23: 26 of 61).
+    If the tail is above -40 dB, render up to max(2 x dur, 1.3 x t60) (cap 12 s) and keep it
+    only if the sound really decays there (a held tone stays at dur); end at -60 dB."""
+    l, r = render_voice(p, gp, note, n_base, np.random.default_rng(rng_seed))
+    if p["loop"] or tail_db(l, r) < -40.0:
+        return l, r
+    t60 = p["gp"].get("t60", 0.0) or 0.0
+    n_cap = int(min(ONESHOT_CAP_S, max(2.0 * p["dur"], 1.3 * t60)) * SR)
+    if n_cap <= n_base:
+        return l, r
+    l2, r2 = render_voice(p, gp, note, n_cap, np.random.default_rng(rng_seed))
+    if tail_db(l2, r2) > tail_db(l, r) - 12.0:        # not decaying: a held tone, keep the original
+        return l, r
+    end = max(n_base // 2, decay_end(l2, r2))
+    return l2[:end], r2[:end]
+
+
+def loop_points(p, l, r, note):
+    """Sustain loop (doc 25 B3): the end is searched (within 0.5 s) for the spot whose last
+    xf samples best match the xf samples before the loop start, which is what HISE's loop
+    crossfade blends (StreamingSamplerSound 4.1.0). Returns ls, le, xf, correlation."""
+    n = len(l)
     atk = p["gp"].get("attack", 0.01)
-    ls = int(max(atk + 0.6, 1.0) * SR)
-    le = n - int(0.03 * SR)
-    if p["gen"] in ("sub", "reese"):             # periodic sources: snap to whole periods
+    ls = int(p["gp"].get("loop_start", max(atk + 0.6, 1.0)) * SR)
+    le0 = n - int(0.03 * SR)
+    xf = int(min(0.35 * SR, (le0 - ls) * 0.45, ls * 0.8))
+    m = (l + r) * 0.5
+    ref = m[ls - xf: ls]
+    srch = int(min(0.5 * SR, (le0 - ls) * 0.3))
+    lo = le0 - srch
+    seg = m[lo - xf: le0]
+    if xf < 64 or srch < 16 or len(seg) < xf + srch:
+        return ls, le0, xf, 1.0
+    def best_end(lo_):
+        seg_ = m[lo_ - xf: le0]
+        num = np.correlate(seg_, ref, mode="valid")              # one value per candidate end
+        c2 = np.concatenate([[0.0], np.cumsum(seg_.astype(np.float64) ** 2)])
+        en = c2[xf:] - c2[:-xf]
+        cr = num / (np.sqrt(en * float(np.dot(ref, ref))) + 1e-12)
+        kk_ = int(np.argmax(cr))
+        return lo_ + kk_, float(cr[kk_])
+
+    le, cbest = best_end(lo)
+    lo_full = ls + xf + int(0.3 * SR)
+    if cbest < 0.3 and lo_full < lo:                 # chorus / detuned stacks: search the whole body
+        le2, c2best = best_end(lo_full)
+        if c2best > cbest:
+            le, cbest = le2, c2best
+    if p["gen"] in ("sub", "reese"):             # periodic sources: also whole periods
         per = SR / dsp.mtof(note)
-        k = max(1, int((le - ls) / per))
-        le = ls + int(round(k * per))
-    xf = int(min(0.35 * SR, (le - ls) * 0.45, ls * 0.8))
-    return ls, le, xf
+        kk = max(1, int(round((le - ls) / per)))
+        le = min(le0, ls + int(round(kk * per)))
+    return ls, le, xf, cbest
 
 
 def render_preset(p) -> list[dict]:
@@ -897,14 +994,14 @@ def render_preset(p) -> list[dict]:
     raw = []
     layers = p.get("vl", 1)
     for note in zone_roots(p["z"]):
-        hard_l, hard_r = render_voice(p, p["gp"], note, n, np.random.default_rng(seed_for(p["id"], note)))
+        hard_l, hard_r = zone_render(p, p["gp"], note, n, seed_for(p["id"], note))
+        nz = len(hard_l)
         # keyboard balance: one gain per zone from the HARD layer, shared by both layers
-        win = slice(0, min(n, int(1.0 * SR)))
-        rms = math.sqrt(float(np.mean((hard_l[win] ** 2 + hard_r[win] ** 2) * 0.5)) + 1e-12)
+        rms = loud400(hard_l, hard_r)
         tilt_db = -max(0, note - 72) * 0.12                 # tame the very top
         g = (10 ** (tilt_db / 20.0)) * 0.18 / rms
         if layers == 2:
-            sl, sr_ = render_voice(p, soften(p["gen"], p["gp"]), note, n,
+            sl, sr_ = render_voice(p, soften(p["gen"], p["gp"]), note, nz,
                                    np.random.default_rng(seed_for(p["id"], note) ^ 0x50F7))
             raw.append((note, 1, sl * g * SOFT_LEVEL, sr_ * g * SOFT_LEVEL))
             raw.append((note, 2, hard_l * g, hard_r * g))
@@ -913,8 +1010,7 @@ def render_preset(p) -> list[dict]:
     # one gain per instrument, set by LOUDNESS (loudest zone body RMS -> 0.12) so
     # presets are level-matched while browsing; a soft-knee peak limiter above
     # 0.6 catches attack spikes instead of letting them set the whole gain.
-    win = slice(0, min(n, int(1.0 * SR)))
-    rms_max = max(math.sqrt(float(np.mean((l[win] ** 2 + r[win] ** 2) * 0.5))) for _, _, l, r in raw)
+    rms_max = max(loud400(l, r) for _, _, l, r in raw)
     norm = 0.12 / max(rms_max, 1e-9)        # about -18 dBFS RMS per voice: headroom for chords + FX
 
     def limit(x):
@@ -942,6 +1038,7 @@ def write_preset_audio(p, zones) -> None:
     entries = []
     today = date.today().isoformat()
     VEL = {0: (0, 127), 1: (0, 84), 2: (85, 127)}
+    corrs = []
     for i, z in enumerate(zones):
         note = z["note"]
         layer = z["layer"]
@@ -967,7 +1064,8 @@ def write_preset_audio(p, zones) -> None:
         lov, hiv = VEL[layer]
         n = len(z["l"])
         if p["loop"]:
-            ls, le, xf = loop_points(p, n, note)
+            ls, le, xf, cc = loop_points(p, z["l"], z["r"], note)
+            corrs.append(cc)
             loop_attr = f'LoopStart="{ls}" LoopEnd="{le}" LoopXFade="{xf}" LoopEnabled="1"'
         else:
             loop_attr = 'LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"'
@@ -978,9 +1076,16 @@ def write_preset_audio(p, zones) -> None:
             f'          SampleStartMod="0" {loop_attr}\n'
             f'          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"\n'
             f'          NormalizedPeak="-1" Duplicate="0"/>')
+    # doc 25 B3: when even the best loop end barely correlates with the loop start (noise,
+    # chorus, beating partials) a linear crossfade dips; gamma 0.5 is equal power
+    gamma = "1.0"
+    if corrs and float(np.median(corrs)) < 0.3:
+        gamma = "0.5"            # mostly noise-like: equal power
+    elif corrs and min(corrs) < 0.3:
+        gamma = "0.7"            # a few poor zones: about -1 dB for them, +2 dB for the rest
     xml = ('<?xml version="1.0" encoding="UTF-8"?>\n\n'
            f'<samplemap ID="SIG_{p["id"]}" SaveMode="1" RRGroupAmount="1.0" MicPositions=";"\n'
-           '           CrossfadeGamma="1.0">\n' + "\n".join(entries) + "\n</samplemap>\n")
+           f'           CrossfadeGamma="{gamma}">\n' + "\n".join(entries) + "\n</samplemap>\n")
     (MAPS / f"SIG_{p['id']}.xml").write_text(xml)
 
 
@@ -1011,7 +1116,7 @@ def _read_wav(path: Path):
 
 
 def archive_trim(smap: str, group: str) -> float:
-    """Level-match an archive map to the Signature Bank: loudest zone's 1 s body RMS -> 0.12
+    """Level-match an archive map to the Signature Bank: loudest zone's loudest 400 ms RMS -> 0.12
     (the render_preset target). Basses are measured above 80 Hz so a sub is not read as loud
     as its energy and turned down too far. Capped so peak + the +2.5 dB air shelf <= -3 dBFS."""
     from scipy.signal import butter, sosfilt
@@ -1025,10 +1130,10 @@ def archive_trim(smap: str, group: str) -> float:
             continue
         x = _read_wav(f)
         peak = max(peak, float(np.abs(x).max()))
-        body = x[: int(1.0 * SR)]
+        body = x
         if group == "bass":
             body = sosfilt(sos, body, axis=0)
-        rms_max = max(rms_max, math.sqrt(float(np.mean(body ** 2))))
+        rms_max = max(rms_max, loud400(body[:, 0], body[:, 1]))      # doc 25 B2: loudest 400 ms
     trim = 20.0 * math.log10(0.12 / rms_max)
     cap = -3.0 - 2.5 - 20.0 * math.log10(peak)
     return round(min(trim, cap), 1)
@@ -1071,6 +1176,39 @@ DEEP_REGISTRY = Path(__file__).resolve().parent / "deep_params.json"
 
 def load_deep_registry() -> dict:
     return json.loads(DEEP_REGISTRY.read_text())
+
+
+RENDER_KEYS = {"slow", "decim", "decim_drive", "tape", "reverse", "post_hp", "post_shelf",
+               "attack", "loop_start", "t60"}
+
+
+def gen_keys() -> dict:
+    """gp keys each generator can read (doc 25 B5), from its source and the generators and
+    helpers it calls, so a typo or a key for a not-yet-built feature fails the build instead
+    of rendering silently without it."""
+    import inspect
+    src = {name: inspect.getsource(fn) for name, fn in dsp.GENERATORS.items()}
+    funcs = {nm: inspect.getsource(getattr(dsp, nm)) for nm in dir(dsp)
+             if nm.startswith(("gen_", "_formant", "tape_age")) and callable(getattr(dsp, nm))}
+    def keys_of(code, seen):
+        ks = set(re.findall(r'p(?:\.get\(|\[)"([a-z_0-9]+)"', code))
+        for callee in set(re.findall(r"\b(gen_[a-z_0-9]+|_formant_filter|tape_age)\(", code)):
+            if callee in funcs and callee not in seen:
+                seen.add(callee)
+                ks |= keys_of(funcs[callee], seen)
+        return ks
+    return {name: keys_of(code, set()) | RENDER_KEYS for name, code in src.items()}
+
+
+def check_gp_keys(presets) -> None:
+    known = gen_keys()
+    bad = []
+    for p in presets:
+        extra = set(p["gp"]) - known.get(p["gen"], set())
+        if extra:
+            bad.append(f'{p["id"]} ({p["gen"]}): {sorted(extra)}')
+    if bad:
+        raise SystemExit("gp keys no generator reads (doc 25 B5):\n  " + "\n  ".join(bad))
 
 
 def check_deep(pid: str, d: dict, reg: dict) -> None:
@@ -1196,6 +1334,7 @@ def main() -> int:
     ids = [p["id"] for p in PRESETS]
     assert len(ids) == len(set(ids)), "duplicate preset id"
     assert DEFAULT_PRESET in ids
+    check_gp_keys(PRESETS)
 
     SAMPLES.mkdir(parents=True, exist_ok=True)
     MAPS.mkdir(parents=True, exist_ok=True)

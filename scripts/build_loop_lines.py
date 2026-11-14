@@ -69,7 +69,7 @@ KIT_KEYS = {"id", "name", "bpm", "root", "key", "prog", "lanes", "tags", "bars",
 def load_kit_packs() -> list[dict]:
     out = []
     ids = {p["id"] for p in bank.PRESETS}
-    for f in sorted(KIT_PACK_DIR.glob("*.json")):
+    for f in bank.pack_files(KIT_PACK_DIR):
         k = json.loads(f.read_text())
         where = f"{f.name}:{k.get('id', '?')}"
         extra = set(k) - KIT_KEYS
@@ -162,7 +162,10 @@ def render_loop(kit, lane, take):
     p = next(x for x in bank.PRESETS if x["id"] == pid)
     spb = 60.0 / kit["bpm"]
     n_loop = int(round(kit.get("bars", 2) * 4 * spb * SR))
-    n_buf = n_loop * 2                         # one extra loop of room for tails
+    # room for every tail: a note can start in the last beat and ring 6 s, so a short loop
+    # needs several wraps (a tail cut at the buffer end clicked at the seam, doc 23 B3)
+    n_wraps = 1 + int(math.ceil((6.0 + 0.5) * SR / n_loop))
+    n_buf = n_loop * n_wraps
     buf_l = np.zeros(n_buf)
     buf_r = np.zeros(n_buf)
     cache = {}
@@ -178,6 +181,8 @@ def render_loop(kit, lane, take):
         env = np.ones(n)
         fi = min(n, int(0.001 * SR))           # 1 ms fade-in: no onset step from any generator (doc 23 B3)
         env[:fi] = np.linspace(0.0, 1.0, fi)
+        fo = min(n, int(0.005 * SR))           # and the voice's own end never cuts off mid-cycle
+        env[-fo:] *= np.linspace(1.0, 0.0, fo)
         rel = int(min(0.25, 0.6 * length * spb + 0.05) * SR)
         if hold + rel < n:
             env[hold:hold + rel] = np.linspace(1.0, 0.0, rel)
@@ -187,9 +192,9 @@ def render_loop(kit, lane, take):
         e0 = min(n_buf, s0 + n)
         buf_l[s0:e0] += l[: e0 - s0] * env[: e0 - s0] * g
         buf_r[s0:e0] += r[: e0 - s0] * env[: e0 - s0] * g
-    # fold the tail onto the head: seamless loop, beat 1 at sample 0
-    loop_l = buf_l[:n_loop] + buf_l[n_loop:]
-    loop_r = buf_r[:n_loop] + buf_r[n_loop:]
+    # fold every wrap onto the head: seamless loop, beat 1 at sample 0
+    loop_l = buf_l.reshape(n_wraps, n_loop).sum(axis=0)
+    loop_r = buf_r.reshape(n_wraps, n_loop).sum(axis=0)
     rms = math.sqrt(float(np.mean((loop_l ** 2 + loop_r ** 2) * 0.5))) + 1e-12
     base = 0.22 / rms                           # +6 dB: HISE time-stretch output is x0.5 (doc 15)
     gain = base
