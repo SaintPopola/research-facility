@@ -236,38 +236,49 @@
    "name": "Harp-Frame Grand",
    "cat": "keys",
    "tags": [
-    "piano",
     "electric-grand",
-    "chorus",
-    "ballad",
-    "80s",
-    "rnb",
-    "rare-keys"
+    "piano",
+    "piezo",
+    "late-night",
+    "sparse",
+    "80s"
    ],
-   "gen": "felt_piano",
+   "gen": "electric_grand",
    "gp": {
-    "hardness": 0.85,
-    "unison_c": 2.5,
-    "t60": 2.8,
-    "post_hp": 110,
-    "post_shelf": [
-     2800,
-     4.0
-    ],
+    "strings": 2,
+    "unison_c": 2.0,
+    "B_bass": 0.0008,
+    "B_treble": 0.0001,
+    "hammer": "stulov",
+    "x_h": 0.12,
+    "v_hammer": 3.0,
+    "piezo": 1.0,
+    "t60": 5.0,
+    "damper_ms": 120,
     "tape": {
-     "wow_c": 0.0,
+     "wow_c": 0,
      "wow_hz": 0.5,
-     "flutter_c": 0.0,
-     "flutter_hz": 9.0,
+     "flutter_c": 0,
+     "flutter_hz": 9,
      "hiss": 0.0012,
-     "bump": 0.0,
+     "bump": 0,
      "lp": 20000,
      "sat": 1.0,
-     "crackle": 0.0
+     "crackle": 0
+    },
+    "vnd": {
+     "amt": 0.25,
+     "hp": 150,
+     "len_ms": 30,
+     "density": 1000,
+     "decay_db": 30
+    },
+    "soft": {
+     "v_hammer": 0.45
     }
    },
    "m": [
-    12000,
+    9500,
     0.0,
     0.45,
     0.6,
@@ -283,17 +294,16 @@
     "vel": 0.7,
     "lfo": 0.2,
     "dly": "1/8D",
-    "subdec": 1200,
     "subsus": -60
    },
    "z": [
     28,
     100,
-    4
+    3
    ],
-   "dur": 6.0,
+   "dur": 8.0,
    "loop": false,
-   "desc": "An electric grand with no soundboard in an empty rehearsal hall at 2 am: piezo bite, short bass strings and a chorus that never quite sits still.",
+   "desc": "Hammered strings, no soundboard, a piezo on the harp: bright bite, short bass strings, nothing ringing but the strings. Sparse chords and root-plus-ninth dyads with rests between them.",
    "vl": 2,
    "d": {
     "DriftKnob": 2.5
@@ -376,13 +386,12 @@
    "name": "Lantern Celeste",
    "cat": "keys",
    "tags": [
+    "celeste",
     "celesta",
     "lullaby",
-    "glass",
-    "rnb",
-    "lush",
-    "mystic",
-    "rare-keys"
+    "bells",
+    "dreamy",
+    "winter"
    ],
    "gen": "modal",
    "gp": {
@@ -393,45 +402,43 @@
       1
      ],
      [
-      1.0007,
-      0.3,
-      1.8
-     ],
-     [
       2.756,
-      0.3,
-      0.25
+      0.18,
+      0.35
      ],
      [
       5.404,
-      0.12,
-      0.12
+      0.06,
+      0.15
      ],
      [
       8.933,
-      0.05,
-      0.06
+      0.02,
+      0.08
      ]
     ],
     "t60": 3.5,
     "strike": 0.18,
     "attack": 0.002,
-    "beat_c": 0.8,
-    "lp": 5500,
-    "tape": {
-     "wow_c": 0.0,
-     "wow_hz": 0.5,
-     "flutter_c": 0.0,
-     "flutter_hz": 9.0,
-     "hiss": 0.0015,
-     "bump": 0.1,
-     "lp": 16000,
-     "sat": 0.0,
-     "crackle": 0.0
+    "lp": 9000,
+    "pan_modes": 0.4,
+    "resonator": {
+     "ratio": 1.0,
+     "q": 25,
+     "mix": 0.35
+    },
+    "thunk": {
+     "lo": 120,
+     "hi": 400,
+     "amt": 0.08,
+     "t": 0.02
+    },
+    "soft": {
+     "strike": 0.35
     }
    },
    "m": [
-    18000,
+    12000,
     0.0,
     0.15,
     0.6,
@@ -447,7 +454,6 @@
     "vel": 0.6,
     "lfo": 0.2,
     "dly": "1/4D",
-    "subdec": 1200,
     "subsus": -60
    },
    "z": [
@@ -457,13 +463,9 @@
    ],
    "dur": 5.0,
    "loop": false,
-   "desc": "Steel plates over tuned wooden boxes in a snowed-in music school: a celesta lullaby with a secret. Let go and the dampers stop it; hold the pedal and it glows.",
-   "vl": 1,
+   "desc": "Steel plates over tuned wooden boxes with a soft hammer thunk; the short release is the damper, the sustain pedal lets it ring. A lullaby with a secret.",
+   "vl": 2,
    "d": {
-    "FTypeKnob": 0,
-    "CutoffKnob": 8000,
-    "FVelKnob": 0.6,
-    "FKeyKnob": 0.3,
     "DriftKnob": 1.5
    }
   },
@@ -474,12 +476,9 @@
    "tags": [
     "toy-piano",
     "lullaby",
-    "out-of-tune",
     "music-box",
-    "lofi",
-    "haunted",
-    "mystic",
-    "rare-keys"
+    "dreamy",
+    "bells"
    ],
    "gen": "modal",
    "gp": {
@@ -491,39 +490,41 @@
      ],
      [
       6.267,
-      0.7,
-      0.4
+      0.28,
+      0.22
      ],
      [
-      17.55,
-      0.25,
-      0.15
-     ],
-     [
-      34.39,
-      0.08,
-      0.06
+      17.547,
+      0.07,
+      0.07
      ]
     ],
     "t60": 2.2,
     "strike": 0.5,
-    "beat_c": 3.0,
+    "beat_c": 3,
+    "pan_modes": 0.35,
     "attack": 0.0008,
     "post_hp": 250,
-    "tape": {
-     "wow_c": 1.5,
-     "wow_hz": 0.6,
-     "flutter_c": 0.8,
-     "flutter_hz": 8.0,
-     "hiss": 0.002,
-     "bump": 0.0,
-     "lp": 13000,
-     "sat": 1.1,
-     "crackle": 0.0
+    "thunk": {
+     "lo": 90,
+     "hi": 220,
+     "amt": 0.18,
+     "t": 0.025
+    },
+    "box": {
+     "f": [
+      350,
+      900
+     ],
+     "q": 4,
+     "mix": 0.15
+    },
+    "soft": {
+     "strike": 0.4
     }
    },
    "m": [
-    16000,
+    11000,
     0.0,
     0.15,
     0.55,
@@ -539,7 +540,6 @@
     "vel": 0.65,
     "lfo": 0.2,
     "dly": "1/8D",
-    "subdec": 1200,
     "subsus": -60
    },
    "z": [
@@ -549,14 +549,10 @@
    ],
    "dur": 3.5,
    "loop": false,
-   "desc": "A child's toy piano found in an attic, steel rods clamped at one end and never quite in tune, played softly for someone asleep; strike harder and the rods clang.",
-   "vl": 1,
+   "desc": "Clamped metal rods with a key thunk and a small wooden box, slightly out of tune. A toy piano left in the attic, played softly for someone asleep.",
+   "vl": 2,
    "d": {
-    "FTypeKnob": 0,
-    "CutoffKnob": 9000,
-    "FVelKnob": 0.6,
-    "FKeyKnob": 0.3,
-    "DriftKnob": 5.0
+    "DriftKnob": 5
    }
   },
   {
@@ -567,11 +563,8 @@
     "tuning-fork",
     "pure",
     "cold",
-    "bell",
-    "late-night",
-    "lush",
-    "mystic",
-    "rare-keys"
+    "bells",
+    "ethereal"
    ],
    "gen": "modal",
    "gp": {
@@ -582,33 +575,37 @@
       1
      ],
      [
-      1.0004,
-      0.2,
-      1.5
-     ],
-     [
       6.267,
       0.05,
       0.15
      ]
     ],
-    "t60": 7.0,
     "strike": 0.3,
+    "t60": 7,
     "beat_c": 0.5,
+    "pan_modes": 0.3,
+    "resonator": {
+     "ratio": 1.0,
+     "q": 40,
+     "mix": 0.2
+    },
     "tape": {
-     "wow_c": 0.0,
+     "wow_c": 0,
      "wow_hz": 0.5,
-     "flutter_c": 0.0,
-     "flutter_hz": 9.0,
+     "flutter_c": 0,
+     "flutter_hz": 9,
      "hiss": 0.002,
-     "bump": 0.0,
+     "bump": 0,
      "lp": 20000,
-     "sat": 0.0,
-     "crackle": 0.0
+     "sat": 1.0,
+     "crackle": 0
+    },
+    "soft": {
+     "strike": 0.4
     }
    },
    "m": [
-    12000,
+    10000,
     0.0,
     0.1,
     0.55,
@@ -624,24 +621,19 @@
     "vel": 0.6,
     "lfo": 0.1,
     "dly": "1/4D",
-    "subdec": 1200,
     "subsus": -60
    },
    "z": [
     36,
     96,
-    6
+    4
    ],
-   "dur": 8.0,
+   "dur": 10.0,
    "loop": false,
-   "desc": "Tuning forks struck by felt hammers in a physics lab after hours: pure, cold and still ringing long after the lights go out.",
-   "vl": 1,
+   "desc": "Tuning forks struck by felt hammers over a tuned stem resonance: pure, cold and ringing for ever. Physics-lab keys for slow, open voicings.",
+   "vl": 2,
    "d": {
-    "FTypeKnob": 0,
-    "CutoffKnob": 6000,
-    "FVelKnob": 0.55,
-    "FKeyKnob": 0.4,
-    "DriftKnob": 1.0
+    "DriftKnob": 1
    }
   },
   {
@@ -650,12 +642,10 @@
    "cat": "keys",
    "tags": [
     "vibraphone",
+    "vibes",
     "tremolo",
     "jazzy",
-    "rnb",
-    "late-night",
-    "mystic",
-    "rare-keys"
+    "late-night"
    ],
    "gen": "modal",
    "gp": {
@@ -664,11 +654,6 @@
       1,
       1,
       1
-     ],
-     [
-      1.0003,
-      0.3,
-      1.4
      ],
      [
       4.0,
@@ -681,24 +666,27 @@
       0.1
      ]
     ],
-    "t60": 6.0,
+    "t60": 6,
     "strike": 0.12,
     "attack": 0.002,
-    "beat_c": 1.0,
-    "tape": {
-     "wow_c": 0.0,
-     "wow_hz": 0.5,
-     "flutter_c": 0.0,
-     "flutter_hz": 9.0,
-     "hiss": 0.0018,
-     "bump": 0.1,
-     "lp": 15000,
-     "sat": 0.0,
-     "crackle": 0.0
+    "pan_modes": 0.3,
+    "resonator": {
+     "ratio": 1.0,
+     "q": 30,
+     "mix": 0.4
+    },
+    "trem": {
+     "rate": 4.5,
+     "depth": 0.4,
+     "pan": false,
+     "phase": 0
+    },
+    "soft": {
+     "strike": 0.3
     }
    },
    "m": [
-    10000,
+    9000,
     0.0,
     0.1,
     0.5,
@@ -714,7 +702,6 @@
     "vel": 0.6,
     "lfo": 0.1,
     "dly": "1/4D",
-    "subdec": 1200,
     "subsus": -60
    },
    "z": [
@@ -722,25 +709,13 @@
     89,
     3
    ],
-   "dur": 6.5,
+   "dur": 8.0,
    "loop": false,
-   "desc": "A vibraphone in a smoky diner after closing, the motor still turning the resonator discs so every chord pulses on the beat.",
-   "vl": 1,
+   "desc": "Vibraphone bars over tuned tubes with the motor still spinning, so every chord pulses together from the onset. A smoky diner after closing.",
+   "vl": 2,
    "d": {
-    "FTypeKnob": 0,
-    "CutoffKnob": 6000,
-    "FVelKnob": 0.55,
-    "FKeyKnob": 0.4,
-    "DriftKnob": 1.0
-   },
-   "mod": [
-    {
-     "Source": "LFO 1",
-     "Target": "A Level",
-     "Intensity": 0.45,
-     "Mode": "Scale"
-    }
-   ]
+    "DriftKnob": 1
+   }
   },
   {
    "id": "thumbtack_parlour",

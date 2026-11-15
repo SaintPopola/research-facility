@@ -17,7 +17,7 @@ Outputs (all deterministic, seeded per preset):
 Usage:
   python3 scripts/build_signature_bank.py              # render everything
   python3 scripts/build_signature_bank.py --data-only  # only rewrite FactoryBank.js + json
-  python3 scripts/build_signature_bank.py --only night_drive_keys
+  python3 scripts/build_signature_bank.py --only drowned_tines
 """
 
 from __future__ import annotations
@@ -763,6 +763,19 @@ def load_instrument_packs() -> list[dict]:
 
 PRESETS.extend(load_instrument_packs())
 
+# Retired presets (doc 25 retirements): no longer rendered or listed. A saved Live set or
+# user preset that names one loads its replacement (PRESET_ALIASES in FactoryBank.js,
+# resolved by findPreset), so retiring never breaks a session.
+RETIRED = {
+    "night_drive_keys": "lullaby_underwater",
+    "glass_room_ep": "fork_piano",
+    "ensemble_poly_six": "ladder_poly",
+    "floating_dream_pad": "singing_bowl_field",
+    "analog_dusk": "ladder_drone_pad",
+    "velvet_strings": "bowed_metal",
+}
+PRESETS[:] = [p for p in PRESETS if p["id"] not in RETIRED]
+
 
 # ---------------------------------------------------------------------------
 # rendering
@@ -874,8 +887,9 @@ def _st_reverse(l, r, gp, rng):                 # reversed swell: ends on the at
 
 # doc 25 B12: texture stages by name; gp stage_order picks the order (a stage runs when its
 # gp key is set). New stages (plate, spring, vnd, bbd, ensemble ...) register here.
-STAGES = {"decim": _st_decim, "tape": lambda l, r, gp, rng: dsp.tape_age(l, r, gp, rng), "reverse": _st_reverse}
-DEFAULT_STAGES = ["decim", "tape", "reverse"]
+STAGES = {"decim": _st_decim, "bbd": dsp.bbd_stage, "ensemble": dsp.ensemble_stage, "vnd": dsp.vnd_stage,
+          "tape": lambda l, r, gp, rng: dsp.tape_age(l, r, gp, rng), "reverse": _st_reverse}
+DEFAULT_STAGES = ["decim", "bbd", "ensemble", "tape", "vnd", "reverse"]   # chorus before tape; width last
 
 
 def render_voice(p, gp, note, n, rng):
@@ -890,7 +904,16 @@ def render_voice(p, gp, note, n, rng):
         ls = gp.get("loop_start", max(gp.get("attack", 0.01) + 0.6, 1.0))
         gp["_loop"] = (int(ls * SR), max(int(ls * SR) + 1, n - int(0.03 * SR)))
     slow = gp.get("slow", 1.0)
-    if slow < 1.0:
+    speed = gp.get("speed", 1.0)
+    if speed > 1.0:
+        # varispeed up (voice_v2): render lower and longer, then play it faster, so the
+        # formants rise with the pitch like tape (a chipmunk saint, not a pitch-shifted one)
+        n_r = int(n * speed)
+        l, r = gen(note - 12.0 * math.log2(speed), n_r, gp, rng)
+        pos = np.linspace(0, n_r - 1, n)
+        l = np.interp(pos, np.arange(n_r), l)
+        r = np.interp(pos, np.arange(n_r), r)
+    elif slow < 1.0:
         n_r = int(n * slow)
         l, r = gen(note - 12.0 * math.log2(slow), n_r, gp, rng)
         pos = np.linspace(0, n_r - 1, n)
@@ -1235,7 +1258,7 @@ def load_deep_registry() -> dict:
     return json.loads(DEEP_REGISTRY.read_text())
 
 
-RENDER_KEYS = {"slow", "decim", "decim_drive", "tape", "reverse", "post_hp", "post_shelf",
+RENDER_KEYS = {"slow", "speed", "decim", "bbd", "ensemble", "vnd", "decim_drive", "tape", "reverse", "post_hp", "post_shelf",
                "attack", "loop_start", "t60", "soft_mul", "soft_level", "stage_order", "soft"}
 
 
@@ -1248,7 +1271,7 @@ def gen_keys() -> dict:
     funcs = {nm: inspect.getsource(getattr(dsp, nm)) for nm in dir(dsp)
              if nm.startswith(("gen_", "_formant", "tape_age")) and callable(getattr(dsp, nm))}
     def keys_of(code, seen):
-        ks = set(re.findall(r'p(?:\.get\(|\[)"([a-z_0-9]+)"', code))
+        ks = set(re.findall(r'p(?:\.get\(|\[)"([A-Za-z_0-9]+)"', code))
         for callee in set(re.findall(r"\b(gen_[a-z_0-9]+|_formant_filter|tape_age)\(", code)):
             if callee in funcs and callee not in seen:
                 seen.add(callee)
@@ -1361,6 +1384,7 @@ def write_bank_data(recs) -> None:
         "// m = macros [TONE Hz, BODY, MOTION, WIDTH, SPACE, ECHO, GRIT, PUMP].",
         "",
         "const var FACTORY_DEFAULT = " + json.dumps(DEFAULT_PRESET) + ";",
+        "const var PRESET_ALIASES = " + json.dumps(RETIRED) + ";       // retired id -> replacement",
         "const var FACTORY_CATS = " + json.dumps([c for c, _ in CATEGORIES]) + ";",
         "const var FACTORY_CAT_LABELS = " + json.dumps([lbl for _, lbl in CATEGORIES]) + ";",
         "const var FACTORY_VIBES = " + json.dumps(VIBES) + ";",
@@ -1391,6 +1415,9 @@ def main() -> int:
     ids = [p["id"] for p in PRESETS]
     assert len(ids) == len(set(ids)), "duplicate preset id"
     assert DEFAULT_PRESET in ids
+    for old, new in RETIRED.items():
+        assert new in ids, f"retired {old}: replacement {new} is not in the bank"
+        assert old not in ids, f"retired {old} is still in the bank"
     for p in PRESETS:
         if p.get("map"):
             assert p["map"] in ids and not next(q for q in PRESETS if q["id"] == p["map"]).get("map"), \

@@ -228,10 +228,12 @@ inline function lerp(a, b, t)
 inline function findPreset(id)
 {
     local i = 0;
+    local want = id;
+    if (isDefined(PRESET_ALIASES[want])) want = PRESET_ALIASES[want];     // a retired preset loads its replacement
     for (i = 0; i < FACTORY_BANK.length; i++)
     {
         local p = FACTORY_BANK[i];
-        if (p.id == id) return i;
+        if (p.id == want) return i;
     }
     return -1;
 }
@@ -3966,10 +3968,12 @@ Content.setPropertiesFromJSON("KitKey", {"saveInPreset": true, "visible": false,
 inline function findKit(id)
 {
     local i = 0;
+    local want = id;
+    if (isDefined(KIT_ALIASES[want])) want = KIT_ALIASES[want];         // a retired kit loads its replacement
     for (i = 0; i < LOOP_KITS.length; i++)
     {
         local kt = LOOP_KITS[i];
-        if (kt.id == id) return i;
+        if (kt.id == want) return i;
     }
     return -1;
 }
@@ -4307,6 +4311,7 @@ inline function selfTest()
     local ok = true;
     if (FACTORY_BANK.length < 40) ok = false;
     if (findPreset(FACTORY_DEFAULT) < 0) ok = false;
+    if (findPreset("velvet_strings") < 0 || FACTORY_BANK[findPreset("velvet_strings")].id != "bowed_metal") { ok = false; Console.print("RF selftest retired alias"); }
     if (TEMPO_Q < 0) ok = false;
     if (tempoIndex("1/8D") < 0) ok = false;
     if (S.list.length < 40) ok = false;

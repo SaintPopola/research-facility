@@ -26,7 +26,6 @@ The changes are listed below.
   - ir: `hf_damp 0.5`
 
   Every `tape` dict already sets every tape_age key.
-- The plan left some generator params open, so I set them: ladder_drone_pad `osc saw`,
   undertone_lead `sub_shape saw`, dust_harmonium `attack 0.09` (inside the 60 to 120 ms onset in
   the free_reed spec).
 - endless_tine `loop_start` is 3.5, not 1.6. The em_sustain spec puts the loop start after
@@ -66,23 +65,16 @@ The changes are listed below.
 | backward_tines | tine_ep | plate | B12 stage_order |
 | photocell_vibes | glass_pad | optical | pan_modes, B3 loop_len |
 | rotor_vibes | modal | mechanism (resonator, trem) | B4, pan_modes |
-| ladder_poly | ladder | none | B4 |
-| ladder_drone_pad | ladder | none | none |
 | undertone_lead | subharmonic (ladder filter) | none | B4 |
 | paper_saints_ensemble | divide_down | ensemble | none |
 | faded_velour_strings | divide_down | ensemble | none |
 | two_tier_dusk_brass | supersaw (supersaw_v2: layer2) | none | B4 |
 | ribbon_swoon_lead | supersaw (supersaw_v2: scoop, wander) | none | B4 |
 | sub_square_hymn | supersaw (supersaw_v2: pwm, sub_shape, pulse_only) | bbd | B4 |
-| ladder_ping_bell | ladder (ping) | none | B4 |
-| singing_bowl_field | resonator_bank (rub) | none | B4 |
-| bowed_metal | resonator_bank (bow) | none | none |
-| bowed_bar | resonator_bank (bow) | none | none |
 | strip_choir | voice (voice_v2: formant tables, scatter) | none | none |
 | cave_chant | voice (voice_v2: formant tables, scatter, overtone) | none | B3 loop_len |
 | whisker_glass | friction_glass | none | B4 |
 | gong_mouth_lead | sub | metallique, wander | B4 |
-| rod_ring_waterbowl | resonator_bank (bow, bowl, water) | none | B4 |
 | rising_drop_pluck | bubbles (note) | none | B4 |
 | empty_room_lead | karplus (karplus_v2: halfsine) | ir | B4 soft_mul |
 | tank_reverb_twang | karplus (karplus_v2: halfsine) | spring, vnd | B4 soft_mul |
@@ -122,7 +114,6 @@ promote those recipes only after the extension lands, or the new keys do nothing
     0.29 octave on two_tier_dusk_brass (fenv 2600, fenv_t 0.5), 0.21 on ribbon_swoon_lead (1800,
     0.6) and 0.19 on ladder_poly (2200, 0.35). At 5 x fenv_t the gap is gone: 2.5 s, 3.0 s and
     1.75 s. ribbon_swoon_lead has dur 5, so 3.0 s leaves a 2 s loop.
-- ladder_ping_bell: measure each zone's ring pitch and correct it (`tune_comp`).
 - endless_tine has no `strike`, which gives the pure EM start in the em_sustain spec. Decide whether
   `tine 0.12` should still sound.
 - The docs/25 interim recipes for harp_frame_grand (felt_piano) and tangent_whisper_keys (karplus,
@@ -143,3 +134,7 @@ other keys are read, and run the loader check.
 2. Move the recipe into a file under `assets/packs/instruments/` (a `mystic_*.json` pack, not
    this file as it is, since its pack name is "Mystic Pending").
 3. Run the loader check and `build_signature_bank.py --only <id>`, then listen.
+
+## Promoted
+
+On 2026-11-14 the build session added the ladder and resonator_bank generators (commit a4cc645) and moved 7 recipes into assets/packs/instruments/mystic_generators.json: ladder_poly, ladder_drone_pad, ladder_ping_bell, singing_bowl_field, bowed_metal, bowed_bar, rod_ring_waterbowl. They are no longer in this file. 26 recipes remain pending. Resonator recipes now excite 40 Hz-6 kHz (doc 25's 1-6 kHz band left low fundamentals unexcited) and modes are normalised to their noise gain.

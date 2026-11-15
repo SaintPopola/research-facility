@@ -65,6 +65,9 @@ KITS = [
 KIT_PACK_DIR = Path(__file__).resolve().parents[1] / "assets" / "packs" / "loop_kits"
 KIT_MB_CAP = 32.0          # per kit on disk; a 2-bar kit at 72 BPM is ~15 MB at 16-bit
 KIT_KEYS = {"id", "name", "bpm", "root", "key", "prog", "lanes", "tags", "bars", "patterns"}
+# Retired kits: a saved Live set that names one loads its replacement (KIT_ALIASES in
+# LoopBank.js, resolved by findKit). Empty until a kit is retired.
+KIT_RETIRED = {}
 
 
 def load_kit_packs() -> list[dict]:
@@ -363,6 +366,7 @@ def main() -> int:
           "// Loop Lines kits: 4 lanes x 4 takes on MIDI notes 60-75 (lane = (note-60)/4).",
           "const var LOOP_LANES = " + json.dumps(LANES) + ";",
           "const var LOOP_FIRST_NOTE = " + str(FIRST_NOTE) + ";",
+          "const var KIT_ALIASES = " + json.dumps(KIT_RETIRED) + ";",
           "const var LOOP_KITS = " + json.dumps(kits_meta) + ";"]
     (bank.SCRIPTS / "LoopBank.js").write_text("\n".join(js) + "\n")
     print("LoopBank.js written")

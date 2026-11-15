@@ -1403,38 +1403,6 @@
    "desc": "Hollow, punchy organ for house bass-lines and chord stabs."
   },
   {
-   "id": "ensemble_poly_six",
-   "name": "Ensemble Poly Six",
-   "cat": "chords",
-   "tags": [
-    "analog",
-    "poly",
-    "chorus",
-    "80s"
-   ],
-   "map": "SIG_ensemble_poly_six",
-   "m": [
-    3500,
-    0.15,
-    0.55,
-    0.85,
-    0.35,
-    0.12,
-    0.05,
-    0.0
-   ],
-   "atk": 4,
-   "rel": 400,
-   "reso": 0.9,
-   "vel": 0.45,
-   "lfo": 0.25,
-   "dly": "1/8D",
-   "subdec": 1200,
-   "subsus": -12,
-   "trim": 0.0,
-   "desc": "Six-voice analog poly with a thick ensemble chorus. Chords that glow."
-  },
-  {
    "id": "glassline_poly",
    "name": "Glassline Poly",
    "cat": "chords",
@@ -1947,39 +1915,6 @@
    "desc": "Glassy digital FM electric piano with a bright tine ping. 80s ballads."
   },
   {
-   "id": "night_drive_keys",
-   "name": "Night Drive Keys",
-   "cat": "keys",
-   "tags": [
-    "underwater",
-    "rnb",
-    "late-night",
-    "dark",
-    "lofi"
-   ],
-   "map": "SIG_night_drive_keys",
-   "m": [
-    950,
-    0.35,
-    0.3,
-    0.55,
-    0.55,
-    0.22,
-    0.12,
-    0.0
-   ],
-   "atk": 6,
-   "rel": 1100,
-   "reso": 1.1,
-   "vel": 0.55,
-   "lfo": 0.18,
-   "dly": "1/8D",
-   "subdec": 1600,
-   "subsus": -24,
-   "trim": 0.0,
-   "desc": "Low-passed tine keys with tape wobble and a dark room. Slow late-night chords."
-  },
-  {
    "id": "velvet_tines",
    "name": "Velvet Tines",
    "cat": "keys",
@@ -2107,38 +2042,6 @@
    "subsus": -30,
    "trim": 0.0,
    "desc": "Bright, barky stab keys that sit on a dembow groove. Pump locked to the beat."
-  },
-  {
-   "id": "glass_room_ep",
-   "name": "Glass Room EP",
-   "cat": "keys",
-   "tags": [
-    "dreamy",
-    "airy",
-    "rnb",
-    "shimmer"
-   ],
-   "map": "SIG_glass_room_ep",
-   "m": [
-    8000,
-    0.1,
-    0.5,
-    0.85,
-    0.6,
-    0.3,
-    0.0,
-    0.0
-   ],
-   "atk": 4,
-   "rel": 1200,
-   "reso": 0.8,
-   "vel": 0.55,
-   "lfo": 0.2,
-   "dly": "1/4D",
-   "subdec": 1200,
-   "subsus": -30,
-   "trim": 0.0,
-   "desc": "Tine piano with the bell partial pushed forward, wide and glassy."
   },
   {
    "id": "tape_organ",
@@ -2335,38 +2238,6 @@
    "desc": "Moody saw-and-pulse atmosphere for perreo intros and bridges."
   },
   {
-   "id": "floating_dream_pad",
-   "name": "Floating Dream Pad",
-   "cat": "pads",
-   "tags": [
-    "reggaeton",
-    "dreamy",
-    "lush",
-    "airy"
-   ],
-   "map": "SIG_floating_dream_pad",
-   "m": [
-    2000,
-    0.3,
-    0.45,
-    0.85,
-    0.75,
-    0.3,
-    0.0,
-    0.0
-   ],
-   "atk": 300,
-   "rel": 2600,
-   "reso": 0.9,
-   "vel": 0.3,
-   "lfo": 0.15,
-   "dly": "1/8D",
-   "subdec": 1200,
-   "subsus": -10,
-   "trim": 0.0,
-   "desc": "Soft floaty pad with a slow filter drift and dotted echoes. Melodies float on it."
-  },
-  {
    "id": "cold_glass",
    "name": "Cold Glass",
    "cat": "pads",
@@ -2397,70 +2268,6 @@
    "subsus": -20,
    "trim": 0.0,
    "desc": "Glassy additive shimmer with slow beating partials."
-  },
-  {
-   "id": "analog_dusk",
-   "name": "Analog Dusk",
-   "cat": "pads",
-   "tags": [
-    "warm",
-    "analog",
-    "vintage",
-    "dark"
-   ],
-   "map": "SIG_analog_dusk",
-   "m": [
-    2600,
-    0.45,
-    0.35,
-    0.6,
-    0.5,
-    0.1,
-    0.1,
-    0.0
-   ],
-   "atk": 300,
-   "rel": 1800,
-   "reso": 1.4,
-   "vel": 0.35,
-   "lfo": 0.2,
-   "dly": "1/8D",
-   "subdec": 1200,
-   "subsus": -6,
-   "trim": 0.0,
-   "desc": "Two-oscillator analog pad, warm and slightly resonant."
-  },
-  {
-   "id": "velvet_strings",
-   "name": "Velvet Strings",
-   "cat": "pads",
-   "tags": [
-    "cinematic",
-    "lush",
-    "strings",
-    "emotional"
-   ],
-   "map": "SIG_velvet_strings",
-   "m": [
-    4500,
-    0.3,
-    0.3,
-    0.8,
-    0.6,
-    0.05,
-    0.0,
-    0.0
-   ],
-   "atk": 450,
-   "rel": 2200,
-   "reso": 0.8,
-   "vel": 0.4,
-   "lfo": 0.15,
-   "dly": "1/8D",
-   "subdec": 1200,
-   "subsus": -12,
-   "trim": 0.0,
-   "desc": "Ensemble strings from detuned saws. Slow swell, soft top end."
   },
   {
    "id": "static_bloom",
@@ -5277,6 +5084,339 @@
    }
   },
   {
+   "id": "paper_saints_ensemble",
+   "name": "Paper Saints Ensemble",
+   "cat": "pads",
+   "tags": [
+    "string-machine",
+    "vox",
+    "ensemble",
+    "80s",
+    "chorus",
+    "lush"
+   ],
+   "map": "SIG_paper_saints_ensemble",
+   "m": [
+    4000,
+    0.0,
+    0.5,
+    0.85,
+    0.55,
+    0.1,
+    0.05,
+    0.0
+   ],
+   "atk": 200,
+   "rel": 1500,
+   "reso": 0.7,
+   "vel": 0.1,
+   "lfo": 0.12,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "Phase-locked organ footages through a two-band vowel and a triple-BBD ensemble: a hollow, slightly wrong paper choir. New-wave chords at dawn.",
+   "d": {
+    "DriftKnob": 1
+   }
+  },
+  {
+   "id": "faded_velour_strings",
+   "name": "Faded Velour Strings",
+   "cat": "pads",
+   "tags": [
+    "string-machine",
+    "strings",
+    "ensemble",
+    "disco",
+    "chorus",
+    "tape"
+   ],
+   "map": "SIG_faded_velour_strings",
+   "m": [
+    5000,
+    0.05,
+    0.55,
+    0.9,
+    0.5,
+    0.1,
+    0.05,
+    0.0
+   ],
+   "atk": 150,
+   "rel": 1500,
+   "reso": 0.7,
+   "vel": 0.1,
+   "lfo": 0.12,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "Divide-down 8' and 16' string tone split into violin and cello voicing, a swimming triple-BBD ensemble and worn tape. Roller-disco pads and slow string beds.",
+   "d": {
+    "DriftKnob": 1
+   }
+  },
+  {
+   "id": "strip_choir",
+   "name": "Strip Choir",
+   "cat": "vox",
+   "tags": [
+    "choir",
+    "tape",
+    "vintage",
+    "60s",
+    "lofi"
+   ],
+   "map": "SIG_strip_choir",
+   "m": [
+    4500,
+    0.0,
+    0.25,
+    0.75,
+    0.5,
+    0.1,
+    0.1,
+    0.0
+   ],
+   "atk": 120,
+   "rel": 500,
+   "reso": 0.7,
+   "vel": 0.2,
+   "lfo": 0.12,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "Six singers, three low and three high, each with their own pitch and formant scatter, printed to eight-second tape strips. Hold too long and the strip runs out.",
+   "d": {
+    "DriftKnob": 1
+   }
+  },
+  {
+   "id": "cave_chant",
+   "name": "Cave Chant",
+   "cat": "vox",
+   "tags": [
+    "choir",
+    "chant",
+    "overtone",
+    "dark",
+    "drone",
+    "mythical"
+   ],
+   "map": "SIG_cave_chant",
+   "m": [
+    3500,
+    0.15,
+    0.3,
+    0.7,
+    0.8,
+    0.15,
+    0.0,
+    0.0
+   ],
+   "atk": 500,
+   "rel": 2500,
+   "reso": 0.7,
+   "vel": 0.2,
+   "lfo": 0.08,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -30,
+   "trim": 0.0,
+   "desc": "Four low voices humming 'o' in a cave while an overtone whistle glides between harmonics 6 and 12 once per loop. Drones, intros and beatless epics.",
+   "d": {
+    "DriftKnob": 1
+   }
+  },
+  {
+   "id": "varispeed_saint_chop",
+   "name": "Varispeed Saint Chop",
+   "cat": "vox",
+   "tags": [
+    "vocal-chop",
+    "chop",
+    "sped-up",
+    "soul",
+    "tape"
+   ],
+   "map": "SIG_varispeed_saint_chop",
+   "m": [
+    9000,
+    0.0,
+    0.1,
+    0.5,
+    0.45,
+    0.35,
+    0.15,
+    0.2
+   ],
+   "atk": 1,
+   "rel": 200,
+   "reso": 0.7,
+   "vel": 0.6,
+   "lfo": 0.2,
+   "dly": "1/8D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "A soul vowel sped up on a cassette deck so the formants rise with the pitch, like a small saint singing from a phone speaker. Short chop melodies.",
+   "d": {
+    "DriftKnob": 2
+   }
+  },
+  {
+   "id": "dust_harmonium",
+   "name": "Dust Harmonium",
+   "cat": "keys",
+   "tags": [
+    "harmonium",
+    "reed",
+    "organ",
+    "chapel",
+    "lofi",
+    "tape"
+   ],
+   "map": "SIG_dust_harmonium",
+   "m": [
+    4500,
+    0.1,
+    0.15,
+    0.55,
+    0.5,
+    0.1,
+    0.1,
+    0.0
+   ],
+   "atk": 60,
+   "rel": 400,
+   "reso": 0.7,
+   "vel": 0.2,
+   "lfo": 0.1,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -40,
+   "trim": 0.0,
+   "desc": "Pump-organ free reeds with a slightly sharp octave rank, the bellows breathing under every chord, a little out of air. Slow hymn chords and drones.",
+   "d": {
+    "DriftKnob": 2
+   }
+  },
+  {
+   "id": "undertone_lead",
+   "name": "Undertone Lead",
+   "cat": "leads",
+   "tags": [
+    "subharmonic",
+    "lead",
+    "analog",
+    "dark",
+    "mono",
+    "mythical"
+   ],
+   "map": "SIG_undertone_lead",
+   "m": [
+    5000,
+    0.0,
+    0.2,
+    0.3,
+    0.5,
+    0.25,
+    0.1,
+    0.0
+   ],
+   "atk": 8,
+   "rel": 500,
+   "reso": 0.8,
+   "vel": 0.5,
+   "lfo": 0.15,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "A saw with phase-locked undertones at a third and a fifth of its frequency, through a ladder filter. A lead that drags a humming shadow under every note.",
+   "d": {
+    "ViaWheelKnob": 1,
+    "VibKnob": 0.25,
+    "VibDelayKnob": 400,
+    "DriftKnob": 2
+   }
+  },
+  {
+   "id": "rising_drop_pluck",
+   "name": "Rising Drop Pluck",
+   "cat": "plucks",
+   "tags": [
+    "water",
+    "drop",
+    "pluck",
+    "underwater",
+    "bubbles"
+   ],
+   "map": "SIG_rising_drop_pluck",
+   "m": [
+    12000,
+    0.0,
+    0.15,
+    0.6,
+    0.6,
+    0.35,
+    0.0,
+    0.0
+   ],
+   "atk": 0,
+   "rel": 500,
+   "reso": 0.7,
+   "vel": 0.6,
+   "lfo": 0.2,
+   "dly": "1/8D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "Each note is a tuned bubble that chirps slightly upward as it rings, with a tiny splash on top. Stone-basin plucks for short melodies and arps with rests.",
+   "d": {
+    "DriftKnob": 1
+   }
+  },
+  {
+   "id": "sigh_circuit_808",
+   "name": "Sigh Circuit 808",
+   "cat": "bass",
+   "tags": [
+    "808",
+    "bass",
+    "sub",
+    "analog",
+    "trap",
+    "slowed"
+   ],
+   "map": "SIG_sigh_circuit_808",
+   "m": [
+    6000,
+    0.0,
+    0.0,
+    0.0,
+    0.05,
+    0.0,
+    0.15,
+    0.0
+   ],
+   "atk": 0,
+   "rel": 300,
+   "reso": 0.7,
+   "vel": 0.6,
+   "lfo": 0.1,
+   "dly": "1/4",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "A circuit-modelled bridged-T kick held as a bass: a fast pitch jump, then a slow sigh downward like a tired breath in a parked car. Long half-time 808 lines.",
+   "d": {
+    "DriftKnob": 0
+   }
+  },
+  {
    "id": "eight_second_ivory",
    "name": "Eight-Second Ivory",
    "cat": "keys",
@@ -5405,17 +5545,16 @@
    "name": "Harp-Frame Grand",
    "cat": "keys",
    "tags": [
-    "piano",
     "electric-grand",
-    "chorus",
-    "ballad",
-    "80s",
-    "rnb",
-    "rare-keys"
+    "piano",
+    "piezo",
+    "late-night",
+    "sparse",
+    "80s"
    ],
    "map": "SIG_harp_frame_grand",
    "m": [
-    12000,
+    9500,
     0.0,
     0.45,
     0.6,
@@ -5433,7 +5572,7 @@
    "subdec": 1200,
    "subsus": -60,
    "trim": 0.0,
-   "desc": "An electric grand with no soundboard in an empty rehearsal hall at 2 am: piezo bite, short bass strings and a chorus that never quite sits still.",
+   "desc": "Hammered strings, no soundboard, a piezo on the harp: bright bite, short bass strings, nothing ringing but the strings. Sparse chords and root-plus-ninth dyads with rests between them.",
    "d": {
     "DriftKnob": 2.5
    }
@@ -5484,17 +5623,16 @@
    "name": "Lantern Celeste",
    "cat": "keys",
    "tags": [
+    "celeste",
     "celesta",
     "lullaby",
-    "glass",
-    "rnb",
-    "lush",
-    "mystic",
-    "rare-keys"
+    "bells",
+    "dreamy",
+    "winter"
    ],
    "map": "SIG_lantern_celeste",
    "m": [
-    18000,
+    12000,
     0.0,
     0.15,
     0.6,
@@ -5512,12 +5650,8 @@
    "subdec": 1200,
    "subsus": -60,
    "trim": 0.0,
-   "desc": "Steel plates over tuned wooden boxes in a snowed-in music school: a celesta lullaby with a secret. Let go and the dampers stop it; hold the pedal and it glows.",
+   "desc": "Steel plates over tuned wooden boxes with a soft hammer thunk; the short release is the damper, the sustain pedal lets it ring. A lullaby with a secret.",
    "d": {
-    "FTypeKnob": 0,
-    "CutoffKnob": 8000,
-    "FVelKnob": 0.6,
-    "FKeyKnob": 0.3,
     "DriftKnob": 1.5
    }
   },
@@ -5528,16 +5662,13 @@
    "tags": [
     "toy-piano",
     "lullaby",
-    "out-of-tune",
     "music-box",
-    "lofi",
-    "haunted",
-    "mystic",
-    "rare-keys"
+    "dreamy",
+    "bells"
    ],
    "map": "SIG_tin_rod_lullaby",
    "m": [
-    16000,
+    11000,
     0.0,
     0.15,
     0.55,
@@ -5555,13 +5686,9 @@
    "subdec": 1200,
    "subsus": -60,
    "trim": 0.0,
-   "desc": "A child's toy piano found in an attic, steel rods clamped at one end and never quite in tune, played softly for someone asleep; strike harder and the rods clang.",
+   "desc": "Clamped metal rods with a key thunk and a small wooden box, slightly out of tune. A toy piano left in the attic, played softly for someone asleep.",
    "d": {
-    "FTypeKnob": 0,
-    "CutoffKnob": 9000,
-    "FVelKnob": 0.6,
-    "FKeyKnob": 0.3,
-    "DriftKnob": 5.0
+    "DriftKnob": 5
    }
   },
   {
@@ -5572,15 +5699,12 @@
     "tuning-fork",
     "pure",
     "cold",
-    "bell",
-    "late-night",
-    "lush",
-    "mystic",
-    "rare-keys"
+    "bells",
+    "ethereal"
    ],
    "map": "SIG_fork_piano",
    "m": [
-    12000,
+    10000,
     0.0,
     0.1,
     0.55,
@@ -5598,13 +5722,9 @@
    "subdec": 1200,
    "subsus": -60,
    "trim": 0.0,
-   "desc": "Tuning forks struck by felt hammers in a physics lab after hours: pure, cold and still ringing long after the lights go out.",
+   "desc": "Tuning forks struck by felt hammers over a tuned stem resonance: pure, cold and ringing for ever. Physics-lab keys for slow, open voicings.",
    "d": {
-    "FTypeKnob": 0,
-    "CutoffKnob": 6000,
-    "FVelKnob": 0.55,
-    "FKeyKnob": 0.4,
-    "DriftKnob": 1.0
+    "DriftKnob": 1
    }
   },
   {
@@ -5613,16 +5733,14 @@
    "cat": "keys",
    "tags": [
     "vibraphone",
+    "vibes",
     "tremolo",
     "jazzy",
-    "rnb",
-    "late-night",
-    "mystic",
-    "rare-keys"
+    "late-night"
    ],
    "map": "SIG_rotor_vibes",
    "m": [
-    10000,
+    9000,
     0.0,
     0.1,
     0.5,
@@ -5640,22 +5758,10 @@
    "subdec": 1200,
    "subsus": -60,
    "trim": 0.0,
-   "desc": "A vibraphone in a smoky diner after closing, the motor still turning the resonator discs so every chord pulses on the beat.",
+   "desc": "Vibraphone bars over tuned tubes with the motor still spinning, so every chord pulses together from the onset. A smoky diner after closing.",
    "d": {
-    "FTypeKnob": 0,
-    "CutoffKnob": 6000,
-    "FVelKnob": 0.55,
-    "FKeyKnob": 0.4,
-    "DriftKnob": 1.0
-   },
-   "mod": [
-    {
-     "Source": "LFO 1",
-     "Target": "A Level",
-     "Intensity": 0.45,
-     "Mode": "Scale"
-    }
-   ]
+    "DriftKnob": 1
+   }
   },
   {
    "id": "thumbtack_parlour",

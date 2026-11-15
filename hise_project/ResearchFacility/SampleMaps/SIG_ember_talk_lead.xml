@@ -71,7 +71,7 @@
   <sample ID="11" FileName="{PROJECT_FOLDER}SIG_ember_talk_lead_81.wav" Root="81" HiKey="82"
           LoKey="80" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="144000"
-          SampleStartMod="0" LoopStart="48000" LoopEnd="135382" LoopXFade="16800" LoopEnabled="1"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="135491" LoopXFade="16800" LoopEnabled="1"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="12" FileName="{PROJECT_FOLDER}SIG_ember_talk_lead_84.wav" Root="84" HiKey="127"

@@ -101,37 +101,37 @@
   <sample ID="16" FileName="{PROJECT_FOLDER}SIG_angel_stretch_cloud_79_v1.wav" Root="79" HiKey="80"
           LoKey="78" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
-          SampleStartMod="0" LoopStart="62399" LoopEnd="267067" LoopXFade="16800" LoopEnabled="1"
+          SampleStartMod="0" LoopStart="62399" LoopEnd="267003" LoopXFade="16800" LoopEnabled="1"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="17" FileName="{PROJECT_FOLDER}SIG_angel_stretch_cloud_79_v2.wav" Root="79" HiKey="80"
           LoKey="78" LoVel="85" HiVel="127" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
-          SampleStartMod="0" LoopStart="62399" LoopEnd="286525" LoopXFade="16800" LoopEnabled="1"
+          SampleStartMod="0" LoopStart="62399" LoopEnd="286523" LoopXFade="16800" LoopEnabled="1"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="18" FileName="{PROJECT_FOLDER}SIG_angel_stretch_cloud_82_v1.wav" Root="82" HiKey="83"
           LoKey="81" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
-          SampleStartMod="0" LoopStart="62399" LoopEnd="280973" LoopXFade="16800" LoopEnabled="1"
+          SampleStartMod="0" LoopStart="62399" LoopEnd="281021" LoopXFade="16800" LoopEnabled="1"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="19" FileName="{PROJECT_FOLDER}SIG_angel_stretch_cloud_82_v2.wav" Root="82" HiKey="83"
           LoKey="81" LoVel="85" HiVel="127" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
-          SampleStartMod="0" LoopStart="62399" LoopEnd="286523" LoopXFade="16800" LoopEnabled="1"
+          SampleStartMod="0" LoopStart="62399" LoopEnd="286519" LoopXFade="16800" LoopEnabled="1"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="20" FileName="{PROJECT_FOLDER}SIG_angel_stretch_cloud_85_v1.wav" Root="85" HiKey="127"
           LoKey="84" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
-          SampleStartMod="0" LoopStart="62399" LoopEnd="268751" LoopXFade="16800" LoopEnabled="1"
+          SampleStartMod="0" LoopStart="62399" LoopEnd="268879" LoopXFade="16800" LoopEnabled="1"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="21" FileName="{PROJECT_FOLDER}SIG_angel_stretch_cloud_85_v2.wav" Root="85" HiKey="127"
           LoKey="84" LoVel="85" HiVel="127" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
-          SampleStartMod="0" LoopStart="62399" LoopEnd="278215" LoopXFade="16800" LoopEnabled="1"
+          SampleStartMod="0" LoopStart="62399" LoopEnd="269704" LoopXFade="16800" LoopEnabled="1"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
 </samplemap>

@@ -541,9 +541,19 @@ def gen_modal(note, n, p, rng):
     l = np.zeros(n)
     r = np.zeros(n)
     base_t60 = p.get("t60", 3.0) * (1.3 - 0.7 * reg)
+    pm = p.get("pan_modes")
     for ratio, amp, t60s in modes:
         f = f0 * ratio
         if f > SR * 0.45:
+            continue
+        if pm is not None:
+            # one sine per mode, panned at equal power (mono-safe, doc 25 B8)
+            ph = rng.uniform(0, 6.28)
+            dec = amp * np.exp(-6.907755 * t / max(base_t60 * t60s, 0.02))
+            s = np.sin(2 * np.pi * f * t + ph) * dec
+            pan = float(np.clip(pm * rng.uniform(-1, 1), -1, 1))
+            l += s * math.cos((pan + 1) * math.pi / 4)
+            r += s * math.sin((pan + 1) * math.pi / 4)
             continue
         beat = p.get("beat_c", 1.5)
         ph = rng.uniform(0, 6.28)
@@ -564,6 +574,37 @@ def gen_modal(note, n, p, rng):
     a = np.clip(t / p.get("attack", 0.001), 0, 1)
     l *= a
     r *= a
+    # mechanism (doc 25): tube / stem resonator, toy-case box, key thunk, tremolo
+    rs = p.get("resonator")
+    if rs:
+        l = l + rs.get("mix", 0.3) * svf(l, min(f0 * rs.get("ratio", 1.0), 0.45 * SR), rs.get("q", 30), 1)
+        r = r + rs.get("mix", 0.3) * svf(r, min(f0 * rs.get("ratio", 1.0), 0.45 * SR), rs.get("q", 30), 1)
+    bx = p.get("box")
+    if bx:
+        bl = sum(svf(l, fb, bx.get("q", 4), 1) for fb in bx.get("f", [350, 900]))
+        br = sum(svf(r, fb, bx.get("q", 4), 1) for fb in bx.get("f", [350, 900]))
+        l = l + bx.get("mix", 0.15) * bl
+        r = r + bx.get("mix", 0.15) * br
+    th = p.get("thunk")
+    if th:
+        pk = max(float(np.abs(l).max()), float(np.abs(r).max()), 1e-9)
+        tk = svf(svf(noise(n, rng), th.get("hi", 300), 0.7, 0), th.get("lo", 100), 0.7, 2)
+        tk = tk / (float(np.abs(tk[: int(0.01 * SR)]).max()) + 1e-9) * np.exp(-t / max(th.get("t", 0.02), 1e-3))
+        tk *= np.clip(t / 0.0005, 0, 1) * th.get("amt", 0.1) * pk
+        l += tk
+        r += tk
+    tr = p.get("trem")
+    if tr:
+        # amplitude tremolo from phase 0 at the onset, so chord notes pulse together
+        ph0 = tr.get("phase", 0.0)
+        lfo = 0.5 - 0.5 * np.cos(2 * np.pi * (tr.get("rate", 5.0) * t + ph0))
+        if tr.get("pan", False):
+            l = l * (1.0 - tr.get("depth", 0.3) * lfo)
+            r = r * (1.0 - tr.get("depth", 0.3) * (1.0 - lfo))
+        else:
+            g = 1.0 - tr.get("depth", 0.3) * lfo
+            l = l * g
+            r = r * g
     if p.get("lp", 0) > 0:
         l = lp24(l, p["lp"] * (0.7 + 0.6 * reg))
         r = lp24(r, p["lp"] * (0.7 + 0.6 * reg))
@@ -602,13 +643,31 @@ FORMANTS = {
     "i": [(290, 60, 0), (2250, 130, -10), (3000, 180, -14), (3600, 250, -20)],
 }
 
+# voice_v2 (doc 25): formant sets per singer. 'm' is the table above (adult male averages).
+# 'f' and 'c' take F1-F3 from the Peterson & Barney (1952) female and child averages as they
+# are widely reproduced (a = /a/ hod, o = /o/ hawed, u = who'd, e = head, i = heed); doc 25
+# asks for a check against the paper itself. F4 follows F3; bandwidths widen a little.
+_PB_FC = {"f": {"a": (850, 1220, 2810), "o": (590, 920, 2710), "u": (370, 950, 2670),
+                "e": (610, 2330, 2990), "i": (310, 2790, 3310)},
+          "c": {"a": (1030, 1370, 3170), "o": (680, 1060, 3180), "u": (430, 1170, 3260),
+                "e": (690, 2610, 3570), "i": (370, 3200, 3730)}}
+FORMANT_SETS = {"m": FORMANTS}
+for _set, _bwm in (("f", 1.1), ("c", 1.2)):
+    FORMANT_SETS[_set] = {}
+    for _v, (_f1, _f2, _f3) in _PB_FC[_set].items():
+        _m = FORMANTS[_v]
+        _f4 = _m[3][0] * _f3 / _m[2][0]
+        FORMANT_SETS[_set][_v] = [(_f1, _m[0][1] * _bwm, _m[0][2]), (_f2, _m[1][1] * _bwm, _m[1][2]),
+                                  (_f3, _m[2][1] * _bwm, _m[2][2]), (_f4, _m[3][1] * _bwm, _m[3][2])]
 
-def _formant_filter(src, vowel_seq, n, cycle=None, fscale=1.0):
+
+def _formant_filter(src, vowel_seq, n, cycle=None, fscale=1.0, table=None, bwmul=1.0):
     """Parallel bandpass bank; vowel_seq = list of vowels morphed across time.
     cycle = (loop_start, loop_end) samples: doc 25 B10, the path is held on its first vowel
     before the loop and repeats once per loop length, so loop start and end share a phase."""
     out = np.zeros(n)
     nv = len(vowel_seq)
+    FORMANTS = table or FORMANT_SETS["m"]
     if nv > 1 and cycle is not None:
         ls, le = cycle
         i = np.arange(n, dtype=np.float64)
@@ -616,7 +675,7 @@ def _formant_filter(src, vowel_seq, n, cycle=None, fscale=1.0):
         for fi in range(4):
             fs = [FORMANTS[v][fi][0] * fscale for v in vowel_seq]
             gs = [10 ** (FORMANTS[v][fi][2] / 20) for v in vowel_seq]
-            bws = [FORMANTS[v][fi][1] * fscale for v in vowel_seq]
+            bws = [FORMANTS[v][fi][1] * fscale * bwmul for v in vowel_seq]
             fc = np.interp(pos, np.arange(nv), fs)
             gain = np.interp(pos, np.arange(nv), gs)
             q = float(np.mean(fs) / np.mean(bws))
@@ -625,7 +684,7 @@ def _formant_filter(src, vowel_seq, n, cycle=None, fscale=1.0):
     for fi in range(4):
         if nv == 1:
             f, bw, g = FORMANTS[vowel_seq[0]][fi]
-            f, bw = f * fscale, bw * fscale
+            f, bw = f * fscale, bw * fscale * bwmul
             fc = np.full(n, float(f))
             q = f / bw
             gain = 10 ** (g / 20)
@@ -634,7 +693,7 @@ def _formant_filter(src, vowel_seq, n, cycle=None, fscale=1.0):
             pts = np.linspace(0, n - 1, nv)
             fs = [FORMANTS[v][fi][0] * fscale for v in vowel_seq]
             gs = [10 ** (FORMANTS[v][fi][2] / 20) for v in vowel_seq]
-            bws = [FORMANTS[v][fi][1] * fscale for v in vowel_seq]
+            bws = [FORMANTS[v][fi][1] * fscale * bwmul for v in vowel_seq]
             fc = np.interp(np.arange(n), pts, fs)
             gain = np.interp(np.arange(n), pts, gs)
             q = float(np.mean(fs) / np.mean(bws))
@@ -643,29 +702,63 @@ def _formant_filter(src, vowel_seq, n, cycle=None, fscale=1.0):
 
 
 def gen_voice(note, n, p, rng):
-    """Synthetic voice: glottal-ish source (tilted band-limited saw) with
-    vibrato + jitter, breath noise, parallel formant bank. Choir = several
-    detuned singers."""
+    """Synthetic voice (voice_v2, doc 25): glottal-ish source (band-limited saw with a
+    velocity tilt), vibrato, jitter and shimmer, breath, parallel formant bank per singer.
+    Choirs get distinct singers: their own formant set ('m' / 'f' / 'c'), a formant scale
+    and a pitch offset. Optional overtone band gliding between two harmonics."""
     f0 = mtof(note)
     t = tvec(n)
     singers = int(p.get("singers", 1))
     vowels = p.get("vowels", ["a"])
+    fsets = p.get("formants", "m")
+    fscat = p.get("formant_scatter", 0.0)
+    pscat = p.get("pitch_scatter_c", 0.0)
+    tilt = max(0.25, p.get("tilt", 1.0))
+    shim = p.get("shimmer_db", 0.0)
+    # above C5 only the fundamental reached the 'o' formants (10-17 dB stereo swings):
+    # the formants track the key there, as a real singer's resonances rise with pitch
+    fsc = 2.0 ** (max(0.0, note - 72) / 12.0 * p.get("formant_track", 0.6))
+    bwm = max(1.0, f0 / 600.0)                  # sparse harmonics above 600 Hz stay in the peaks
+    cyc = p.get("_loop") if p.get("vowel_cycle", len(vowels) > 1 and vowels[0] == vowels[-1]) else None
     l = np.zeros(n)
     r = np.zeros(n)
     for s in range(singers):
-        det = 0.0 if singers == 1 else rng.uniform(-p.get("spread_c", 12), p.get("spread_c", 12))
+        if pscat > 0:
+            det = rng.normal(0.0, pscat)
+        else:
+            det = 0.0 if singers == 1 else rng.uniform(-p.get("spread_c", 12), p.get("spread_c", 12))
         vib_on = np.clip((t - p.get("vib_delay", 0.35)) / 0.6, 0, 1)
         vib = p.get("vib_c", 18.0) * vib_on * np.sin(2 * np.pi * rng.uniform(4.8, 5.6) * t + rng.uniform(0, 6.28))
         jit = drift(n, rng, p.get("jitter_c", 4.0), rng.uniform(1.5, 3.0))
         fr = f0 * 2 ** ((det + vib) / 1200.0) * jit
         src = saw(fr, rng.uniform(0, 1))
-        src = svf(src, 2.0 * f0 + 300, 0.5, 0) * 0.6 + src * 0.4    # glottal tilt
+        # glottal tilt: more tilt = darker source (the soft layer can raise it)
+        src = svf(src, (2.0 * f0 + 300) / tilt, 0.5, 0) * 0.6 + src * (0.4 / tilt)
+        if shim > 0:
+            # shimmer: a new random amplitude every glottal period
+            per = max(1, int(SR / f0))
+            steps = 10 ** (rng.normal(0.0, shim, n // per + 2) / 20.0)
+            src = src * np.repeat(steps, per)[:n]
         br = svf(noise(n, rng), 2500, 0.4, 0) * p.get("breath", 0.15)
-        cyc = p.get("_loop") if p.get("vowel_cycle", len(vowels) > 1 and vowels[0] == vowels[-1]) else None
-        # above C5 only the fundamental reached the 'o' formants (10-17 dB stereo swings):
-        # the formants track the key there, as a real singer's resonances rise with pitch
-        fsc = 2.0 ** (max(0.0, note - 72) / 12.0 * p.get("formant_track", 0.6))
-        x = _formant_filter(src + br, vowels, n, cyc, fsc)
+        fset = fsets[s % len(fsets)] if isinstance(fsets, list) else fsets
+        sscale = rng.uniform(1.0 - fscat, 1.0 + fscat) if fscat > 0 else 1.0
+        x = _formant_filter(src + br, vowels, n, cyc, fsc * sscale, FORMANT_SETS.get(fset, FORMANTS), bwm)
+        ot = p.get("overtone")
+        if ot:
+            # overtone chant: one narrow band riding harmonic k(t), gliding harm[0] -> harm[1]
+            # and back once per loop (or per 'period' seconds)
+            h0, h1 = ot.get("harm", [6, 12])
+            if ot.get("period", "loop") == "loop" and p.get("_loop"):
+                ls_, le_ = p["_loop"]
+                per_s = max(0.5, (le_ - ls_) / SR)
+                ph = np.where(np.arange(n) < ls_, 0.0, (np.arange(n) - ls_) / SR / per_s)
+            else:
+                per_s = float(ot.get("period", 6.0)) if ot.get("period") != "loop" else 6.0
+                ph = t / per_s
+            k = h0 + (h1 - h0) * (0.5 - 0.5 * np.cos(2 * np.pi * ph))
+            fcb = np.clip(k * f0, 40, 0.45 * SR)
+            band = svf(src, fcb, float(np.mean(fcb)) / max(ot.get("bw_hz", 30), 5), 1)
+            x = x + band * 10 ** (ot.get("level_db", -6) / 20.0) * 4.0
         pn = 0.0 if singers == 1 else (s / (singers - 1) * 2 - 1) * 0.8
         a, b = pan_pair(x, pn)
         l += a
@@ -1219,6 +1312,449 @@ def gen_resonator_bank(note, n, p, rng):
     return l, r
 
 
+# ---------------------------------------------------------------------------
+# bbd / ensemble texture stages and the divide_down generator (doc 25)
+# ---------------------------------------------------------------------------
+@nb.njit(cache=True)
+def _mod_delay(x, dsamp):
+    """Delay line with a per-sample delay (samples), linear interpolation."""
+    n = x.shape[0]
+    y = np.zeros(n)
+    for i in range(n):
+        pos = i - dsamp[i]
+        if pos < 0.0:
+            continue
+        i0 = int(pos)
+        fr = pos - i0
+        i1 = i0 + 1 if i0 + 1 < n else i0
+        y[i] = x[i0] * (1.0 - fr) + x[i1] * fr
+    return y
+
+
+def _loop_rate(hz, p):
+    """An LFO rate rounded to whole cycles over the sustain loop, so the loop start and end
+    share a phase (seamless loops); unchanged when the preset does not loop."""
+    lp = p.get("_loop")
+    if not lp or hz <= 0:
+        return hz
+    sec = (lp[1] - lp[0]) / SR
+    return max(1, round(hz * sec)) / sec
+
+
+def _lfo(t, hz, shape, ph=0.0):
+    if shape == "triangle":
+        return 2.0 * np.abs(2.0 * ((t * hz + ph) % 1.0) - 1.0) - 1.0
+    return np.sin(2.0 * np.pi * (t * hz + ph))
+
+
+def _bbd_line(x, delay_ms, stages):
+    """One bucket-brigade line (Raffel & Smith DAFx-10, simplified offline): anti-alias LP at
+    ~0.4 x the clock implied by the mean delay (fcp = N / (2 delay)), the modulated delay, the
+    device's mild polynomial (THD ~0.25% at N = 256), and the reconstruction LP."""
+    fcp = stages / (2.0 * max(float(np.mean(delay_ms)), 0.2) * 1e-3)
+    fc = min(0.4 * fcp, 0.45 * SR)
+    y = svf(svf(x, fc, 0.707, 0), fc, 0.707, 0)
+    y = _mod_delay(np.ascontiguousarray(y), np.ascontiguousarray(delay_ms * 1e-3 * SR))
+    a_ = 0.0025 * (stages / 256.0)
+    y = y - a_ * y * np.abs(y) - 0.5 * a_ * y * y * y
+    return svf(svf(y, fc, 0.707, 0), fc, 0.707, 0)
+
+
+# Juno-60 chorus as measured in Holters & Parker, DAFx-18 (table quoted by the research
+# session): mode I 0.513 Hz triangle over 1.54-5.15 ms, mode II about 0.83 Hz over the same
+# range, I+II 9.75 Hz sine over 3.22-3.56 ms, dry 1.62 dB under the wet. These replace the
+# 0.4 / 0.6 Hz in docs 24/25 and their "I+II = the sum" assumption.
+JUNO = {"I": (0.513, "triangle", 1.54, 5.15), "II": (0.83, "triangle", 1.54, 5.15),
+        "I+II": (9.75, "sine", 3.22, 3.56)}
+JUNO_DRY = 10 ** (-1.62 / 20.0)
+
+
+def bbd_stage(l, r, p, rng):
+    """Two BBD lines, LFOs in anti-phase, mixed with the dry signal (Juno-style chorus)."""
+    b = p["bbd"]
+    n = l.shape[0]
+    t = tvec(n)
+    if b.get("mode") in JUNO:
+        hz, shape, lo, hi = JUNO[b["mode"]]
+    else:
+        hz, shape = b.get("rate_hz", 0.5), b.get("lfo", "triangle")
+        lo = b.get("base_ms", 3.5) - b.get("depth_ms", 1.5)
+        hi = b.get("base_ms", 3.5) + b.get("depth_ms", 1.5)
+    hz = _loop_rate(hz, p)
+    mid, half = 0.5 * (lo + hi), 0.5 * (hi - lo)
+    x = (l + r) * 0.5
+    st = b.get("stages", 256)
+    wl = _bbd_line(x, mid + half * _lfo(t, hz, shape), st)
+    wr = _bbd_line(x, mid - half * _lfo(t, hz, shape), st)
+    wet = b.get("mix", 0.5) / 0.5                # mix 0.5 = the measured Juno balance
+    return x * JUNO_DRY + wl * wet, x * JUNO_DRY + wr * wet
+
+
+def ensemble_stage(l, r, p, rng):
+    """String-machine ensemble: three BBD lines, slow + fast LFOs 120 degrees apart.
+    L = line0 + 0.5 line1, R = line2 + 0.5 line1, plus half the dry in the centre, so the
+    mono sum keeps the dry and never fully cancels."""
+    e = p["ensemble"]
+    n = l.shape[0]
+    t = tvec(n)
+    fs_, ff = _loop_rate(e.get("f_slow", 0.6), p), _loop_rate(e.get("f_fast", 6.0), p)
+    x = (l + r) * 0.5
+    st = e.get("stages", 256)
+    lines = []
+    for k in range(3):
+        dly = (e.get("base_ms", 6.0) + e.get("d_slow_ms", 1.5) * np.sin(2 * np.pi * fs_ * t + 2 * np.pi * k / 3)
+               + e.get("d_fast_ms", 0.25) * np.sin(2 * np.pi * ff * t + 2 * np.pi * k / 3))
+        lines.append(_bbd_line(x, dly, st))
+    el = lines[0] + 0.5 * lines[1] + 0.5 * x
+    er = lines[2] + 0.5 * lines[1] + 0.5 * x
+    m = e.get("mix", 0.6)
+    return x * (1.0 - m) + el * m, x * (1.0 - m) + er * m
+
+
+@nb.njit(cache=True)
+def _square_ph(ph, dt):
+    """Band-limited square from a running phase in cycles (polyBLEP at both edges)."""
+    n = ph.shape[0]
+    y = np.empty(n)
+    for i in range(n):
+        f = ph[i] - math.floor(ph[i])
+        v = 1.0 if f < 0.5 else -1.0
+        v += _blep(f, dt[i])
+        f2 = f - 0.5
+        if f2 < 0.0:
+            f2 += 1.0
+        v -= _blep(f2, dt[i])
+        y[i] = v
+    return y
+
+
+def gen_divide_down(note, n, p, rng):
+    """Divide-down string machine / ensemble (Solina, ARP String Ensemble, Polymoog type).
+    Every footage is a division of one master phase, so octaves stay phase-locked and never
+    beat; no per-voice detune (width comes from the ensemble stage). 'stair' sums squares at
+    f, 2f, 4f, 8f with 1, 1/2, 1/4, 1/8: a stepped ramp. Violin / cello tone and an optional
+    two-formant vowel. Velocity-insensitive by design."""
+    f0 = mtof(note)
+    t = tvec(n)
+    m = wow(n, p.get("wow", 0.0), rng=wrng(p, rng)) if p.get("wow", 0) else np.ones(n)
+    master = np.cumsum(f0 * m) / SR                 # cycles of the 8' pitch
+    x = np.zeros(n)
+    for feet, lvl in p.get("footages", [[8, 1.0]]):
+        ratio = 8.0 / feet
+        parts = [(1, 1.0)] if p.get("wave", "square") == "square" else [(1, 1.0), (2, 0.5), (4, 0.25), (8, 0.125)]
+        for mult, g in parts:
+            fr = f0 * ratio * mult
+            if fr > SR * 0.45:
+                continue
+            dt = np.full(n, fr / SR) * m
+            x += lvl * g * _square_ph(master * ratio * mult, dt)
+    tv, tc = p.get("tone_violin"), p.get("tone_cello")
+    if tv or tc:
+        mix = p.get("tone_mix", [0.5, 0.5])
+        y = np.zeros(n)
+        if tv:
+            v = svf(x, tv.get("hp", 250), 0.707, 2)
+            if tv.get("peak"):
+                pf, pdb = tv["peak"]
+                v = v + (10 ** (pdb / 20.0) - 1.0) * svf(v, pf, 1.2, 1)
+            y += mix[0] * v
+        if tc:
+            y += mix[1] * svf(x, tc.get("lp", 2500), 0.707, 0)
+        x = y
+    vw = p.get("vowel")
+    if vw:
+        bw = vw.get("bw", [80, 120])
+        f1 = svf(x, vw.get("f1", 500), vw.get("f1", 500) / bw[0], 1)
+        f2 = svf(x, vw.get("f2", 1000), vw.get("f2", 1000) / bw[1], 1)
+        x = x * (1.0 - vw.get("mix", 0.5)) + (f1 + 0.7 * f2) * vw.get("mix", 0.5) * 2.0
+    e = env_adsr(n, a=p.get("attack", 0.1), d=0.1, s=1.0)
+    if not p.get("_loop"):                       # a one-shot ends on its release
+        k = int(min(p.get("release", 0.5), 0.4 * n / SR) * SR)
+        if k > 0:
+            e[-k:] *= np.linspace(1.0, 0.0, k)
+    x = x * e * 0.25
+    return x, x.copy()
+
+
+# ---------------------------------------------------------------------------
+# free_reed, subharmonic, bubbles, bridged_t_808 (doc 25 generators)
+# ---------------------------------------------------------------------------
+@nb.njit(cache=True)
+def _saw_ph(ph, dt):
+    """Band-limited saw from a running phase in cycles (polyBLEP)."""
+    n = ph.shape[0]
+    y = np.empty(n)
+    for i in range(n):
+        f = ph[i] - math.floor(ph[i])
+        y[i] = 2.0 * f - 1.0 - _blep(f, dt[i])
+    return y
+
+
+@nb.njit(cache=True)
+def _pulse_ph(ph, dt, duty):
+    n = ph.shape[0]
+    y = np.empty(n)
+    for i in range(n):
+        f = ph[i] - math.floor(ph[i])
+        v = 1.0 if f < duty else -1.0
+        v += _blep(f, dt[i])
+        f2 = f - duty
+        if f2 < 0.0:
+            f2 += 1.0
+        v -= _blep(f2, dt[i])
+        y[i] = v - (2.0 * duty - 1.0)            # remove the pulse's DC
+    return y
+
+
+def gen_free_reed(note, n, p, rng):
+    """Harmonium / pump organ: free-reed ranks driven by bellows pressure p(t). Amplitude
+    p^1.5, a small pressure-to-pitch coupling, an asymmetric pulse through a reed LP, chiff at
+    the onset, breath scaled by pressure, a pallet click. The bellows cycle fits the loop."""
+    f0 = mtof(note)
+    t = tvec(n)
+    d = 10 ** (p.get("bellows_db", 1.5) / 20.0) - 1.0
+    br = _loop_rate(p.get("bellows_rate", 0.3), p)
+    w = _pink_wander(n, rng, 1.0, 0.2) * p.get("bellows_wander", 0.5)
+    pres = 1.0 + d * (0.5 * np.sin(2 * np.pi * br * t + rng.uniform(0, 6.28)) + 0.5 * w)
+    pres = pres * np.clip(t / max(p.get("attack", 0.09), 1e-3), 0, 1)       # the bellows fill
+    l = np.zeros(n)
+    r = np.zeros(n)
+    ranks = p.get("ranks", [[0, 1.0]])
+    for k, (semi, lvl) in enumerate(ranks):
+        cel = p.get("celeste_c", 0.0) if k == 1 else 0.0
+        bend = 2.0 ** (p.get("pitch_pressure_c", 3.0) * (pres - 1.0) / 1200.0)
+        fr = f0 * 2 ** (semi / 12.0) * 2 ** (cel / 1200.0) * bend
+        if float(fr.max()) > SR * 0.45:
+            continue
+        ph = np.cumsum(fr) / SR + rng.uniform(0, 1)
+        x = _pulse_ph(ph, fr / SR, p.get("duty", 0.35))
+        x = svf(x, p.get("reed_lp", 4500), 0.6, 0) * lvl
+        pan = -0.3 if k % 2 == 0 else 0.3                       # ranks sit apart in the case
+        l += x * math.cos((pan + 1) * math.pi / 4)
+        r += x * math.sin((pan + 1) * math.pi / 4)
+    amp = np.maximum(pres, 0.0) ** 1.5
+    l *= amp
+    r *= amp
+    chiff = svf(noise(n, rng), 1800.0, 0.9, 1) * np.exp(-t / 0.04) * p.get("chiff", 0.03) * 8
+    breath = svf(noise(n, rng), 800.0, 0.6, 1) * np.maximum(pres, 0) * p.get("breath", 0.015) * 4
+    click = svf(noise(n, rng), 2000.0, 0.7, 2) * (t < 0.005) * p.get("click", 0.1)
+    l += chiff + breath + click
+    r += chiff + breath + click
+    return l * 0.4, r * 0.4
+
+
+def gen_subharmonic(note, n, p, rng):
+    """Undertone lead (Trautonium / Subharmonicon idea): a master saw and sub-oscillators at
+    master / divisor, each a phase-locked division of the master phase (subs never beat),
+    mixed into the nonlinear ladder (2x oversampled)."""
+    from scipy.signal import resample_poly
+    os_ = 2
+    fs = SR * os_
+    no = n * os_
+    f0 = mtof(note)
+    wd = p.get("wander", {}) or {}
+    cents = drift(no, rng, wd.get("pitch_c", 3.0), rng.uniform(0.08, 0.3)) if wd.get("pitch_c", 3.0) else np.ones(no)
+    fr = f0 * cents
+    ph = np.cumsum(fr) / fs
+    dtm = fr / fs
+    x = _saw_ph(ph, dtm) if p.get("osc", "saw") == "saw" else _pulse_ph(ph, dtm, 0.5)
+    for div, lvl in p.get("subs", [[2, 0.5]]):
+        phs = ph / div
+        x = x + lvl * (_saw_ph(phs, dtm / div) if p.get("sub_shape", "saw") == "saw" else _pulse_ph(phs, dtm / div, 0.5))
+    tt = np.arange(no) / fs
+    fc = np.full(no, float(p.get("cutoff", 1400.0)) * 2 ** ((note - 60) / 12.0 * 0.5))
+    if p.get("fenv", 0):
+        fc = fc + p["fenv"] * np.exp(-tt / max(p.get("fenv_t", 0.2), 1e-3))
+    fc = np.clip(fc, 20.0, 0.45 * fs)
+    if p.get("filter", "ladder") == "ladder":
+        y = _ladder(np.ascontiguousarray(x * p.get("drive", 1.0) * 0.35), fc, float(np.clip(p.get("res", 0.3), 0, 1.0)),
+                    p.get("vt", 0.5), fs, True)
+    else:                                         # a plain 24 dB low-pass
+        y = lp24(x * 0.35, float(np.mean(fc)), 0.1)
+    y = resample_poly(y, 1, os_)[:n]
+    e = env_adsr(n, a=p.get("attack", 0.01), d=p.get("decay", 0.3), s=p.get("sustain", 1.0))
+    y = y * e
+    return y, y.copy()
+
+
+def gen_bubbles(note, n, p, rng):
+    """Water drops (Moss, Yeh, Hong, Lin & Manocha, 'Sounding Liquids', ACM TOG 2009, eqs 1-3, 7).
+    'note': one bubble whose rising pitch f(t) = f_start (1 + xi b0 t), b0 = 6.9078 / t60,
+    passes the note's frequency at t_tune, plus a short splash. 'world': Poisson bubbles with
+    log-uniform radii (Minnaert f0 r0 ~ 3 m/s) over a soft roof patter."""
+    t = tvec(n)
+    l = np.zeros(n)
+    r = np.zeros(n)
+    if p.get("mode", "note") == "world":
+        rate = p.get("rate", 12.0)
+        k = rng.poisson(rate * n / SR)
+        for _ in range(k):
+            rad = math.exp(rng.uniform(math.log(p.get("r_min_mm", 0.5)), math.log(p.get("r_max_mm", 5.0)))) * 1e-3
+            fb = min(3.0 / rad, 0.4 * SR)
+            t60 = max(0.01, 0.06 * (rad / 1e-3) ** 0.5)
+            b0 = 6.9078 / t60
+            m = int(min(n, t60 * SR))
+            s0 = int(rng.uniform(0, n - 1))
+            m = min(m, n - s0)
+            tt = np.arange(m) / SR
+            ph = np.cumsum(fb * (1.0 + 0.1 * b0 * tt)) / SR
+            y = np.sin(2 * np.pi * ph) * np.exp(-b0 * tt) * (rad / 5e-3)
+            pan = rng.uniform(-0.9, 0.9)
+            l[s0:s0 + m] += y * math.cos((pan + 1) * math.pi / 4)
+            r[s0:s0 + m] += y * math.sin((pan + 1) * math.pi / 4)
+        bed = svf(noise(n, rng), 1000.0, 0.6, 0) * p.get("patter", 0.05)
+        return l + bed, r + svf(noise(n, rng), 1000.0, 0.6, 0) * p.get("patter", 0.05)
+    fn = mtof(note)
+    xi = p.get("xi", 0.06)
+    b0 = 6.9078 / max(p.get("t60", 0.5), 0.02)
+    f_start = fn / (1.0 + xi * b0 * p.get("t_tune", 0.04))
+    f = f_start * (1.0 + xi * b0 * t)
+    y = np.sin(2 * np.pi * np.cumsum(np.minimum(f, 0.45 * SR)) / SR) * np.exp(-b0 * t)
+    k = max(1, int(p.get("splash_ms", 2) * 0.001 * SR))
+    sp = np.zeros(n)
+    sp[:k] = svf(noise(k, rng), p.get("splash_hp", 2000), 0.7, 2) * np.hanning(2 * k)[k:]
+    y = (y + sp * p.get("splash", 0.12)) * np.clip(t / 0.0005, 0, 1)        # no onset step
+    pan = rng.uniform(-1, 1) * p.get("pan_rand", 0.3)
+    return y * math.cos((pan + 1) * math.pi / 4), y * math.sin((pan + 1) * math.pi / 4)
+
+
+@nb.njit(cache=True)
+def _tv_res(x, f, rr):
+    """2-pole resonator with a per-sample centre frequency and fixed pole radius."""
+    n = x.shape[0]
+    y = np.zeros(n)
+    y1 = 0.0
+    y2 = 0.0
+    for i in range(n):
+        w = 2.0 * math.pi * f[i] / 48000.0
+        yi = 2.0 * rr * math.cos(w) * y1 - rr * rr * y2 + (1.0 - rr) * x[i]
+        y2 = y1
+        y1 = yi
+        y[i] = yi
+    return y
+
+
+def gen_bridged_t_808(note, n, p, rng):
+    """Circuit-informed TR-808 kick as a sub (Werner, Abel & Smith, DAFx-14): a 1 ms trigger
+    plus a small leak excite a resonator whose centre jumps up at the hit (jump_st, jump_ms)
+    and then 'sighs' down (sigh_c, sigh_t); passive tone LP, soft clip. Mono."""
+    f0 = mtof(note)
+    t = tvec(n)
+    x = np.zeros(n)
+    x[: int(0.001 * SR)] = 1.0
+    x += p.get("leak", 0.02) * np.exp(-t / max(p.get("sigh_t", 1.5), 0.01))
+    f = (f0 * 2 ** (p.get("jump_st", 5.0) * np.exp(-t / max(p.get("jump_ms", 4.0) * 1e-3, 1e-4)) / 12.0)
+         * 2 ** (-p.get("sigh_c", 30.0) * (1.0 - np.exp(-t / max(p.get("sigh_t", 1.5), 0.01))) / 1200.0))
+    rr = 10 ** (-3.0 / (max(p.get("t60", 3.0), 0.05) * SR))
+    y = _tv_res(x, np.ascontiguousarray(f), rr)
+    y = y / (float(np.abs(y).max()) + 1e-12)
+    a_ = 1.0 - math.exp(-2 * math.pi * p.get("tone_hz", 2000.0) / SR)
+    from scipy.signal import lfilter
+    y = lfilter([a_], [1.0, a_ - 1.0], y)
+    y = soft_clip(y, p.get("drive", 1.3))
+    return y, y.copy()
+
+
+# ---------------------------------------------------------------------------
+# vnd stage and electric_grand generator (doc 25)
+# ---------------------------------------------------------------------------
+def vnd_stage(l, r, p, rng):
+    """Velvet-noise decorrelator (Alary, Politis & Valimaki, DAFx-17): sparse +/-1 impulses
+    (density per second) over len_ms with an exponential decay, convolved with the high-passed
+    mid and added as SIDE: L = l + S, R = r - S, so L + R is untouched (mono-safe width)."""
+    from scipy.signal import fftconvolve
+    v = p["vnd"]
+    vr = np.random.default_rng(p.get("_wseed", 11) ^ 0x5D)
+    m = max(8, int(v.get("len_ms", 30) * 0.001 * SR))
+    k = np.zeros(m)
+    step = SR / max(v.get("density", 1000), 1)
+    pos = 0.0
+    while pos < m:
+        i = int(pos + vr.uniform(0, step))
+        if i < m:
+            k[i] = 1.0 if vr.random() < 0.5 else -1.0
+        pos += step
+    k *= 10 ** (-v.get("decay_db", 30) / 20.0 * np.arange(m) / m)
+    k /= math.sqrt(float(np.sum(k * k))) + 1e-12
+    mid = svf((l + r) * 0.5, v.get("hp", 150), 0.707, 2)
+    side = fftconvolve(mid, k)[: l.shape[0]] * v.get("amt", 0.25)
+    return l + side, r - side
+
+
+def _stulov_pulse(key, v_mm_s, mass_kg=0.009):
+    """Hammer-felt contact force F(t) (Stulov law F = Q0 x^p, p = 3.7 + 0.015 n,
+    Q0 = 183 e^(0.045 n), per JOS PASP 'Nonlinear Spring Model'; x in mm). The hammer hits a
+    rigid string and is thrown back: integrate m x'' = -F(x) until contact ends."""
+    pexp = 3.7 + 0.015 * key
+    q0 = 183.0 * math.exp(0.045 * key)
+    m = mass_kg * math.exp(-0.012 * key)            # lighter hammers up the keyboard (inferred)
+    sub = 16
+    dt = 1.0 / (SR * sub)
+    x, v = 0.0, v_mm_s
+    out = []
+    acc = 0.0
+    k = 0
+    while True:
+        f = q0 * x ** pexp if x > 0 else 0.0
+        v -= f / m * 1e3 * dt                     # N / kg = m/s^2 -> mm/s^2
+        x += v * dt
+        acc += f
+        k += 1
+        if k % sub == 0:
+            out.append(acc / sub)
+            acc = 0.0
+        if x <= 0.0 and k > sub:
+            break
+        if k > SR * sub * 0.02:                    # 20 ms safety
+            break
+    return np.array(out) if out else np.array([1.0])
+
+
+def gen_electric_grand(note, n, p, rng):
+    """CP-70-type electric grand: hammered stiff strings (partials n f0 sqrt(1 + B n^2), B from
+    bass to treble), excited by the Stulov hammer's contact-force spectrum times the strike
+    position comb sin(n pi x_h); velocity changes timbre through the hammer physics. Piezo on
+    the harp, no soundboard: flat with a little presence. Unison strings, per-partial decay."""
+    f0 = mtof(note)
+    t = tvec(n)
+    key = max(1, note - 20)                         # piano key number, A0 = 1
+    reg = np.clip((note - 28) / 72.0, 0, 1)
+    lb, lt = math.log(p.get("B_bass", 8e-4)), math.log(p.get("B_treble", 1e-4))
+    B = math.exp(lb + (lt - lb) * reg)
+    if p.get("hammer", "stulov") == "stulov":
+        F = _stulov_pulse(key, p.get("v_hammer", 3.0) * 1000.0)
+    else:                                         # a plain raised-cosine 2 ms contact
+        F = np.hanning(int(0.002 * SR) + 2)
+    nfft = 1 << 15
+    spec = np.abs(np.fft.rfft(F, nfft))
+    spec /= spec[0] + 1e-12
+    fbin = SR / nfft
+    xh = p.get("x_h", 0.12)
+    t60 = p.get("t60", 5.0) * (1.4 - 0.9 * reg)
+    x = np.zeros(n)
+    strings = int(p.get("strings", 2))
+    for s in range(strings):
+        det = 0.0 if strings == 1 else (s / (strings - 1) * 2 - 1) * p.get("unison_c", 2.0)
+        fs_ = f0 * 2 ** (det / 1200.0)
+        for k in range(1, 80):
+            fk = k * fs_ * math.sqrt(1.0 + B * k * k)
+            if fk > SR * 0.45:
+                break
+            a = float(np.interp(fk / fbin, np.arange(spec.size), spec)) * abs(math.sin(k * math.pi * xh)) / k ** 0.5
+            if a < 1e-5:
+                continue
+            tk = t60 / (1.0 + 0.002 * k * k)
+            x += a * np.sin(2 * np.pi * fk * t + rng.uniform(0, 6.28)) * np.exp(-6.907755 * t / tk)
+    x /= strings
+    x *= np.clip(t / 0.0008, 0, 1)
+    pz = p.get("piezo", 1.0)
+    x = x + 0.25 * pz * svf(x, 3000.0, 0.7, 2)      # piezo presence
+    dm = int(p.get("damper_ms", 120) * 0.001 * SR)
+    if 0 < dm < n:
+        x[-dm:] *= np.linspace(1.0, 0.0, dm)          # the damper at the end of the sample
+    return x, x.copy()
+
+
 GENERATORS = {
     "tine_ep": gen_tine_ep,
     "felt_piano": gen_felt_piano,
@@ -1238,4 +1774,10 @@ GENERATORS = {
     "prepared": gen_prepared,
     "ladder": gen_ladder,
     "resonator_bank": gen_resonator_bank,
+    "divide_down": gen_divide_down,
+    "free_reed": gen_free_reed,
+    "subharmonic": gen_subharmonic,
+    "bubbles": gen_bubbles,
+    "bridged_t_808": gen_bridged_t_808,
+    "electric_grand": gen_electric_grand,
 }

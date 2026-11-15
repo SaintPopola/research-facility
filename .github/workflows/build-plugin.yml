@@ -38,6 +38,8 @@ jobs:
           "$RUNNER_TEMP/sigvenv/bin/python" scripts/build_signature_bank.py
           "$RUNNER_TEMP/sigvenv/bin/python" scripts/build_loop_lines.py
           "$RUNNER_TEMP/sigvenv/bin/python" scripts/ci/check_render_qa.py   # no onset steps, seam clicks or loop dips
+          "$RUNNER_TEMP/sigvenv/bin/python" scripts/ci/check_flagship_dsp.py   # docs/27 ladder physics, L-lock, alias floor
+          "$RUNNER_TEMP/sigvenv/bin/python" scripts/ci/check_flagship_qa.py    # docs/27 bar on every flagship preset
           python3 scripts/ci/check_name_collisions.py
           python3 scripts/ci/check_licence_boundary.py
           # the committed browser data + sample maps must match what the renderer produces
