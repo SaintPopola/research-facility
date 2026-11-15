@@ -1,0 +1,1224 @@
+{
+ "pack": "Mystic Synths",
+ "presets": [
+  {
+   "id": "hollow_hour_lead",
+   "name": "Hollow Hour Lead",
+   "cat": "leads",
+   "tags": [
+    "lead",
+    "clean",
+    "sparse",
+    "nocturne",
+    "chorus",
+    "indie"
+   ],
+   "gen": "organ",
+   "gp": {
+    "bars": [
+     [
+      1,
+      1.0
+     ],
+     [
+      2,
+      0.05
+     ],
+     [
+      3,
+      0.11
+     ],
+     [
+      5,
+      0.04
+     ],
+     [
+      7,
+      0.02
+     ]
+    ],
+    "wow": 0.6,
+    "lp": 5200,
+    "post_hp": 120,
+    "tape": {
+     "wow_c": 0.0,
+     "wow_hz": 0.5,
+     "flutter_c": 0.0,
+     "flutter_hz": 9.0,
+     "bump": 0.12,
+     "lp": 11000,
+     "hiss": 0.002,
+     "crackle": 0.0,
+     "sat": 1.05
+    }
+   },
+   "m": [
+    12000,
+    0.0,
+    0.1,
+    0.45,
+    0.5,
+    0.4,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 3,
+    "rel": 900,
+    "reso": 0.7,
+    "vel": 0.5,
+    "lfo": 0.1,
+    "dly": "1/4D",
+    "subdec": 1200,
+    "subsus": -60,
+    "trim": 0.0
+   },
+   "z": [
+    48,
+    93,
+    3
+   ],
+   "dur": 4.0,
+   "loop": true,
+   "desc": "Clean near-triangle lead with a soft tick and a slow chorus swirl. Each note settles after it speaks; leave rests for the dotted echo.",
+   "d": {
+    "AmpDecKnob": 1800,
+    "AmpSusKnob": -8,
+    "DriftKnob": 2.5,
+    "BendKnob": 2,
+    "VibKnob": 0.1,
+    "VibRateKnob": 5.0,
+    "VibDelayKnob": 600,
+    "ViaWheelKnob": 1
+   },
+   "mod": [
+    {
+     "Source": "LFO 4",
+     "Target": "A Pitch",
+     "Intensity": 0.03,
+     "Mode": "Bipolar"
+    }
+   ]
+  },
+  {
+   "id": "two_card_drift_poly",
+   "name": "Two-Card Drift Poly",
+   "cat": "chords",
+   "tags": [
+    "analog",
+    "poly",
+    "drift",
+    "chords",
+    "nocturne",
+    "chorus"
+   ],
+   "gen": "supersaw",
+   "gp": {
+    "voices": 2,
+    "pulse": 1,
+    "detune_c": 4,
+    "spread": 0.5,
+    "drift_c": 4.0,
+    "lp": 1300,
+    "keytrack": 0.6,
+    "reso": 0.3,
+    "fenv": 4200,
+    "fenv_t": 0.4,
+    "hp": 40,
+    "attack": 0.006,
+    "decay": 1.4,
+    "sustain": 0.6,
+    "tape": {
+     "wow_c": 0.0,
+     "wow_hz": 0.5,
+     "flutter_c": 0.0,
+     "flutter_hz": 9.0,
+     "bump": 0.15,
+     "lp": 12000,
+     "hiss": 0.002,
+     "crackle": 0.0,
+     "sat": 1.12
+    }
+   },
+   "m": [
+    5500,
+    0.12,
+    0.25,
+    0.65,
+    0.5,
+    0.2,
+    0.06,
+    0.0
+   ],
+   "v": {
+    "atk": 6,
+    "rel": 900,
+    "reso": 1.0,
+    "vel": 0.5,
+    "lfo": 0.12,
+    "dly": "1/4D",
+    "subdec": 1200,
+    "subsus": -24,
+    "trim": 0.0
+   },
+   "z": [
+    36,
+    96,
+    4
+   ],
+   "dur": 4.0,
+   "loop": true,
+   "vl": 2,
+   "desc": "Two oscillators per note that never quite agree: each note a few cents off, a shade brighter or darker. Warm, unsteady chords.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 5200,
+    "ResoKnob": 1.1,
+    "FVelKnob": 0.35,
+    "DriftKnob": 8.0
+   },
+   "mod": [
+    {
+     "Source": "Random",
+     "Target": "Cutoff",
+     "Intensity": 0.18,
+     "Mode": "Scale"
+    }
+   ]
+  },
+  {
+   "id": "corridor_glow_pad",
+   "name": "Corridor Glow Pad",
+   "cat": "pads",
+   "tags": [
+    "pad",
+    "clean",
+    "minimal",
+    "nocturne",
+    "hollow",
+    "lush"
+   ],
+   "gen": "glass_pad",
+   "gp": {
+    "partials": [
+     [
+      1,
+      1.0
+     ],
+     [
+      3,
+      0.5
+     ],
+     [
+      5,
+      0.3
+     ],
+     [
+      7,
+      0.15
+     ],
+     [
+      9,
+      0.08
+     ]
+    ],
+    "air": 0.008,
+    "attack": 0.9,
+    "post_hp": 50,
+    "tape": {
+     "wow_c": 0.0,
+     "wow_hz": 0.5,
+     "flutter_c": 0.0,
+     "flutter_hz": 9.0,
+     "bump": 0.12,
+     "lp": 13000,
+     "hiss": 0.003,
+     "crackle": 0.0,
+     "sat": 1.05
+    }
+   },
+   "m": [
+    7500,
+    0.05,
+    0.3,
+    0.7,
+    0.75,
+    0.25,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 700,
+    "rel": 2800,
+    "reso": 0.7,
+    "vel": 0.3,
+    "lfo": 0.1,
+    "dly": "1/4D",
+    "subdec": 1200,
+    "subsus": -40,
+    "trim": 0.0
+   },
+   "z": [
+    36,
+    96,
+    4
+   ],
+   "dur": 7.0,
+   "loop": true,
+   "desc": "Odd harmonics only: a hollow, clarinet-like glow that swells in, each overtone breathing at its own pace. A quiet bed for long notes.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 3000,
+    "ResoKnob": 0.8,
+    "FKeyKnob": 0.4,
+    "FVelKnob": 0.3,
+    "DriftKnob": 2.0
+   },
+   "mod": [
+    {
+     "Source": "Env 3",
+     "Target": "Cutoff",
+     "Intensity": 0.45,
+     "Mode": "Scale"
+    },
+    {
+     "Source": "LFO 4",
+     "Target": "A Pitch",
+     "Intensity": 0.03,
+     "Mode": "Bipolar"
+    }
+   ]
+  },
+  {
+   "id": "three_wire_mono",
+   "name": "Three Wire Mono",
+   "cat": "leads",
+   "tags": [
+    "analog",
+    "mono",
+    "solo",
+    "fat",
+    "prog",
+    "lead"
+   ],
+   "gen": "supersaw",
+   "gp": {
+    "voices": 2,
+    "detune_c": 5.5,
+    "spread": 0.1,
+    "drift_c": 2.0,
+    "sub": 0.25,
+    "noise": 0.015,
+    "drive_pre": 2.8,
+    "lp": 750,
+    "keytrack": 0.85,
+    "reso": 0.55,
+    "fenv": 3200,
+    "fenv_t": 0.45,
+    "attack": 0.004,
+    "decay": 0.8,
+    "sustain": 0.85,
+    "drive": 1.3,
+    "tape": {
+     "wow_c": 0.0,
+     "wow_hz": 0.5,
+     "flutter_c": 0.0,
+     "flutter_hz": 9.0,
+     "bump": 0.2,
+     "lp": 12000,
+     "hiss": 0.0015,
+     "crackle": 0.0,
+     "sat": 1.1
+    }
+   },
+   "m": [
+    9000,
+    0.0,
+    0.15,
+    0.4,
+    0.35,
+    0.25,
+    0.15,
+    0.0
+   ],
+   "v": {
+    "atk": 3,
+    "rel": 260,
+    "reso": 0.9,
+    "vel": 0.6,
+    "lfo": 0.15,
+    "dly": "1/8D",
+    "subdec": 1200,
+    "subsus": -60,
+    "trim": 0.0
+   },
+   "z": [
+    36,
+    87,
+    3
+   ],
+   "dur": 3.5,
+   "loop": true,
+   "vl": 2,
+   "desc": "Two saws and a sine an octave down, driven into a resonant low-pass that bites, then sings. One-note solo lines; vibrato on the wheel.",
+   "d": {
+    "VibKnob": 0.3,
+    "VibRateKnob": 5.3,
+    "VibDelayKnob": 400,
+    "ViaWheelKnob": 1,
+    "BendKnob": 2,
+    "DriftKnob": 3.0
+   }
+  },
+  {
+   "id": "machine_hymn_vox",
+   "name": "Machine Hymn Vox",
+   "cat": "pads",
+   "tags": [
+    "machine",
+    "choir",
+    "cold-wave",
+    "mystic",
+    "vintage",
+    "pad"
+   ],
+   "gen": "voice",
+   "gp": {
+    "singers": 4,
+    "vowels": [
+     "u",
+     "o",
+     "o",
+     "o",
+     "o",
+     "o"
+    ],
+    "spread_c": 5,
+    "vib_c": 0,
+    "jitter_c": 0.5,
+    "breath": 0.0,
+    "attack": 0.35,
+    "decay": 1.0,
+    "sustain": 1.0,
+    "lp": 4800,
+    "loop_start": 1.5,
+    "tape": {
+     "wow_c": 0.0,
+     "wow_hz": 0.5,
+     "flutter_c": 0.8,
+     "flutter_hz": 6.0,
+     "bump": 0.2,
+     "lp": 9000,
+     "hiss": 0.003,
+     "crackle": 0.0,
+     "sat": 1.12
+    }
+   },
+   "m": [
+    9000,
+    0.1,
+    0.3,
+    0.7,
+    0.6,
+    0.15,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 250,
+    "rel": 1800,
+    "reso": 0.8,
+    "vel": 0.35,
+    "lfo": 0.1,
+    "dly": "1/4D",
+    "subdec": 1200,
+    "subsus": -36,
+    "trim": 0.0
+   },
+   "z": [
+    36,
+    84,
+    3
+   ],
+   "dur": 6.0,
+   "loop": true,
+   "desc": "Buzzing oscillators sung through a throat that opens from 'oo' to 'oh'. No breath, no vibrato, only fast tape flutter. A cold hymn pad.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 6500,
+    "ResoKnob": 0.8,
+    "FVelKnob": 0.4,
+    "DriftKnob": 3.0
+   },
+   "mod": [
+    {
+     "Source": "Env 3",
+     "Target": "Cutoff",
+     "Intensity": 0.35,
+     "Mode": "Scale"
+    }
+   ]
+  },
+  {
+   "id": "ivory_circuit_piano",
+   "name": "Ivory Circuit Piano",
+   "cat": "keys",
+   "tags": [
+    "keys",
+    "synth-piano",
+    "vintage",
+    "poly",
+    "nostalgic",
+    "70s"
+   ],
+   "gen": "supersaw",
+   "gp": {
+    "voices": 2,
+    "pulse": 1,
+    "detune_c": 3,
+    "spread": 0.35,
+    "drift_c": 1.2,
+    "noise": 0.03,
+    "lp": 700,
+    "keytrack": 0.8,
+    "reso": 0.08,
+    "fenv": 6500,
+    "fenv_t": 0.13,
+    "hp": 70,
+    "attack": 0.0015,
+    "t60": 4.5,
+    "tape": {
+     "wow_c": 0.0,
+     "wow_hz": 0.5,
+     "flutter_c": 0.0,
+     "flutter_hz": 9.0,
+     "bump": 0.2,
+     "lp": 12500,
+     "hiss": 0.002,
+     "crackle": 0.0,
+     "sat": 1.1
+    }
+   },
+   "m": [
+    11000,
+    0.05,
+    0.15,
+    0.55,
+    0.45,
+    0.2,
+    0.04,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 700,
+    "reso": 0.8,
+    "vel": 0.65,
+    "lfo": 0.15,
+    "dly": "1/8D",
+    "subdec": 900,
+    "subsus": -40,
+    "trim": 0.0
+   },
+   "z": [
+    36,
+    96,
+    4
+   ],
+   "dur": 4.0,
+   "loop": false,
+   "vl": 2,
+   "desc": "A 70s synth piano: saw and pulse struck through a filter that snaps bright, then rings out. Play soft for felt. Chords and arps.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 9000,
+    "ResoKnob": 0.7,
+    "FVelKnob": 0.35,
+    "DriftKnob": 3.0
+   }
+  },
+  {
+   "id": "lantern_ensemble_strings",
+   "name": "Lantern Ensemble Strings",
+   "cat": "pads",
+   "tags": [
+    "strings",
+    "ensemble",
+    "70s",
+    "pad",
+    "nostalgic",
+    "chorus"
+   ],
+   "gen": "organ",
+   "gp": {
+    "bars": [
+     [
+      1,
+      0.6
+     ],
+     [
+      2,
+      0.3
+     ],
+     [
+      3,
+      0.2
+     ],
+     [
+      4,
+      0.15
+     ],
+     [
+      5,
+      0.12
+     ],
+     [
+      6,
+      0.1
+     ],
+     [
+      7,
+      0.085
+     ],
+     [
+      8,
+      0.075
+     ],
+     [
+      10,
+      0.06
+     ],
+     [
+      12,
+      0.05
+     ]
+    ],
+    "wow": 1.2,
+    "lp": 4500,
+    "post_hp": 180,
+    "tape": {
+     "wow_c": 0.0,
+     "wow_hz": 0.5,
+     "flutter_c": 1.2,
+     "flutter_hz": 6.0,
+     "bump": 0.1,
+     "lp": 9000,
+     "hiss": 0.003,
+     "crackle": 0.0,
+     "sat": 1.08
+    }
+   },
+   "m": [
+    8000,
+    0.1,
+    0.45,
+    0.8,
+    0.65,
+    0.12,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 350,
+    "rel": 1800,
+    "reso": 0.8,
+    "vel": 0.3,
+    "lfo": 0.1,
+    "dly": "1/4D",
+    "subdec": 1200,
+    "subsus": -30,
+    "trim": 0.0
+   },
+   "z": [
+    36,
+    96,
+    4
+   ],
+   "dur": 6.0,
+   "loop": true,
+   "desc": "String machine: a bright saw per key, every key in perfect tune, thin at the bottom, a fast shimmer and one shared wobble. Held chords.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 6000,
+    "ResoKnob": 0.7,
+    "FKeyKnob": 0.3,
+    "FVelKnob": 0.35,
+    "DriftKnob": 0.0
+   },
+   "mod": [
+    {
+     "Source": "LFO 4",
+     "Target": "A Pitch",
+     "Intensity": 0.04,
+     "Mode": "Bipolar"
+    },
+    {
+     "Source": "Env 3",
+     "Target": "Cutoff",
+     "Intensity": 0.3,
+     "Mode": "Scale"
+    }
+   ]
+  },
+  {
+   "id": "hustle_dco_bass",
+   "name": "Hustle DCO Bass",
+   "cat": "bass",
+   "tags": [
+    "bass",
+    "house",
+    "pluck",
+    "dco",
+    "80s",
+    "round"
+   ],
+   "gen": "supersaw",
+   "gp": {
+    "voices": 2,
+    "pulse": 1,
+    "detune_c": 0.0,
+    "spread": 0.0,
+    "drift_c": 0.4,
+    "sub": 0.5,
+    "lp": 480,
+    "keytrack": 0.55,
+    "reso": 0.35,
+    "fenv": 3000,
+    "fenv_t": 0.12,
+    "attack": 0.001,
+    "t60": 3.5,
+    "drive": 1.2,
+    "tape": {
+     "wow_c": 0.0,
+     "wow_hz": 0.5,
+     "flutter_c": 0.0,
+     "flutter_hz": 9.0,
+     "bump": 0.25,
+     "lp": 9000,
+     "hiss": 0.0015,
+     "crackle": 0.0,
+     "sat": 1.25
+    },
+    "post_hp": 25
+   },
+   "m": [
+    6000,
+    0.0,
+    0.0,
+    0.0,
+    0.08,
+    0.0,
+    0.15,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 120,
+    "reso": 0.9,
+    "vel": 0.55,
+    "lfo": 0.1,
+    "dly": "1/8",
+    "subdec": 400,
+    "subsus": -40,
+    "trim": 0.0
+   },
+   "z": [
+    24,
+    60,
+    3
+   ],
+   "dur": 3.5,
+   "loop": false,
+   "vl": 2,
+   "desc": "Saw and pulse locked on one note over a sine an octave down, plucked by a quick filter. Round, bouncy, dead-centre lines; long notes fade.",
+   "d": {
+    "DriftKnob": 1.0,
+    "BendKnob": 2
+   }
+  },
+  {
+   "id": "floorboard_pedal_bass",
+   "name": "Floorboard Pedal Bass",
+   "cat": "bass",
+   "tags": [
+    "bass",
+    "analog",
+    "pedal",
+    "prog",
+    "mono",
+    "deep"
+   ],
+   "gen": "reese",
+   "gp": {
+    "detune_c": 3.5,
+    "sub": 0.45,
+    "lp": 750,
+    "reso": 0.45,
+    "drive": 2.6,
+    "attack": 0.008,
+    "decay": 0.9,
+    "sustain": 0.8
+   },
+   "m": [
+    9000,
+    0.0,
+    0.0,
+    0.0,
+    0.08,
+    0.0,
+    0.2,
+    0.0
+   ],
+   "v": {
+    "atk": 4,
+    "rel": 200,
+    "reso": 1.0,
+    "vel": 0.55,
+    "lfo": 0.1,
+    "dly": "1/8",
+    "subdec": 900,
+    "subsus": -30,
+    "trim": 0.0
+   },
+   "z": [
+    24,
+    60,
+    3
+   ],
+   "dur": 3.5,
+   "loop": true,
+   "desc": "Two saws a breath apart over a sine, distorted through a resonant filter that blooms on each note and settles low. Deep held pedal notes.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 1600,
+    "ResoKnob": 1.6,
+    "FEnvAmtKnob": 0.5,
+    "FAtkKnob": 5,
+    "FDecKnob": 450,
+    "FSusKnob": -16,
+    "FRelKnob": 200,
+    "FKeyKnob": 0.6,
+    "FVelKnob": 0.4,
+    "DriftKnob": 2.0,
+    "BendKnob": 2
+   }
+  },
+  {
+   "id": "stone_throat_chant",
+   "name": "Stone Throat Chant",
+   "cat": "vox",
+   "tags": [
+    "vox",
+    "chant",
+    "overtone",
+    "drone",
+    "mystic",
+    "ritual"
+   ],
+   "gen": "voice",
+   "gp": {
+    "singers": 5,
+    "vowels": [
+     "u",
+     "u",
+     "i",
+     "u",
+     "u"
+    ],
+    "spread_c": 8,
+    "vib_c": 3,
+    "vib_delay": 1.0,
+    "jitter_c": 1.5,
+    "breath": 0.04,
+    "attack": 0.4,
+    "decay": 1.0,
+    "sustain": 1.0,
+    "lp": 4500,
+    "post_shelf": [
+     1400,
+     8.0
+    ],
+    "tape": {
+     "wow_c": 0.0,
+     "wow_hz": 0.5,
+     "flutter_c": 0.0,
+     "flutter_hz": 9.0,
+     "bump": 0.2,
+     "lp": 9000,
+     "hiss": 0.002,
+     "crackle": 0.0,
+     "sat": 1.05
+    }
+   },
+   "m": [
+    16000,
+    0.0,
+    0.2,
+    0.7,
+    0.75,
+    0.15,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 400,
+    "rel": 2500,
+    "reso": 0.7,
+    "vel": 0.25,
+    "lfo": 0.08,
+    "dly": "1/4D",
+    "subdec": 3000,
+    "subsus": -30,
+    "trim": 0.0
+   },
+   "z": [
+    36,
+    63,
+    3
+   ],
+   "dur": 10.0,
+   "loop": true,
+   "desc": "Five low voices hum 'oo' while a thin whistle of overtones rises inside the vowel and falls back about every nine seconds. Long drones.",
+   "d": {
+    "DriftKnob": 2.0
+   }
+  },
+  {
+   "id": "keyhole_wind",
+   "name": "Keyhole Wind",
+   "cat": "pads",
+   "tags": [
+    "air",
+    "wind",
+    "whistle",
+    "mystic",
+    "texture",
+    "whisper"
+   ],
+   "gen": "breath",
+   "gp": {
+    "pitch": 2.4,
+    "vowels": [
+     "u",
+     "i",
+     "i",
+     "i",
+     "i"
+    ],
+    "attack": 0.5,
+    "loop_start": 3.04,
+    "post_hp": 200,
+    "post_shelf": [
+     6000,
+     3.0
+    ]
+   },
+   "m": [
+    14000,
+    0.0,
+    0.3,
+    0.8,
+    0.7,
+    0.25,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 400,
+    "rel": 2200,
+    "reso": 0.7,
+    "vel": 0.3,
+    "lfo": 0.12,
+    "dly": "1/4D",
+    "subdec": 1200,
+    "subsus": -60,
+    "trim": 0.0
+   },
+   "z": [
+    55,
+    95,
+    4
+   ],
+   "dur": 8.0,
+   "loop": true,
+   "desc": "Wind through a keyhole: each note starts dark and opens into a thin whistle on the pitch you play, gusting once a bar. Air above chords.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 6000,
+    "ResoKnob": 1.2,
+    "DriftKnob": 0.0
+   },
+   "mod": [
+    {
+     "Source": "LFO 4",
+     "Target": "Cutoff",
+     "Intensity": 0.35,
+     "Mode": "Scale"
+    },
+    {
+     "Source": "LFO 4",
+     "Target": "A Level",
+     "Intensity": 0.2,
+     "Mode": "Scale"
+    }
+   ]
+  },
+  {
+   "id": "low_tide_fm_pad",
+   "name": "Low Tide FM Pad",
+   "cat": "pads",
+   "tags": [
+    "underwater",
+    "rnb",
+    "late-night",
+    "fm",
+    "pad",
+    "lofi"
+   ],
+   "gen": "fm_bell",
+   "gp": {
+    "ratio": 2.0,
+    "index": 1.2,
+    "index_t": 1.5,
+    "partial2": 0.15,
+    "ratio2": 4.0,
+    "beat_c": 0.1,
+    "t60": 7.0,
+    "decim": 11025,
+    "decim_drive": 0.1,
+    "post_hp": 180,
+    "tape": {
+     "wow_c": 3.0,
+     "wow_hz": 0.35,
+     "flutter_c": 0.4,
+     "flutter_hz": 6.0,
+     "bump": 0.25,
+     "lp": 5500,
+     "hiss": 0.003,
+     "crackle": 0.0,
+     "sat": 1.12
+    }
+   },
+   "m": [
+    2600,
+    0.0,
+    0.3,
+    0.65,
+    0.65,
+    0.3,
+    0.08,
+    0.0
+   ],
+   "v": {
+    "atk": 120,
+    "rel": 2200,
+    "reso": 0.8,
+    "vel": 0.45,
+    "lfo": 0.12,
+    "dly": "1/4D",
+    "subdec": 2500,
+    "subsus": -30,
+    "trim": 0.0
+   },
+   "z": [
+    36,
+    84,
+    4
+   ],
+   "dur": 10.0,
+   "loop": false,
+   "desc": "Hollow FM tone struck soft and left to ring through a low sample rate and old tape; the chord wobbles as one and ebbs like a tide.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 4000,
+    "ResoKnob": 0.8,
+    "FVelKnob": 0.45,
+    "DriftKnob": 2.5
+   },
+   "mod": [
+    {
+     "Source": "LFO 4",
+     "Target": "Cutoff",
+     "Intensity": 0.2,
+     "Mode": "Scale"
+    }
+   ]
+  },
+  {
+   "id": "baile_cowbell",
+   "name": "Baile Cowbell",
+   "cat": "leads",
+   "tags": [
+    "brazilian-phonk",
+    "phonk",
+    "cowbell",
+    "automotivo",
+    "distorted",
+    "lead"
+   ],
+   "gen": "fm_bell",
+   "gp": {
+    "ratio": 1.48,
+    "index": 1.6,
+    "index_t": 0.25,
+    "partial2": 0.7,
+    "ratio2": 1.48,
+    "beat_c": 0.0,
+    "t60": 0.9,
+    "decim": 14000,
+    "decim_drive": 0.5,
+    "post_hp": 280,
+    "tape": {
+     "wow_c": 0.0,
+     "wow_hz": 0.5,
+     "flutter_c": 0.0,
+     "flutter_hz": 9.0,
+     "bump": 0.3,
+     "lp": 9000,
+     "hiss": 0.0015,
+     "crackle": 0.0,
+     "sat": 2.4
+    }
+   },
+   "m": [
+    16000,
+    0.0,
+    0.0,
+    0.35,
+    0.3,
+    0.3,
+    0.4,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 250,
+    "reso": 0.8,
+    "vel": 0.6,
+    "lfo": 0.2,
+    "dly": "1/8",
+    "subdec": 1200,
+    "subsus": -60,
+    "trim": 0.0
+   },
+   "z": [
+    45,
+    84,
+    3
+   ],
+   "dur": 1.5,
+   "loop": false,
+   "desc": "Crushed two-tone metal bell played as a melody: bright on the strike, gone in a second, a little different every hit. Minor funk riffs.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 9000,
+    "ResoKnob": 0.8,
+    "FVelKnob": 0.4,
+    "DriftKnob": 0.0,
+    "BendKnob": 2
+   },
+   "mod": [
+    {
+     "Source": "Random",
+     "Target": "Cutoff",
+     "Intensity": 0.15,
+     "Mode": "Scale"
+    }
+   ]
+  },
+  {
+   "id": "ember_talk_lead",
+   "name": "Ember Talk Lead",
+   "cat": "leads",
+   "tags": [
+    "reggaeton",
+    "lead",
+    "formant",
+    "gritty",
+    "latin",
+    "perreo"
+   ],
+   "gen": "voice",
+   "gp": {
+    "singers": 1,
+    "vowels": [
+     "a",
+     "e",
+     "e",
+     "e",
+     "e",
+     "e"
+    ],
+    "vib_c": 0,
+    "jitter_c": 1.5,
+    "breath": 0.04,
+    "attack": 0.008,
+    "decay": 0.4,
+    "sustain": 0.85,
+    "lp": 4200,
+    "decim": 22050,
+    "decim_drive": 0.25,
+    "tape": {
+     "wow_c": 0.0,
+     "wow_hz": 0.5,
+     "flutter_c": 0.0,
+     "flutter_hz": 9.0,
+     "bump": 0.3,
+     "lp": 9000,
+     "hiss": 0.002,
+     "crackle": 0.0,
+     "sat": 2.4
+    }
+   },
+   "m": [
+    13000,
+    0.0,
+    0.2,
+    0.5,
+    0.4,
+    0.3,
+    0.25,
+    0.0
+   ],
+   "v": {
+    "atk": 6,
+    "rel": 300,
+    "reso": 0.9,
+    "vel": 0.5,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subdec": 1200,
+    "subsus": -60,
+    "trim": 0.0
+   },
+   "z": [
+    48,
+    84,
+    3
+   ],
+   "dur": 3.0,
+   "loop": true,
+   "desc": "A nasal voice that opens 'ah' into 'eh' on every note, clipped through hot tape, dead centre. A talking dembow hook; the wah moves in eighths.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 4200,
+    "ResoKnob": 0.9,
+    "FVelKnob": 0.3,
+    "BendKnob": 5,
+    "VibKnob": 0.25,
+    "VibRateKnob": 5.8,
+    "VibDelayKnob": 250,
+    "ViaWheelKnob": 1,
+    "DriftKnob": 3.0
+   },
+   "mod": [
+    {
+     "Source": "LFO 2",
+     "Target": "Cutoff",
+     "Intensity": 0.3,
+     "Mode": "Scale"
+    }
+   ]
+  }
+ ]
+}

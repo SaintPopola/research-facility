@@ -75,7 +75,10 @@ def main():
             d2 = np.abs(np.diff(both, n=2, axis=0)).max(axis=1)
             at = float(d2[62:64].max())
             around = float(np.percentile(np.r_[d2[:58], d2[68:]], 95)) + 1e-6
-            if at > SEAM_MAX and at > SEAM_RATIO * around:
+            onset = float(np.sqrt(np.mean(both[64:] ** 2))) >= 1.6 * float(np.sqrt(np.mean(both[:64] ** 2)))
+            # beat 1 is at sample 0: a note attacking right there doubles the energy after the
+            # seam, which is the downbeat, not a click (a click does not change the level)
+            if at > SEAM_MAX and at > SEAM_RATIO * around and not onset:
                 fails.append((at / around, f"{f.name}: loop seam click {at:.3f} FS curvature, {at / around:.1f}x its surroundings"))
             continue
         x0 = float(np.abs(head[0]).max())

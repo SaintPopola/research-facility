@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<samplemap ID="SIG_machine_hymn_vox" SaveMode="1" RRGroupAmount="1.0" MicPositions=";"
+           CrossfadeGamma="1.0">
+  <sample ID="0" FileName="{PROJECT_FOLDER}SIG_machine_hymn_vox_36.wav" Root="36" HiKey="37"
+          LoKey="0" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="264992" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="1" FileName="{PROJECT_FOLDER}SIG_machine_hymn_vox_39.wav" Root="39" HiKey="40"
+          LoKey="38" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="273415" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="2" FileName="{PROJECT_FOLDER}SIG_machine_hymn_vox_42.wav" Root="42" HiKey="43"
+          LoKey="41" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="273156" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="3" FileName="{PROJECT_FOLDER}SIG_machine_hymn_vox_45.wav" Root="45" HiKey="46"
+          LoKey="44" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="270970" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="4" FileName="{PROJECT_FOLDER}SIG_machine_hymn_vox_48.wav" Root="48" HiKey="49"
+          LoKey="47" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="272456" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="5" FileName="{PROJECT_FOLDER}SIG_machine_hymn_vox_51.wav" Root="51" HiKey="52"
+          LoKey="50" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="262605" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="6" FileName="{PROJECT_FOLDER}SIG_machine_hymn_vox_54.wav" Root="54" HiKey="55"
+          LoKey="53" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="286380" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="7" FileName="{PROJECT_FOLDER}SIG_machine_hymn_vox_57.wav" Root="57" HiKey="58"
+          LoKey="56" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="286409" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="8" FileName="{PROJECT_FOLDER}SIG_machine_hymn_vox_60.wav" Root="60" HiKey="61"
+          LoKey="59" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="274999" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="9" FileName="{PROJECT_FOLDER}SIG_machine_hymn_vox_63.wav" Root="63" HiKey="64"
+          LoKey="62" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="284524" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="10" FileName="{PROJECT_FOLDER}SIG_machine_hymn_vox_66.wav" Root="66" HiKey="67"
+          LoKey="65" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="281225" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="11" FileName="{PROJECT_FOLDER}SIG_machine_hymn_vox_69.wav" Root="69" HiKey="70"
+          LoKey="68" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="277542" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="12" FileName="{PROJECT_FOLDER}SIG_machine_hymn_vox_72.wav" Root="72" HiKey="73"
+          LoKey="71" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="277038" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="13" FileName="{PROJECT_FOLDER}SIG_machine_hymn_vox_75.wav" Root="75" HiKey="76"
+          LoKey="74" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="262671" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="14" FileName="{PROJECT_FOLDER}SIG_machine_hymn_vox_78.wav" Root="78" HiKey="79"
+          LoKey="77" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="286529" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="15" FileName="{PROJECT_FOLDER}SIG_machine_hymn_vox_81.wav" Root="81" HiKey="82"
+          LoKey="80" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="269899" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="16" FileName="{PROJECT_FOLDER}SIG_machine_hymn_vox_84.wav" Root="84" HiKey="127"
+          LoKey="83" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="271810" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+</samplemap>

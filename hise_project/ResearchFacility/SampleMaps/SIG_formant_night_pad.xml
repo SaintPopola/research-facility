@@ -5,7 +5,7 @@
   <sample ID="0" FileName="{PROJECT_FOLDER}SIG_formant_night_pad_36.wav" Root="36" HiKey="38"
           LoKey="0" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
-          SampleStartMod="0" LoopStart="76800" LoopEnd="123421" LoopXFade="16800" LoopEnabled="1"
+          SampleStartMod="0" LoopStart="76800" LoopEnd="217876" LoopXFade="16800" LoopEnabled="1"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="1" FileName="{PROJECT_FOLDER}SIG_formant_night_pad_42.wav" Root="42" HiKey="44"
@@ -17,7 +17,7 @@
   <sample ID="2" FileName="{PROJECT_FOLDER}SIG_formant_night_pad_48.wav" Root="48" HiKey="50"
           LoKey="45" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
-          SampleStartMod="0" LoopStart="76800" LoopEnd="153637" LoopXFade="16800" LoopEnabled="1"
+          SampleStartMod="0" LoopStart="76800" LoopEnd="236613" LoopXFade="16800" LoopEnabled="1"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="3" FileName="{PROJECT_FOLDER}SIG_formant_night_pad_54.wav" Root="54" HiKey="56"
@@ -47,13 +47,13 @@
   <sample ID="7" FileName="{PROJECT_FOLDER}SIG_formant_night_pad_78.wav" Root="78" HiKey="80"
           LoKey="75" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
-          SampleStartMod="0" LoopStart="76800" LoopEnd="274362" LoopXFade="16800" LoopEnabled="1"
+          SampleStartMod="0" LoopStart="76800" LoopEnd="274270" LoopXFade="16800" LoopEnabled="1"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="8" FileName="{PROJECT_FOLDER}SIG_formant_night_pad_84.wav" Root="84" HiKey="127"
           LoKey="81" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
-          SampleStartMod="0" LoopStart="76800" LoopEnd="270711" LoopXFade="16800" LoopEnabled="1"
+          SampleStartMod="0" LoopStart="76800" LoopEnd="270756" LoopXFade="16800" LoopEnabled="1"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
 </samplemap>

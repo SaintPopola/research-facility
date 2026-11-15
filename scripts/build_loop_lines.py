@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import json
 import math
+import re
 import sys
 from pathlib import Path
 
@@ -157,55 +158,155 @@ def kit_events(kit, lane, take):
     return pattern(lane, take, kit.get("prog_bars") or PROGS[kit["prog"]], kit["root"])
 
 
+# lane loudness in K-weighted, gated LUFS (ITU-R BS.1770): sparse lanes are measured on the
+# notes, not on the silence between them, so they are no longer pushed into the soft knee
+LANE_LUFS = {"KEYS": -12.5, "BASS": -13.5, "PLUCK": -14.0, "AIR": -16.0}   # by ear later; old loops sat near -13 dBFS RMS
+_K1 = ([1.53512485958697, -2.69169618940638, 1.19839281085285], [1.0, -1.69065929318241, 0.73248077421585])
+_K2 = ([1.0, -2.0, 1.0], [1.0, -1.99004745483398, 0.99007225036621])
+
+
+def lufs(l, r):
+    """BS.1770 integrated loudness at 48 kHz: K-weighting, 400 ms blocks with 75% overlap,
+    absolute gate -70 LUFS, relative gate -10 LU."""
+    from scipy.signal import lfilter
+    zs = []
+    for ch in (l, r):
+        y = lfilter(*_K2, lfilter(*_K1, ch))
+        zs.append(y * y)
+    e = zs[0] + zs[1]
+    w, hop = int(0.4 * SR), int(0.1 * SR)
+    c = np.concatenate([[0.0], np.cumsum(e)])
+    st = np.arange(0, max(1, len(e) - w + 1), hop)
+    blk = (c[np.minimum(st + w, len(e))] - c[st]) / w
+    lk = -0.691 + 10 * np.log10(blk + 1e-20)
+    g = blk[lk > -70.0]
+    if g.size == 0:
+        return -70.0
+    rel = -0.691 + 10 * math.log10(float(np.mean(g))) - 10.0
+    g2 = blk[(lk > -70.0) & (lk > rel)]
+    return -0.691 + 10 * math.log10(float(np.mean(g2)) + 1e-20)
+FLOOR_DBFS = -66.0                 # a loop never drops to digital silence (doc 23 pattern 3)
+
+
+def tempo_beats(name: str) -> float:
+    """'1/8D' -> 0.75 beats (D dotted, T triplet), as the plug-in's delay reads p.dly."""
+    m = re.fullmatch(r"1/(\d+)([DT]?)", name.strip())
+    if not m:
+        return 0.75
+    beats = 4.0 / int(m.group(1))
+    return beats * (1.5 if m.group(2) == "D" else (2.0 / 3.0 if m.group(2) == "T" else 1.0))
+
+
+def note_env(n, hold, atk, rel):
+    """Preset attack (raised cosine) and release (to -60 dB over rel), plus a 5 ms end fade."""
+    env = np.ones(n)
+    a = max(int(0.001 * SR), min(int(atk * SR), n))
+    env[:a] = 0.5 - 0.5 * np.cos(np.linspace(0.0, np.pi, a))
+    if hold < n:
+        t = np.arange(n - hold) / SR
+        env[hold:] *= np.exp(-6.907755 * t / max(rel, 0.02))
+    fo = min(n, int(0.005 * SR))
+    env[-fo:] *= np.linspace(1.0, 0.0, fo)
+    return env
+
+
+def cadd(buf, s0, v):
+    """Add v into the circular buffer at s0 (negative starts and long tails wrap)."""
+    nb_ = len(buf)
+    s0 %= nb_
+    e = s0 + len(v)
+    if e <= nb_:
+        buf[s0:e] += v
+    else:
+        k = nb_ - s0
+        buf[s0:] += v[:k]
+        buf[: e - nb_] += v[k:]
+
+
+def voice_lane(p, l, r, n_loop, rng):
+    """The lane through its preset's own voicing, as the plug-in's master FX would play it
+    (doc 23 pattern 1): GRIT, TONE (ladder LP), WIDTH (chorus on mono lanes), ECHO at the
+    preset's tempo division, SPACE. Run over repeated loops and keep the last one, so every
+    tail wraps onto beat 1 in steady state."""
+    m, v = p["m"], p["v"]
+    tone, width, space, echo, grit = m[0], m[3], m[4], m[5], m[6]
+    reps = int(min(10, 1 + math.ceil(6.0 * SR / n_loop)))
+    L = np.tile(l, reps)
+    R = np.tile(r, reps)
+    if grit > 0.01:
+        L = dsp.saturate(L, grit * 0.85, min(1.0, grit * 1.6))
+        R = dsp.saturate(R, grit * 0.85, min(1.0, grit * 1.6))
+    if tone < 19000:
+        q = float(np.clip((v["reso"] - 0.7) * 0.5, 0.0, 0.4))
+        L = dsp.lp24(L, tone, q)
+        R = dsp.lp24(R, tone, q)
+    mono = float(np.max(np.abs(l - r))) < 1e-6
+    if mono or width > 0.3:
+        # chorus rate rounded to whole cycles per loop: the seam stays continuous
+        loop_s = n_loop / SR
+        rate = max(1, round(0.35 * loop_s)) / loop_s
+        cl, cr = dsp.short_chorus((L + R) * 0.5, rng, depth_ms=1.5 + 3.0 * width, rate=rate)
+        mix = 0.5 if mono else 0.25 * width
+        L = L * (1.0 - mix) + cl * mix
+        R = R * (1.0 - mix) + cr * mix
+    spb = 60.0 / p["_bpm"]
+    if echo > 0.01:
+        L, R = dsp.tempo_delay(L, R, tempo_beats(v["dly"]) * spb, 0.15 + echo * 0.4, 0.12 + echo * 0.38, echo * 0.45)
+    if space > 0.01:
+        tn = float(np.clip((math.log(tone) - 4.38) / 5.52, 0.0, 1.0))
+        L, R = dsp.juce_reverb(L, R, 0.45 + space * 0.5, 0.75 + (0.25 - 0.75) * tn, space * 0.55, dry=0.9,
+                               width=min(1.0, 0.4 + width * 0.6))
+    return L[-n_loop:], R[-n_loop:]
+
+
 def render_loop(kit, lane, take):
     pid = kit["lanes"][lane]
-    p = next(x for x in bank.PRESETS if x["id"] == pid)
+    p = dict(next(x for x in bank.PRESETS if x["id"] == pid))
+    p["_bpm"] = kit["bpm"]
     spb = 60.0 / kit["bpm"]
     n_loop = int(round(kit.get("bars", 2) * 4 * spb * SR))
-    # room for every tail: a note can start in the last beat and ring 6 s, so a short loop
-    # needs several wraps (a tail cut at the buffer end clicked at the seam, doc 23 B3)
-    n_wraps = 1 + int(math.ceil((6.0 + 0.5) * SR / n_loop))
+    v = p["v"]
+    atk = min(1.5, v["atk"] / 1000.0)
+    rel = min(4.0, v["rel"] / 1000.0)
+    gen_atk = float(p["gp"].get("attack", 0.0) or 0.0)
+    # slow swells start early so they bloom on the beat (doc 23 pattern 7)
+    pre = 0.6 * (gen_atk + atk) if lane == "AIR" and gen_atk + atk >= 0.25 else 0.0
+    max_note = 8.5 + pre
+    n_wraps = 1 + int(math.ceil(max_note * SR / n_loop))
     n_buf = n_loop * n_wraps
     buf_l = np.zeros(n_buf)
     buf_r = np.zeros(n_buf)
-    cache = {}
-    for start, length, note, vel in kit_events(kit, lane, take):
-        dur = min(length * spb + 1.5, 6.0)
+    soft_gp = bank.soften(p["gen"], p["gp"])
+    for i, (start, length, note, vel) in enumerate(kit_events(kit, lane, take)):
+        # every event its own voice (doc 23 pattern 6: 39% replayed one identical sample)
+        rng = np.random.default_rng(bank.seed_for(f"{kit['id']}:{lane}:{take}:{i}", int(note)))
+        hold_s = length * spb
+        dur = min(hold_s + rel + 0.15, 8.5)
         n = int(dur * SR)
-        key = (note, n)
-        if key not in cache:
-            rng = np.random.default_rng(bank.seed_for(pid + "_loop", note))
-            cache[key] = bank.render_voice(p, p["gp"], note, n, rng)
-        l, r = cache[key]
-        hold = int(length * spb * SR)
-        env = np.ones(n)
-        fi = min(n, int(0.001 * SR))           # 1 ms fade-in: no onset step from any generator (doc 23 B3)
-        env[:fi] = np.linspace(0.0, 1.0, fi)
-        fo = min(n, int(0.005 * SR))           # and the voice's own end never cuts off mid-cycle
-        env[-fo:] *= np.linspace(1.0, 0.0, fo)
-        rel = int(min(0.25, 0.6 * length * spb + 0.05) * SR)
-        if hold + rel < n:
-            env[hold:hold + rel] = np.linspace(1.0, 0.0, rel)
-            env[hold + rel:] = 0.0
+        gp = soft_gp if vel < 80 else p["gp"]          # quiet notes are darker, not only quieter
+        detune = float(rng.normal(0.0, 0.03))           # about 3 cents
+        l, r = bank.render_voice(p, gp, note + detune, n, rng)
+        env = note_env(n, int(hold_s * SR), atk, rel)
         g = (vel / 127.0) ** 1.4
-        s0 = int(start * spb * SR)
-        e0 = min(n_buf, s0 + n)
-        buf_l[s0:e0] += l[: e0 - s0] * env[: e0 - s0] * g
-        buf_r[s0:e0] += r[: e0 - s0] * env[: e0 - s0] * g
-    # fold every wrap onto the head: seamless loop, beat 1 at sample 0
+        jit = int(rng.uniform(-0.0015, 0.0015) * SR)
+        s0 = int((start * spb - pre) * SR) + jit
+        cadd(buf_l, s0, l * env * g)
+        cadd(buf_r, s0, r * env * g)
     loop_l = buf_l.reshape(n_wraps, n_loop).sum(axis=0)
     loop_r = buf_r.reshape(n_wraps, n_loop).sum(axis=0)
-    rms = math.sqrt(float(np.mean((loop_l ** 2 + loop_r ** 2) * 0.5))) + 1e-12
-    base = 0.22 / rms                           # +6 dB: HISE time-stretch output is x0.5 (doc 15)
-    gain = base
+    vrng = np.random.default_rng(bank.seed_for(f"{kit['id']}:{lane}:{take}:fx", 0))
+    loop_l, loop_r = voice_lane(p, loop_l, loop_r, n_loop, vrng)
+    # HISE's time-stretch output is x0.5 (doc 15), hence the hot targets
+    gain = 10 ** ((LANE_LUFS[lane] - lufs(loop_l, loop_r)) / 20.0)
+    pk = max(float(np.abs(loop_l).max()), float(np.abs(loop_r).max()), 1e-9)
+    gain = min(gain, 1.25 / pk)                   # peaks at most ~2 dB into the knee: sparse plucks stay clean
     out_l, out_r = soft_knee(loop_l * gain), soft_knee(loop_r * gain)
-    for _ in range(2):                          # make-up: very peaky lanes lose RMS in the knee
-        now = math.sqrt(float(np.mean((out_l ** 2 + out_r ** 2) * 0.5))) + 1e-12
-        gain_next = min(gain * 0.22 / now, base * 2.0)   # never more than +6 dB over the plain RMS gain
-        if gain_next < gain * 1.05:
-            break
-        gain = gain_next
-        out_l, out_r = soft_knee(loop_l * gain), soft_knee(loop_r * gain)
+    # a floor of soft hiss: the loop never drops to digital silence
+    frng = np.random.default_rng(bank.seed_for(f"{kit['id']}:{lane}:{take}:floor", 0))
+    fl = 10 ** (FLOOR_DBFS / 20.0)
+    for ch in (out_l, out_r):
+        hiss = dsp.svf(frng.standard_normal(n_loop), 5000.0, 0.6, 0)
+        ch += hiss / (float(np.std(hiss)) + 1e-12) * fl
     return out_l, out_r
 
 

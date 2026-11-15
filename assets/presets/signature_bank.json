@@ -5011,6 +5011,1535 @@
    "desc": "Tiny vowel-gliding syllable, tape-glued and short. Play it like a drum for 2-step vocal hiccups."
   },
   {
+   "id": "ladder_poly",
+   "name": "Ladder Poly",
+   "cat": "chords",
+   "tags": [
+    "analog",
+    "ladder",
+    "poly",
+    "chords",
+    "80s",
+    "warm"
+   ],
+   "map": "SIG_ladder_poly",
+   "m": [
+    6000,
+    0.15,
+    0.35,
+    0.7,
+    0.35,
+    0.12,
+    0.15,
+    0.0
+   ],
+   "atk": 5,
+   "rel": 600,
+   "reso": 0.8,
+   "vel": 0.5,
+   "lfo": 0.2,
+   "dly": "1/8D",
+   "subdec": 1200,
+   "subsus": -30,
+   "trim": 0.0,
+   "desc": "Three detuned saws per note pushed into a tanh-per-stage transistor ladder with a snappy filter envelope. Warm poly chords that sound like they have a pulse.",
+   "d": {
+    "DriftKnob": 3
+   }
+  },
+  {
+   "id": "ladder_drone_pad",
+   "name": "Ladder Drone Pad",
+   "cat": "pads",
+   "tags": [
+    "analog",
+    "ladder",
+    "drone",
+    "dark",
+    "pad",
+    "tape"
+   ],
+   "map": "SIG_ladder_drone_pad",
+   "m": [
+    3000,
+    0.2,
+    0.4,
+    0.8,
+    0.65,
+    0.15,
+    0.1,
+    0.0
+   ],
+   "atk": 900,
+   "rel": 2500,
+   "reso": 0.8,
+   "vel": 0.25,
+   "lfo": 0.08,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -24,
+   "trim": 0.0,
+   "desc": "Detuned saws and a sub through a resonant ladder whose cutoff wanders like a tide, with LFO 2 breathing on the voice filter. Basement drones and dark beds.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 2500,
+    "ResoKnob": 0.9
+   },
+   "mod": [
+    {
+     "Source": "LFO 2",
+     "Target": "Cutoff",
+     "Intensity": 0.35,
+     "Mode": "Bipolar"
+    }
+   ]
+  },
+  {
+   "id": "ladder_ping_bell",
+   "name": "Ladder Ping Bell",
+   "cat": "bells",
+   "tags": [
+    "bell",
+    "ladder",
+    "self-oscillation",
+    "electronic",
+    "pluck"
+   ],
+   "map": "SIG_ladder_ping_bell",
+   "m": [
+    12000,
+    0.0,
+    0.2,
+    0.6,
+    0.5,
+    0.35,
+    0.05,
+    0.0
+   ],
+   "atk": 0,
+   "rel": 600,
+   "reso": 0.7,
+   "vel": 0.6,
+   "lfo": 0.2,
+   "dly": "1/8D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "No oscillator: a noise impulse pings a ladder filter on the edge of self-oscillation, each zone's ring pitch measured and corrected. Round, slightly drunk electronic bells.",
+   "d": {
+    "DriftKnob": 1
+   }
+  },
+  {
+   "id": "singing_bowl_field",
+   "name": "Singing Bowl Field",
+   "cat": "pads",
+   "tags": [
+    "singing-bowl",
+    "bowl",
+    "meditative",
+    "drone",
+    "ethereal",
+    "lush"
+   ],
+   "map": "SIG_singing_bowl_field",
+   "m": [
+    9000,
+    0.0,
+    0.2,
+    0.85,
+    0.8,
+    0.15,
+    0.0,
+    0.0
+   ],
+   "atk": 300,
+   "rel": 3000,
+   "reso": 0.7,
+   "vel": 0.3,
+   "lfo": 0.08,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "Bronze bowl modes in close doublets, rubbed at the rim instead of struck, so the beating rolls slowly across the stereo field. Dusk pads and held drones.",
+   "d": {
+    "DriftKnob": 1
+   }
+  },
+  {
+   "id": "bowed_metal",
+   "name": "Bowed Metal",
+   "cat": "pads",
+   "tags": [
+    "bowed",
+    "metal",
+    "dark",
+    "cinematic",
+    "drone"
+   ],
+   "map": "SIG_bowed_metal",
+   "m": [
+    7000,
+    0.05,
+    0.3,
+    0.8,
+    0.7,
+    0.15,
+    0.05,
+    0.0
+   ],
+   "atk": 250,
+   "rel": 2500,
+   "reso": 0.7,
+   "vel": 0.3,
+   "lfo": 0.1,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "A steel bar under a rough bow: the note blooms slowly through its inharmonic modes and refuses to die. Dark shipyard beds and long cinematic holds.",
+   "d": {
+    "DriftKnob": 1
+   }
+  },
+  {
+   "id": "bowed_bar",
+   "name": "Bowed Bar",
+   "cat": "bells",
+   "tags": [
+    "bowed",
+    "marimba",
+    "wood",
+    "ethereal",
+    "bells"
+   ],
+   "map": "SIG_bowed_bar",
+   "m": [
+    8000,
+    0.0,
+    0.2,
+    0.6,
+    0.65,
+    0.2,
+    0.0,
+    0.0
+   ],
+   "atk": 200,
+   "rel": 1800,
+   "reso": 0.7,
+   "vel": 0.35,
+   "lfo": 0.1,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "Marimba bar modes over a tuned tube, bowed instead of struck: a soft wooden swell under a temple roof. Slow melodies and gentle pads.",
+   "d": {
+    "DriftKnob": 1
+   }
+  },
+  {
+   "id": "rod_ring_waterbowl",
+   "name": "Rod Ring Waterbowl",
+   "cat": "pads",
+   "tags": [
+    "waterphone",
+    "bowed",
+    "eerie",
+    "cinematic",
+    "dark",
+    "underwater"
+   ],
+   "map": "SIG_rod_ring_waterbowl",
+   "m": [
+    8000,
+    0.0,
+    0.35,
+    0.85,
+    0.75,
+    0.2,
+    0.1,
+    0.0
+   ],
+   "atk": 200,
+   "rel": 2500,
+   "reso": 0.7,
+   "vel": 0.35,
+   "lfo": 0.1,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "Bowed clamped rods over a low bowl resonance, with sloshing water bending the pitch and sweeping a notch. The eerie haunted-house ring, made playable.",
+   "d": {
+    "DriftKnob": 1
+   }
+  },
+  {
+   "id": "eight_second_ivory",
+   "name": "Eight-Second Ivory",
+   "cat": "keys",
+   "tags": [
+    "piano",
+    "tape",
+    "tape-strip",
+    "lofi",
+    "dark",
+    "late-night",
+    "mystic",
+    "rare-keys"
+   ],
+   "map": "SIG_eight_second_ivory",
+   "m": [
+    5500,
+    0.0,
+    0.2,
+    0.45,
+    0.4,
+    0.1,
+    0.15,
+    0.0
+   ],
+   "atk": 4,
+   "rel": 300,
+   "reso": 0.7,
+   "vel": 0.3,
+   "lfo": 0.15,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "A felt piano recorded onto eight-second tape strips in 1962, one strip per key, played back from a cabinet of spools: every note is its own little recording, and a note held too long simply runs out.",
+   "d": {
+    "DriftKnob": 3.0
+   },
+   "mod": [
+    {
+     "Source": "Random",
+     "Target": "A Level",
+     "Intensity": 0.12,
+     "Mode": "Scale"
+    }
+   ]
+  },
+  {
+   "id": "paper_mute_upright",
+   "name": "Paper-Mute Upright",
+   "cat": "keys",
+   "tags": [
+    "piano",
+    "prepared",
+    "buzz",
+    "lofi",
+    "dark",
+    "mystic",
+    "rare-keys"
+   ],
+   "map": "SIG_paper_mute_upright",
+   "m": [
+    6000,
+    0.05,
+    0.1,
+    0.45,
+    0.35,
+    0.1,
+    0.1,
+    0.0
+   ],
+   "atk": 1,
+   "rel": 700,
+   "reso": 0.7,
+   "vel": 0.65,
+   "lfo": 0.1,
+   "dly": "1/8D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "An upright in a dim flat with paper woven through its strings, so every note buzzes like a secret in the walls and dies a little sooner than it should.",
+   "d": {
+    "DriftKnob": 2.5
+   }
+  },
+  {
+   "id": "lullaby_underwater",
+   "name": "Lullaby Underwater",
+   "cat": "keys",
+   "tags": [
+    "celesta",
+    "underwater",
+    "slowed",
+    "tape",
+    "lofi",
+    "dark",
+    "mystic",
+    "rare-keys"
+   ],
+   "map": "SIG_lullaby_underwater",
+   "m": [
+    3500,
+    0.05,
+    0.2,
+    0.6,
+    0.7,
+    0.25,
+    0.05,
+    0.0
+   ],
+   "atk": 2,
+   "rel": 1500,
+   "reso": 0.8,
+   "vel": 0.55,
+   "lfo": 0.12,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "A celesta lullaby recorded an octave up and played back at half speed, so it lands in tune but slow and blurred, like a cassette left on a sunny windowsill and heard through bath water.",
+   "d": {
+    "DriftKnob": 2.0
+   }
+  },
+  {
+   "id": "harp_frame_grand",
+   "name": "Harp-Frame Grand",
+   "cat": "keys",
+   "tags": [
+    "piano",
+    "electric-grand",
+    "chorus",
+    "ballad",
+    "80s",
+    "rnb",
+    "rare-keys"
+   ],
+   "map": "SIG_harp_frame_grand",
+   "m": [
+    12000,
+    0.0,
+    0.45,
+    0.6,
+    0.3,
+    0.12,
+    0.05,
+    0.0
+   ],
+   "atk": 1,
+   "rel": 500,
+   "reso": 0.7,
+   "vel": 0.7,
+   "lfo": 0.2,
+   "dly": "1/8D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "An electric grand with no soundboard in an empty rehearsal hall at 2 am: piezo bite, short bass strings and a chorus that never quite sits still.",
+   "d": {
+    "DriftKnob": 2.5
+   }
+  },
+  {
+   "id": "tangent_whisper_keys",
+   "name": "Tangent Whisper Keys",
+   "cat": "keys",
+   "tags": [
+    "clavichord",
+    "intimate",
+    "bebung",
+    "baroque",
+    "mystic",
+    "rare-keys"
+   ],
+   "map": "SIG_tangent_whisper_keys",
+   "m": [
+    14000,
+    0.0,
+    0.05,
+    0.5,
+    0.25,
+    0.05,
+    0.0,
+    0.0
+   ],
+   "atk": 0,
+   "rel": 120,
+   "reso": 0.7,
+   "vel": 0.85,
+   "lfo": 0.1,
+   "dly": "1/8D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "A tiny, almost silent keyboard in a candlelit study where the brass tangent stays on the string; play harder for a brighter twang, and push the mod wheel to make the note tremble like a confession.",
+   "d": {
+    "ViaWheelKnob": 1,
+    "VibKnob": 0.15,
+    "VibRateKnob": 6.0,
+    "VibDelayKnob": 0,
+    "DriftKnob": 2.0
+   }
+  },
+  {
+   "id": "lantern_celeste",
+   "name": "Lantern Celeste",
+   "cat": "keys",
+   "tags": [
+    "celesta",
+    "lullaby",
+    "glass",
+    "rnb",
+    "lush",
+    "mystic",
+    "rare-keys"
+   ],
+   "map": "SIG_lantern_celeste",
+   "m": [
+    18000,
+    0.0,
+    0.15,
+    0.6,
+    0.55,
+    0.2,
+    0.0,
+    0.0
+   ],
+   "atk": 1,
+   "rel": 250,
+   "reso": 0.7,
+   "vel": 0.6,
+   "lfo": 0.2,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "Steel plates over tuned wooden boxes in a snowed-in music school: a celesta lullaby with a secret. Let go and the dampers stop it; hold the pedal and it glows.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 8000,
+    "FVelKnob": 0.6,
+    "FKeyKnob": 0.3,
+    "DriftKnob": 1.5
+   }
+  },
+  {
+   "id": "tin_rod_lullaby",
+   "name": "Tin Rod Lullaby",
+   "cat": "keys",
+   "tags": [
+    "toy-piano",
+    "lullaby",
+    "out-of-tune",
+    "music-box",
+    "lofi",
+    "haunted",
+    "mystic",
+    "rare-keys"
+   ],
+   "map": "SIG_tin_rod_lullaby",
+   "m": [
+    16000,
+    0.0,
+    0.15,
+    0.55,
+    0.45,
+    0.25,
+    0.0,
+    0.0
+   ],
+   "atk": 1,
+   "rel": 400,
+   "reso": 0.7,
+   "vel": 0.65,
+   "lfo": 0.2,
+   "dly": "1/8D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "A child's toy piano found in an attic, steel rods clamped at one end and never quite in tune, played softly for someone asleep; strike harder and the rods clang.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 9000,
+    "FVelKnob": 0.6,
+    "FKeyKnob": 0.3,
+    "DriftKnob": 5.0
+   }
+  },
+  {
+   "id": "fork_piano",
+   "name": "Fork Piano",
+   "cat": "keys",
+   "tags": [
+    "tuning-fork",
+    "pure",
+    "cold",
+    "bell",
+    "late-night",
+    "lush",
+    "mystic",
+    "rare-keys"
+   ],
+   "map": "SIG_fork_piano",
+   "m": [
+    12000,
+    0.0,
+    0.1,
+    0.55,
+    0.6,
+    0.2,
+    0.0,
+    0.0
+   ],
+   "atk": 1,
+   "rel": 1500,
+   "reso": 0.7,
+   "vel": 0.6,
+   "lfo": 0.1,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "Tuning forks struck by felt hammers in a physics lab after hours: pure, cold and still ringing long after the lights go out.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 6000,
+    "FVelKnob": 0.55,
+    "FKeyKnob": 0.4,
+    "DriftKnob": 1.0
+   }
+  },
+  {
+   "id": "rotor_vibes",
+   "name": "Rotor Vibes Nocturne",
+   "cat": "keys",
+   "tags": [
+    "vibraphone",
+    "tremolo",
+    "jazzy",
+    "rnb",
+    "late-night",
+    "mystic",
+    "rare-keys"
+   ],
+   "map": "SIG_rotor_vibes",
+   "m": [
+    10000,
+    0.0,
+    0.1,
+    0.5,
+    0.55,
+    0.25,
+    0.0,
+    0.0
+   ],
+   "atk": 1,
+   "rel": 1200,
+   "reso": 0.7,
+   "vel": 0.6,
+   "lfo": 0.1,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "A vibraphone in a smoky diner after closing, the motor still turning the resonator discs so every chord pulses on the beat.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 6000,
+    "FVelKnob": 0.55,
+    "FKeyKnob": 0.4,
+    "DriftKnob": 1.0
+   },
+   "mod": [
+    {
+     "Source": "LFO 1",
+     "Target": "A Level",
+     "Intensity": 0.45,
+     "Mode": "Scale"
+    }
+   ]
+  },
+  {
+   "id": "thumbtack_parlour",
+   "name": "Thumbtack Parlour",
+   "cat": "keys",
+   "tags": [
+    "piano",
+    "tack-piano",
+    "bright",
+    "percussive",
+    "latin",
+    "lofi",
+    "rare-keys"
+   ],
+   "map": "SIG_thumbtack_parlour",
+   "m": [
+    16000,
+    0.05,
+    0.2,
+    0.5,
+    0.35,
+    0.15,
+    0.1,
+    0.0
+   ],
+   "atk": 1,
+   "rel": 400,
+   "reso": 0.7,
+   "vel": 0.65,
+   "lfo": 0.15,
+   "dly": "1/8",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "An old parlour upright with a brass tack pushed into every hammer, in the back room of a seaside bar: soft notes stay wooden, hard ones jangle.",
+   "d": {
+    "DriftKnob": 2.0
+   }
+  },
+  {
+   "id": "wired_harpsichord",
+   "name": "Wired Harpsichord",
+   "cat": "keys",
+   "tags": [
+    "harpsichord",
+    "baroque",
+    "chorus",
+    "60s",
+    "bright",
+    "rare-keys"
+   ],
+   "map": "SIG_wired_harpsichord",
+   "m": [
+    18000,
+    0.0,
+    0.3,
+    0.6,
+    0.35,
+    0.2,
+    0.08,
+    0.0
+   ],
+   "atk": 0,
+   "rel": 150,
+   "reso": 0.7,
+   "vel": 0.15,
+   "lfo": 0.2,
+   "dly": "1/8D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "A 1960s amplified harpsichord with pickups instead of a soundboard, quills plucking through a little chorus amp in a church basement. Like the real thing, its tone stays the same at every velocity.",
+   "d": {
+    "DriftKnob": 1.0
+   }
+  },
+  {
+   "id": "folding_field_harmonium",
+   "name": "Folding Field Harmonium",
+   "cat": "keys",
+   "tags": [
+    "harmonium",
+    "reed",
+    "organ",
+    "hymn",
+    "drone",
+    "tape",
+    "dark",
+    "lofi",
+    "mystic",
+    "rare-keys"
+   ],
+   "map": "SIG_folding_field_harmonium",
+   "m": [
+    6000,
+    0.1,
+    0.15,
+    0.55,
+    0.5,
+    0.1,
+    0.1,
+    0.0
+   ],
+   "atk": 70,
+   "rel": 400,
+   "reso": 0.7,
+   "vel": 0.2,
+   "lfo": 0.1,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -40,
+   "trim": 0.0,
+   "desc": "A folding field harmonium opened in a tent while it rains: the reeds speak a moment late, a celeste rank beats slowly against them, and the bellows breathe once a bar.",
+   "d": {
+    "DriftKnob": 2.0
+   },
+   "mod": [
+    {
+     "Source": "LFO 4",
+     "Target": "A Level",
+     "Intensity": 0.15,
+     "Mode": "Scale"
+    }
+   ]
+  },
+  {
+   "id": "transistor_lounge_piano",
+   "name": "Transistor Lounge Piano",
+   "cat": "keys",
+   "tags": [
+    "electronic-piano",
+    "analog",
+    "vintage",
+    "chorus",
+    "lounge",
+    "rare-keys"
+   ],
+   "map": "SIG_transistor_lounge_piano",
+   "m": [
+    10000,
+    0.1,
+    0.35,
+    0.65,
+    0.35,
+    0.2,
+    0.15,
+    0.0
+   ],
+   "atk": 2,
+   "rel": 350,
+   "reso": 0.8,
+   "vel": 0.3,
+   "lfo": 0.2,
+   "dly": "1/8D",
+   "subdec": 1200,
+   "subsus": -40,
+   "trim": 0.0,
+   "desc": "A 1968 transistor piano in a hotel lounge: one hollow, square-ish oscillator per key, switched on with a soft click, its upper harmonics fading first so every note mellows as it rings out. Play harder for a brighter edge.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 6000,
+    "FVelKnob": 0.45,
+    "FKeyKnob": 0.5,
+    "DriftKnob": 2.0
+   }
+  },
+  {
+   "id": "glass_armonica_keys",
+   "name": "Glass Armonica Keys",
+   "cat": "keys",
+   "tags": [
+    "glass",
+    "armonica",
+    "sustain",
+    "haunted",
+    "lush",
+    "mystic",
+    "rare-keys"
+   ],
+   "map": "SIG_glass_armonica_keys",
+   "m": [
+    8000,
+    0.0,
+    0.25,
+    0.75,
+    0.6,
+    0.25,
+    0.0,
+    0.0
+   ],
+   "atk": 160,
+   "rel": 2200,
+   "reso": 0.7,
+   "vel": 0.35,
+   "lfo": 0.12,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "Wet fingertips on a spinning stack of glass bowls in a candlelit parlour: each note swells in slowly and hangs in the air, and the mod wheel adds a trembling vibrato.",
+   "d": {
+    "VibKnob": 0.08,
+    "VibRateKnob": 4.5,
+    "VibDelayKnob": 600,
+    "ViaWheelKnob": 1,
+    "DriftKnob": 3.0
+   }
+  },
+  {
+   "id": "hollow_hour_lead",
+   "name": "Hollow Hour Lead",
+   "cat": "leads",
+   "tags": [
+    "lead",
+    "clean",
+    "sparse",
+    "nocturne",
+    "chorus",
+    "indie"
+   ],
+   "map": "SIG_hollow_hour_lead",
+   "m": [
+    12000,
+    0.0,
+    0.1,
+    0.45,
+    0.5,
+    0.4,
+    0.0,
+    0.0
+   ],
+   "atk": 3,
+   "rel": 900,
+   "reso": 0.7,
+   "vel": 0.5,
+   "lfo": 0.1,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "Clean near-triangle lead with a soft tick and a slow chorus swirl. Each note settles after it speaks; leave rests for the dotted echo.",
+   "d": {
+    "AmpDecKnob": 1800,
+    "AmpSusKnob": -8,
+    "DriftKnob": 2.5,
+    "BendKnob": 2,
+    "VibKnob": 0.1,
+    "VibRateKnob": 5.0,
+    "VibDelayKnob": 600,
+    "ViaWheelKnob": 1
+   },
+   "mod": [
+    {
+     "Source": "LFO 4",
+     "Target": "A Pitch",
+     "Intensity": 0.03,
+     "Mode": "Bipolar"
+    }
+   ]
+  },
+  {
+   "id": "two_card_drift_poly",
+   "name": "Two-Card Drift Poly",
+   "cat": "chords",
+   "tags": [
+    "analog",
+    "poly",
+    "drift",
+    "chords",
+    "nocturne",
+    "chorus"
+   ],
+   "map": "SIG_two_card_drift_poly",
+   "m": [
+    5500,
+    0.12,
+    0.25,
+    0.65,
+    0.5,
+    0.2,
+    0.06,
+    0.0
+   ],
+   "atk": 6,
+   "rel": 900,
+   "reso": 1.0,
+   "vel": 0.5,
+   "lfo": 0.12,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -24,
+   "trim": 0.0,
+   "desc": "Two oscillators per note that never quite agree: each note a few cents off, a shade brighter or darker. Warm, unsteady chords.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 5200,
+    "ResoKnob": 1.1,
+    "FVelKnob": 0.35,
+    "DriftKnob": 8.0
+   },
+   "mod": [
+    {
+     "Source": "Random",
+     "Target": "Cutoff",
+     "Intensity": 0.18,
+     "Mode": "Scale"
+    }
+   ]
+  },
+  {
+   "id": "corridor_glow_pad",
+   "name": "Corridor Glow Pad",
+   "cat": "pads",
+   "tags": [
+    "pad",
+    "clean",
+    "minimal",
+    "nocturne",
+    "hollow",
+    "lush"
+   ],
+   "map": "SIG_corridor_glow_pad",
+   "m": [
+    7500,
+    0.05,
+    0.3,
+    0.7,
+    0.75,
+    0.25,
+    0.0,
+    0.0
+   ],
+   "atk": 700,
+   "rel": 2800,
+   "reso": 0.7,
+   "vel": 0.3,
+   "lfo": 0.1,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -40,
+   "trim": 0.0,
+   "desc": "Odd harmonics only: a hollow, clarinet-like glow that swells in, each overtone breathing at its own pace. A quiet bed for long notes.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 3000,
+    "ResoKnob": 0.8,
+    "FKeyKnob": 0.4,
+    "FVelKnob": 0.3,
+    "DriftKnob": 2.0
+   },
+   "mod": [
+    {
+     "Source": "Env 3",
+     "Target": "Cutoff",
+     "Intensity": 0.45,
+     "Mode": "Scale"
+    },
+    {
+     "Source": "LFO 4",
+     "Target": "A Pitch",
+     "Intensity": 0.03,
+     "Mode": "Bipolar"
+    }
+   ]
+  },
+  {
+   "id": "three_wire_mono",
+   "name": "Three Wire Mono",
+   "cat": "leads",
+   "tags": [
+    "analog",
+    "mono",
+    "solo",
+    "fat",
+    "prog",
+    "lead"
+   ],
+   "map": "SIG_three_wire_mono",
+   "m": [
+    9000,
+    0.0,
+    0.15,
+    0.4,
+    0.35,
+    0.25,
+    0.15,
+    0.0
+   ],
+   "atk": 3,
+   "rel": 260,
+   "reso": 0.9,
+   "vel": 0.6,
+   "lfo": 0.15,
+   "dly": "1/8D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "Two saws and a sine an octave down, driven into a resonant low-pass that bites, then sings. One-note solo lines; vibrato on the wheel.",
+   "d": {
+    "VibKnob": 0.3,
+    "VibRateKnob": 5.3,
+    "VibDelayKnob": 400,
+    "ViaWheelKnob": 1,
+    "BendKnob": 2,
+    "DriftKnob": 3.0
+   }
+  },
+  {
+   "id": "machine_hymn_vox",
+   "name": "Machine Hymn Vox",
+   "cat": "pads",
+   "tags": [
+    "machine",
+    "choir",
+    "cold-wave",
+    "mystic",
+    "vintage",
+    "pad"
+   ],
+   "map": "SIG_machine_hymn_vox",
+   "m": [
+    9000,
+    0.1,
+    0.3,
+    0.7,
+    0.6,
+    0.15,
+    0.0,
+    0.0
+   ],
+   "atk": 250,
+   "rel": 1800,
+   "reso": 0.8,
+   "vel": 0.35,
+   "lfo": 0.1,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -36,
+   "trim": 0.0,
+   "desc": "Buzzing oscillators sung through a throat that opens from 'oo' to 'oh'. No breath, no vibrato, only fast tape flutter. A cold hymn pad.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 6500,
+    "ResoKnob": 0.8,
+    "FVelKnob": 0.4,
+    "DriftKnob": 3.0
+   },
+   "mod": [
+    {
+     "Source": "Env 3",
+     "Target": "Cutoff",
+     "Intensity": 0.35,
+     "Mode": "Scale"
+    }
+   ]
+  },
+  {
+   "id": "ivory_circuit_piano",
+   "name": "Ivory Circuit Piano",
+   "cat": "keys",
+   "tags": [
+    "keys",
+    "synth-piano",
+    "vintage",
+    "poly",
+    "nostalgic",
+    "70s"
+   ],
+   "map": "SIG_ivory_circuit_piano",
+   "m": [
+    11000,
+    0.05,
+    0.15,
+    0.55,
+    0.45,
+    0.2,
+    0.04,
+    0.0
+   ],
+   "atk": 1,
+   "rel": 700,
+   "reso": 0.8,
+   "vel": 0.65,
+   "lfo": 0.15,
+   "dly": "1/8D",
+   "subdec": 900,
+   "subsus": -40,
+   "trim": 0.0,
+   "desc": "A 70s synth piano: saw and pulse struck through a filter that snaps bright, then rings out. Play soft for felt. Chords and arps.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 9000,
+    "ResoKnob": 0.7,
+    "FVelKnob": 0.35,
+    "DriftKnob": 3.0
+   }
+  },
+  {
+   "id": "lantern_ensemble_strings",
+   "name": "Lantern Ensemble Strings",
+   "cat": "pads",
+   "tags": [
+    "strings",
+    "ensemble",
+    "70s",
+    "pad",
+    "nostalgic",
+    "chorus"
+   ],
+   "map": "SIG_lantern_ensemble_strings",
+   "m": [
+    8000,
+    0.1,
+    0.45,
+    0.8,
+    0.65,
+    0.12,
+    0.0,
+    0.0
+   ],
+   "atk": 350,
+   "rel": 1800,
+   "reso": 0.8,
+   "vel": 0.3,
+   "lfo": 0.1,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -30,
+   "trim": 0.0,
+   "desc": "String machine: a bright saw per key, every key in perfect tune, thin at the bottom, a fast shimmer and one shared wobble. Held chords.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 6000,
+    "ResoKnob": 0.7,
+    "FKeyKnob": 0.3,
+    "FVelKnob": 0.35,
+    "DriftKnob": 0.0
+   },
+   "mod": [
+    {
+     "Source": "LFO 4",
+     "Target": "A Pitch",
+     "Intensity": 0.04,
+     "Mode": "Bipolar"
+    },
+    {
+     "Source": "Env 3",
+     "Target": "Cutoff",
+     "Intensity": 0.3,
+     "Mode": "Scale"
+    }
+   ]
+  },
+  {
+   "id": "hustle_dco_bass",
+   "name": "Hustle DCO Bass",
+   "cat": "bass",
+   "tags": [
+    "bass",
+    "house",
+    "pluck",
+    "dco",
+    "80s",
+    "round"
+   ],
+   "map": "SIG_hustle_dco_bass",
+   "m": [
+    6000,
+    0.0,
+    0.0,
+    0.0,
+    0.08,
+    0.0,
+    0.15,
+    0.0
+   ],
+   "atk": 1,
+   "rel": 120,
+   "reso": 0.9,
+   "vel": 0.55,
+   "lfo": 0.1,
+   "dly": "1/8",
+   "subdec": 400,
+   "subsus": -40,
+   "trim": 0.0,
+   "desc": "Saw and pulse locked on one note over a sine an octave down, plucked by a quick filter. Round, bouncy, dead-centre lines; long notes fade.",
+   "d": {
+    "DriftKnob": 1.0,
+    "BendKnob": 2
+   }
+  },
+  {
+   "id": "floorboard_pedal_bass",
+   "name": "Floorboard Pedal Bass",
+   "cat": "bass",
+   "tags": [
+    "bass",
+    "analog",
+    "pedal",
+    "prog",
+    "mono",
+    "deep"
+   ],
+   "map": "SIG_floorboard_pedal_bass",
+   "m": [
+    9000,
+    0.0,
+    0.0,
+    0.0,
+    0.08,
+    0.0,
+    0.2,
+    0.0
+   ],
+   "atk": 4,
+   "rel": 200,
+   "reso": 1.0,
+   "vel": 0.55,
+   "lfo": 0.1,
+   "dly": "1/8",
+   "subdec": 900,
+   "subsus": -30,
+   "trim": 0.0,
+   "desc": "Two saws a breath apart over a sine, distorted through a resonant filter that blooms on each note and settles low. Deep held pedal notes.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 1600,
+    "ResoKnob": 1.6,
+    "FEnvAmtKnob": 0.5,
+    "FAtkKnob": 5,
+    "FDecKnob": 450,
+    "FSusKnob": -16,
+    "FRelKnob": 200,
+    "FKeyKnob": 0.6,
+    "FVelKnob": 0.4,
+    "DriftKnob": 2.0,
+    "BendKnob": 2
+   }
+  },
+  {
+   "id": "stone_throat_chant",
+   "name": "Stone Throat Chant",
+   "cat": "vox",
+   "tags": [
+    "vox",
+    "chant",
+    "overtone",
+    "drone",
+    "mystic",
+    "ritual"
+   ],
+   "map": "SIG_stone_throat_chant",
+   "m": [
+    16000,
+    0.0,
+    0.2,
+    0.7,
+    0.75,
+    0.15,
+    0.0,
+    0.0
+   ],
+   "atk": 400,
+   "rel": 2500,
+   "reso": 0.7,
+   "vel": 0.25,
+   "lfo": 0.08,
+   "dly": "1/4D",
+   "subdec": 3000,
+   "subsus": -30,
+   "trim": 0.0,
+   "desc": "Five low voices hum 'oo' while a thin whistle of overtones rises inside the vowel and falls back about every nine seconds. Long drones.",
+   "d": {
+    "DriftKnob": 2.0
+   }
+  },
+  {
+   "id": "keyhole_wind",
+   "name": "Keyhole Wind",
+   "cat": "pads",
+   "tags": [
+    "air",
+    "wind",
+    "whistle",
+    "mystic",
+    "texture",
+    "whisper"
+   ],
+   "map": "SIG_keyhole_wind",
+   "m": [
+    14000,
+    0.0,
+    0.3,
+    0.8,
+    0.7,
+    0.25,
+    0.0,
+    0.0
+   ],
+   "atk": 400,
+   "rel": 2200,
+   "reso": 0.7,
+   "vel": 0.3,
+   "lfo": 0.12,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "Wind through a keyhole: each note starts dark and opens into a thin whistle on the pitch you play, gusting once a bar. Air above chords.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 6000,
+    "ResoKnob": 1.2,
+    "DriftKnob": 0.0
+   },
+   "mod": [
+    {
+     "Source": "LFO 4",
+     "Target": "Cutoff",
+     "Intensity": 0.35,
+     "Mode": "Scale"
+    },
+    {
+     "Source": "LFO 4",
+     "Target": "A Level",
+     "Intensity": 0.2,
+     "Mode": "Scale"
+    }
+   ]
+  },
+  {
+   "id": "low_tide_fm_pad",
+   "name": "Low Tide FM Pad",
+   "cat": "pads",
+   "tags": [
+    "underwater",
+    "rnb",
+    "late-night",
+    "fm",
+    "pad",
+    "lofi"
+   ],
+   "map": "SIG_low_tide_fm_pad",
+   "m": [
+    2600,
+    0.0,
+    0.3,
+    0.65,
+    0.65,
+    0.3,
+    0.08,
+    0.0
+   ],
+   "atk": 120,
+   "rel": 2200,
+   "reso": 0.8,
+   "vel": 0.45,
+   "lfo": 0.12,
+   "dly": "1/4D",
+   "subdec": 2500,
+   "subsus": -30,
+   "trim": 0.0,
+   "desc": "Hollow FM tone struck soft and left to ring through a low sample rate and old tape; the chord wobbles as one and ebbs like a tide.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 4000,
+    "ResoKnob": 0.8,
+    "FVelKnob": 0.45,
+    "DriftKnob": 2.5
+   },
+   "mod": [
+    {
+     "Source": "LFO 4",
+     "Target": "Cutoff",
+     "Intensity": 0.2,
+     "Mode": "Scale"
+    }
+   ]
+  },
+  {
+   "id": "baile_cowbell",
+   "name": "Baile Cowbell",
+   "cat": "leads",
+   "tags": [
+    "brazilian-phonk",
+    "phonk",
+    "cowbell",
+    "automotivo",
+    "distorted",
+    "lead"
+   ],
+   "map": "SIG_baile_cowbell",
+   "m": [
+    16000,
+    0.0,
+    0.0,
+    0.35,
+    0.3,
+    0.3,
+    0.4,
+    0.0
+   ],
+   "atk": 1,
+   "rel": 250,
+   "reso": 0.8,
+   "vel": 0.6,
+   "lfo": 0.2,
+   "dly": "1/8",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "Crushed two-tone metal bell played as a melody: bright on the strike, gone in a second, a little different every hit. Minor funk riffs.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 9000,
+    "ResoKnob": 0.8,
+    "FVelKnob": 0.4,
+    "DriftKnob": 0.0,
+    "BendKnob": 2
+   },
+   "mod": [
+    {
+     "Source": "Random",
+     "Target": "Cutoff",
+     "Intensity": 0.15,
+     "Mode": "Scale"
+    }
+   ]
+  },
+  {
+   "id": "ember_talk_lead",
+   "name": "Ember Talk Lead",
+   "cat": "leads",
+   "tags": [
+    "reggaeton",
+    "lead",
+    "formant",
+    "gritty",
+    "latin",
+    "perreo"
+   ],
+   "map": "SIG_ember_talk_lead",
+   "m": [
+    13000,
+    0.0,
+    0.2,
+    0.5,
+    0.4,
+    0.3,
+    0.25,
+    0.0
+   ],
+   "atk": 6,
+   "rel": 300,
+   "reso": 0.9,
+   "vel": 0.5,
+   "lfo": 0.2,
+   "dly": "1/8D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "A nasal voice that opens 'ah' into 'eh' on every note, clipped through hot tape, dead centre. A talking dembow hook; the wah moves in eighths.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 4200,
+    "ResoKnob": 0.9,
+    "FVelKnob": 0.3,
+    "BendKnob": 5,
+    "VibKnob": 0.25,
+    "VibRateKnob": 5.8,
+    "VibDelayKnob": 250,
+    "ViaWheelKnob": 1,
+    "DriftKnob": 3.0
+   },
+   "mod": [
+    {
+     "Source": "LFO 2",
+     "Target": "Cutoff",
+     "Intensity": 0.3,
+     "Mode": "Scale"
+    }
+   ]
+  },
+  {
    "id": "lab_carve",
    "name": "Carve",
    "cat": "archive",

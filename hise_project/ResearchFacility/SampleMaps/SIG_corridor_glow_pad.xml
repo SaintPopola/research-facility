@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<samplemap ID="SIG_corridor_glow_pad" SaveMode="1" RRGroupAmount="1.0" MicPositions=";"
+           CrossfadeGamma="1.0">
+  <sample ID="0" FileName="{PROJECT_FOLDER}SIG_corridor_glow_pad_36.wav" Root="36" HiKey="37"
+          LoKey="0" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="336000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="311042" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="1" FileName="{PROJECT_FOLDER}SIG_corridor_glow_pad_40.wav" Root="40" HiKey="41"
+          LoKey="38" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="336000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="334030" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="2" FileName="{PROJECT_FOLDER}SIG_corridor_glow_pad_44.wav" Root="44" HiKey="45"
+          LoKey="42" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="336000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="334511" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="3" FileName="{PROJECT_FOLDER}SIG_corridor_glow_pad_48.wav" Root="48" HiKey="49"
+          LoKey="46" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="336000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="311877" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="4" FileName="{PROJECT_FOLDER}SIG_corridor_glow_pad_52.wav" Root="52" HiKey="53"
+          LoKey="50" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="336000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="311318" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="5" FileName="{PROJECT_FOLDER}SIG_corridor_glow_pad_56.wav" Root="56" HiKey="57"
+          LoKey="54" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="336000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="311876" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="6" FileName="{PROJECT_FOLDER}SIG_corridor_glow_pad_60.wav" Root="60" HiKey="61"
+          LoKey="58" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="336000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="311559" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="7" FileName="{PROJECT_FOLDER}SIG_corridor_glow_pad_64.wav" Root="64" HiKey="65"
+          LoKey="62" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="336000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="334526" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="8" FileName="{PROJECT_FOLDER}SIG_corridor_glow_pad_68.wav" Root="68" HiKey="69"
+          LoKey="66" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="336000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="334455" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="9" FileName="{PROJECT_FOLDER}SIG_corridor_glow_pad_72.wav" Root="72" HiKey="73"
+          LoKey="70" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="336000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="334528" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="10" FileName="{PROJECT_FOLDER}SIG_corridor_glow_pad_76.wav" Root="76" HiKey="77"
+          LoKey="74" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="336000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="311814" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="11" FileName="{PROJECT_FOLDER}SIG_corridor_glow_pad_80.wav" Root="80" HiKey="81"
+          LoKey="78" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="336000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="311346" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="12" FileName="{PROJECT_FOLDER}SIG_corridor_glow_pad_84.wav" Root="84" HiKey="85"
+          LoKey="82" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="336000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="334535" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="13" FileName="{PROJECT_FOLDER}SIG_corridor_glow_pad_88.wav" Root="88" HiKey="89"
+          LoKey="86" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="336000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="334544" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="14" FileName="{PROJECT_FOLDER}SIG_corridor_glow_pad_92.wav" Root="92" HiKey="93"
+          LoKey="90" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="336000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="334559" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="15" FileName="{PROJECT_FOLDER}SIG_corridor_glow_pad_96.wav" Root="96" HiKey="127"
+          LoKey="94" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="336000"
+          SampleStartMod="0" LoopStart="72000" LoopEnd="334470" LoopXFade="16800" LoopEnabled="1"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+</samplemap>

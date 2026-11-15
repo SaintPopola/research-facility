@@ -1,0 +1,1221 @@
+{
+ "pack": "Mystic Keys",
+ "presets": [
+  {
+   "id": "eight_second_ivory",
+   "name": "Eight-Second Ivory",
+   "cat": "keys",
+   "tags": [
+    "piano",
+    "tape",
+    "tape-strip",
+    "lofi",
+    "dark",
+    "late-night",
+    "mystic",
+    "rare-keys"
+   ],
+   "gen": "felt_piano",
+   "gp": {
+    "hardness": 0.3,
+    "t60": 4.5,
+    "attack": 0.025,
+    "unison_c": 1.5,
+    "lp": 4200,
+    "post_hp": 140,
+    "tape": {
+     "wow_c": 3.0,
+     "wow_hz": 0.4,
+     "flutter_c": 3.0,
+     "flutter_hz": 7.0,
+     "hiss": 0.005,
+     "bump": 0.45,
+     "lp": 4800,
+     "sat": 1.4,
+     "crackle": 0.0,
+     "length_s": 8.0
+    }
+   },
+   "m": [
+    5500,
+    0.0,
+    0.2,
+    0.45,
+    0.4,
+    0.1,
+    0.15,
+    0.0
+   ],
+   "v": {
+    "atk": 4,
+    "rel": 300,
+    "reso": 0.7,
+    "vel": 0.3,
+    "lfo": 0.15,
+    "dly": "1/4D",
+    "subdec": 1200,
+    "subsus": -60
+   },
+   "z": [
+    36,
+    84,
+    3
+   ],
+   "dur": 8.5,
+   "loop": false,
+   "desc": "A felt piano recorded onto eight-second tape strips in 1962, one strip per key, played back from a cabinet of spools: every note is its own little recording, and a note held too long simply runs out.",
+   "vl": 1,
+   "d": {
+    "DriftKnob": 3.0
+   },
+   "mod": [
+    {
+     "Source": "Random",
+     "Target": "A Level",
+     "Intensity": 0.12,
+     "Mode": "Scale"
+    }
+   ]
+  },
+  {
+   "id": "paper_mute_upright",
+   "name": "Paper-Mute Upright",
+   "cat": "keys",
+   "tags": [
+    "piano",
+    "prepared",
+    "buzz",
+    "lofi",
+    "dark",
+    "mystic",
+    "rare-keys"
+   ],
+   "gen": "prepared",
+   "gp": {
+    "hardness": 0.35,
+    "t60": 3.2,
+    "unison_c": 2.0,
+    "metal": [],
+    "metal_mix": 0.0,
+    "rattle": 0.45,
+    "rattle_hz": 55.0,
+    "rattle_t": 0.25,
+    "lp": 4500,
+    "wow": 2.0,
+    "tape": {
+     "wow_c": 0.0,
+     "wow_hz": 0.5,
+     "flutter_c": 0.0,
+     "flutter_hz": 9.0,
+     "hiss": 0.002,
+     "bump": 0.15,
+     "lp": 12000,
+     "sat": 1.1,
+     "crackle": 0.0
+    }
+   },
+   "m": [
+    6000,
+    0.05,
+    0.1,
+    0.45,
+    0.35,
+    0.1,
+    0.1,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 700,
+    "reso": 0.7,
+    "vel": 0.65,
+    "lfo": 0.1,
+    "dly": "1/8D",
+    "subdec": 1200,
+    "subsus": -60
+   },
+   "z": [
+    36,
+    96,
+    4
+   ],
+   "dur": 6.0,
+   "loop": false,
+   "desc": "An upright in a dim flat with paper woven through its strings, so every note buzzes like a secret in the walls and dies a little sooner than it should.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 2.5
+   }
+  },
+  {
+   "id": "lullaby_underwater",
+   "name": "Lullaby Underwater",
+   "cat": "keys",
+   "tags": [
+    "celesta",
+    "underwater",
+    "slowed",
+    "tape",
+    "lofi",
+    "dark",
+    "mystic",
+    "rare-keys"
+   ],
+   "gen": "modal",
+   "gp": {
+    "modes": [
+     [
+      1,
+      1,
+      1
+     ],
+     [
+      2.756,
+      0.25,
+      0.35
+     ],
+     [
+      5.404,
+      0.12,
+      0.15
+     ]
+    ],
+    "t60": 3.0,
+    "strike": 0.3,
+    "beat_c": 1.2,
+    "slow": 0.5,
+    "decim": 11025,
+    "decim_drive": 0.05,
+    "tape": {
+     "wow_c": 6.0,
+     "wow_hz": 0.35,
+     "flutter_c": 0.0,
+     "flutter_hz": 9.0,
+     "hiss": 0.004,
+     "bump": 0.2,
+     "lp": 3500,
+     "sat": 1.1,
+     "crackle": 0.0
+    }
+   },
+   "m": [
+    3500,
+    0.05,
+    0.2,
+    0.6,
+    0.7,
+    0.25,
+    0.05,
+    0.0
+   ],
+   "v": {
+    "atk": 2,
+    "rel": 1500,
+    "reso": 0.8,
+    "vel": 0.55,
+    "lfo": 0.12,
+    "dly": "1/4D",
+    "subdec": 1200,
+    "subsus": -60
+   },
+   "z": [
+    48,
+    96,
+    4
+   ],
+   "dur": 6.0,
+   "loop": false,
+   "desc": "A celesta lullaby recorded an octave up and played back at half speed, so it lands in tune but slow and blurred, like a cassette left on a sunny windowsill and heard through bath water.",
+   "vl": 1,
+   "d": {
+    "DriftKnob": 2.0
+   }
+  },
+  {
+   "id": "harp_frame_grand",
+   "name": "Harp-Frame Grand",
+   "cat": "keys",
+   "tags": [
+    "piano",
+    "electric-grand",
+    "chorus",
+    "ballad",
+    "80s",
+    "rnb",
+    "rare-keys"
+   ],
+   "gen": "felt_piano",
+   "gp": {
+    "hardness": 0.85,
+    "unison_c": 2.5,
+    "t60": 2.8,
+    "post_hp": 110,
+    "post_shelf": [
+     2800,
+     4.0
+    ],
+    "tape": {
+     "wow_c": 0.0,
+     "wow_hz": 0.5,
+     "flutter_c": 0.0,
+     "flutter_hz": 9.0,
+     "hiss": 0.0012,
+     "bump": 0.0,
+     "lp": 20000,
+     "sat": 1.0,
+     "crackle": 0.0
+    }
+   },
+   "m": [
+    12000,
+    0.0,
+    0.45,
+    0.6,
+    0.3,
+    0.12,
+    0.05,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 500,
+    "reso": 0.7,
+    "vel": 0.7,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subdec": 1200,
+    "subsus": -60
+   },
+   "z": [
+    28,
+    100,
+    4
+   ],
+   "dur": 6.0,
+   "loop": false,
+   "desc": "An electric grand with no soundboard in an empty rehearsal hall at 2 am: piezo bite, short bass strings and a chorus that never quite sits still.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 2.5
+   }
+  },
+  {
+   "id": "tangent_whisper_keys",
+   "name": "Tangent Whisper Keys",
+   "cat": "keys",
+   "tags": [
+    "clavichord",
+    "intimate",
+    "bebung",
+    "baroque",
+    "mystic",
+    "rare-keys"
+   ],
+   "gen": "karplus",
+   "gp": {
+    "burst": 0.75,
+    "soft": true,
+    "bright": 9000,
+    "pos": 0.45,
+    "damp": 0.08,
+    "t60": 3.0,
+    "body": 0.25,
+    "post_hp": 90,
+    "chorus": 0,
+    "tape": {
+     "wow_c": 0.8,
+     "wow_hz": 0.4,
+     "flutter_c": 0.0,
+     "flutter_hz": 9.0,
+     "hiss": 0.0006,
+     "bump": 0.0,
+     "lp": 16000,
+     "sat": 1.0,
+     "crackle": 0.0
+    }
+   },
+   "m": [
+    14000,
+    0.0,
+    0.05,
+    0.5,
+    0.25,
+    0.05,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 0,
+    "rel": 120,
+    "reso": 0.7,
+    "vel": 0.85,
+    "lfo": 0.1,
+    "dly": "1/8D",
+    "subdec": 1200,
+    "subsus": -60
+   },
+   "z": [
+    38,
+    84,
+    3
+   ],
+   "dur": 4.0,
+   "loop": false,
+   "desc": "A tiny, almost silent keyboard in a candlelit study where the brass tangent stays on the string; play harder for a brighter twang, and push the mod wheel to make the note tremble like a confession.",
+   "vl": 2,
+   "d": {
+    "ViaWheelKnob": 1,
+    "VibKnob": 0.15,
+    "VibRateKnob": 6.0,
+    "VibDelayKnob": 0,
+    "DriftKnob": 2.0
+   }
+  },
+  {
+   "id": "lantern_celeste",
+   "name": "Lantern Celeste",
+   "cat": "keys",
+   "tags": [
+    "celesta",
+    "lullaby",
+    "glass",
+    "rnb",
+    "lush",
+    "mystic",
+    "rare-keys"
+   ],
+   "gen": "modal",
+   "gp": {
+    "modes": [
+     [
+      1,
+      1,
+      1
+     ],
+     [
+      1.0007,
+      0.3,
+      1.8
+     ],
+     [
+      2.756,
+      0.3,
+      0.25
+     ],
+     [
+      5.404,
+      0.12,
+      0.12
+     ],
+     [
+      8.933,
+      0.05,
+      0.06
+     ]
+    ],
+    "t60": 3.5,
+    "strike": 0.18,
+    "attack": 0.002,
+    "beat_c": 0.8,
+    "lp": 5500,
+    "tape": {
+     "wow_c": 0.0,
+     "wow_hz": 0.5,
+     "flutter_c": 0.0,
+     "flutter_hz": 9.0,
+     "hiss": 0.0015,
+     "bump": 0.1,
+     "lp": 16000,
+     "sat": 0.0,
+     "crackle": 0.0
+    }
+   },
+   "m": [
+    18000,
+    0.0,
+    0.15,
+    0.6,
+    0.55,
+    0.2,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 250,
+    "reso": 0.7,
+    "vel": 0.6,
+    "lfo": 0.2,
+    "dly": "1/4D",
+    "subdec": 1200,
+    "subsus": -60
+   },
+   "z": [
+    60,
+    108,
+    3
+   ],
+   "dur": 5.0,
+   "loop": false,
+   "desc": "Steel plates over tuned wooden boxes in a snowed-in music school: a celesta lullaby with a secret. Let go and the dampers stop it; hold the pedal and it glows.",
+   "vl": 1,
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 8000,
+    "FVelKnob": 0.6,
+    "FKeyKnob": 0.3,
+    "DriftKnob": 1.5
+   }
+  },
+  {
+   "id": "tin_rod_lullaby",
+   "name": "Tin Rod Lullaby",
+   "cat": "keys",
+   "tags": [
+    "toy-piano",
+    "lullaby",
+    "out-of-tune",
+    "music-box",
+    "lofi",
+    "haunted",
+    "mystic",
+    "rare-keys"
+   ],
+   "gen": "modal",
+   "gp": {
+    "modes": [
+     [
+      1,
+      1,
+      1
+     ],
+     [
+      6.267,
+      0.7,
+      0.4
+     ],
+     [
+      17.55,
+      0.25,
+      0.15
+     ],
+     [
+      34.39,
+      0.08,
+      0.06
+     ]
+    ],
+    "t60": 2.2,
+    "strike": 0.5,
+    "beat_c": 3.0,
+    "attack": 0.0008,
+    "post_hp": 250,
+    "tape": {
+     "wow_c": 1.5,
+     "wow_hz": 0.6,
+     "flutter_c": 0.8,
+     "flutter_hz": 8.0,
+     "hiss": 0.002,
+     "bump": 0.0,
+     "lp": 13000,
+     "sat": 1.1,
+     "crackle": 0.0
+    }
+   },
+   "m": [
+    16000,
+    0.0,
+    0.15,
+    0.55,
+    0.45,
+    0.25,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 400,
+    "reso": 0.7,
+    "vel": 0.65,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subdec": 1200,
+    "subsus": -60
+   },
+   "z": [
+    60,
+    96,
+    3
+   ],
+   "dur": 3.5,
+   "loop": false,
+   "desc": "A child's toy piano found in an attic, steel rods clamped at one end and never quite in tune, played softly for someone asleep; strike harder and the rods clang.",
+   "vl": 1,
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 9000,
+    "FVelKnob": 0.6,
+    "FKeyKnob": 0.3,
+    "DriftKnob": 5.0
+   }
+  },
+  {
+   "id": "fork_piano",
+   "name": "Fork Piano",
+   "cat": "keys",
+   "tags": [
+    "tuning-fork",
+    "pure",
+    "cold",
+    "bell",
+    "late-night",
+    "lush",
+    "mystic",
+    "rare-keys"
+   ],
+   "gen": "modal",
+   "gp": {
+    "modes": [
+     [
+      1,
+      1,
+      1
+     ],
+     [
+      1.0004,
+      0.2,
+      1.5
+     ],
+     [
+      6.267,
+      0.05,
+      0.15
+     ]
+    ],
+    "t60": 7.0,
+    "strike": 0.3,
+    "beat_c": 0.5,
+    "tape": {
+     "wow_c": 0.0,
+     "wow_hz": 0.5,
+     "flutter_c": 0.0,
+     "flutter_hz": 9.0,
+     "hiss": 0.002,
+     "bump": 0.0,
+     "lp": 20000,
+     "sat": 0.0,
+     "crackle": 0.0
+    }
+   },
+   "m": [
+    12000,
+    0.0,
+    0.1,
+    0.55,
+    0.6,
+    0.2,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 1500,
+    "reso": 0.7,
+    "vel": 0.6,
+    "lfo": 0.1,
+    "dly": "1/4D",
+    "subdec": 1200,
+    "subsus": -60
+   },
+   "z": [
+    36,
+    96,
+    6
+   ],
+   "dur": 8.0,
+   "loop": false,
+   "desc": "Tuning forks struck by felt hammers in a physics lab after hours: pure, cold and still ringing long after the lights go out.",
+   "vl": 1,
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 6000,
+    "FVelKnob": 0.55,
+    "FKeyKnob": 0.4,
+    "DriftKnob": 1.0
+   }
+  },
+  {
+   "id": "rotor_vibes",
+   "name": "Rotor Vibes Nocturne",
+   "cat": "keys",
+   "tags": [
+    "vibraphone",
+    "tremolo",
+    "jazzy",
+    "rnb",
+    "late-night",
+    "mystic",
+    "rare-keys"
+   ],
+   "gen": "modal",
+   "gp": {
+    "modes": [
+     [
+      1,
+      1,
+      1
+     ],
+     [
+      1.0003,
+      0.3,
+      1.4
+     ],
+     [
+      4.0,
+      0.3,
+      0.3
+     ],
+     [
+      10.0,
+      0.06,
+      0.1
+     ]
+    ],
+    "t60": 6.0,
+    "strike": 0.12,
+    "attack": 0.002,
+    "beat_c": 1.0,
+    "tape": {
+     "wow_c": 0.0,
+     "wow_hz": 0.5,
+     "flutter_c": 0.0,
+     "flutter_hz": 9.0,
+     "hiss": 0.0018,
+     "bump": 0.1,
+     "lp": 15000,
+     "sat": 0.0,
+     "crackle": 0.0
+    }
+   },
+   "m": [
+    10000,
+    0.0,
+    0.1,
+    0.5,
+    0.55,
+    0.25,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 1200,
+    "reso": 0.7,
+    "vel": 0.6,
+    "lfo": 0.1,
+    "dly": "1/4D",
+    "subdec": 1200,
+    "subsus": -60
+   },
+   "z": [
+    53,
+    89,
+    3
+   ],
+   "dur": 6.5,
+   "loop": false,
+   "desc": "A vibraphone in a smoky diner after closing, the motor still turning the resonator discs so every chord pulses on the beat.",
+   "vl": 1,
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 6000,
+    "FVelKnob": 0.55,
+    "FKeyKnob": 0.4,
+    "DriftKnob": 1.0
+   },
+   "mod": [
+    {
+     "Source": "LFO 1",
+     "Target": "A Level",
+     "Intensity": 0.45,
+     "Mode": "Scale"
+    }
+   ]
+  },
+  {
+   "id": "thumbtack_parlour",
+   "name": "Thumbtack Parlour",
+   "cat": "keys",
+   "tags": [
+    "piano",
+    "tack-piano",
+    "bright",
+    "percussive",
+    "latin",
+    "lofi",
+    "rare-keys"
+   ],
+   "gen": "prepared",
+   "gp": {
+    "hardness": 1.0,
+    "unison_c": 2.0,
+    "t60": 2.4,
+    "metal": [
+     [
+      7.3,
+      0.4,
+      0.06
+     ],
+     [
+      11.1,
+      0.3,
+      0.045
+     ],
+     [
+      15.7,
+      0.2,
+      0.035
+     ]
+    ],
+    "metal_mix": 0.7,
+    "rattle": 0.0,
+    "post_hp": 80,
+    "post_shelf": [
+     4000,
+     2.0
+    ],
+    "tape": {
+     "wow_c": 1.0,
+     "wow_hz": 0.45,
+     "flutter_c": 0.5,
+     "flutter_hz": 8.0,
+     "hiss": 0.002,
+     "bump": 0.15,
+     "lp": 14000,
+     "sat": 1.1,
+     "crackle": 0.0
+    }
+   },
+   "m": [
+    16000,
+    0.05,
+    0.2,
+    0.5,
+    0.35,
+    0.15,
+    0.1,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 400,
+    "reso": 0.7,
+    "vel": 0.65,
+    "lfo": 0.15,
+    "dly": "1/8",
+    "subdec": 1200,
+    "subsus": -60
+   },
+   "z": [
+    36,
+    96,
+    4
+   ],
+   "dur": 5.0,
+   "loop": false,
+   "desc": "An old parlour upright with a brass tack pushed into every hammer, in the back room of a seaside bar: soft notes stay wooden, hard ones jangle.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 2.0
+   }
+  },
+  {
+   "id": "wired_harpsichord",
+   "name": "Wired Harpsichord",
+   "cat": "keys",
+   "tags": [
+    "harpsichord",
+    "baroque",
+    "chorus",
+    "60s",
+    "bright",
+    "rare-keys"
+   ],
+   "gen": "karplus",
+   "gp": {
+    "burst": 0.6,
+    "soft": true,
+    "bright": 11000,
+    "pos": 0.45,
+    "damp": 0.12,
+    "t60": 2.6,
+    "body": 0.0,
+    "chorus": 1,
+    "post_hp": 60,
+    "tape": {
+     "wow_c": 0.6,
+     "wow_hz": 0.5,
+     "flutter_c": 0.3,
+     "flutter_hz": 9.0,
+     "hiss": 0.0006,
+     "bump": 0.1,
+     "lp": 15000,
+     "sat": 1.05,
+     "crackle": 0.0
+    }
+   },
+   "m": [
+    18000,
+    0.0,
+    0.3,
+    0.6,
+    0.35,
+    0.2,
+    0.08,
+    0.0
+   ],
+   "v": {
+    "atk": 0,
+    "rel": 150,
+    "reso": 0.7,
+    "vel": 0.15,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subdec": 1200,
+    "subsus": -60
+   },
+   "z": [
+    37,
+    85,
+    4
+   ],
+   "dur": 4.0,
+   "loop": false,
+   "desc": "A 1960s amplified harpsichord with pickups instead of a soundboard, quills plucking through a little chorus amp in a church basement. Like the real thing, its tone stays the same at every velocity.",
+   "vl": 1,
+   "d": {
+    "DriftKnob": 1.0
+   }
+  },
+  {
+   "id": "folding_field_harmonium",
+   "name": "Folding Field Harmonium",
+   "cat": "keys",
+   "tags": [
+    "harmonium",
+    "reed",
+    "organ",
+    "hymn",
+    "drone",
+    "tape",
+    "dark",
+    "lofi",
+    "mystic",
+    "rare-keys"
+   ],
+   "gen": "organ",
+   "gp": {
+    "bars": [
+     [
+      1,
+      1.0
+     ],
+     [
+      2,
+      0.62
+     ],
+     [
+      3,
+      0.5
+     ],
+     [
+      4,
+      0.36
+     ],
+     [
+      5,
+      0.28
+     ],
+     [
+      6,
+      0.2
+     ],
+     [
+      7,
+      0.14
+     ],
+     [
+      8,
+      0.1
+     ],
+     [
+      10,
+      0.05
+     ],
+     [
+      0.5,
+      0.3
+     ],
+     [
+      1.0035,
+      0.3
+     ]
+    ],
+    "wow": 2.5,
+    "lp": 4500,
+    "loop_start": 1.2,
+    "tape": {
+     "wow_c": 0.0,
+     "wow_hz": 0.5,
+     "flutter_c": 0.0,
+     "flutter_hz": 9.0,
+     "hiss": 0.003,
+     "bump": 0.1,
+     "lp": 9000,
+     "sat": 1.1,
+     "crackle": 0.0
+    }
+   },
+   "m": [
+    6000,
+    0.1,
+    0.15,
+    0.55,
+    0.5,
+    0.1,
+    0.1,
+    0.0
+   ],
+   "v": {
+    "atk": 70,
+    "rel": 400,
+    "reso": 0.7,
+    "vel": 0.2,
+    "lfo": 0.1,
+    "dly": "1/4D",
+    "subdec": 1200,
+    "subsus": -40
+   },
+   "z": [
+    36,
+    84,
+    3
+   ],
+   "dur": 5.05,
+   "loop": true,
+   "desc": "A folding field harmonium opened in a tent while it rains: the reeds speak a moment late, a celeste rank beats slowly against them, and the bellows breathe once a bar.",
+   "vl": 1,
+   "d": {
+    "DriftKnob": 2.0
+   },
+   "mod": [
+    {
+     "Source": "LFO 4",
+     "Target": "A Level",
+     "Intensity": 0.15,
+     "Mode": "Scale"
+    }
+   ]
+  },
+  {
+   "id": "transistor_lounge_piano",
+   "name": "Transistor Lounge Piano",
+   "cat": "keys",
+   "tags": [
+    "electronic-piano",
+    "analog",
+    "vintage",
+    "chorus",
+    "lounge",
+    "rare-keys"
+   ],
+   "gen": "modal",
+   "gp": {
+    "modes": [
+     [
+      1,
+      1,
+      1
+     ],
+     [
+      2,
+      0.18,
+      0.55
+     ],
+     [
+      3,
+      0.45,
+      0.5
+     ],
+     [
+      4,
+      0.08,
+      0.4
+     ],
+     [
+      5,
+      0.28,
+      0.36
+     ],
+     [
+      7,
+      0.18,
+      0.28
+     ],
+     [
+      9,
+      0.11,
+      0.22
+     ],
+     [
+      11,
+      0.07,
+      0.18
+     ],
+     [
+      13,
+      0.045,
+      0.15
+     ]
+    ],
+    "t60": 2.6,
+    "strike": 0.06,
+    "attack": 0.0015,
+    "beat_c": 0.4,
+    "lp": 7000,
+    "tape": {
+     "wow_c": 0.0,
+     "wow_hz": 0.5,
+     "flutter_c": 0.0,
+     "flutter_hz": 9.0,
+     "hiss": 0.002,
+     "bump": 0.15,
+     "lp": 12000,
+     "sat": 0.0,
+     "crackle": 0.0
+    }
+   },
+   "m": [
+    10000,
+    0.1,
+    0.35,
+    0.65,
+    0.35,
+    0.2,
+    0.15,
+    0.0
+   ],
+   "v": {
+    "atk": 2,
+    "rel": 350,
+    "reso": 0.8,
+    "vel": 0.3,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subdec": 1200,
+    "subsus": -40
+   },
+   "z": [
+    36,
+    96,
+    4
+   ],
+   "dur": 3.5,
+   "loop": false,
+   "desc": "A 1968 transistor piano in a hotel lounge: one hollow, square-ish oscillator per key, switched on with a soft click, its upper harmonics fading first so every note mellows as it rings out. Play harder for a brighter edge.",
+   "vl": 1,
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 6000,
+    "FVelKnob": 0.45,
+    "FKeyKnob": 0.5,
+    "DriftKnob": 2.0
+   }
+  },
+  {
+   "id": "glass_armonica_keys",
+   "name": "Glass Armonica Keys",
+   "cat": "keys",
+   "tags": [
+    "glass",
+    "armonica",
+    "sustain",
+    "haunted",
+    "lush",
+    "mystic",
+    "rare-keys"
+   ],
+   "gen": "organ",
+   "gp": {
+    "bars": [
+     [
+      1,
+      1.0
+     ],
+     [
+      2,
+      0.04
+     ],
+     [
+      2.71,
+      0.035
+     ],
+     [
+      3,
+      0.015
+     ]
+    ],
+    "wow": 3.0,
+    "lp": 5000,
+    "loop_start": 1.25,
+    "tape": {
+     "wow_c": 0.0,
+     "wow_hz": 0.5,
+     "flutter_c": 0.0,
+     "flutter_hz": 9.0,
+     "hiss": 0.0025,
+     "bump": 0.0,
+     "lp": 14000,
+     "sat": 1.0,
+     "crackle": 0.0
+    }
+   },
+   "m": [
+    8000,
+    0.0,
+    0.25,
+    0.75,
+    0.6,
+    0.25,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 160,
+    "rel": 2200,
+    "reso": 0.7,
+    "vel": 0.35,
+    "lfo": 0.12,
+    "dly": "1/4D",
+    "subdec": 1200,
+    "subsus": -60
+   },
+   "z": [
+    48,
+    96,
+    4
+   ],
+   "dur": 6.3,
+   "loop": true,
+   "desc": "Wet fingertips on a spinning stack of glass bowls in a candlelit parlour: each note swells in slowly and hangs in the air, and the mod wheel adds a trembling vibrato.",
+   "vl": 1,
+   "d": {
+    "VibKnob": 0.08,
+    "VibRateKnob": 4.5,
+    "VibDelayKnob": 600,
+    "ViaWheelKnob": 1,
+    "DriftKnob": 3.0
+   }
+  }
+ ]
+}

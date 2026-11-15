@@ -714,7 +714,7 @@ PRESETS = [
 # recipes are appended to PRESETS, so build_loop_lines.py can use them too.
 # ---------------------------------------------------------------------------
 PACK_DIR = ROOT / "assets" / "packs"
-RECIPE_KEYS = {"id", "name", "cat", "tags", "gen", "gp", "m", "v", "z", "dur", "loop", "desc", "vl", "d", "mod"}
+RECIPE_KEYS = {"id", "name", "cat", "tags", "gen", "gp", "m", "v", "z", "dur", "loop", "desc", "vl", "d", "mod", "map"}
 
 
 def pack_files(folder: Path) -> list[Path]:
@@ -756,6 +756,8 @@ def load_instrument_packs() -> list[dict]:
                          list(r["m"]), V(**r["v"]), tuple(r["z"]), float(r["dur"]), bool(r["loop"]),
                          r["desc"], vl=r.get("vl", 1), d=r.get("d"), mod=r.get("mod")))
             out[-1]["pack"] = pack
+            if r.get("map"):
+                out[-1]["map"] = r["map"]          # doc 25 B6: a snapshot of another preset's samples
     return out
 
 
@@ -829,8 +831,15 @@ SOFT_LEVEL = 0.71          # soft layer sits ~3 dB under the hard layer
 
 
 def soften(gen, gp):
+    """Soft velocity layer. doc 25 B4: a recipe can set its own rules with gp soft_mul
+    {param: multiplier} (or soft {..} on generators where soft is not already a flag)."""
     out = dict(gp)
-    for k, mul in SOFT_RULES.get(gen, {}).items():
+    rules = SOFT_RULES.get(gen, {})
+    if isinstance(gp.get("soft_mul"), dict):
+        rules = gp["soft_mul"]
+    elif isinstance(gp.get("soft"), dict) and gen != "karplus":
+        rules = gp["soft"]
+    for k, mul in rules.items():
         if k in out and out[k]:
             out[k] = out[k] * mul
     if gen in SOFT_DEFAULT_LP and not out.get("lp"):
@@ -849,6 +858,26 @@ def post_eq(x, gp):
     return x
 
 
+def _st_decim(l, r, gp, rng):
+    return (dsp.decimate(l, gp["decim"], gp.get("decim_drive", 0.0)),
+            dsp.decimate(r, gp["decim"], gp.get("decim_drive", 0.0)))
+
+
+def _st_reverse(l, r, gp, rng):                 # reversed swell: ends on the attack
+    l = l[::-1].copy()
+    r = r[::-1].copy()
+    fade = int(0.02 * SR)
+    l[:fade] *= np.linspace(0.0, 1.0, fade)
+    r[:fade] *= np.linspace(0.0, 1.0, fade)
+    return l, r
+
+
+# doc 25 B12: texture stages by name; gp stage_order picks the order (a stage runs when its
+# gp key is set). New stages (plate, spring, vnd, bbd, ensemble ...) register here.
+STAGES = {"decim": _st_decim, "tape": lambda l, r, gp, rng: dsp.tape_age(l, r, gp, rng), "reverse": _st_reverse}
+DEFAULT_STAGES = ["decim", "tape", "reverse"]
+
+
 def render_voice(p, gp, note, n, rng):
     """One zone/layer. gp['slow'] < 1 renders a slowed-tape take that stays in
     tune: render higher and shorter, then stretch back (pitch, envelopes and
@@ -856,6 +885,10 @@ def render_voice(p, gp, note, n, rng):
     gen = dsp.GENERATORS[p["gen"]]
     gp = dict(gp)
     gp["_wseed"] = seed_for(p["id"] + ":wow", 0)     # doc 25 B9: one wow phase per preset
+    gp["_eseed"] = seed_for(p["id"] + ":excite", 0)  # doc 25 B11: one pluck noise per preset
+    if p.get("loop"):                                # doc 25 B10: generators can fit cycles to the loop
+        ls = gp.get("loop_start", max(gp.get("attack", 0.01) + 0.6, 1.0))
+        gp["_loop"] = (int(ls * SR), max(int(ls * SR) + 1, n - int(0.03 * SR)))
     slow = gp.get("slow", 1.0)
     if slow < 1.0:
         n_r = int(n * slow)
@@ -865,17 +898,11 @@ def render_voice(p, gp, note, n, rng):
         r = np.interp(pos, np.arange(n_r), r)
     else:
         l, r = gen(note, n, gp, rng)
-    if gp.get("decim"):
-        l = dsp.decimate(l, gp["decim"], gp.get("decim_drive", 0.0))
-        r = dsp.decimate(r, gp["decim"], gp.get("decim_drive", 0.0))
-    if gp.get("tape"):
-        l, r = dsp.tape_age(l, r, gp, rng)
-    if gp.get("reverse"):                      # reversed swell: ends on the attack
-        l = l[::-1].copy()
-        r = r[::-1].copy()
-        fade = int(0.02 * SR)
-        l[:fade] *= np.linspace(0.0, 1.0, fade)
-        r[:fade] *= np.linspace(0.0, 1.0, fade)
+    for stage in gp.get("stage_order", DEFAULT_STAGES):
+        if stage not in STAGES:
+            raise SystemExit(f'{p["id"]}: unknown stage {stage!r} in stage_order (have {sorted(STAGES)})')
+        if gp.get(stage):
+            l, r = STAGES[stage](l, r, gp, rng)
     l = post_eq(np.nan_to_num(l), gp)
     r = post_eq(np.nan_to_num(r), gp)
     # doc 25 B7: subtracting the mean stepped sample 0 to -mean (5-24% of peak on 16 presets);
@@ -950,6 +977,22 @@ def zone_render(p, gp, note, n_base, rng_seed):
     return l2[:end], r2[:end]
 
 
+def xfade_dip(l, r, ls, le, xf, gamma):
+    """Dip (dB) at the middle of HISE's loop crossfade, against the power midpoint of the two
+    blended sections: the same measure as scripts/ci/check_render_qa.py."""
+    m = (l + r) * 0.5
+    a = m[le - xf: le]
+    b_ = m[ls - xf: ls]
+    tt = np.linspace(0.0, 1.0, xf)
+    blend = a * (1.0 - tt) ** gamma + b_ * tt ** gamma
+    w = max(16, xf // 8)
+    mid = slice(xf // 2 - w // 2, xf // 2 + w // 2)
+    def rms(v):
+        return math.sqrt(float(np.mean(v * v)) + 1e-12)
+    ref = math.sqrt(0.5 * (rms(a[mid]) ** 2 + rms(b_[mid]) ** 2))
+    return 20.0 * math.log10(rms(blend[mid]) / ref + 1e-12)
+
+
 def loop_points(p, l, r, note):
     """Sustain loop (doc 25 B3): the end is searched (within 0.5 s) for the spot whose last
     xf samples best match the xf samples before the loop start, which is what HISE's loop
@@ -980,11 +1023,15 @@ def loop_points(p, l, r, note):
         return lo_ + kk_, float(cr[kk_])
 
     le, cbest = best_end(lo)
-    lo_full = ls + xf + int(0.3 * SR)
-    if cbest < 0.3 and lo_full < lo:                 # chorus / detuned stacks: search the whole body
+    # chorus / detuned stacks: search the whole body, but never below a 2 s loop (a noise-like
+    # zone otherwise landed on a random sub-second spot, review); still poor = natural end
+    lo_full = ls + max(xf + int(0.3 * SR), int(2.0 * SR))
+    if cbest < 0.3 and lo_full < lo:
         le2, c2best = best_end(lo_full)
         if c2best > cbest:
             le, cbest = le2, c2best
+    if cbest < 0.3:
+        le = le0
     if p["gen"] in ("sub", "reese"):             # periodic sources: also whole periods
         per = SR / dsp.mtof(note)
         kk = max(1, int(round((le - ls) / per)))
@@ -1007,7 +1054,8 @@ def render_preset(p) -> list[dict]:
         if layers == 2:
             sl, sr_ = render_voice(p, soften(p["gen"], p["gp"]), note, nz,
                                    np.random.default_rng(seed_for(p["id"], note) ^ 0x50F7))
-            raw.append((note, 1, sl * g * SOFT_LEVEL, sr_ * g * SOFT_LEVEL))
+            sv = p["gp"].get("soft_level", SOFT_LEVEL)
+            raw.append((note, 1, sl * g * sv, sr_ * g * sv))
             raw.append((note, 2, hard_l * g, hard_r * g))
         else:
             raw.append((note, 0, hard_l * g, hard_r * g))
@@ -1043,6 +1091,7 @@ def write_preset_audio(p, zones) -> None:
     today = date.today().isoformat()
     VEL = {0: (0, 127), 1: (0, 84), 2: (85, 127)}
     corrs = []
+    loops = []
     for i, z in enumerate(zones):
         note = z["note"]
         layer = z["layer"]
@@ -1070,6 +1119,8 @@ def write_preset_audio(p, zones) -> None:
         if p["loop"]:
             ls, le, xf, cc = loop_points(p, z["l"], z["r"], note)
             corrs.append(cc)
+            if xf >= 64 and ls >= xf:
+                loops.append((z["l"], z["r"], ls, le, xf))
             loop_attr = f'LoopStart="{ls}" LoopEnd="{le}" LoopXFade="{xf}" LoopEnabled="1"'
         else:
             loop_attr = 'LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"'
@@ -1082,11 +1133,13 @@ def write_preset_audio(p, zones) -> None:
             f'          NormalizedPeak="-1" Duplicate="0"/>')
     # doc 25 B3: when even the best loop end barely correlates with the loop start (noise,
     # chorus, beating partials) a linear crossfade dips; gamma 0.5 is equal power
-    gamma = "1.0"
-    if corrs and float(np.median(corrs)) < 0.3:
-        gamma = "0.5"            # mostly noise-like: equal power
-    elif corrs and min(corrs) < 0.3:
-        gamma = "0.7"            # a few poor zones: about -1 dB for them, +2 dB for the rest
+    # the most linear gamma whose simulated crossfade dips stay above -5 dB on every zone
+    # (correlation alone missed a zone that matched overall but cancelled mid-fade)
+    gamma = "0.5"
+    for g in ("1.0", "0.85", "0.7", "0.5"):
+        if all(xfade_dip(l_, r_, ls_, le_, xf_, float(g)) >= -5.0 for l_, r_, ls_, le_, xf_ in loops):
+            gamma = g
+            break
     xml = ('<?xml version="1.0" encoding="UTF-8"?>\n\n'
            f'<samplemap ID="SIG_{p["id"]}" SaveMode="1" RRGroupAmount="1.0" MicPositions=";"\n'
            f'           CrossfadeGamma="{gamma}">\n' + "\n".join(entries) + "\n</samplemap>\n")
@@ -1183,7 +1236,7 @@ def load_deep_registry() -> dict:
 
 
 RENDER_KEYS = {"slow", "decim", "decim_drive", "tape", "reverse", "post_hp", "post_shelf",
-               "attack", "loop_start", "t60"}
+               "attack", "loop_start", "t60", "soft_mul", "soft_level", "stage_order", "soft"}
 
 
 def gen_keys() -> dict:
@@ -1282,7 +1335,7 @@ def bank_records() -> list[dict]:
         check_deep(p["id"], p.get("d", {}), reg)
         check_mod(p["id"], p.get("mod", []))
         recs.append(dict(id=p["id"], name=p["name"], cat=p["cat"], tags=p["tags"],
-                         map=f"SIG_{p['id']}", m=[round(x, 4) for x in p["m"]], v=p["v"],
+                         map=f"SIG_{p.get('map') or p['id']}", m=[round(x, 4) for x in p["m"]], v=p["v"],
                          desc=p["desc"], d=p.get("d", {}), mod=p.get("mod", [])))
     recs.extend(legacy_presets())
     return recs
@@ -1338,12 +1391,16 @@ def main() -> int:
     ids = [p["id"] for p in PRESETS]
     assert len(ids) == len(set(ids)), "duplicate preset id"
     assert DEFAULT_PRESET in ids
+    for p in PRESETS:
+        if p.get("map"):
+            assert p["map"] in ids and not next(q for q in PRESETS if q["id"] == p["map"]).get("map"), \
+                f'{p["id"]}: map alias must name a preset that renders its own samples'
     check_gp_keys(PRESETS)
 
     SAMPLES.mkdir(parents=True, exist_ok=True)
     MAPS.mkdir(parents=True, exist_ok=True)
     if not args.data_only:
-        todo = [p for p in PRESETS if not args.only or p["id"] == args.only]
+        todo = [p for p in PRESETS if (not args.only or p["id"] == args.only) and not p.get("map")]
         total_bytes = 0
         for k, p in enumerate(todo, 1):
             zones = render_preset(p)

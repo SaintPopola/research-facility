@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <samplemap ID="SIG_lg_barrio_pluck" SaveMode="1" RRGroupAmount="1.0" MicPositions=";"
-           CrossfadeGamma="1.0">
+           CrossfadeGamma="0.85">
   <sample ID="0" FileName="{PROJECT_FOLDER}SIG_lg_barrio_pluck_48_v1.wav" Root="48" HiKey="49"
           LoKey="0" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="120000"

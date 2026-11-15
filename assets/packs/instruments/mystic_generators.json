@@ -1,0 +1,557 @@
+{
+ "pack": "mystic_generators",
+ "presets": [
+  {
+   "id": "ladder_poly",
+   "name": "Ladder Poly",
+   "cat": "chords",
+   "tags": [
+    "analog",
+    "ladder",
+    "poly",
+    "chords",
+    "80s",
+    "warm"
+   ],
+   "gen": "ladder",
+   "gp": {
+    "voices": 3,
+    "detune_c": 7,
+    "osc": "saw",
+    "spread": 0.5,
+    "cutoff": 900,
+    "res": 0.55,
+    "drive": 2.2,
+    "fenv": 2200,
+    "fenv_t": 0.35,
+    "keytrack": 0.5,
+    "attack": 0.01,
+    "decay": 0.8,
+    "sustain": 0.7,
+    "oversample": 2,
+    "wander": {
+     "pitch_c": 3
+    },
+    "soft": {
+     "drive": 0.45
+    }
+   },
+   "m": [
+    6000,
+    0.15,
+    0.35,
+    0.7,
+    0.35,
+    0.12,
+    0.15,
+    0.0
+   ],
+   "v": {
+    "atk": 5,
+    "rel": 600,
+    "reso": 0.8,
+    "vel": 0.5,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subsus": -30
+   },
+   "z": [
+    36,
+    96,
+    3
+   ],
+   "dur": 10.0,
+   "loop": true,
+   "desc": "Three detuned saws per note pushed into a tanh-per-stage transistor ladder with a snappy filter envelope. Warm poly chords that sound like they have a pulse.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 3
+   }
+  },
+  {
+   "id": "ladder_drone_pad",
+   "name": "Ladder Drone Pad",
+   "cat": "pads",
+   "tags": [
+    "analog",
+    "ladder",
+    "drone",
+    "dark",
+    "pad",
+    "tape"
+   ],
+   "gen": "ladder",
+   "gp": {
+    "voices": 3,
+    "detune_c": 9,
+    "sub": 0.25,
+    "cutoff": 600,
+    "res": 0.6,
+    "drive": 1.4,
+    "attack": 1.0,
+    "sustain": 1.0,
+    "oversample": 2,
+    "wander": {
+     "pitch_c": 4,
+     "cutoff_oct": 0.3
+    },
+    "tape": {
+     "wow_c": 0,
+     "wow_hz": 0.5,
+     "flutter_c": 0,
+     "flutter_hz": 9,
+     "hiss": 0.002,
+     "bump": 0.2,
+     "lp": 14000,
+     "sat": 1.1,
+     "crackle": 0
+    },
+    "osc": "saw"
+   },
+   "m": [
+    3000,
+    0.2,
+    0.4,
+    0.8,
+    0.65,
+    0.15,
+    0.1,
+    0.0
+   ],
+   "v": {
+    "atk": 900,
+    "rel": 2500,
+    "reso": 0.8,
+    "vel": 0.25,
+    "lfo": 0.08,
+    "dly": "1/4D",
+    "subsus": -24
+   },
+   "z": [
+    36,
+    84,
+    3
+   ],
+   "dur": 12.0,
+   "loop": true,
+   "desc": "Detuned saws and a sub through a resonant ladder whose cutoff wanders like a tide, with LFO 2 breathing on the voice filter. Basement drones and dark beds.",
+   "vl": 1,
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 2500,
+    "ResoKnob": 0.9
+   },
+   "mod": [
+    {
+     "Source": "LFO 2",
+     "Target": "Cutoff",
+     "Intensity": 0.35,
+     "Mode": "Bipolar"
+    }
+   ]
+  },
+  {
+   "id": "ladder_ping_bell",
+   "name": "Ladder Ping Bell",
+   "cat": "bells",
+   "tags": [
+    "bell",
+    "ladder",
+    "self-oscillation",
+    "electronic",
+    "pluck"
+   ],
+   "gen": "ladder",
+   "gp": {
+    "osc": "none",
+    "excite": "impulse",
+    "excite_noise_ms": 2,
+    "cutoff_track": 1.0,
+    "res": 0.98,
+    "drive": 1.2,
+    "ring_t60": 1.8,
+    "oversample": 2,
+    "tune_comp": true,
+    "tape": {
+     "wow_c": 0,
+     "wow_hz": 0.5,
+     "flutter_c": 0,
+     "flutter_hz": 9,
+     "hiss": 0.0015,
+     "bump": 0,
+     "lp": 20000,
+     "sat": 1.0,
+     "crackle": 0
+    },
+    "soft": {
+     "drive": 0.6
+    }
+   },
+   "m": [
+    12000,
+    0.0,
+    0.2,
+    0.6,
+    0.5,
+    0.35,
+    0.05,
+    0.0
+   ],
+   "v": {
+    "atk": 0,
+    "rel": 600,
+    "reso": 0.7,
+    "vel": 0.6,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subsus": -60
+   },
+   "z": [
+    48,
+    96,
+    3
+   ],
+   "dur": 3.0,
+   "loop": false,
+   "desc": "No oscillator: a noise impulse pings a ladder filter on the edge of self-oscillation, each zone's ring pitch measured and corrected. Round, slightly drunk electronic bells.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 1
+   }
+  },
+  {
+   "id": "singing_bowl_field",
+   "name": "Singing Bowl Field",
+   "cat": "pads",
+   "tags": [
+    "singing-bowl",
+    "bowl",
+    "meditative",
+    "drone",
+    "ethereal",
+    "lush"
+   ],
+   "gen": "resonator_bank",
+   "gp": {
+    "modes": [
+     [
+      1,
+      1,
+      1
+     ],
+     [
+      1.006,
+      0.8,
+      1
+     ],
+     [
+      2.72,
+      0.4,
+      0.6
+     ],
+     [
+      2.74,
+      0.35,
+      0.6
+     ],
+     [
+      4.95,
+      0.15,
+      0.3
+     ],
+     [
+      5.0,
+      0.12,
+      0.3
+     ]
+    ],
+    "excite": "rub",
+    "rub_attack": 0.6,
+    "rub_level": 0.7,
+    "rub_wander_db": 2.0,
+    "strike": 0.05,
+    "t60": 12,
+    "pan_modes": 0.5,
+    "soft": {
+     "rub_level": 0.6
+    }
+   },
+   "m": [
+    9000,
+    0.0,
+    0.2,
+    0.85,
+    0.8,
+    0.15,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 300,
+    "rel": 3000,
+    "reso": 0.7,
+    "vel": 0.3,
+    "lfo": 0.08,
+    "dly": "1/4D",
+    "subsus": -60
+   },
+   "z": [
+    36,
+    84,
+    3
+   ],
+   "dur": 12.0,
+   "loop": true,
+   "desc": "Bronze bowl modes in close doublets, rubbed at the rim instead of struck, so the beating rolls slowly across the stereo field. Dusk pads and held drones.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 1
+   }
+  },
+  {
+   "id": "bowed_metal",
+   "name": "Bowed Metal",
+   "cat": "pads",
+   "tags": [
+    "bowed",
+    "metal",
+    "dark",
+    "cinematic",
+    "drone"
+   ],
+   "gen": "resonator_bank",
+   "gp": {
+    "modes": [
+     [
+      1,
+      1,
+      1
+     ],
+     [
+      1.004,
+      0.7,
+      1
+     ],
+     [
+      2.756,
+      0.4,
+      0.7
+     ],
+     [
+      5.404,
+      0.2,
+      0.4
+     ]
+    ],
+    "excite": "bow",
+    "bow_attack": 0.35,
+    "bow_level": 0.8,
+    "bow_rough": 0.03,
+    "t60": 10,
+    "pan_modes": 0.5
+   },
+   "m": [
+    7000,
+    0.05,
+    0.3,
+    0.8,
+    0.7,
+    0.15,
+    0.05,
+    0.0
+   ],
+   "v": {
+    "atk": 250,
+    "rel": 2500,
+    "reso": 0.7,
+    "vel": 0.3,
+    "lfo": 0.1,
+    "dly": "1/4D",
+    "subsus": -60
+   },
+   "z": [
+    36,
+    84,
+    3
+   ],
+   "dur": 12.0,
+   "loop": true,
+   "desc": "A steel bar under a rough bow: the note blooms slowly through its inharmonic modes and refuses to die. Dark shipyard beds and long cinematic holds.",
+   "vl": 1,
+   "d": {
+    "DriftKnob": 1
+   }
+  },
+  {
+   "id": "bowed_bar",
+   "name": "Bowed Bar",
+   "cat": "bells",
+   "tags": [
+    "bowed",
+    "marimba",
+    "wood",
+    "ethereal",
+    "bells"
+   ],
+   "gen": "resonator_bank",
+   "gp": {
+    "modes": [
+     [
+      1,
+      1,
+      1
+     ],
+     [
+      3.99,
+      0.35,
+      0.25
+     ],
+     [
+      9.9,
+      0.12,
+      0.08
+     ]
+    ],
+    "excite": "bow",
+    "bow_attack": 0.25,
+    "bow_level": 0.7,
+    "bow_rough": 0.02,
+    "strike": 0.05,
+    "t60": 6,
+    "pan_modes": 0.3,
+    "resonator": {
+     "ratio": 1.0,
+     "q": 30,
+     "mix": 0.3
+    }
+   },
+   "m": [
+    8000,
+    0.0,
+    0.2,
+    0.6,
+    0.65,
+    0.2,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 200,
+    "rel": 1800,
+    "reso": 0.7,
+    "vel": 0.35,
+    "lfo": 0.1,
+    "dly": "1/4D",
+    "subsus": -60
+   },
+   "z": [
+    48,
+    96,
+    3
+   ],
+   "dur": 8.0,
+   "loop": true,
+   "desc": "Marimba bar modes over a tuned tube, bowed instead of struck: a soft wooden swell under a temple roof. Slow melodies and gentle pads.",
+   "vl": 1,
+   "d": {
+    "DriftKnob": 1
+   }
+  },
+  {
+   "id": "rod_ring_waterbowl",
+   "name": "Rod Ring Waterbowl",
+   "cat": "pads",
+   "tags": [
+    "waterphone",
+    "bowed",
+    "eerie",
+    "cinematic",
+    "dark",
+    "underwater"
+   ],
+   "gen": "resonator_bank",
+   "gp": {
+    "modes": [
+     [
+      1,
+      1,
+      1
+     ],
+     [
+      6.267,
+      0.2,
+      0.4
+     ],
+     [
+      17.547,
+      0.05,
+      0.15
+     ]
+    ],
+    "bowl_f": 220,
+    "bowl_modes": [
+     [
+      1,
+      0.15,
+      1.5
+     ],
+     [
+      1.004,
+      0.12,
+      1.5
+     ],
+     [
+      2.7,
+      0.06,
+      1.0
+     ]
+    ],
+    "excite": "bow",
+    "bow_attack": 0.3,
+    "bow_level": 0.8,
+    "bow_rough": 0.05,
+    "water": {
+     "pitch_c": 8,
+     "notch_sweep_hz": 0.1,
+     "wander": true
+    },
+    "t60": 8,
+    "pan_modes": 0.5,
+    "soft": {
+     "bow_rough": 0.5
+    }
+   },
+   "m": [
+    8000,
+    0.0,
+    0.35,
+    0.85,
+    0.75,
+    0.2,
+    0.1,
+    0.0
+   ],
+   "v": {
+    "atk": 200,
+    "rel": 2500,
+    "reso": 0.7,
+    "vel": 0.35,
+    "lfo": 0.1,
+    "dly": "1/4D",
+    "subsus": -60
+   },
+   "z": [
+    48,
+    96,
+    3
+   ],
+   "dur": 10.0,
+   "loop": true,
+   "desc": "Bowed clamped rods over a low bowl resonance, with sloshing water bending the pitch and sweeping a notch. The eerie haunted-house ring, made playable.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 1
+   }
+  }
+ ]
+}

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <samplemap ID="SIG_boogie_keytar" SaveMode="1" RRGroupAmount="1.0" MicPositions=";"
-           CrossfadeGamma="0.7">
+           CrossfadeGamma="1.0">
   <sample ID="0" FileName="{PROJECT_FOLDER}SIG_boogie_keytar_36_v1.wav" Root="36" HiKey="38"
           LoKey="0" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="120000"
@@ -119,13 +119,13 @@
   <sample ID="19" FileName="{PROJECT_FOLDER}SIG_boogie_keytar_90_v2.wav" Root="90" HiKey="92"
           LoKey="87" LoVel="85" HiVel="127" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="120000"
-          SampleStartMod="0" LoopStart="48000" LoopEnd="80673" LoopXFade="16800" LoopEnabled="1"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="118560" LoopXFade="16800" LoopEnabled="1"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="20" FileName="{PROJECT_FOLDER}SIG_boogie_keytar_96_v1.wav" Root="96" HiKey="127"
           LoKey="93" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="120000"
-          SampleStartMod="0" LoopStart="48000" LoopEnd="118148" LoopXFade="16800" LoopEnabled="1"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="118560" LoopXFade="16800" LoopEnabled="1"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="21" FileName="{PROJECT_FOLDER}SIG_boogie_keytar_96_v2.wav" Root="96" HiKey="127"

@@ -1,0 +1,1956 @@
+{
+ "pack": "Mystic Pending",
+ "presets": [
+  {
+   "id": "harp_frame_grand",
+   "name": "Harp-Frame Grand",
+   "cat": "keys",
+   "tags": [
+    "electric-grand",
+    "piano",
+    "piezo",
+    "late-night",
+    "sparse",
+    "80s"
+   ],
+   "gen": "electric_grand",
+   "gp": {
+    "strings": 2,
+    "unison_c": 2.0,
+    "B_bass": 0.0008,
+    "B_treble": 0.0001,
+    "hammer": "stulov",
+    "x_h": 0.12,
+    "v_hammer": 3.0,
+    "piezo": 1.0,
+    "t60": 5.0,
+    "damper_ms": 120,
+    "tape": {
+     "wow_c": 0,
+     "wow_hz": 0.5,
+     "flutter_c": 0,
+     "flutter_hz": 9,
+     "hiss": 0.0012,
+     "bump": 0,
+     "lp": 20000,
+     "sat": 1.0,
+     "crackle": 0
+    },
+    "vnd": {
+     "amt": 0.25,
+     "hp": 150,
+     "len_ms": 30,
+     "density": 1000,
+     "decay_db": 30
+    },
+    "soft": {
+     "v_hammer": 0.45
+    }
+   },
+   "m": [
+    9500,
+    0.0,
+    0.45,
+    0.6,
+    0.3,
+    0.12,
+    0.05,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 500,
+    "reso": 0.7,
+    "vel": 0.7,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subsus": -60
+   },
+   "z": [
+    28,
+    100,
+    3
+   ],
+   "dur": 8.0,
+   "loop": false,
+   "desc": "Hammered strings, no soundboard, a piezo on the harp: bright bite, short bass strings, nothing ringing but the strings. Sparse chords and root-plus-ninth dyads with rests between them.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 2.5
+   }
+  },
+  {
+   "id": "tangent_whisper_keys",
+   "name": "Tangent Whisper Keys",
+   "cat": "keys",
+   "tags": [
+    "clavichord",
+    "intimate",
+    "bebung",
+    "quiet",
+    "baroque",
+    "lofi"
+   ],
+   "gen": "karplus",
+   "gp": {
+    "tangent": {
+     "step_ms": 2.0,
+     "hp": 20
+    },
+    "burst": 0.05,
+    "soft": false,
+    "bright": 9000,
+    "pos": 0.03,
+    "damp": 0.08,
+    "t60": 3.0,
+    "body": 0.25,
+    "post_hp": 120,
+    "chorus": 0,
+    "vnd": {
+     "amt": 0.2,
+     "hp": 150,
+     "len_ms": 30,
+     "density": 1000,
+     "decay_db": 30
+    },
+    "soft_mul": {
+     "bright": 0.4
+    }
+   },
+   "m": [
+    12000,
+    0.0,
+    0.05,
+    0.5,
+    0.25,
+    0.05,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 0,
+    "rel": 120,
+    "reso": 0.7,
+    "vel": 0.85,
+    "lfo": 0.1,
+    "dly": "1/8D",
+    "subsus": -60
+   },
+   "z": [
+    36,
+    84,
+    3
+   ],
+   "dur": 4.0,
+   "loop": false,
+   "desc": "A tangent presses the string and stays on it: tiny, close and touch-led. The mod wheel plays Bebung, so held notes tremble like a confession.",
+   "vl": 2,
+   "d": {
+    "ViaWheelKnob": 1,
+    "VibKnob": 0.15,
+    "VibRateKnob": 6.0,
+    "VibDelayKnob": 0,
+    "DriftKnob": 2
+   }
+  },
+  {
+   "id": "tin_rod_lullaby",
+   "name": "Tin Rod Lullaby",
+   "cat": "keys",
+   "tags": [
+    "toy-piano",
+    "lullaby",
+    "music-box",
+    "dreamy",
+    "bells"
+   ],
+   "gen": "modal",
+   "gp": {
+    "modes": [
+     [
+      1,
+      1,
+      1
+     ],
+     [
+      6.267,
+      0.28,
+      0.22
+     ],
+     [
+      17.547,
+      0.07,
+      0.07
+     ]
+    ],
+    "t60": 2.2,
+    "strike": 0.5,
+    "beat_c": 3,
+    "pan_modes": 0.35,
+    "attack": 0.0008,
+    "post_hp": 250,
+    "thunk": {
+     "lo": 90,
+     "hi": 220,
+     "amt": 0.18,
+     "t": 0.025
+    },
+    "box": {
+     "f": [
+      350,
+      900
+     ],
+     "q": 4,
+     "mix": 0.15
+    },
+    "soft": {
+     "strike": 0.4
+    }
+   },
+   "m": [
+    11000,
+    0.0,
+    0.15,
+    0.55,
+    0.45,
+    0.25,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 400,
+    "reso": 0.7,
+    "vel": 0.65,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subsus": -60
+   },
+   "z": [
+    60,
+    96,
+    3
+   ],
+   "dur": 3.5,
+   "loop": false,
+   "desc": "Clamped metal rods with a key thunk and a small wooden box, slightly out of tune. A toy piano left in the attic, played softly for someone asleep.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 5
+   }
+  },
+  {
+   "id": "lantern_celeste",
+   "name": "Lantern Celeste",
+   "cat": "keys",
+   "tags": [
+    "celeste",
+    "celesta",
+    "lullaby",
+    "bells",
+    "dreamy",
+    "winter"
+   ],
+   "gen": "modal",
+   "gp": {
+    "modes": [
+     [
+      1,
+      1,
+      1
+     ],
+     [
+      2.756,
+      0.18,
+      0.35
+     ],
+     [
+      5.404,
+      0.06,
+      0.15
+     ],
+     [
+      8.933,
+      0.02,
+      0.08
+     ]
+    ],
+    "t60": 3.5,
+    "strike": 0.18,
+    "attack": 0.002,
+    "lp": 9000,
+    "pan_modes": 0.4,
+    "resonator": {
+     "ratio": 1.0,
+     "q": 25,
+     "mix": 0.35
+    },
+    "thunk": {
+     "lo": 120,
+     "hi": 400,
+     "amt": 0.08,
+     "t": 0.02
+    },
+    "soft": {
+     "strike": 0.35
+    }
+   },
+   "m": [
+    12000,
+    0.0,
+    0.15,
+    0.6,
+    0.55,
+    0.2,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 250,
+    "reso": 0.7,
+    "vel": 0.6,
+    "lfo": 0.2,
+    "dly": "1/4D",
+    "subsus": -60
+   },
+   "z": [
+    60,
+    108,
+    3
+   ],
+   "dur": 5.0,
+   "loop": false,
+   "desc": "Steel plates over tuned wooden boxes with a soft hammer thunk; the short release is the damper, the sustain pedal lets it ring. A lullaby with a secret.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 1.5
+   }
+  },
+  {
+   "id": "fork_piano",
+   "name": "Fork Piano",
+   "cat": "keys",
+   "tags": [
+    "tuning-fork",
+    "pure",
+    "cold",
+    "bells",
+    "ethereal"
+   ],
+   "gen": "modal",
+   "gp": {
+    "modes": [
+     [
+      1,
+      1,
+      1
+     ],
+     [
+      6.267,
+      0.05,
+      0.15
+     ]
+    ],
+    "strike": 0.3,
+    "t60": 7,
+    "beat_c": 0.5,
+    "pan_modes": 0.3,
+    "resonator": {
+     "ratio": 1.0,
+     "q": 40,
+     "mix": 0.2
+    },
+    "tape": {
+     "wow_c": 0,
+     "wow_hz": 0.5,
+     "flutter_c": 0,
+     "flutter_hz": 9,
+     "hiss": 0.002,
+     "bump": 0,
+     "lp": 20000,
+     "sat": 1.0,
+     "crackle": 0
+    },
+    "soft": {
+     "strike": 0.4
+    }
+   },
+   "m": [
+    10000,
+    0.0,
+    0.1,
+    0.55,
+    0.6,
+    0.2,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 1500,
+    "reso": 0.7,
+    "vel": 0.6,
+    "lfo": 0.1,
+    "dly": "1/4D",
+    "subsus": -60
+   },
+   "z": [
+    36,
+    96,
+    4
+   ],
+   "dur": 10.0,
+   "loop": false,
+   "desc": "Tuning forks struck by felt hammers over a tuned stem resonance: pure, cold and ringing for ever. Physics-lab keys for slow, open voicings.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 1
+   }
+  },
+  {
+   "id": "endless_tine",
+   "name": "Endless Tine",
+   "cat": "keys",
+   "tags": [
+    "tine",
+    "electric-piano",
+    "sustain",
+    "swell",
+    "dark",
+    "lush"
+   ],
+   "gen": "tine_ep",
+   "gp": {
+    "em_sustain": true,
+    "em_attack": 0.6,
+    "em_level": 0.8,
+    "em_wander_db": 1.0,
+    "bark": 0.7,
+    "tine": 0.12,
+    "pickup": 0.35,
+    "lp": 3500,
+    "wow": 0,
+    "vnd": {
+     "amt": 0.3,
+     "hp": 150,
+     "len_ms": 30,
+     "density": 1000,
+     "decay_db": 30
+    },
+    "loop_start": 3.5,
+    "soft": {
+     "em_attack": 2.0,
+     "bark": 0.5
+    }
+   },
+   "m": [
+    3200,
+    0.1,
+    0.3,
+    0.7,
+    0.6,
+    0.25,
+    0.05,
+    0.0
+   ],
+   "v": {
+    "atk": 20,
+    "rel": 1800,
+    "reso": 0.8,
+    "vel": 0.5,
+    "lfo": 0.12,
+    "dly": "1/4D",
+    "subsus": -60
+   },
+   "z": [
+    36,
+    96,
+    3
+   ],
+   "dur": 8.0,
+   "loop": true,
+   "desc": "A tine piano held up electromagnetically: slow swelling attacks, endless sustain and a gentle 1/f breath in the level. Hold a chord and it stays, glowing.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 2
+   }
+  },
+  {
+   "id": "dust_harmonium",
+   "name": "Dust Harmonium",
+   "cat": "keys",
+   "tags": [
+    "harmonium",
+    "reed",
+    "organ",
+    "chapel",
+    "lofi",
+    "tape"
+   ],
+   "gen": "free_reed",
+   "gp": {
+    "ranks": [
+     [
+      0,
+      1.0
+     ],
+     [
+      12,
+      0.35
+     ]
+    ],
+    "celeste_c": 4,
+    "duty": 0.35,
+    "reed_lp": 4500,
+    "bellows_rate": 0.3,
+    "bellows_db": 1.5,
+    "bellows_wander": 0.5,
+    "pitch_pressure_c": 3,
+    "breath": 0.015,
+    "click": 0.1,
+    "chiff": 0.03,
+    "tape": {
+     "wow_c": 0,
+     "wow_hz": 0.5,
+     "flutter_c": 0,
+     "flutter_hz": 9,
+     "hiss": 0.003,
+     "bump": 0.1,
+     "lp": 9000,
+     "sat": 1.1,
+     "crackle": 0.5
+    },
+    "loop_start": 1.0,
+    "attack": 0.09
+   },
+   "m": [
+    4500,
+    0.1,
+    0.15,
+    0.55,
+    0.5,
+    0.1,
+    0.1,
+    0.0
+   ],
+   "v": {
+    "atk": 60,
+    "rel": 400,
+    "reso": 0.7,
+    "vel": 0.2,
+    "lfo": 0.1,
+    "dly": "1/4D",
+    "subsus": -40
+   },
+   "z": [
+    36,
+    84,
+    3
+   ],
+   "dur": 10.0,
+   "loop": true,
+   "desc": "Pump-organ free reeds with a slightly sharp octave rank, the bellows breathing under every chord, a little out of air. Slow hymn chords and drones.",
+   "vl": 1,
+   "d": {
+    "DriftKnob": 2
+   }
+  },
+  {
+   "id": "backward_tines",
+   "name": "Backward Tines",
+   "cat": "keys",
+   "tags": [
+    "tine",
+    "electric-piano",
+    "reverse",
+    "swell",
+    "slowed",
+    "dreamy"
+   ],
+   "gen": "tine_ep",
+   "gp": {
+    "t60": 4,
+    "bark": 1.0,
+    "tine": 0.18,
+    "pickup": 0.35,
+    "wow": 0,
+    "slow": 0.85,
+    "plate": {
+     "decay": 0.6,
+     "damping": 0.2,
+     "mix": 0.35,
+     "predelay_ms": 0,
+     "bandwidth": 0.9995,
+     "mod_excursion": 26
+    },
+    "reverse": true,
+    "stage_order": [
+     "plate",
+     "tape",
+     "reverse"
+    ],
+    "tape": {
+     "wow_c": 0,
+     "wow_hz": 0.5,
+     "flutter_c": 0,
+     "flutter_hz": 9,
+     "hiss": 0.003,
+     "bump": 0.15,
+     "lp": 6000,
+     "sat": 1.1,
+     "crackle": 0
+    }
+   },
+   "m": [
+    6000,
+    0.1,
+    0.2,
+    0.6,
+    0.7,
+    0.3,
+    0.05,
+    0.0
+   ],
+   "v": {
+    "atk": 5,
+    "rel": 400,
+    "reso": 0.8,
+    "vel": 0.5,
+    "lfo": 0.15,
+    "dly": "1/4D",
+    "subsus": -60
+   },
+   "z": [
+    36,
+    96,
+    3
+   ],
+   "dur": 3.5,
+   "loop": false,
+   "desc": "Tine notes printed into a plate, then rewound out of their own echo: each one swells in from nowhere and lands on the beat. Play a little early.",
+   "vl": 1,
+   "d": {
+    "DriftKnob": 2
+   }
+  },
+  {
+   "id": "photocell_vibes",
+   "name": "Photocell Vibes",
+   "cat": "keys",
+   "tags": [
+    "optical",
+    "vibes",
+    "lofi",
+    "vintage",
+    "crackle"
+   ],
+   "gen": "glass_pad",
+   "gp": {
+    "partials": [
+     [
+      1,
+      1.0
+     ],
+     [
+      4.0,
+      0.2
+     ],
+     [
+      10.0,
+      0.05
+     ]
+    ],
+    "attack": 0.02,
+    "air": 0.0,
+    "pan_modes": 0.2,
+    "optical": {
+     "lp": 4000,
+     "hp": 120,
+     "rot_hz": 1.2,
+     "rot_wow_c": 12,
+     "dust_rate": 4,
+     "dust_repeat": true,
+     "xtalk_st": 7,
+     "xtalk_db": -34
+    }
+   },
+   "m": [
+    4000,
+    0.05,
+    0.25,
+    0.4,
+    0.45,
+    0.15,
+    0.2,
+    0.0
+   ],
+   "v": {
+    "atk": 15,
+    "rel": 250,
+    "reso": 0.7,
+    "vel": 0.3,
+    "lfo": 0.15,
+    "dly": "1/8D",
+    "subsus": -60
+   },
+   "z": [
+    48,
+    84,
+    3
+   ],
+   "dur": 8.0,
+   "loop": true,
+   "desc": "Vibes read off a spinning plastic disc by a photocell: narrow band, dust that repeats every turn, faint crosstalk, and no beginning or end to any note.",
+   "vl": 1,
+   "d": {
+    "DriftKnob": 3
+   }
+  },
+  {
+   "id": "rotor_vibes",
+   "name": "Rotor Vibes Nocturne",
+   "cat": "keys",
+   "tags": [
+    "vibraphone",
+    "vibes",
+    "tremolo",
+    "jazzy",
+    "late-night"
+   ],
+   "gen": "modal",
+   "gp": {
+    "modes": [
+     [
+      1,
+      1,
+      1
+     ],
+     [
+      4.0,
+      0.3,
+      0.3
+     ],
+     [
+      10.0,
+      0.06,
+      0.1
+     ]
+    ],
+    "t60": 6,
+    "strike": 0.12,
+    "attack": 0.002,
+    "pan_modes": 0.3,
+    "resonator": {
+     "ratio": 1.0,
+     "q": 30,
+     "mix": 0.4
+    },
+    "trem": {
+     "rate": 4.5,
+     "depth": 0.4,
+     "pan": false,
+     "phase": 0
+    },
+    "soft": {
+     "strike": 0.3
+    }
+   },
+   "m": [
+    9000,
+    0.0,
+    0.1,
+    0.5,
+    0.55,
+    0.25,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 1200,
+    "reso": 0.7,
+    "vel": 0.6,
+    "lfo": 0.1,
+    "dly": "1/4D",
+    "subsus": -60
+   },
+   "z": [
+    53,
+    89,
+    3
+   ],
+   "dur": 8.0,
+   "loop": false,
+   "desc": "Vibraphone bars over tuned tubes with the motor still spinning, so every chord pulses together from the onset. A smoky diner after closing.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 1
+   }
+  },
+  {
+   "id": "undertone_lead",
+   "name": "Undertone Lead",
+   "cat": "leads",
+   "tags": [
+    "subharmonic",
+    "lead",
+    "analog",
+    "dark",
+    "mono",
+    "mythical"
+   ],
+   "gen": "subharmonic",
+   "gp": {
+    "osc": "saw",
+    "subs": [
+     [
+      3,
+      0.45
+     ],
+     [
+      5,
+      0.3
+     ]
+    ],
+    "filter": "ladder",
+    "cutoff": 1400,
+    "res": 0.4,
+    "drive": 1.6,
+    "attack": 0.01,
+    "sustain": 1.0,
+    "wander": {
+     "pitch_c": 4
+    },
+    "tape": {
+     "wow_c": 0,
+     "wow_hz": 0.5,
+     "flutter_c": 0,
+     "flutter_hz": 9,
+     "hiss": 0.001,
+     "bump": 0.1,
+     "lp": 16000,
+     "sat": 1.05,
+     "crackle": 0
+    },
+    "soft": {
+     "cutoff": 0.6
+    },
+    "sub_shape": "saw"
+   },
+   "m": [
+    5000,
+    0.0,
+    0.2,
+    0.3,
+    0.5,
+    0.25,
+    0.1,
+    0.0
+   ],
+   "v": {
+    "atk": 8,
+    "rel": 500,
+    "reso": 0.8,
+    "vel": 0.5,
+    "lfo": 0.15,
+    "dly": "1/4D",
+    "subsus": -60
+   },
+   "z": [
+    48,
+    84,
+    3
+   ],
+   "dur": 4.0,
+   "loop": true,
+   "desc": "A saw with phase-locked undertones at a third and a fifth of its frequency, through a ladder filter. A lead that drags a humming shadow under every note.",
+   "vl": 2,
+   "d": {
+    "ViaWheelKnob": 1,
+    "VibKnob": 0.25,
+    "VibDelayKnob": 400,
+    "DriftKnob": 2
+   }
+  },
+  {
+   "id": "paper_saints_ensemble",
+   "name": "Paper Saints Ensemble",
+   "cat": "pads",
+   "tags": [
+    "string-machine",
+    "vox",
+    "ensemble",
+    "80s",
+    "chorus",
+    "lush"
+   ],
+   "gen": "divide_down",
+   "gp": {
+    "footages": [
+     [
+      8,
+      1.0
+     ],
+     [
+      4,
+      0.4
+     ]
+    ],
+    "wave": "stair",
+    "vowel": {
+     "f1": 500,
+     "f2": 1000,
+     "bw": [
+      80,
+      120
+     ],
+     "mix": 0.6
+    },
+    "attack": 0.25,
+    "release": 1.2,
+    "ensemble": {
+     "f_slow": 0.6,
+     "f_fast": 6.0,
+     "d_slow_ms": 1.5,
+     "d_fast_ms": 0.25,
+     "base_ms": 6,
+     "mix": 0.6,
+     "stages": 256
+    }
+   },
+   "m": [
+    4000,
+    0.0,
+    0.5,
+    0.85,
+    0.55,
+    0.1,
+    0.05,
+    0.0
+   ],
+   "v": {
+    "atk": 200,
+    "rel": 1500,
+    "reso": 0.7,
+    "vel": 0.1,
+    "lfo": 0.12,
+    "dly": "1/4D",
+    "subsus": -60
+   },
+   "z": [
+    36,
+    84,
+    3
+   ],
+   "dur": 10.0,
+   "loop": true,
+   "desc": "Phase-locked organ footages through a two-band vowel and a triple-BBD ensemble: a hollow, slightly wrong paper choir. New-wave chords at dawn.",
+   "vl": 1,
+   "d": {
+    "DriftKnob": 1
+   }
+  },
+  {
+   "id": "faded_velour_strings",
+   "name": "Faded Velour Strings",
+   "cat": "pads",
+   "tags": [
+    "string-machine",
+    "strings",
+    "ensemble",
+    "disco",
+    "chorus",
+    "tape"
+   ],
+   "gen": "divide_down",
+   "gp": {
+    "footages": [
+     [
+      8,
+      1.0
+     ],
+     [
+      16,
+      0.5
+     ]
+    ],
+    "wave": "stair",
+    "tone_violin": {
+     "hp": 250,
+     "peak": [
+      3000,
+      4.0
+     ]
+    },
+    "tone_cello": {
+     "lp": 2500
+    },
+    "tone_mix": [
+     0.6,
+     0.4
+    ],
+    "attack": 0.12,
+    "release": 1.5,
+    "ensemble": {
+     "f_slow": 0.6,
+     "f_fast": 6.0,
+     "d_slow_ms": 1.5,
+     "d_fast_ms": 0.25,
+     "base_ms": 6,
+     "mix": 0.7,
+     "stages": 256
+    },
+    "tape": {
+     "wow_c": 3,
+     "wow_hz": 0.5,
+     "flutter_c": 1.5,
+     "flutter_hz": 8,
+     "hiss": 0.003,
+     "bump": 0.2,
+     "lp": 9000,
+     "sat": 1.15,
+     "crackle": 0
+    }
+   },
+   "m": [
+    5000,
+    0.05,
+    0.55,
+    0.9,
+    0.5,
+    0.1,
+    0.05,
+    0.0
+   ],
+   "v": {
+    "atk": 150,
+    "rel": 1500,
+    "reso": 0.7,
+    "vel": 0.1,
+    "lfo": 0.12,
+    "dly": "1/4D",
+    "subsus": -60
+   },
+   "z": [
+    36,
+    84,
+    3
+   ],
+   "dur": 10.0,
+   "loop": true,
+   "desc": "Divide-down 8' and 16' string tone split into violin and cello voicing, a swimming triple-BBD ensemble and worn tape. Roller-disco pads and slow string beds.",
+   "vl": 1,
+   "d": {
+    "DriftKnob": 1
+   }
+  },
+  {
+   "id": "two_tier_dusk_brass",
+   "name": "Two-Tier Dusk Brass",
+   "cat": "chords",
+   "tags": [
+    "brass",
+    "analog",
+    "two-tier",
+    "chords",
+    "80s",
+    "aftertouch"
+   ],
+   "gen": "supersaw",
+   "gp": {
+    "voices": 2,
+    "detune_c": 6,
+    "hp": 180,
+    "lp": 1600,
+    "fenv": 2600,
+    "fenv_t": 0.5,
+    "attack": 0.08,
+    "sustain": 0.85,
+    "drive_pre": 1.3,
+    "layer2": {
+     "osc": "pulse",
+     "pw": 0.3,
+     "pwm_rate": 0.4,
+     "pwm_depth": 0.1,
+     "hp": 400,
+     "lp": 4000,
+     "reso": 0.3,
+     "attack": 0.25,
+     "mix": 0.5
+    },
+    "soft": {
+     "lp": 0.5,
+     "fenv": 0.5
+    }
+   },
+   "m": [
+    3800,
+    0.1,
+    0.4,
+    0.75,
+    0.6,
+    0.2,
+    0.1,
+    0.0
+   ],
+   "v": {
+    "atk": 60,
+    "rel": 900,
+    "reso": 0.8,
+    "vel": 0.5,
+    "lfo": 0.15,
+    "dly": "1/4D",
+    "subsus": -40
+   },
+   "z": [
+    36,
+    84,
+    3
+   ],
+   "dur": 8.0,
+   "loop": true,
+   "desc": "Two tiers, each with its own high-pass and low-pass: saw brass up front, a slow PWM pulse layer swelling in behind. Press into the keys and aftertouch opens the cutoff.",
+   "vl": 2,
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 3500,
+    "ResoKnob": 0.8,
+    "ViaWheelKnob": 1,
+    "VibKnob": 0.2,
+    "BendKnob": 2
+   },
+   "mod": [
+    {
+     "Source": "Aftertouch",
+     "Target": "Cutoff",
+     "Intensity": 0.35,
+     "Mode": "Scale"
+    }
+   ]
+  },
+  {
+   "id": "ribbon_swoon_lead",
+   "name": "Ribbon Swoon Lead",
+   "cat": "leads",
+   "tags": [
+    "lead",
+    "analog",
+    "scoop",
+    "vocal",
+    "night-drive",
+    "rnb"
+   ],
+   "gen": "supersaw",
+   "gp": {
+    "voices": 2,
+    "detune_c": 4,
+    "spread": 0,
+    "hp": 120,
+    "lp": 2200,
+    "fenv": 1800,
+    "fenv_t": 0.6,
+    "attack": 0.02,
+    "sustain": 1.0,
+    "scoop_c": -60,
+    "scoop_t": 0.12,
+    "wander": {
+     "pitch_c": 4
+    },
+    "soft": {
+     "lp": 0.55
+    }
+   },
+   "m": [
+    4500,
+    0.0,
+    0.3,
+    0.45,
+    0.6,
+    0.3,
+    0.1,
+    0.0
+   ],
+   "v": {
+    "atk": 10,
+    "rel": 700,
+    "reso": 0.8,
+    "vel": 0.5,
+    "lfo": 0.15,
+    "dly": "1/4D",
+    "subsus": -60
+   },
+   "z": [
+    48,
+    88,
+    3
+   ],
+   "dur": 5.0,
+   "loop": true,
+   "desc": "Two close saws that scoop up into every note like a voice catching its breath, with a slow 1/f pitch wander and delayed vibrato. Night-drive top lines; bend range 12.",
+   "vl": 2,
+   "d": {
+    "ViaWheelKnob": 1,
+    "VibKnob": 0.3,
+    "VibRateKnob": 5.5,
+    "VibDelayKnob": 500,
+    "BendKnob": 12
+   }
+  },
+  {
+   "id": "sub_square_hymn",
+   "name": "Sub Square Hymn",
+   "cat": "chords",
+   "tags": [
+    "analog",
+    "pwm",
+    "square",
+    "chords",
+    "80s",
+    "chorus"
+   ],
+   "gen": "supersaw",
+   "gp": {
+    "voices": 1,
+    "pulse": 1,
+    "pulse_only": true,
+    "pw": 0.5,
+    "pwm_rate": 0.5,
+    "pwm_depth": 0.15,
+    "sub": 0.35,
+    "sub_shape": "square",
+    "lp": 2200,
+    "reso": 0.2,
+    "hp": 90,
+    "attack": 0.01,
+    "sustain": 0.85,
+    "bbd": {
+     "mode": "II",
+     "rate_hz": 0.6,
+     "base_ms": 3.5,
+     "depth_ms": 1.5,
+     "stages": 256,
+     "mix": 0.5,
+     "lfo": "triangle",
+     "compander": true
+    },
+    "soft": {
+     "lp": 0.6
+    }
+   },
+   "m": [
+    4000,
+    0.1,
+    0.2,
+    0.75,
+    0.4,
+    0.12,
+    0.05,
+    0.15
+   ],
+   "v": {
+    "atk": 5,
+    "rel": 700,
+    "reso": 0.8,
+    "vel": 0.45,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subsus": -40
+   },
+   "z": [
+    36,
+    96,
+    3
+   ],
+   "dur": 10.0,
+   "loop": true,
+   "desc": "One pulse voice with slow PWM, a square sub an octave down and a bucket-brigade chorus in mode II. Warm, slowly swimming square hymns from a cheap bedroom poly.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 1.5
+   }
+  },
+  {
+   "id": "strip_choir",
+   "name": "Strip Choir",
+   "cat": "vox",
+   "tags": [
+    "choir",
+    "tape",
+    "vintage",
+    "60s",
+    "lofi"
+   ],
+   "gen": "voice",
+   "gp": {
+    "singers": 6,
+    "formants": [
+     "m",
+     "m",
+     "m",
+     "f",
+     "f",
+     "f"
+    ],
+    "formant_scatter": 0.05,
+    "pitch_scatter_c": 20,
+    "vowels": [
+     "o",
+     "u"
+    ],
+    "vib_c": 6,
+    "breath": 0.1,
+    "attack": 0.15,
+    "lp": 3500,
+    "tape": {
+     "wow_c": 0,
+     "wow_hz": 0.5,
+     "flutter_c": 3,
+     "flutter_hz": 9,
+     "hiss": 0.006,
+     "bump": 0.2,
+     "lp": 5000,
+     "sat": 1.2,
+     "crackle": 0,
+     "length_s": 8.0
+    }
+   },
+   "m": [
+    4500,
+    0.0,
+    0.25,
+    0.75,
+    0.5,
+    0.1,
+    0.1,
+    0.0
+   ],
+   "v": {
+    "atk": 120,
+    "rel": 500,
+    "reso": 0.7,
+    "vel": 0.2,
+    "lfo": 0.12,
+    "dly": "1/4D",
+    "subsus": -60
+   },
+   "z": [
+    36,
+    84,
+    3
+   ],
+   "dur": 9.0,
+   "loop": false,
+   "desc": "Six singers, three low and three high, each with their own pitch and formant scatter, printed to eight-second tape strips. Hold too long and the strip runs out.",
+   "vl": 1,
+   "d": {
+    "DriftKnob": 1
+   }
+  },
+  {
+   "id": "cave_chant",
+   "name": "Cave Chant",
+   "cat": "vox",
+   "tags": [
+    "choir",
+    "chant",
+    "overtone",
+    "dark",
+    "drone",
+    "mythical"
+   ],
+   "gen": "voice",
+   "gp": {
+    "singers": 4,
+    "formants": "m",
+    "formant_scatter": 0.04,
+    "pitch_scatter_c": 20,
+    "vowels": [
+     "o"
+    ],
+    "vib_c": 4,
+    "breath": 0.06,
+    "attack": 0.6,
+    "lp": 3000,
+    "overtone": {
+     "bw_hz": 30,
+     "harm": [
+      6,
+      12
+     ],
+     "period": "loop",
+     "level_db": -6
+    },
+    "loop_start": 1.6
+   },
+   "m": [
+    3500,
+    0.15,
+    0.3,
+    0.7,
+    0.8,
+    0.15,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 500,
+    "rel": 2500,
+    "reso": 0.7,
+    "vel": 0.2,
+    "lfo": 0.08,
+    "dly": "1/4D",
+    "subsus": -30
+   },
+   "z": [
+    36,
+    60,
+    3
+   ],
+   "dur": 12.0,
+   "loop": true,
+   "desc": "Four low voices humming 'o' in a cave while an overtone whistle glides between harmonics 6 and 12 once per loop. Drones, intros and beatless epics.",
+   "vl": 1,
+   "d": {
+    "DriftKnob": 1
+   }
+  },
+  {
+   "id": "whisker_glass",
+   "name": "Whisker Glass",
+   "cat": "leads",
+   "tags": [
+    "glass",
+    "friction",
+    "ethereal",
+    "lead",
+    "shimmer"
+   ],
+   "gen": "friction_glass",
+   "gp": {
+    "harmonics": 6,
+    "harm_db": -12,
+    "rough": 0.025,
+    "rough_hz": 30,
+    "shimmer_hz": 4.5,
+    "split_c": 1.5,
+    "whisker_db": 6,
+    "whisker_hz": 3000,
+    "air": 0.01,
+    "attack": 0.4,
+    "pan_modes": 0.4,
+    "soft": {
+     "rough": 0.5,
+     "whisker_db": 0.5
+    }
+   },
+   "m": [
+    10000,
+    0.0,
+    0.3,
+    0.7,
+    0.65,
+    0.2,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 250,
+    "rel": 1500,
+    "reso": 0.7,
+    "vel": 0.4,
+    "lfo": 0.12,
+    "dly": "1/4D",
+    "subsus": -60
+   },
+   "z": [
+    48,
+    96,
+    3
+   ],
+   "dur": 8.0,
+   "loop": true,
+   "desc": "Wet-finger stick-slip on glass driving split harmonic doublets, with bright whisker shimmer and a breath of air. Slow lead lines and high counter-melodies.",
+   "vl": 2,
+   "d": {
+    "ViaWheelKnob": 1,
+    "VibKnob": 0.1,
+    "DriftKnob": 1
+   }
+  },
+  {
+   "id": "gong_mouth_lead",
+   "name": "Gong Mouth Lead",
+   "cat": "leads",
+   "tags": [
+    "lead",
+    "gong",
+    "metallic",
+    "ondes",
+    "mythical",
+    "vocal"
+   ],
+   "gen": "sub",
+   "gp": {
+    "h2": 0.08,
+    "drive": 1.2,
+    "sustain": 1.0,
+    "wander": {
+     "pitch_c": 3
+    },
+    "metallique": {
+     "f_gong": 180,
+     "ratios": [
+      1,
+      1.52,
+      2.17,
+      2.9
+     ],
+     "t60": 3.0,
+     "drive": 1.3,
+     "mix_db": -12
+    },
+    "soft": {
+     "h2": 0.5
+    }
+   },
+   "m": [
+    7000,
+    0.0,
+    0.2,
+    0.5,
+    0.65,
+    0.3,
+    0.05,
+    0.0
+   ],
+   "v": {
+    "atk": 30,
+    "rel": 900,
+    "reso": 0.7,
+    "vel": 0.5,
+    "lfo": 0.15,
+    "dly": "1/4D",
+    "subsus": -60
+   },
+   "z": [
+    48,
+    96,
+    3
+   ],
+   "dur": 6.0,
+   "loop": true,
+   "desc": "A singing near-sine played through a bronze gong instead of a speaker, the metal blooming harder the louder you play. Candlelit leads with a 12-semitone bend.",
+   "vl": 2,
+   "d": {
+    "BendKnob": 12,
+    "ViaWheelKnob": 1,
+    "VibKnob": 0.25,
+    "VibRateKnob": 5.5,
+    "VibDelayKnob": 300
+   }
+  },
+  {
+   "id": "rising_drop_pluck",
+   "name": "Rising Drop Pluck",
+   "cat": "plucks",
+   "tags": [
+    "water",
+    "drop",
+    "pluck",
+    "underwater",
+    "bubbles"
+   ],
+   "gen": "bubbles",
+   "gp": {
+    "mode": "note",
+    "xi": 0.06,
+    "t_tune": 0.04,
+    "t60": 0.5,
+    "splash": 0.12,
+    "splash_hp": 2000,
+    "splash_ms": 2,
+    "pan_rand": 0.3,
+    "soft": {
+     "splash": 0.4
+    }
+   },
+   "m": [
+    12000,
+    0.0,
+    0.15,
+    0.6,
+    0.6,
+    0.35,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 0,
+    "rel": 500,
+    "reso": 0.7,
+    "vel": 0.6,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subsus": -60
+   },
+   "z": [
+    48,
+    96,
+    3
+   ],
+   "dur": 2.0,
+   "loop": false,
+   "desc": "Each note is a tuned bubble that chirps slightly upward as it rings, with a tiny splash on top. Stone-basin plucks for short melodies and arps with rests.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 1
+   }
+  },
+  {
+   "id": "empty_room_lead",
+   "name": "Empty Room Lead",
+   "cat": "guitar",
+   "tags": [
+    "guitar",
+    "clean",
+    "sparse",
+    "late-night",
+    "indie",
+    "room"
+   ],
+   "gen": "karplus",
+   "gp": {
+    "t60": 2.8,
+    "bright": 2500,
+    "damp": 0.6,
+    "pos": 0.2,
+    "body": 0.2,
+    "excite": "halfsine",
+    "ex_ms": 4,
+    "chorus": 0,
+    "ir": {
+     "type": "velvet",
+     "t60": 0.6,
+     "hp": 300,
+     "mix": 0.15,
+     "hf_damp": 0.5
+    },
+    "soft_mul": {
+     "bright": 0.6
+    }
+   },
+   "m": [
+    6500,
+    0.0,
+    0.05,
+    0.3,
+    0.35,
+    0.3,
+    0.05,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 600,
+    "reso": 0.7,
+    "vel": 0.6,
+    "lfo": 0.1,
+    "dly": "1/4D",
+    "subsus": -60
+   },
+   "z": [
+    40,
+    88,
+    3
+   ],
+   "dur": 4.0,
+   "loop": false,
+   "desc": "One clean, dark guitar line from a half-sine pick, in a small velvet-noise room with a dotted echo. Silence is the other instrument.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 2,
+    "ViaWheelKnob": 1,
+    "VibKnob": 0.15,
+    "VibRateKnob": 5.0
+   }
+  },
+  {
+   "id": "tank_reverb_twang",
+   "name": "Tank Reverb Twang",
+   "cat": "guitar",
+   "tags": [
+    "guitar",
+    "surf",
+    "spring",
+    "twang",
+    "garage"
+   ],
+   "gen": "karplus",
+   "gp": {
+    "t60": 2.2,
+    "bright": 6000,
+    "damp": 0.3,
+    "pos": 0.12,
+    "excite": "halfsine",
+    "ex_ms": 3,
+    "chorus": 0,
+    "spring": {
+     "fc": 4000,
+     "m_low": 100,
+     "m_high": 200,
+     "a": 0.6,
+     "loop_ms": 45,
+     "fb": 0.78,
+     "mix": 0.3,
+     "hf_level_db": -12,
+     "mod_ms": 0.3
+    },
+    "vnd": {
+     "amt": 0.2,
+     "hp": 150,
+     "len_ms": 30,
+     "density": 1000,
+     "decay_db": 30
+    },
+    "soft_mul": {
+     "bright": 0.55
+    }
+   },
+   "m": [
+    8000,
+    0.0,
+    0.1,
+    0.5,
+    0.15,
+    0.15,
+    0.15,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 500,
+    "reso": 0.7,
+    "vel": 0.65,
+    "lfo": 0.2,
+    "dly": "1/8",
+    "subsus": -60
+   },
+   "z": [
+    40,
+    88,
+    3
+   ],
+   "dur": 4.0,
+   "loop": false,
+   "desc": "A bright single-coil style twang through a dispersive spring tank: the drip on every note. Beach-town surf lines and garage leads.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 2
+   }
+  },
+  {
+   "id": "moth_tremolo_strings",
+   "name": "Moth Tremolo Strings",
+   "cat": "plucks",
+   "tags": [
+    "guitar",
+    "tremolo",
+    "bolero",
+    "latin",
+    "pluck"
+   ],
+   "gen": "karplus",
+   "gp": {
+    "t60": 2.5,
+    "bright": 5000,
+    "damp": 0.25,
+    "pos": 0.1,
+    "body": 0.4,
+    "excite": "halfsine",
+    "ex_ms": 3,
+    "trem_pick": {
+     "rate": 13,
+     "jitter": 0.08,
+     "vel_jitter": 0.15,
+     "alt_tone": 0.1
+    },
+    "chorus": 0,
+    "vnd": {
+     "amt": 0.3,
+     "hp": 150,
+     "len_ms": 30,
+     "density": 1000,
+     "decay_db": 30
+    },
+    "soft_mul": {
+     "bright": 0.6
+    }
+   },
+   "m": [
+    9000,
+    0.0,
+    0.15,
+    0.6,
+    0.5,
+    0.2,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 400,
+    "reso": 0.7,
+    "vel": 0.55,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subsus": -60
+   },
+   "z": [
+    48,
+    88,
+    3
+   ],
+   "dur": 6.0,
+   "loop": true,
+   "desc": "A small bright string tremolo-picked at 13 Hz with loose timing and alternating pick tone, notes fluttering like moths under a streetlight. Bolero melody lines.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 2
+   }
+  },
+  {
+   "id": "sigh_circuit_808",
+   "name": "Sigh Circuit 808",
+   "cat": "bass",
+   "tags": [
+    "808",
+    "bass",
+    "sub",
+    "analog",
+    "trap",
+    "slowed"
+   ],
+   "gen": "bridged_t_808",
+   "gp": {
+    "jump_st": 5,
+    "jump_ms": 4,
+    "sigh_c": 30,
+    "sigh_t": 1.5,
+    "t60": 3.0,
+    "tone_hz": 2000,
+    "drive": 1.3,
+    "leak": 0.02,
+    "soft": {
+     "drive": 0.6
+    }
+   },
+   "m": [
+    6000,
+    0.0,
+    0.0,
+    0.0,
+    0.05,
+    0.0,
+    0.15,
+    0.0
+   ],
+   "v": {
+    "atk": 0,
+    "rel": 300,
+    "reso": 0.7,
+    "vel": 0.6,
+    "lfo": 0.1,
+    "dly": "1/4",
+    "subsus": -60
+   },
+   "z": [
+    24,
+    60,
+    3
+   ],
+   "dur": 4.0,
+   "loop": false,
+   "desc": "A circuit-modelled bridged-T kick held as a bass: a fast pitch jump, then a slow sigh downward like a tired breath in a parked car. Long half-time 808 lines.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 0
+   }
+  },
+  {
+   "id": "varispeed_saint_chop",
+   "name": "Varispeed Saint Chop",
+   "cat": "vox",
+   "tags": [
+    "vocal-chop",
+    "chop",
+    "sped-up",
+    "soul",
+    "tape"
+   ],
+   "gen": "voice",
+   "gp": {
+    "singers": 2,
+    "formants": "f",
+    "formant_scatter": 0.04,
+    "vowels": [
+     "a",
+     "o"
+    ],
+    "speed": 1.33,
+    "t60": 0.6,
+    "attack": 0.004,
+    "vib_c": 0,
+    "breath": 0.05,
+    "tilt": 1.0,
+    "post_hp": 300,
+    "lp": 7000,
+    "tape": {
+     "wow_c": 0,
+     "wow_hz": 0.5,
+     "flutter_c": 2,
+     "flutter_hz": 9,
+     "hiss": 0.002,
+     "bump": 0.15,
+     "lp": 9000,
+     "sat": 1.3,
+     "crackle": 0
+    },
+    "soft": {
+     "tilt": 1.6
+    }
+   },
+   "m": [
+    9000,
+    0.0,
+    0.1,
+    0.5,
+    0.45,
+    0.35,
+    0.15,
+    0.2
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 200,
+    "reso": 0.7,
+    "vel": 0.6,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subsus": -60
+   },
+   "z": [
+    48,
+    84,
+    3
+   ],
+   "dur": 1.2,
+   "loop": false,
+   "desc": "A soul vowel sped up on a cassette deck so the formants rise with the pitch, like a small saint singing from a phone speaker. Short chop melodies.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 2
+   }
+  }
+ ]
+}

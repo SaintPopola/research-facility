@@ -95,19 +95,19 @@
   <sample ID="15" FileName="{PROJECT_FOLDER}SIG_halo_smear_69_v2.wav" Root="69" HiKey="70"
           LoKey="68" LoVel="85" HiVel="127" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
-          SampleStartMod="0" LoopStart="57600" LoopEnd="281073" LoopXFade="16800" LoopEnabled="1"
+          SampleStartMod="0" LoopStart="57600" LoopEnd="281074" LoopXFade="16800" LoopEnabled="1"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="16" FileName="{PROJECT_FOLDER}SIG_halo_smear_72_v1.wav" Root="72" HiKey="73"
           LoKey="71" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
-          SampleStartMod="0" LoopStart="57600" LoopEnd="276790" LoopXFade="16800" LoopEnabled="1"
+          SampleStartMod="0" LoopStart="57600" LoopEnd="277527" LoopXFade="16800" LoopEnabled="1"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="17" FileName="{PROJECT_FOLDER}SIG_halo_smear_72_v2.wav" Root="72" HiKey="73"
           LoKey="71" LoVel="85" HiVel="127" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
-          SampleStartMod="0" LoopStart="57600" LoopEnd="266618" LoopXFade="16800" LoopEnabled="1"
+          SampleStartMod="0" LoopStart="57600" LoopEnd="266713" LoopXFade="16800" LoopEnabled="1"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="18" FileName="{PROJECT_FOLDER}SIG_halo_smear_75_v1.wav" Root="75" HiKey="76"
@@ -119,7 +119,7 @@
   <sample ID="19" FileName="{PROJECT_FOLDER}SIG_halo_smear_75_v2.wav" Root="75" HiKey="76"
           LoKey="74" LoVel="85" HiVel="127" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
-          SampleStartMod="0" LoopStart="57600" LoopEnd="285675" LoopXFade="16800" LoopEnabled="1"
+          SampleStartMod="0" LoopStart="57600" LoopEnd="285599" LoopXFade="16800" LoopEnabled="1"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="20" FileName="{PROJECT_FOLDER}SIG_halo_smear_78_v1.wav" Root="78" HiKey="79"
@@ -131,7 +131,7 @@
   <sample ID="21" FileName="{PROJECT_FOLDER}SIG_halo_smear_78_v2.wav" Root="78" HiKey="79"
           LoKey="77" LoVel="85" HiVel="127" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
-          SampleStartMod="0" LoopStart="57600" LoopEnd="266393" LoopXFade="16800" LoopEnabled="1"
+          SampleStartMod="0" LoopStart="57600" LoopEnd="266392" LoopXFade="16800" LoopEnabled="1"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="22" FileName="{PROJECT_FOLDER}SIG_halo_smear_81_v1.wav" Root="81" HiKey="82"
@@ -143,7 +143,7 @@
   <sample ID="23" FileName="{PROJECT_FOLDER}SIG_halo_smear_81_v2.wav" Root="81" HiKey="82"
           LoKey="80" LoVel="85" HiVel="127" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
-          SampleStartMod="0" LoopStart="57600" LoopEnd="266727" LoopXFade="16800" LoopEnabled="1"
+          SampleStartMod="0" LoopStart="57600" LoopEnd="266672" LoopXFade="16800" LoopEnabled="1"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="24" FileName="{PROJECT_FOLDER}SIG_halo_smear_84_v1.wav" Root="84" HiKey="127"
@@ -155,7 +155,7 @@
   <sample ID="25" FileName="{PROJECT_FOLDER}SIG_halo_smear_84_v2.wav" Root="84" HiKey="127"
           LoKey="83" LoVel="85" HiVel="127" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="288000"
-          SampleStartMod="0" LoopStart="57600" LoopEnd="274849" LoopXFade="16800" LoopEnabled="1"
+          SampleStartMod="0" LoopStart="57600" LoopEnd="275033" LoopXFade="16800" LoopEnabled="1"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
 </samplemap>

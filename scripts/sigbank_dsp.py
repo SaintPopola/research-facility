@@ -274,7 +274,7 @@ def haas_widen(x, ms=7.0, amount=0.5):
     return x * (1 - amount * 0.3), x * (1 - amount) + y * amount
 
 
-def short_chorus(x, rng, depth_ms=3.0, rate=0.35, base_ms=12.0):
+def short_chorus(x, rng, depth_ms=3.0, rate=0.35, base_ms=12.0, wet=0.5):
     """Single-voice modulated delay (vectorised linear interp). Returns l, r."""
     n = x.shape[0]
     t = tvec(n)
@@ -287,7 +287,7 @@ def short_chorus(x, rng, depth_ms=3.0, rate=0.35, base_ms=12.0):
         fr = idx - i0
         i1 = np.minimum(i0 + 1, n - 1)
         outs.append(x[i0] * (1 - fr) + x[i1] * fr)
-    return 0.7 * x + 0.5 * outs[0], 0.7 * x + 0.5 * outs[1]
+    return 0.7 * x + wet * outs[0], 0.7 * x + wet * outs[1]
 
 
 # ---------------------------------------------------------------------------
@@ -414,7 +414,11 @@ def gen_organ(note, n, p, rng):
     x = soft_clip(x * 0.45, 1.3)
     if p.get("lp", 0) > 0:
         x = lp24(x, p["lp"])
-    l, r = short_chorus(x, rng, depth_ms=2.0, rate=0.8)
+    # chorus depth and wet follow brightness: a near-pure flute stop swung 4-10 dB per channel
+    # under the old fixed 2 ms chorus (comb interference with a single partial)
+    tot = sum(g for _, g in bars) + 1e-9
+    bright = sum(g for ratio, g in bars if ratio >= 2.0) / tot
+    l, r = short_chorus(x, rng, depth_ms=0.4 + 1.6 * bright, rate=0.8, wet=0.15 + 0.35 * bright)
     return l, r
 
 
@@ -490,7 +494,16 @@ def gen_karplus(note, n, p, rng):
     reg = np.clip((note - 40) / 50.0, 0, 1)
     burst_len = int(SR / f0 * p.get("burst", 1.0))
     ex = np.zeros(n)
-    nb_ = noise(burst_len, rng)
+    if p.get("excite") == "halfsine":
+        # doc 25 B11: a half-sine pulse of ex_ms, the same on every zone and every render
+        k = max(4, int(p.get("ex_ms", 3.0) * 0.001 * SR))
+        burst_len = max(burst_len, k)
+        nb_ = np.zeros(burst_len)
+        nb_[:k] = np.sin(np.pi * np.arange(k) / k)
+    else:
+        # one noise burst per PRESET (seeded), so zones do not jump in tone (doc 25 B11)
+        erng = np.random.default_rng(p["_eseed"]) if "_eseed" in p else rng
+        nb_ = noise(burst_len, erng)
     nb_ = svf(nb_, p.get("bright", 4500) * (0.7 + 0.6 * reg), 0.6, 0)
     # pluck position comb: removes harmonics like a finger/pick position
     pos = max(1, int(burst_len * p.get("pos", 0.18)))
@@ -513,6 +526,7 @@ def gen_karplus(note, n, p, rng):
     return l, r
 
 
+DOUBLET_B = 0.55                       # second member of a detuned doublet: dips about -10.7 dB, never a null
 XP_C = math.cos(math.pi / 8)          # equal-power cross-pan: mostly one side, some of the other
 XP_S = math.sin(math.pi / 8)
 
@@ -535,7 +549,8 @@ def gen_modal(note, n, p, rng):
         ph = rng.uniform(0, 6.28)
         dec = amp * np.exp(-6.907755 * t / max(base_t60 * t60s, 0.02))
         pa = np.sin(2 * np.pi * f * 2 ** (-beat / 1200) * t + ph) * dec
-        pb = np.sin(2 * np.pi * f * 2 ** (beat / 1200) * t + ph) * dec
+        # unequal partner: two equal sines null completely at the beat rate in mono (review)
+        pb = np.sin(2 * np.pi * f * 2 ** (beat / 1200) * t + ph) * dec * DOUBLET_B
         # doc 25 B8: a random phase per side cancelled up to -16 dB in mono; a shared phase and
         # an equal-power cross-pan keep the beating and the width, and sum safely
         l += XP_C * pa + XP_S * pb
@@ -588,22 +603,38 @@ FORMANTS = {
 }
 
 
-def _formant_filter(src, vowel_seq, n):
-    """Parallel bandpass bank; vowel_seq = list of vowels morphed across time."""
+def _formant_filter(src, vowel_seq, n, cycle=None, fscale=1.0):
+    """Parallel bandpass bank; vowel_seq = list of vowels morphed across time.
+    cycle = (loop_start, loop_end) samples: doc 25 B10, the path is held on its first vowel
+    before the loop and repeats once per loop length, so loop start and end share a phase."""
     out = np.zeros(n)
     nv = len(vowel_seq)
+    if nv > 1 and cycle is not None:
+        ls, le = cycle
+        i = np.arange(n, dtype=np.float64)
+        pos = np.where(i < ls, 0.0, ((i - ls) % max(1, le - ls)) / max(1, le - ls) * (nv - 1))
+        for fi in range(4):
+            fs = [FORMANTS[v][fi][0] * fscale for v in vowel_seq]
+            gs = [10 ** (FORMANTS[v][fi][2] / 20) for v in vowel_seq]
+            bws = [FORMANTS[v][fi][1] * fscale for v in vowel_seq]
+            fc = np.interp(pos, np.arange(nv), fs)
+            gain = np.interp(pos, np.arange(nv), gs)
+            q = float(np.mean(fs) / np.mean(bws))
+            out += gain * svf(src, fc, q, 1)
+        return out
     for fi in range(4):
         if nv == 1:
             f, bw, g = FORMANTS[vowel_seq[0]][fi]
+            f, bw = f * fscale, bw * fscale
             fc = np.full(n, float(f))
             q = f / bw
             gain = 10 ** (g / 20)
             out += gain * svf(src, fc, q, 1)
         else:
             pts = np.linspace(0, n - 1, nv)
-            fs = [FORMANTS[v][fi][0] for v in vowel_seq]
+            fs = [FORMANTS[v][fi][0] * fscale for v in vowel_seq]
             gs = [10 ** (FORMANTS[v][fi][2] / 20) for v in vowel_seq]
-            bws = [FORMANTS[v][fi][1] for v in vowel_seq]
+            bws = [FORMANTS[v][fi][1] * fscale for v in vowel_seq]
             fc = np.interp(np.arange(n), pts, fs)
             gain = np.interp(np.arange(n), pts, gs)
             q = float(np.mean(fs) / np.mean(bws))
@@ -630,7 +661,11 @@ def gen_voice(note, n, p, rng):
         src = saw(fr, rng.uniform(0, 1))
         src = svf(src, 2.0 * f0 + 300, 0.5, 0) * 0.6 + src * 0.4    # glottal tilt
         br = svf(noise(n, rng), 2500, 0.4, 0) * p.get("breath", 0.15)
-        x = _formant_filter(src + br, vowels, n)
+        cyc = p.get("_loop") if p.get("vowel_cycle", len(vowels) > 1 and vowels[0] == vowels[-1]) else None
+        # above C5 only the fundamental reached the 'o' formants (10-17 dB stereo swings):
+        # the formants track the key there, as a real singer's resonances rise with pitch
+        fsc = 2.0 ** (max(0.0, note - 72) / 12.0 * p.get("formant_track", 0.6))
+        x = _formant_filter(src + br, vowels, n, cyc, fsc)
         pn = 0.0 if singers == 1 else (s / (singers - 1) * 2 - 1) * 0.8
         a, b = pan_pair(x, pn)
         l += a
@@ -741,8 +776,11 @@ def gen_glass_pad(note, n, p, rng):
             continue
         ph = rng.uniform(0, 6.28)
         am = g * (0.75 + 0.25 * np.sin(2 * np.pi * rng.uniform(0.1, 0.4) * t + rng.uniform(0, 6.28)))
-        pa = np.sin(2 * np.pi * f * 2 ** (-3.0 / 1200) * t + ph) * am
-        pb = np.sin(2 * np.pi * f * 2 ** (3.0 / 1200) * t + ph) * am
+        # beat set in Hz (slow at every register: +/-3 cents beat 0.23 Hz at C2, 3.6 Hz at C6),
+        # unequal partner so mono dips stay above about -7 dB instead of nulling
+        bh = p.get("beat_hz", 0.3) * math.sqrt(ratio)
+        pa = np.sin(2 * np.pi * (f - 0.5 * bh) * t + ph) * am
+        pb = np.sin(2 * np.pi * (f + 0.5 * bh) * t + ph) * am * 0.45
         l += XP_C * pa + XP_S * pb             # mono-safe doublet (doc 25 B8)
         r += XP_S * pa + XP_C * pb
     air = svf(noise(n, rng), 7000, 0.6, 2) * p.get("air", 0.04)
@@ -772,6 +810,120 @@ def gen_prepared(note, n, p, rng):
     return l + m * metal + rattle, r + m * metal + rattle
 
 
+# ---------------------------------------------------------------------------
+# offline copies of the plug-in's master FX, so loop kits can bake each lane's
+# own SPACE / ECHO (doc 23 loop-kit pattern 1). Same algorithms and scalings as
+# HISE 4.1.0's SimpleReverb (juce::Reverb, Freeverb) and tempo-synced Delay.
+# ---------------------------------------------------------------------------
+_COMB = (1116, 1188, 1277, 1356, 1422, 1491, 1557, 1617)
+_ALLP = (556, 441, 341, 225)
+
+
+@nb.njit(cache=True)
+def _jreverb(xl, xr, feedback, damp, wet1, wet2, dry, scale):
+    n = xl.shape[0]
+    yl = np.zeros(n)
+    yr = np.zeros(n)
+    nc = 8
+    na = 4
+    cl = [np.zeros(int(c * scale)) for c in (1116, 1188, 1277, 1356, 1422, 1491, 1557, 1617)]
+    cr = [np.zeros(int((c + 23) * scale)) for c in (1116, 1188, 1277, 1356, 1422, 1491, 1557, 1617)]
+    al = [np.zeros(int(a * scale)) for a in (556, 441, 341, 225)]
+    ar = [np.zeros(int((a + 23) * scale)) for a in (556, 441, 341, 225)]
+    ci_l = np.zeros(nc, np.int64)
+    ci_r = np.zeros(nc, np.int64)
+    cl_last = np.zeros(nc)
+    cr_last = np.zeros(nc)
+    ai_l = np.zeros(na, np.int64)
+    ai_r = np.zeros(na, np.int64)
+    for i in range(n):
+        inp = (xl[i] + xr[i]) * 0.015
+        ol = 0.0
+        orr = 0.0
+        for j in range(nc):
+            b = cl[j]
+            o = b[ci_l[j]]
+            cl_last[j] = o * (1.0 - damp) + cl_last[j] * damp
+            b[ci_l[j]] = inp + cl_last[j] * feedback
+            ci_l[j] = (ci_l[j] + 1) % b.shape[0]
+            ol += o
+            b = cr[j]
+            o = b[ci_r[j]]
+            cr_last[j] = o * (1.0 - damp) + cr_last[j] * damp
+            b[ci_r[j]] = inp + cr_last[j] * feedback
+            ci_r[j] = (ci_r[j] + 1) % b.shape[0]
+            orr += o
+        for j in range(na):
+            b = al[j]
+            bv = b[ai_l[j]]
+            b[ai_l[j]] = ol + bv * 0.5
+            ai_l[j] = (ai_l[j] + 1) % b.shape[0]
+            ol = bv - ol
+            b = ar[j]
+            bv = b[ai_r[j]]
+            b[ai_r[j]] = orr + bv * 0.5
+            ai_r[j] = (ai_r[j] + 1) % b.shape[0]
+            orr = bv - orr
+        yl[i] = ol * wet1 + orr * wet2 + xl[i] * dry
+        yr[i] = orr * wet1 + ol * wet2 + xr[i] * dry
+    return yl, yr
+
+
+def juce_reverb(l, r, room, damping, wet, dry=0.9, width=1.0):
+    """juce::Reverb as HISE SimpleReverb runs it: roomSize 0.28 + 0.7 feedback scaling,
+    damping x 0.4, wet x 3 split by width, dry x 2 (juce_Reverb.h)."""
+    w = wet * 3.0
+    return _jreverb(np.ascontiguousarray(l, np.float64), np.ascontiguousarray(r, np.float64),
+                    room * 0.28 + 0.7, damping * 0.4, 0.5 * w * (1.0 + width), 0.5 * w * (1.0 - width),
+                    dry * 2.0, SR / 44100.0)
+
+
+@nb.njit(cache=True)
+def _tdelay(xl, xr, d, fbl, fbr, mix, a_lp, a_hp):
+    n = xl.shape[0]
+    bl = np.zeros(d)
+    br = np.zeros(d)
+    yl = np.zeros(n)
+    yr = np.zeros(n)
+    lpl = 0.0
+    lpr = 0.0
+    hpl = 0.0
+    hpr = 0.0
+    k = 0
+    for i in range(n):
+        wl = bl[k]
+        wr = br[k]
+        lpl += a_lp * (wl - lpl)                 # 1-pole LP and HP in the feedback path
+        lpr += a_lp * (wr - lpr)
+        hpl += a_hp * (lpl - hpl)
+        hpr += a_hp * (lpr - hpr)
+        fl = lpl - hpl
+        fr = lpr - hpr
+        bl[k] = xl[i] + fl * fbl
+        br[k] = xr[i] + fr * fbr
+        k += 1
+        if k >= d:
+            k = 0
+        yl[i] = xl[i] * (1.0 - mix) + fl * mix
+        yr[i] = xr[i] * (1.0 - mix) + fr * mix
+    return yl, yr
+
+
+def tempo_delay(l, r, seconds, fb_l, fb_r, mix, lp=5500.0, hp=220.0):
+    """HISE Delay as the plug-in sets it: tempo-synced time, feedback L/R, LP/HP in the loop."""
+    d = max(1, int(round(seconds * SR)))
+    a_lp = 1.0 - math.exp(-2.0 * math.pi * lp / SR)
+    a_hp = 1.0 - math.exp(-2.0 * math.pi * hp / SR)
+    return _tdelay(np.ascontiguousarray(l, np.float64), np.ascontiguousarray(r, np.float64), d,
+                   fb_l, fb_r, mix, a_lp, a_hp)
+
+
+def saturate(x, sat, wet):
+    """HISE Saturator-like: tanh curve set by saturation, blended by wet amount."""
+    k = 1.0 + 8.0 * sat
+    return x * (1.0 - wet) + wet * np.tanh(x * k) / math.tanh(k)
+
+
 def tape_age(l, r, p, rng):
     """Generic tape treatment for any render: wow + flutter by variable-rate
     resampling, head-bump low shelf, band-limit, hiss, optional crackle, and
@@ -779,6 +931,12 @@ def tape_age(l, r, p, rng):
     n = l.shape[0]
     t = tvec(n)
     tp = p["tape"]
+    # the tape sees a fixed level (peak 0.5), so sat and hiss mean the same thing on every
+    # zone and preset (they ran on the raw generator level before normalisation)
+    ref = max(float(np.abs(l).max()), float(np.abs(r).max()), 1e-9)
+    kref = 0.5 / ref
+    l = l * kref
+    r = r * kref
     wr = wrng(p, rng)
     w = 2.0 ** ((tp.get("wow_c", 8.0) * np.sin(2 * np.pi * tp.get("wow_hz", 0.5) * t + wr.uniform(0, 6.28)) +
                  tp.get("flutter_c", 3.0) * np.sin(2 * np.pi * tp.get("flutter_hz", 9.0) * t + wr.uniform(0, 6.28))) / 1200.0)
@@ -794,7 +952,7 @@ def tape_age(l, r, p, rng):
         if tp.get("crackle", 0) > 0:
             k = rng.random(n) < tp["crackle"] / SR * 40.0
             y = y + svf(k * rng.standard_normal(n) * 0.3, 3000, 0.8, 1)
-        out.append(soft_clip(y, tp.get("sat", 1.2)))
+        out.append(soft_clip(y, tp.get("sat", 1.2)) / kref)          # sat <= 0 is neutral
     length = tp.get("length_s", 0)
     if length and length * SR < n:                                      # the tape strip runs out
         cut = int(length * SR)
@@ -803,6 +961,262 @@ def tape_age(l, r, p, rng):
         fade[cut - int(0.3 * SR):cut] = np.linspace(1.0, 0.0, int(0.3 * SR))
         out = [o * fade for o in out]
     return out[0], out[1]
+
+
+# ---------------------------------------------------------------------------
+# ladder (doc 25 generator 1): nonlinear 4-pole transistor ladder, Huovilainen
+# DAFx-04 improved model (tanh per stage, half-sample feedback delay), run at
+# 2x / 4x oversampling. HISE 4.1.0's own LADDER / WARM LP modes are linear
+# (MultiChannelFilters.cpp), so the warmth only exists in these renders.
+# ---------------------------------------------------------------------------
+@nb.njit(cache=True)
+def _ladder(x, fc, res, vt, fs, slope24):
+    n = x.shape[0]
+    y = np.empty(n)
+    y1 = y2 = y3 = y4 = 0.0
+    t1 = t2 = t3 = t4 = 0.0                 # cached tanh(y_k / 2Vt)
+    y4p = 0.0
+    v2 = 2.0 * vt
+    for i in range(n):
+        g = 1.0 - math.exp(-2.0 * math.pi * fc[i] / fs)
+        yfb = 0.5 * (y4 + y4p)
+        y4p = y4
+        tin = math.tanh((x[i] - 4.0 * res * yfb) / v2)
+        y1 += v2 * g * (tin - t1)
+        t1 = math.tanh(y1 / v2)
+        y2 += v2 * g * (t1 - t2)
+        t2 = math.tanh(y2 / v2)
+        y3 += v2 * g * (t2 - t3)
+        t3 = math.tanh(y3 / v2)
+        y4 += v2 * g * (t3 - t4)
+        t4 = math.tanh(y4 / v2)
+        y[i] = y4 if slope24 else y2
+    return y
+
+
+def _tri(freq_os, phase):
+    """Band-limited triangle: a leaky integral of a band-limited square."""
+    sq = _pulse_blep(np.asarray(freq_os, dtype=np.float64), 0.5, float(phase))
+    y = np.cumsum(sq * 4.0 * freq_os / SR)      # slope 4 f / fs: a +/-1 triangle
+    return dc_block(y, 2.0)
+
+
+def gen_ladder(note, n, p, rng):
+    """Moog-type voice: N detuned oscillators with 1/f pitch wander -> drive -> nonlinear
+    ladder (cutoff envelope, key tracking) -> amp ADSR. Stereo only above 150 Hz.
+    osc 'none' + excite 'impulse' = a self-oscillating ping at the note's pitch."""
+    from scipy.signal import resample_poly
+    os_ = int(p.get("oversample", 2))
+    fs = SR * os_
+    no = n * os_
+    f0 = mtof(note)
+    t = np.arange(no) / fs
+    voices = int(p.get("voices", 1))
+    det = p.get("detune_c", 0.0)
+    osc = p.get("osc", "saw")
+    wd = p.get("wander", {}) or {}
+    spread = p.get("spread", 0.5)
+    L = np.zeros(no)
+    R = np.zeros(no)
+    if p.get("excite") == "impulse":
+        osc = "none"                             # a ping: no oscillators, the filter rings
+    if osc != "none":
+        for v in range(voices):
+            off = 0.0 if voices == 1 else (v / (voices - 1) * 2.0 - 1.0) * det
+            cents = off + (drift(no, rng, wd.get("pitch_c", 2.0), rng.uniform(0.08, 0.3)) if wd.get("pitch_c", 2.0) else 0.0)
+            fr = f0 * 2.0 ** (np.asarray(cents) / 1200.0) * np.ones(no)
+            frs = fr / os_                       # BLEP helpers divide by SR: scale to the fast rate
+            if osc == "pulse":
+                s = _pulse_blep(frs, float(p.get("pw", 0.5)), float(rng.uniform(0, 1)))
+            elif osc == "tri":
+                s = _tri(frs, rng.uniform(0, 1))
+            else:
+                s = _saw_blep(frs, float(rng.uniform(0, 1)))
+            pan = 0.0 if voices == 1 else (v / (voices - 1) * 2.0 - 1.0) * spread
+            L += s * math.cos((pan + 1.0) * math.pi / 4.0)
+            R += s * math.sin((pan + 1.0) * math.pi / 4.0)
+        L /= math.sqrt(voices) * 0.7071
+        R /= math.sqrt(voices) * 0.7071
+        if p.get("sub", 0) > 0:
+            sub = _pulse_blep(f0 * 0.5 / os_ * np.ones(no), 0.5, 0.0) * p["sub"]
+            L += sub
+            R += sub
+        if p.get("noise", 0) > 0:
+            nz = noise(no, rng) * p["noise"]
+            L += nz
+            R += nz
+    else:
+        # ping: a short noise impulse rings the resonant filter at the note's pitch
+        k = max(8, int(p.get("excite_noise_ms", 1.0) * 0.001 * fs))
+        imp = np.zeros(no)
+        nz = noise(k, rng)
+        imp[:k] = nz / (float(np.abs(nz).max()) + 1e-9) * np.hanning(2 * k)[k:]   # a firm strike
+        L = imp
+        R = imp.copy()
+    kt = 2.0 ** ((note - 60) / 12.0 * p.get("keytrack", 0.5))
+    if osc == "none":
+        base = f0 * p.get("cutoff_track", 1.0)
+    else:
+        base = p.get("cutoff", 1200.0) * kt
+    fc = base + p.get("fenv", 0.0) * kt * np.exp(-t / max(p.get("fenv_t", 0.25), 1e-3))
+    cw = wd.get("cutoff_oct", 0.0)
+    if cw:
+        fc = fc * 2.0 ** (cw * np.sin(2 * np.pi * rng.uniform(0.05, 0.2) * t + rng.uniform(0, 6.28)))
+    fc = np.clip(fc, 20.0, 0.45 * fs)
+    res = float(np.clip(p.get("res", 0.3), 0.0, 1.05))
+    drive = p.get("drive", 1.0)
+    vt = p.get("vt", 0.5)
+    s24 = p.get("slope", 24) == 24
+    if osc == "none":
+        # ping: just past self-oscillation, so tanh sets a steady ring and ring_t60 shapes it
+        res = max(res, 1.0) + 0.12          # high cutoffs need more loop gain to self-oscillate
+        if p.get("tune_comp", False):
+            # the ring frequency is not the cutoff (DAFx-04 needs tuning compensation):
+            # measure it on a short probe and rescale the cutoff, three passes
+            m = min(no, int(0.4 * fs))
+            for _ in range(3):
+                pr = _ladder(np.ascontiguousarray(L[:m] * drive * 0.5), fc[:m], res, vt, fs, s24)
+                seg = pr[int(0.1 * fs):m]
+                if seg.size < 256 or float(np.abs(seg).max()) < 1e-6:
+                    break
+                nf = 1 << 17
+                sp = np.abs(np.fft.rfft(seg * np.hanning(seg.size), nf))
+                fr = float(np.argmax(sp[1:]) + 1) * fs / nf
+                fc = np.clip(fc * (f0 * p.get("cutoff_track", 1.0) / max(fr, 1.0)), 20.0, 0.45 * fs)
+    yl = _ladder(np.ascontiguousarray(L * drive * 0.5), fc, res, vt, fs, s24)
+    yr = _ladder(np.ascontiguousarray(R * drive * 0.5), fc, res, vt, fs, s24)
+    l = resample_poly(yl, 1, os_)[:n]
+    r = resample_poly(yr, 1, os_)[:n]
+    # stereo only above 150 Hz: the low end stays centred (mono-safe bass). Complementary
+    # split (x - LP(x)), since an SVF's LP + HP notches the crossover
+    lo = svf((l + r) * 0.5, 150.0, 0.707, 0)
+    l = lo + (l - svf(l, 150.0, 0.707, 0))
+    r = lo + (r - svf(r, 150.0, 0.707, 0))
+    tt = tvec(n)
+    if osc == "none":
+        e = np.exp(-6.907755 * tt / max(p.get("ring_t60", 2.0), 0.05))
+    else:
+        e = env_adsr(n, a=p.get("attack", 0.005), d=p.get("decay", 0.4), s=p.get("sustain", 0.8))
+    return l * e, r * e
+
+
+# ---------------------------------------------------------------------------
+# resonator_bank (doc 25 generator 2): modal synthesis with a continuous
+# excitation (bowed bars and metal, rubbed bowls, water-bowl rods). Each mode
+# is a 2-pole resonator y = 2 r cos(w) y1 - r^2 y2 + b x, r = 10^(-3 / (t60 fs)),
+# b set so the steady-state peak gain at the mode is its amp.
+# ---------------------------------------------------------------------------
+@nb.njit(cache=True)
+def _resbank(x, a1, a2, b, gl, gr):
+    n = x.shape[0]
+    m = a1.shape[0]
+    yl = np.zeros(n)
+    yr = np.zeros(n)
+    s1 = np.zeros(m)
+    s2 = np.zeros(m)
+    for i in range(n):
+        xi = x[i]
+        accl = 0.0
+        accr = 0.0
+        for k in range(m):
+            y = a1[k] * s1[k] - a2[k] * s2[k] + b[k] * xi
+            s2[k] = s1[k]
+            s1[k] = y
+            accl += gl[k] * y
+            accr += gr[k] * y
+        yl[i] = accl
+        yr[i] = accr
+    return yl, yr
+
+
+def _res_coefs(freqs, amps, t60s):
+    w = 2.0 * np.pi * np.asarray(freqs) / SR
+    rr = 10.0 ** (-3.0 / (np.maximum(np.asarray(t60s), 0.02) * SR))
+    a1 = 2.0 * rr * np.cos(w)
+    a2 = rr * rr
+    # b from the resonator's white-noise power gain, b^2 (1 + r^2) / ((1 - r^2)(1 - 2 r^2 cos 2w
+    # + r^4)) = amp^2: a peak-normalised narrow mode (t60 10 s is ~0.2 Hz wide) passed almost
+    # nothing from a bow's noise
+    r2 = rr * rr
+    b = np.asarray(amps) * np.sqrt((1.0 - r2) * (1.0 - 2.0 * r2 * np.cos(2.0 * w) + r2 * r2) / (1.0 + r2))
+    return a1, a2, b
+
+
+def _pink_wander(n, rng, depth, rate=0.15):
+    """Slow 1/f-ish wander: three octave-spaced smoothed noise layers, -1..1 scaled by depth."""
+    out = np.zeros(n)
+    for k, rt in enumerate((rate, rate * 2.0, rate * 4.0)):
+        pts = max(2, int(n / SR * rt) + 2)
+        out += np.interp(np.arange(n), np.linspace(0, n - 1, pts), rng.uniform(-1, 1, pts)) / (k + 1)
+    return out / 1.83 * depth
+
+
+def gen_resonator_bank(note, n, p, rng):
+    """Modes driven by strike, bow or rub noise; each mode panned once (mono-safe, doc 25 B8),
+    the two members of a close doublet on opposite sides. Optional bowl (a second, low set
+    at bowl_f excited by the rods at -20 dB), resonator body peak and water wander."""
+    f0 = mtof(note)
+    t = tvec(n)
+    reg = np.clip((note - 48) / 48.0, 0, 1)
+    modes = [m for m in p["modes"] if f0 * m[0] < SR * 0.45]
+    base_t60 = p.get("t60", 4.0) * (1.3 - 0.6 * reg)
+    ex = np.zeros(n)
+    kind = p.get("excite", "strike")
+    if kind in ("bow", "rub"):
+        if kind == "bow":
+            atk, lvl = p.get("bow_attack", 0.3), p.get("bow_level", 0.7)
+        else:
+            atk, lvl = p.get("rub_attack", 0.6), p.get("rub_level", 0.7)
+        env = np.clip(t / max(atk, 1e-3), 0, 1)
+        rough = 1.0 + p.get("bow_rough", 0.0) * noise(n, rng)
+        if kind == "rub":
+            rough = rough * 10 ** (_pink_wander(n, rng, p.get("rub_wander_db", 2.0)) / 20.0)
+        # broadband stick-slip noise (40 Hz to 6 kHz): doc 25's 1-6 kHz band left every
+        # fundamental below 1 kHz unexcited
+        bown = svf(svf(noise(n, rng), 40.0, 0.7, 2), 6000.0, 0.7, 0)
+        ex += bown * env * rough * lvl
+    stk = p.get("strike", 0.0 if kind != "strike" else 1.0)
+    if stk > 0:
+        ex += svf(noise(n, rng) * np.exp(-t / 0.004), min(f0 * 4, 12000), 1.2, 1) * stk
+    freqs = [f0 * m[0] for m in modes]
+    amps = [m[1] for m in modes]
+    t60s = [base_t60 * m[2] for m in modes]
+    a1, a2, b = _res_coefs(freqs, amps, t60s)
+    pm = p.get("pan_modes", 0.5)
+    u = rng.uniform(-1, 1, len(modes))
+    for k in range(1, len(modes)):                  # a close doublet: partners on opposite sides
+        if abs(modes[k][0] / modes[k - 1][0] - 1.0) < 0.02:
+            u[k] = -u[k - 1]
+    pan = np.clip(pm * u, -1, 1)
+    gl = np.cos((pan + 1.0) * np.pi / 4.0)
+    gr = np.sin((pan + 1.0) * np.pi / 4.0)
+    l, r = _resbank(np.ascontiguousarray(ex), a1, a2, b, gl, gr)
+    if p.get("bowl_f"):
+        bm = p.get("bowl_modes", [[1.0, 0.15, 1.5]])
+        bf = [p["bowl_f"] * m[0] for m in bm]
+        ba1, ba2, bb = _res_coefs(bf, [m[1] for m in bm], [base_t60 * m[2] for m in bm])
+        drive = (l + r) * 0.5 * 0.1                   # the rods feed the bowl at -20 dB
+        bl, br = _resbank(np.ascontiguousarray(drive), ba1, ba2, bb,
+                          np.full(len(bm), 0.7071), np.full(len(bm), 0.7071))
+        l += bl
+        r += br
+    rs = p.get("resonator")
+    if rs:
+        l = l + rs.get("mix", 0.3) * svf(l, f0 * rs.get("ratio", 1.0), rs.get("q", 10), 1)
+        r = r + rs.get("mix", 0.3) * svf(r, f0 * rs.get("ratio", 1.0), rs.get("q", 10), 1)
+    wt = p.get("water")
+    if wt:
+        # water in the bowl: a few cents of slow pitch wander and a sweeping notch
+        cents = _pink_wander(n, np.random.default_rng(p.get("_wseed", 7)), wt.get("pitch_c", 6.0), 0.2)
+        m = 2.0 ** (cents / 1200.0)
+        pos = np.clip(np.cumsum(m) - m[0], 0, n - 1)
+        l = np.interp(pos, np.arange(n), l)
+        r = np.interp(pos, np.arange(n), r)
+        sw = wt.get("notch_sweep_hz", 0.1)
+        fn = f0 * 2.0 ** (1.5 + 1.0 * np.sin(2 * np.pi * sw * t))
+        l = l - svf(l, np.clip(fn, 40, 18000), 2.0, 1)              # notch = x - unity-peak band-pass
+        r = r - svf(r, np.clip(fn * 1.07, 40, 18000), 2.0, 1)
+    return l, r
 
 
 GENERATORS = {
@@ -822,4 +1236,6 @@ GENERATORS = {
     "flute": gen_flute,
     "glass_pad": gen_glass_pad,
     "prepared": gen_prepared,
+    "ladder": gen_ladder,
+    "resonator_bank": gen_resonator_bank,
 }

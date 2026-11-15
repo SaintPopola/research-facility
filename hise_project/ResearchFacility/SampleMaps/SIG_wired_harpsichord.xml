@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<samplemap ID="SIG_wired_harpsichord" SaveMode="1" RRGroupAmount="1.0" MicPositions=";"
+           CrossfadeGamma="1.0">
+  <sample ID="0" FileName="{PROJECT_FOLDER}SIG_wired_harpsichord_37.wav" Root="37" HiKey="38"
+          LoKey="0" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="192000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="1" FileName="{PROJECT_FOLDER}SIG_wired_harpsichord_41.wav" Root="41" HiKey="42"
+          LoKey="39" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="192000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="2" FileName="{PROJECT_FOLDER}SIG_wired_harpsichord_45.wav" Root="45" HiKey="46"
+          LoKey="43" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="192000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="3" FileName="{PROJECT_FOLDER}SIG_wired_harpsichord_49.wav" Root="49" HiKey="50"
+          LoKey="47" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="192000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="4" FileName="{PROJECT_FOLDER}SIG_wired_harpsichord_53.wav" Root="53" HiKey="54"
+          LoKey="51" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="192000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="5" FileName="{PROJECT_FOLDER}SIG_wired_harpsichord_57.wav" Root="57" HiKey="58"
+          LoKey="55" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="192000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="6" FileName="{PROJECT_FOLDER}SIG_wired_harpsichord_61.wav" Root="61" HiKey="62"
+          LoKey="59" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="192000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="7" FileName="{PROJECT_FOLDER}SIG_wired_harpsichord_65.wav" Root="65" HiKey="66"
+          LoKey="63" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="192000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="8" FileName="{PROJECT_FOLDER}SIG_wired_harpsichord_69.wav" Root="69" HiKey="70"
+          LoKey="67" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="192000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="9" FileName="{PROJECT_FOLDER}SIG_wired_harpsichord_73.wav" Root="73" HiKey="74"
+          LoKey="71" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="192000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="10" FileName="{PROJECT_FOLDER}SIG_wired_harpsichord_77.wav" Root="77" HiKey="78"
+          LoKey="75" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="192000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="11" FileName="{PROJECT_FOLDER}SIG_wired_harpsichord_81.wav" Root="81" HiKey="82"
+          LoKey="79" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="192000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+  <sample ID="12" FileName="{PROJECT_FOLDER}SIG_wired_harpsichord_85.wav" Root="85" HiKey="127"
+          LoKey="83" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="192000"
+          SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
+          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
+          NormalizedPeak="-1" Duplicate="0"/>
+</samplemap>

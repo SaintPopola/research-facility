@@ -34,7 +34,7 @@
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="5" FileName="{PROJECT_FOLDER}SIG_lg_clank_house_54.wav" Root="54" HiKey="56"
           LoKey="51" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
-          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="325920"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="319680"
           SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
