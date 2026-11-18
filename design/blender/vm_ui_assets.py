@@ -122,7 +122,7 @@ def bsdf(name, base, rough=0.4, metallic=0.0, coat=0.0, coat_rough=0.1, aniso=0.
     return m
 
 
-def wood_mat(name, asset, tile_m, tint, coat, coat_rough, rough_mul=1.0, curl=False):
+def wood_mat(name, asset, tile_m, tint, coat, coat_rough, rough_mul=1.0, curl=False, edge=None, hsv=None):
     """Poly Haven veneer: diffuse x tint, roughness map, GL normal; object-space metres
     mapped so one image covers its physical tile. curl adds a figured-wood band pattern."""
     m = bpy.data.materials.new(name)
@@ -149,17 +149,28 @@ def wood_mat(name, asset, tile_m, tint, coat, coat_rough, rough_mul=1.0, curl=Fa
     mul.data_type = "RGBA"
     mul.blend_type = "MULTIPLY"
     mul.inputs["Factor"].default_value = 1.0
-    nt.links.new(diff.outputs["Color"], mul.inputs[6])
+    src = diff.outputs["Color"]
+    if hsv:                                                        # hue / saturation / value shift of the veneer
+        hs = nt.nodes.new("ShaderNodeHueSaturation")
+        hs.inputs["Hue"].default_value = hsv[0]
+        hs.inputs["Saturation"].default_value = hsv[1]
+        hs.inputs["Value"].default_value = hsv[2]
+        nt.links.new(src, hs.inputs["Color"])
+        src = hs.outputs["Color"]
+    nt.links.new(src, mul.inputs[6])
     mul.inputs[7].default_value = tint
     col_out = mul.outputs[2]
     if curl:
         wave = nt.nodes.new("ShaderNodeTexWave")
-        wave.inputs["Scale"].default_value = 80.0 * tile_m          # ~8 bands per 100 mm
-        wave.inputs["Distortion"].default_value = 3.0
+        wave.bands_direction = "Y"                                   # flame bands run across the grain
+        wave.inputs["Scale"].default_value = 120.0 * tile_m          # flame bands every ~8 mm
+        wave.inputs["Distortion"].default_value = 1.6
+        wave.inputs["Detail"].default_value = 2.0
+        wave.inputs["Detail Scale"].default_value = 1.5
         nt.links.new(mp.outputs["Vector"], wave.inputs["Vector"])
         mr = nt.nodes.new("ShaderNodeMapRange")
-        mr.inputs["To Min"].default_value = 0.88
-        mr.inputs["To Max"].default_value = 1.12
+        mr.inputs["To Min"].default_value = 0.60                     # bold cross-grain figure
+        mr.inputs["To Max"].default_value = 1.40
         nt.links.new(wave.outputs["Fac"], mr.inputs["Value"])
         mul2 = nt.nodes.new("ShaderNodeMix")
         mul2.data_type = "RGBA"
@@ -168,6 +179,23 @@ def wood_mat(name, asset, tile_m, tint, coat, coat_rough, rough_mul=1.0, curl=Fa
         nt.links.new(col_out, mul2.inputs[6])
         nt.links.new(mr.outputs["Result"], mul2.inputs[7])
         col_out = mul2.outputs[2]
+    if edge:
+        # darker panel-side edge (25%) for depth: object-space Y ramp over the last 20%
+        sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+        nt.links.new(tc.outputs["Object"], sep.inputs["Vector"])
+        er = nt.nodes.new("ShaderNodeMapRange")
+        er.inputs["From Min"].default_value = edge[0]
+        er.inputs["From Max"].default_value = edge[1]
+        er.inputs["To Min"].default_value = 0.70
+        er.inputs["To Max"].default_value = 1.0
+        nt.links.new(sep.outputs["Y"], er.inputs["Value"])
+        mul3 = nt.nodes.new("ShaderNodeMix")
+        mul3.data_type = "RGBA"
+        mul3.blend_type = "MULTIPLY"
+        mul3.inputs["Factor"].default_value = 1.0
+        nt.links.new(col_out, mul3.inputs[6])
+        nt.links.new(er.outputs["Result"], mul3.inputs[7])
+        col_out = mul3.outputs[2]
     nt.links.new(col_out, b.inputs["Base Color"])
     rm = nt.nodes.new("ShaderNodeMath")
     rm.operation = "MULTIPLY"
@@ -272,7 +300,9 @@ def build_swatch(out):
     box("Floor", 0, 0, FW * PX * 1.2, FH * PX * 1.2, 0.002, -0.004, floor, bevel=0)
 
     # three wood candidates, each 300 x 110 logical with a chamfer
-    woods = [("A FIGURED AMBER", wood_mat("VM_WoodA", "sapele_veneer", 0.5, srgb("#E06A3A"), 0.5, 0.12, curl=True)),
+    blk_h = 110 * PX
+    woods = [("A FIGURED AMBER", wood_mat("VM_WoodA", "sapele_veneer", 0.5, (1.0, 0.92, 0.78, 1.0), 0.85, 0.14, curl=True,
+                                            edge=(-blk_h / 2.0, -blk_h * 0.15), hsv=(0.55, 0.85, 1.12))),
              ("B UNSTAINED WALNUT", wood_mat("VM_WoodB", "black_walnut_veneer_02", 1.0, (1, 1, 1, 1), 0.0, 0.3, rough_mul=1.0)),
              ("C BUTTERSCOTCH", wood_mat("VM_WoodC", "walnut_veneer", 1.8, srgb("#F2C27A"), 0.2, 0.3))]
     ink = bsdf("VM_Silk", srgb("#E8E4D8"), rough=0.5)
@@ -282,6 +312,19 @@ def build_swatch(out):
         box("Wood" + "ABC"[i], cx, cy, 300 * PX, 110 * PX, 0.012, 0.0, mat, bevel=0.0012)
         tx, ty = P(x0 + 150, 142)
         text("WoodLabel" + "ABC"[i], lab, tx, ty, 11, ink, "Jost-600-Semi.ttf", z0=0.0005)
+    recv = bpy.data.collections.new("WoodRecv")
+    recv.objects.link(bpy.data.objects["WoodA"])               # the lacquered candidate only
+    sx, sy = P(170, 60)
+    sld = bpy.data.lights.new("VM_Streak", "AREA")
+    sld.shape = "RECTANGLE"
+    sld.size = 0.5
+    sld.size_y = 0.12
+    sld.energy = 0.35
+    so = bpy.data.objects.new("VM_Streak", sld)
+    so.location = (sx, sy, 1.2)
+    so.rotation_euler = (math.radians(-4), 0.0, math.radians(-8))
+    bpy.context.scene.collection.objects.link(so)
+    so.light_linking.receiver_collection = recv
 
     # panel patch: black paint, silk title, 0-10 scale around an XL knob
     px_, py_ = P(270, 262)
@@ -312,21 +355,24 @@ def build_swatch(out):
     cols = ["#E06A26", "#3F7BAA", "#E2DCCB", "#F09048"]
     bezel = bsdf("VM_Bezel", srgb("#0B0B0C"), rough=0.5)
     for i, c in enumerate(cols):
-        m = bsdf("VM_Rocker" + str(i), srgb(c), rough=0.25, coat=0.3, coat_rough=0.1)
+        base = srgb(c)
+        m_on = bsdf("VM_RockerOn" + str(i), base, rough=0.22, coat=0.4, coat_rough=0.08, emit=base, emit_strength=0.08)
+        m_off = bsdf("VM_RockerOff" + str(i), (base[0] * 0.8, base[1] * 0.8, base[2] * 0.8, 1.0), rough=0.6)
         for on in (0, 1):
             x = 560 + (i * 2 + on) * 46
             cx, cy = P(x, 200)
             box(f"RockBezel{i}{on}", cx, cy, 42 * PX, 26 * PX, 0.003, 0.0, bezel, bevel=0.0004)
-            o = box(f"Rocker{i}{on}", cx, cy, 36 * PX, 20 * PX, 0.004, 0.003, m, bevel=0.0008)
-            o.rotation_euler.y = math.radians(8 if on else -8)
+            o = box(f"Rocker{i}{on}", cx, cy, 36 * PX, 20 * PX, 0.004, 0.003, m_on if on else m_off, bevel=0.0010)
+            o.rotation_euler.x = math.radians(14 if on else -6)     # ON: top edge up into the light
 
     # red push: up and down (1 mm lower), in an aluminium ring
     red = bsdf("VM_PushRed", srgb("#C8321C"), rough=0.2, coat=0.6, coat_rough=0.05)
+    red_dn = bsdf("VM_PushRedDown", srgb("#A42816"), rough=0.26, coat=0.5, coat_rough=0.08)
     ring = bsdf("VM_Ring", srgb("#C9CCCF"), rough=0.3, metallic=1.0)
     for j, down in enumerate((0, 1)):
         cx, cy = P(580 + j * 48, 280)
         cyl(f"PushRing{j}", cx, cy, 14 * PX, 0.003, 0.0, ring, verts=96)
-        cyl(f"Push{j}", cx, cy, 11 * PX, 0.006 - 0.001 * down, 0.002, red, verts=96, dome=0.0008)
+        cyl(f"Push{j}", cx, cy, 11 * PX, 0.008 - 0.0035 * down, 0.002, red_dn if down else red, verts=96, dome=0.0008)
 
     # one lit clear wheel in its slot
     wx, wy = P(720, 270)
@@ -342,20 +388,20 @@ def build_swatch(out):
 
     # keys: two white and one black
     ivory = bsdf("VM_Ivory", srgb("#E4E1D6"), rough=0.2)
-    ebony = bsdf("VM_Ebony", srgb("#121010"), rough=0.3, coat=0.3)
+    ebony = bsdf("VM_Ebony", srgb("#121010"), rough=0.25, coat=0.6, coat_rough=0.06)
     for k in range(2):
         cx, cy = P(770 + k * 34 + 17, 276)
         box(f"KeyW{k}", cx, cy, 33 * PX, 124 * PX, 0.012, 0.0, ivory, bevel=0.0006)
     cx, cy = P(804, 252)
-    box("KeyB", cx, cy, 24 * PX, 77 * PX, 0.010, 0.012, ebony, bevel=0.0008)
+    box("KeyB", cx, cy, 24 * PX, 77 * PX, 0.010, 0.012, ebony, bevel=0.0016)
 
     # nameplate draft: brushed aluminium with black engraved caps
     nx, ny = P(930, 300)
-    plate = bsdf("VM_Plate", srgb("#D6D9DC"), rough=0.28, metallic=1.0, aniso=0.6)
-    box("Nameplate", nx, ny, 160 * PX, 30 * PX, 0.0015, 0.0, plate, bevel=0.0004)
-    blk = bsdf("VM_Engrave", srgb("#1A1A1A"), rough=0.6)
-    text("PlateText", "SWEET MELODY", nx, ny + 3 * PX, 11, blk, "Jost-600-Semi.ttf", z0=0.0016)
-    text("PlateSub", "RESEARCH FACILITY", nx, ny - 8 * PX, 6, blk, "Jost-500-Medium.ttf", z0=0.0016)
+    plate = bsdf("VM_Plate", srgb("#141414"), rough=0.35, metallic=0.6, aniso=0.5)
+    box("Nameplate", nx, ny, 170 * PX, 36 * PX, 0.0015, 0.0, plate, bevel=0.0005)
+    cream = bsdf("VM_Engrave", srgb("#E8E4D8"), rough=0.45)
+    text("PlateText", "SWEET MELODY", nx, ny + 4 * PX, 15, cream, "Jost-600-Semi.ttf", z0=0.0016)
+    text("PlateSub", "RESEARCH FACILITY", nx, ny - 10 * PX, 7, cream, "Jost-500-Medium.ttf", z0=0.0016)
 
     os.makedirs(out, exist_ok=True)
     sc.render.filepath = os.path.join(out, "vm_swatch.png")
