@@ -1274,7 +1274,7 @@ inline function drawVu(g, x, v, lbl)
         yy = top + h * (1.0 - (VU_MARKS[i] + 40.0) / 40.0);
         g.setColour(T.vuInk);
         g.fillRect([x + 1, Math.round(yy), 5, 1]);
-        if (i % 2 == 0 || i == 1) g.drawAlignedText("" + Math.abs(VU_MARKS[i]), [x + 5, Math.round(yy) - 5, 14, 10], "left");
+        if (i % 2 == 0 || i == 1) g.drawAlignedText("" + Math.round(Math.abs(VU_MARKS[i])), [x + 5, Math.max(top, Math.round(yy) - 5), 14, 10], "left");
     }
     yy = top + h * (1.0 - v);
     g.setColour(0x40000000);
@@ -1309,7 +1309,8 @@ OutMeter.setPaintRoutine(function(g)
     g.setColour(T.txt);
     g.setFontWithSpacing(T.BOLD, 9, 0.1);
     g.drawAlignedText("VOICES", [0, 288, 70, 10], "centred");
-    drawLed(g, [9, 300, 52, 24], S.voices < 10 ? "0" + S.voices : "" + S.voices, "88");
+    var vv = Math.round(S.voices);
+    drawLed(g, [9, 300, 52, 24], vv < 10 ? "0" + vv : "" + vv, "88");
     g.setColour(T.txt);
     g.setFontWithSpacing(T.BOLD, 9, 0.1);
     g.drawAlignedText("CPU %", [0, 332, 70, 10], "centred");
@@ -2694,11 +2695,15 @@ inline function drawScale(g, cx, cy, cls, kind)
             g.drawAlignedText(SCALE_HZ[i][1], [cx + rn * Math.sin(an) - 14, cy - rn * Math.cos(an) - 5, 28, 10], "centred");
         }
     }
-    else if (kind == "time")
+    else if (kind == "timeL")
     {
         g.setColour(T.faint);
-        g.drawAlignedText("M-SEC.", [cx - t1 - 22, cy + t1 + 2, 40, 10], "left");
-        g.drawAlignedText("SEC.", [cx + t1 - 18, cy + t1 + 2, 40, 10], "right");
+        g.drawAlignedText("M-SEC.", [cx - t1 - 26, cy + t1 + 2, 40, 10], "left");
+    }
+    else if (kind == "timeR")
+    {
+        g.setColour(T.faint);
+        g.drawAlignedText("SEC.", [cx + t1 - 14, cy + t1 + 2, 40, 10], "right");
     }
 }
 
@@ -2949,6 +2954,11 @@ inline function onRelease(component, value) { applyRelease(value); }
 AttackKnob.setControlCallback(onAttack);
 ReleaseKnob.setControlCallback(onRelease);
 
+// [id, x, y, w, h] local to the MacroCard (docs/28 BTN table)
+const var MC_BTN = [["AB", 20, 150, 36, 20], ["UNDO", 96, 148, 24, 24], ["VARIATION", 192, 148, 24, 24], ["RESET", 276, 148, 24, 24]];
+MacroCard.data.down = "";
+MacroCard.loadImage("{PROJECT_FOLDER}vm_push_red_2x.png", "push");
+MacroCard.loadImage("{PROJECT_FOLDER}vm_rocker_2x.png", "rocker");
 MacroCard.setPaintRoutine(function(g)
 {
     var k = 0;
@@ -2961,10 +2971,13 @@ MacroCard.setPaintRoutine(function(g)
     g.setColour(T.tape);
     g.fillRoundedRectangle([0, 0, 720, 20], 6.0);
     g.fillRect([0, 10, 720, 10]);
-    g.setColour(T.onTape);
-    g.setFontWithSpacing(T.BOLD, 9, 0.18);
-    g.drawAlignedText(S.mode == 1 ? "LOOP FX" : "MACROS", [14, 0, 200, 20], "left");
     var bh = this.data.hover;
+    if (S.mode == 1)
+    {
+        g.setColour(T.onTape);
+        g.setFontWithSpacing(T.BOLD, 9, 0.18);
+        g.drawAlignedText("LOOP FX", [14, 0, 200, 20], "left");
+    }
 
     if (S.mode == 1)
     {
@@ -3021,20 +3034,35 @@ MacroCard.setPaintRoutine(function(g)
     }
 
     // buttons: UNDO, A / B compare, VARIATION, RESET
-    var btns = [["UNDO", 316, 72], ["A", 400, 46], ["B", 452, 46], ["VARIATION", 520, 92], ["RESET", 624, 92]];
-    for (k = 0; k < 5; k++)
+    // docs/28 BTN table: COMPARE rocker (A / B), UNDO, VARIATION and RESET red pushes
+    for (k = 0; k < MC_BTN.length; k++)
     {
-        var b = btns[k];
+        var b = MC_BTN[k];
         var hot = (bh == b[0]);
-        var lit = (b[0] == S.ab);
         var dead = (b[0] == "UNDO" && !isDefined(S.undo.cur));
-        g.setColour(lit ? Colours.withAlpha(T.accentOnFrame, 0.25) : 0x00000000);
-        g.fillRoundedRectangle([b[1] + 0.5, 2.5, b[2] - 1, 15], 7.0);
-        g.setColour(hot || lit ? T.onTape : Colours.withAlpha(T.onTape, 0.12));
-        g.drawRoundedRectangle([b[1] + 0.5, 2.5, b[2] - 1, 15], 7.0, 1.0);
-        g.setColour(dead ? Colours.withAlpha(T.onTapeDim, 0.4) : (hot || lit ? T.onTape : T.onTapeDim));
-        g.setFontWithSpacing(T.BOLD, 8, 0.12);
-        g.drawAlignedText(b[0], [b[1], 2, b[2], 16], "centred");
+        g.setColour(T.txt);
+        g.setFontWithSpacing(T.BOLD, 9, 0.08);
+        g.drawAlignedText(b[0] == "AB" ? "COMPARE" : b[0], [b[1] - 30, 136, b[3] + 60, 10], "centred");
+        if (b[0] == "AB")
+        {
+            var on = S.ab == "B";
+            if (this.isImageLoaded("rocker")) g.drawImage("rocker", [b[1], b[2], 36, 20], 0, (2 * 2 + (on ? 1 : 0)) * 40);
+            else { g.setColour(on ? T.rockCream : Colours.mix(T.rockCream, 0xFF000000, 0.2)); g.fillRoundedRectangle([b[1], b[2], 36, 20], 3.0); }
+            if (hot) { g.setColour(Colours.withAlpha(T.txt, 0.4)); g.drawRoundedRectangle([b[1] - 1, b[2] - 1, 38, 22], 3.0, 1.0); }
+            g.setColour(S.ab == "A" ? T.accentInk : T.dim);
+            g.setFont(T.BOLD, 9);
+            g.drawAlignedText("A", [b[1], 172, 10, 10], "centred");
+            g.setColour(S.ab == "B" ? T.accentInk : T.dim);
+            g.drawAlignedText("B", [b[1] + 26, 172, 10, 10], "centred");
+        }
+        else
+        {
+            if (dead) g.setOpacity(0.45);
+            if (this.isImageLoaded("push")) g.drawImage("push", [b[1], b[2], 24, 24], 0, (this.data.down == b[0]) ? 48 : 0);
+            else drawPush(g, b[1], b[2], 24, hot, !dead);
+            if (dead) g.setOpacity(1.0);
+            if (hot && !dead) { g.setColour(Colours.withAlpha(T.accent, 0.35)); g.drawEllipse([b[1] - 2, b[2] - 2, 28, 28], 1.2); }
+        }
     }
 
     // docs/28 PLAY face: section dividers, printed scales, CONTOUR rule, typed info card
@@ -3049,7 +3077,7 @@ MacroCard.setPaintRoutine(function(g)
         drawScale(g, mp[0] - MC_X + (big ? 48 : 40), mp[1] - MC_Y + (big ? 60 : 52), big ? 2 : 1, k == 0 ? "hz" : "ten");
     }
     for (k = 0; k < 2; k++)
-        drawScale(g, AR_POS[k][0] - MC_X + 28, AR_POS[k][1] - MC_Y + 35, 0, "time");
+        drawScale(g, AR_POS[k][0] - MC_X + 28, AR_POS[k][1] - MC_Y + 35, 0, k == 0 ? "timeL" : "timeR");
     g.setColour(T.line);
     g.fillRect([340, 124, 124, 1]);
     g.setColour(T.txt);
@@ -3195,16 +3223,18 @@ MacroCard.setMouseCallback(function(event)
         if (S.lfxDrag >= 0) { S.lfxDrag = -1; LoopFxKey.setValue(S.lfx.join("|")); this.repaint(); }
     }
     var h = "";
-    if (event.y >= 1 && event.y < 19)
+    if (S.mode == 1 && event.y >= 1 && event.y < 19 && event.x >= 624 && event.x < 716) h = "RESET";
+    if (S.mode == 0)
     {
-        if (event.x >= 624 && event.x < 716) h = "RESET";
-        else if (S.mode == 0)
+        var bi = 0;
+        for (bi = 0; bi < MC_BTN.length; bi++)
         {
-            if (event.x >= 316 && event.x < 388) h = "UNDO";
-            else if (event.x >= 400 && event.x < 446) h = "A";
-            else if (event.x >= 452 && event.x < 498) h = "B";
-            else if (event.x >= 520 && event.x < 612) h = "VARIATION";
+            var bb = MC_BTN[bi];
+            if (event.x >= bb[1] - 2 && event.x < bb[1] + bb[3] + 2 && event.y >= bb[2] - 2 && event.y < bb[2] + bb[4] + 2) h = bb[0];
         }
+        var dn = event.mouseDown && (h == "UNDO" || h == "VARIATION" || h == "RESET") ? h : "";
+        if (event.mouseUp) dn = "";
+        if (dn != this.data.down) { this.data.down = dn; this.repaint(); }
     }
     if (S.mode == 1)
     {
@@ -3226,7 +3256,7 @@ MacroCard.setMouseCallback(function(event)
         if (h == "VARIATION") variation();
         else if (h == "RESET") resetMacros();
         else if (h == "UNDO") undoSound();
-        else if (h == "A" || h == "B") pickAB(h);
+        else if (h == "AB") pickAB(S.ab == "A" ? "B" : "A");
     }
     if (h != this.data.hover)
     {
