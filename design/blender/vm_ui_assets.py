@@ -213,6 +213,122 @@ def wood_mat(name, asset, tile_m, tint, coat, coat_rough, rough_mul=1.0, curl=Fa
     return m
 
 
+def wood_figured(name, edge, block_h):
+    """Figured amber cheek (docs/28 A, revised): long grain from black_walnut_veneer_02 along
+    the board, toned through an amber ramp (darks #6E3418, mid #B8622E), crossed by curl
+    bands with noise-warped, irregular 5-20 mm spacing, strength fading in and out, and the
+    band phase flipped across 2.5 zones (chatoyance in a still frame). Darker panel-side
+    edge, lacquer coat."""
+    m = bpy.data.materials.new(name)
+    m.use_nodes = True
+    nt = m.node_tree
+    b = nt.nodes["Principled BSDF"]
+    L = nt.links.new
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    mp = nt.nodes.new("ShaderNodeMapping")
+    mp.inputs["Scale"].default_value = (1.0, 1.0, 1.0)              # black_walnut_veneer_02 is a 1 m tile
+    L(tc.outputs["Object"], mp.inputs["Vector"])
+    folder = os.path.join(DL, "polyhaven_black_walnut_veneer_02")
+
+    def img(kind, non_color):
+        t = nt.nodes.new("ShaderNodeTexImage")
+        t.image = bpy.data.images.load(os.path.join(folder, f"black_walnut_veneer_02_{kind}_2k.jpg"))
+        if non_color:
+            t.image.colorspace_settings.name = "Non-Color"
+        L(mp.outputs["Vector"], t.inputs["Vector"])
+        return t
+    diff, rough, nor = img("diff", False), img("rough", True), img("nor_gl", True)
+    # grain luminance -> amber ramp
+    bw = nt.nodes.new("ShaderNodeRGBToBW")
+    L(diff.outputs["Color"], bw.inputs["Color"])
+    lum = nt.nodes.new("ShaderNodeMapRange")
+    lum.inputs["From Min"].default_value = 0.04
+    lum.inputs["From Max"].default_value = 0.30
+    L(bw.outputs["Val"], lum.inputs["Value"])
+    ramp = nt.nodes.new("ShaderNodeValToRGB")
+    el = ramp.color_ramp.elements
+    el[0].position = 0.0
+    el[0].color = srgb("#5E2A12")
+    el[1].position = 1.0
+    el[1].color = srgb("#D08442")
+    mid = el.new(0.5)
+    mid.color = srgb("#B8622E")
+    dk = el.new(0.2)
+    dk.color = srgb("#6E3418")
+    L(lum.outputs["Result"], ramp.inputs["Fac"])
+    # curl bands across the grain (the grain runs along X)
+    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+    L(tc.outputs["Object"], sep.inputs["Vector"])
+    warp = nt.nodes.new("ShaderNodeTexNoise")
+    warp.inputs["Scale"].default_value = 14.0
+    warp.inputs["Detail"].default_value = 1.0
+    L(tc.outputs["Object"], warp.inputs["Vector"])
+
+    def math(op, a, bb=None, v=None):
+        n = nt.nodes.new("ShaderNodeMath")
+        n.operation = op
+        if hasattr(a, "bl_idname") or not isinstance(a, (int, float)):
+            L(a, n.inputs[0])
+        else:
+            n.inputs[0].default_value = a
+        if bb is not None:
+            if isinstance(bb, (int, float)):
+                n.inputs[1].default_value = bb
+            else:
+                L(bb, n.inputs[1])
+        return n.outputs[0]
+    # phase in cycles: ~85 per metre (12 mm) plus a strong noise warp -> 5-20 mm, bending bands
+    ph = math("ADD", math("MULTIPLY", sep.outputs["X"], 85.0), math("MULTIPLY", math("SUBTRACT", warp.outputs["Fac"], 0.5), 9.0))
+    # chatoyance: flip the band phase by half a cycle across 2.5 zones along the board's width
+    zone = math("GREATER_THAN", math("SINE", math("MULTIPLY", sep.outputs["Y"], 2.0 * 3.14159 * 2.5 / block_h)), 0.0)
+    ph = math("ADD", ph, math("MULTIPLY", zone, 0.5))
+    band = math("SINE", math("MULTIPLY", ph, 2.0 * 3.14159))
+    sharp = nt.nodes.new("ShaderNodeMapRange")                    # narrower bright bands
+    sharp.inputs["From Min"].default_value = -0.2
+    sharp.inputs["From Max"].default_value = 1.0
+    sharp.clamp = True
+    L(band, sharp.inputs["Value"])
+    fade = nt.nodes.new("ShaderNodeTexNoise")                     # strength fades in and out
+    fade.inputs["Scale"].default_value = 22.0
+    L(tc.outputs["Object"], fade.inputs["Vector"])
+    amp = nt.nodes.new("ShaderNodeMapRange")
+    amp.inputs["From Min"].default_value = 0.38
+    amp.inputs["From Max"].default_value = 0.66
+    amp.clamp = True
+    L(fade.outputs["Fac"], amp.inputs["Value"])
+    fig = math("ADD", 0.82, math("MULTIPLY", math("MULTIPLY", sharp.outputs["Result"], amp.outputs["Result"]), 0.42))
+    mul = nt.nodes.new("ShaderNodeMix")
+    mul.data_type = "RGBA"
+    mul.blend_type = "MULTIPLY"
+    mul.inputs["Factor"].default_value = 1.0
+    L(ramp.outputs["Color"], mul.inputs[6])
+    L(fig, mul.inputs[7])
+    col = mul.outputs[2]
+    # darker panel-side edge
+    er = nt.nodes.new("ShaderNodeMapRange")
+    er.inputs["From Min"].default_value = edge[0]
+    er.inputs["From Max"].default_value = edge[1]
+    er.inputs["To Min"].default_value = 0.70
+    er.clamp = True
+    L(sep.outputs["Y"], er.inputs["Value"])
+    mul2 = nt.nodes.new("ShaderNodeMix")
+    mul2.data_type = "RGBA"
+    mul2.blend_type = "MULTIPLY"
+    mul2.inputs["Factor"].default_value = 1.0
+    L(col, mul2.inputs[6])
+    L(er.outputs["Result"], mul2.inputs[7])
+    L(mul2.outputs[2], b.inputs["Base Color"])
+    L(rough.outputs["Color"], b.inputs["Roughness"])
+    nm = nt.nodes.new("ShaderNodeNormalMap")
+    nm.inputs["Strength"].default_value = 0.5
+    L(nor.outputs["Color"], nm.inputs["Color"])
+    L(nm.outputs["Normal"], b.inputs["Normal"])
+    b.inputs["Coat Weight"].default_value = 0.85
+    b.inputs["Coat Roughness"].default_value = 0.14
+    b.inputs["Coat Tint"].default_value = srgb("#F3D2A8")
+    return m
+
+
 def panel_mat():
     """Black paint on smooth aluminium: Metal028 roughness remapped to 0.38-0.5."""
     m = bsdf("VM_Panel", srgb("#1E1D1B"), rough=0.44, metallic=0.0)
@@ -301,8 +417,7 @@ def build_swatch(out):
 
     # three wood candidates, each 300 x 110 logical with a chamfer
     blk_h = 110 * PX
-    woods = [("A FIGURED AMBER", wood_mat("VM_WoodA", "sapele_veneer", 0.5, (1.0, 0.92, 0.78, 1.0), 0.85, 0.14, curl=True,
-                                            edge=(-blk_h / 2.0, -blk_h * 0.15), hsv=(0.55, 0.85, 1.12))),
+    woods = [("A FIGURED AMBER", wood_figured("VM_WoodA", (-blk_h / 2.0, -blk_h * 0.15), blk_h)),
              ("B UNSTAINED WALNUT", wood_mat("VM_WoodB", "black_walnut_veneer_02", 1.0, (1, 1, 1, 1), 0.0, 0.3, rough_mul=1.0)),
              ("C BUTTERSCOTCH", wood_mat("VM_WoodC", "walnut_veneer", 1.8, srgb("#F2C27A"), 0.2, 0.3))]
     ink = bsdf("VM_Silk", srgb("#E8E4D8"), rough=0.5)
