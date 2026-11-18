@@ -2648,7 +2648,17 @@ knobLaf.registerFunction("drawRotarySlider", function(g, obj)
     g.setColour(0x59000000);
     g.drawLine(cx + sx * r0 + 0.6, cx + sx * r1 + 0.6, cy + sy * r0 + 0.6, cy + sy * r1 + 0.6, k1 ? 2.2 : 2.0);
     g.setColour(ink);
-    g.drawLine(cx + sx * r0, cx + sx * r1, cy + sy * r0, cy + sy * r1, k1 ? 1.8 : 1.6);
+    g.drawLine(cx + sx * r0, cx + sx * r1, cy + sy * r0, cy + sy * r1, k1 ? (w >= 70 ? 2.2 : 1.8) : 1.6);
+    if (k1)
+    {
+        // a dot where the index line meets the cap edge, readable at arm's length
+        var dr = R * 0.56;
+        var dd = w >= 70 ? 3.4 : 2.6;
+        g.setColour(0x66000000);
+        g.fillEllipse([cx + sx * dr - dd / 2 + 0.6, cy + sy * dr - dd / 2 + 0.6, dd, dd]);
+        g.setColour(ink);
+        g.fillEllipse([cx + sx * dr - dd / 2, cy + sy * dr - dd / 2, dd, dd]);
+    }
     if (hot)
     {
         g.setColour(Colours.withAlpha(T.accentHi, 0.35));

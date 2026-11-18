@@ -1,6 +1,6 @@
-vm_knob_l_2x.png 144x2304 frames=16 ram=1.27MiB sha256=59aa612dcd680134 seam_mad=0.026/255 margin=ok
-vm_knob_s_2x.png 72x1152 frames=16 ram=0.32MiB sha256=29aa547a054623c9 seam_mad=0.036/255 margin=ok
 vm_collet_l_2x.png 144x2304 frames=16 ram=1.27MiB sha256=4ff5ed6b034b5044 seam_mad=0.009/255 margin=ok
 vm_collet_s_2x.png 80x1280 frames=16 ram=0.39MiB sha256=77cf8af0a97a6a68 seam_mad=0.053/255 margin=ok
 vm_rocker_2x.png 72x320 frames=8 ram=0.09MiB sha256=7eba0a1fff5ba25d seam_mad=0.000/255 margin=ok
 vm_push_red_2x.png 48x96 frames=2 ram=0.02MiB sha256=05e704f1a360675c seam_mad=0.000/255 margin=ok
+vm_knob_l_2x.png 144x2304 frames=16 ram=1.27MiB sha256=367848f79c740f02 seam_mad=0.096/255 margin=ok
+vm_knob_s_2x.png 72x1152 frames=16 ram=0.32MiB sha256=beae59d297cca612 seam_mad=0.055/255 margin=ok

@@ -370,11 +370,15 @@ def cyl(name, cx, cy, r, d, z0, mat, verts=96, flutes=0, dome=0.0, bevel=0.0004)
     o = bpy.context.active_object
     o.name = name
     if flutes:                                       # one pass: shallow flutes on the skirt wall
+        crest = o.data.color_attributes.new("crest", "FLOAT_COLOR", "POINT")
         for v in o.data.vertices:
             ang = math.atan2(v.co.y, v.co.x)
-            s = 1.0 - 0.045 * (0.5 + 0.5 * math.cos(ang * flutes))
+            cf = math.cos(ang * flutes)
+            s = 1.0 - 0.045 * (0.5 + 0.5 * cf)
             v.co.x *= s
             v.co.y *= s
+            dark = 0.45 if cf < -0.97 else 1.0           # the flute crest (largest radius) reads as cut
+            crest.data[v.index].color = (dark, dark, dark, 1.0)
     if dome > 0:
         for v in o.data.vertices:
             if v.co.z > 0:
@@ -559,6 +563,16 @@ def build_knob_strip(out, kind, frame_px, logical, radius_px, frames=16):
     bpy.context.scene.collection.objects.link(grp)
     if kind == "fluted":
         skirt = bsdf("VM_Skirt", srgb("#0C0D0D"), rough=0.32, coat=0.4, coat_rough=0.15)
+        nt = skirt.node_tree
+        at = nt.nodes.new("ShaderNodeAttribute")
+        at.attribute_name = "crest"
+        mx = nt.nodes.new("ShaderNodeMix")
+        mx.data_type = "RGBA"
+        mx.blend_type = "MULTIPLY"
+        mx.inputs["Factor"].default_value = 1.0
+        mx.inputs[6].default_value = srgb("#1A1B1C")
+        nt.links.new(at.outputs["Color"], mx.inputs[7])
+        nt.links.new(mx.outputs[2], nt.nodes["Principled BSDF"].inputs["Base Color"])
         a = cyl("Skirt", 0, 0, r, 14 * 0.001, 0.0, skirt, verts=24 * 8, flutes=24, bevel=0.0006)
         b = cyl("Cap", 0, 0, r * 0.56, 0.0016, 0.014, spun_alu(), verts=128, dome=0.0008, bevel=0.0004)
         period = 15.0
