@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ProjectSettings>
+  <Name value="Hook Lab" type="TEXT" description="Project Name"/>
+  <Version value="0.1.0" type="TEXT" description="Project version"/>
+  <Description value="Hook Lab: type a hook, hear it sung, drag it into your session. By Research Facility." type="TEXT" description="Project description"/>
+  <BundleIdentifier value="com.researchfacility.hooklab" type="TEXT" description="Bundle Identifier"/>
+  <PluginCode value="Hklb" type="TEXT" description="a 4 character ID code"/>
+  <EmbedAudioFiles value="Yes" type="LIST" description="Embed Audio files in plugin"
+                   options="Yes&#10;No"/>
+  <AdditionalDspLibraries value="" type="TEXT"/>
+  <WindowsStaticLibFolder value="" type="TEXT"/>
+  <OSXStaticLibs value="" type="TEXT"/>
+  <ExtraDefinitionsWindows value="" type="TEXT"/>
+  <ExtraDefinitionsOSX value="" type="TEXT"/>
+  <ExtraDefinitionsIOS value="" type="TEXT"/>
+  <AppGroupID value="group.researchfacility.hooklab" type="TEXT"/>
+  <EmbedImageFiles value="Yes"/>
+  <SupportFullDynamicsHLAC value="No"/>
+  <ExtraDefinitionsLinux value=""/>
+  <RedirectSampleFolder value=""/>
+  <AAXCategoryFX value="AAX_ePlugInCategory_SWGenerators"/>
+  <SupportMonoFX value="No"/>
+  <EnableMidiInputFX value="No"/>
+  <VST3Support value="Yes"/>
+  <VST3Category value="Instrument"/>
+  <UseRawFrontend value="No"/>
+  <ExpansionType value="Disabled"/>
+  <EncryptionKey value="research-facility-hooklab-v0"/>
+</ProjectSettings>

@@ -57,6 +57,28 @@ for b in "$VST3_DIR/Sweet Melody.vst3" "$AU_DIR/Sweet Melody.component"; do
   codesign --force --deep -s - "$b"
 done
 
+# Hook Lab (second plugin, same run) when the run built it
+if gh run download "$RUN" --repo SaintPopola/research-facility -n HookLab-macOS -D "$DL/hooklab" 2>/dev/null; then
+  HL_VST3="$(find "$DL/hooklab" -name 'Hook Lab.vst3' -type d | head -1)"
+  HL_AU="$(find "$DL/hooklab" -name 'Hook Lab.component' -type d | head -1)"
+  if [ -d "$HL_VST3" ] && [ -d "$HL_AU" ]; then
+    for b in "$VST3_DIR/Hook Lab.vst3" "$AU_DIR/Hook Lab.component"; do
+      if [ -e "$b" ]; then ditto "$b" "$BK/$(basename "$b")"; rm -rf "$b"; fi
+    done
+    ditto "$HL_VST3" "$VST3_DIR/Hook Lab.vst3"
+    ditto "$HL_AU" "$AU_DIR/Hook Lab.component"
+    for b in "$VST3_DIR/Hook Lab.vst3" "$AU_DIR/Hook Lab.component"; do
+      xattr -dr com.apple.quarantine "$b" 2>/dev/null || true
+      codesign --force --deep -s - "$b"
+    done
+    echo "== Hook Lab installed"
+  else
+    echo "== Hook Lab artifact incomplete, skipped"
+  fi
+else
+  echo "== no Hook Lab artifact in run $RUN"
+fi
+
 # Samples must live OUTSIDE ~/Desktop: macOS privacy (TCC) blocks a plug-in's
 # first file open there behind an "access your Desktop folder" prompt (the host
 # hangs until someone answers). Copy as APFS clones (cp -c): no extra disk space.
@@ -95,3 +117,4 @@ killall -9 AudioComponentRegistrar 2>/dev/null || true
 sleep 2
 echo "== auval"
 auval -v aumu Rfac Rfac -strict | tail -25
+[ -d "$AU_DIR/Hook Lab.component" ] && { echo "== auval Hook Lab"; auval -v aumu Hklb Rfac -strict | tail -8; }
