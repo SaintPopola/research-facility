@@ -1339,18 +1339,34 @@ const var OutPanel = Content.addPanel("OutPanel", LAYOUT.out[0], LAYOUT.out[1]);
 Content.setPropertiesFromJSON("OutPanel", {"width": LAYOUT.out[2], "height": LAYOUT.out[3],
     "allowCallbacks": "Clicks & Hover", "saveInPreset": false});
 OutPanel.data.hot = false;
+OutPanel.data.down = false;
+OutPanel.loadImage("{PROJECT_FOLDER}vm_push_red_2x.png", "push");     // 48x96: up, down
 OutPanel.setPaintRoutine(function(g)
 {
     g.setColour(T.txt);
     g.setFontWithSpacing(T.BOLD, 9, 0.1);
     g.drawAlignedText("PREVIEW", [0, 494, 70, 10], "centred");
-    drawPush(g, 23, 506, 24, this.data.hot, S.mode == 0);
+    if (this.isImageLoaded("push"))
+    {
+        if (S.mode != 0) g.setOpacity(0.45);
+        g.drawImage("push", [23, 506, 24, 24], 0, this.data.down ? 48 : 0);
+        if (S.mode != 0) g.setOpacity(1.0);
+        if (this.data.hot && S.mode == 0)
+        {
+            g.setColour(Colours.withAlpha(T.accent, 0.35));
+            g.drawEllipse([21, 504, 28, 28], 1.2);
+        }
+    }
+    else
+        drawPush(g, 23, 506, 24, this.data.hot, S.mode == 0);
 });
 OutPanel.setMouseCallback(function(event)
 {
     var inBtn = event.x >= 21 && event.x < 49 && event.y >= 504 && event.y < 532;
     if (event.clicked && inBtn && S.mode == 0) previewCurrent();
-    if (event.mouseUp) refocusKeys();
+    var dn = event.mouseDown && inBtn && S.mode == 0;
+    if (dn != this.data.down) { this.data.down = dn; this.repaint(); }
+    if (event.mouseUp) { refocusKeys(); if (this.data.down) { this.data.down = false; this.repaint(); } }
     if (inBtn != this.data.hot)
     {
         this.data.hot = inBtn;

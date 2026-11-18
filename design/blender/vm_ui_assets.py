@@ -580,6 +580,61 @@ def build_knob_strip(out, kind, frame_px, logical, radius_px, frames=16):
     print("VM strip written", out)
 
 
+def sprite_scene(w_px, h_px, w_logical):
+    sc = fresh_scene(w_px, h_px, samples=512)
+    sc.cycles.use_denoising = False
+    sc.render.film_transparent = True
+    sc.render.image_settings.color_mode = "RGBA"
+    sc.render.filter_size = 1.0
+    ortho_camera(w_logical)
+    vm_rig()
+    bpy.ops.mesh.primitive_plane_add(size=1.0, location=(0, 0, 0))
+    bpy.context.active_object.is_shadow_catcher = True
+    return sc
+
+
+ROCKER_COLS = ["#E06A26", "#3F7BAA", "#E2DCCB", "#F09048"]
+
+
+def build_rockers(out):
+    """vm_rocker_2x: 8 frames of 72x40 (36x20 logical): orange, blue, cream, faded orange,
+    each OFF (20% darker, matte, top end down) then ON (glossy, faint glow, top end up into
+    the key light). Paddle 2.1:1 in a thin black bezel lip."""
+    sc = sprite_scene(72, 40, 36)
+    bezel = bsdf("VM_Bezel", srgb("#0B0B0C"), rough=0.5)
+    box("Lip", 0, 0, 35 * PX, 19 * PX, 0.002, 0.0, bezel, bevel=0.0004)
+    os.makedirs(out, exist_ok=True)
+    k = 0
+    for c in ROCKER_COLS:
+        base = srgb(c)
+        for on in (0, 1):
+            m = (bsdf(f"On{k}", base, rough=0.22, coat=0.4, coat_rough=0.08, emit=base, emit_strength=0.08) if on
+                 else bsdf(f"Off{k}", (base[0] * 0.8, base[1] * 0.8, base[2] * 0.8, 1.0), rough=0.6))
+            o = box(f"Paddle{k}", 0, 0, 33 * PX, 15.7 * PX, 0.004, 0.002, m, bevel=0.0010)
+            o.rotation_euler.x = math.radians(14 if on else -8)
+            sc.render.filepath = os.path.join(out, f"{k:04d}.png")
+            bpy.ops.render.render(write_still=True)
+            bpy.data.objects.remove(o, do_unlink=True)
+            k += 1
+    print("VM strip written", out)
+
+
+def build_push(out):
+    """vm_push_red_2x: 2 frames of 48x48 (24 logical): up, then down (3.5 mm travel, darker)."""
+    sc = sprite_scene(48, 48, 24)
+    ring = bsdf("VM_Ring", srgb("#C9CCCF"), rough=0.3, metallic=1.0)
+    cyl("PushRing", 0, 0, 11.2 * PX, 0.003, 0.0, ring, verts=96)
+    os.makedirs(out, exist_ok=True)
+    for k, down in enumerate((0, 1)):
+        m = (bsdf("PushDn", srgb("#A42816"), rough=0.26, coat=0.5, coat_rough=0.08) if down
+             else bsdf("PushUp", srgb("#C8321C"), rough=0.2, coat=0.6, coat_rough=0.05))
+        o = cyl("Push", 0, 0, 8.8 * PX, 0.008 - 0.0035 * down, 0.002, m, verts=96, dome=0.0008)
+        sc.render.filepath = os.path.join(out, f"{k:04d}.png")
+        bpy.ops.render.render(write_still=True)
+        bpy.data.objects.remove(o, do_unlink=True)
+    print("VM strip written", out)
+
+
 STRIPS = {
     "knob_l":   ("fluted", 144, 72, 28),      # serves XL (72) and L (56)
     "knob_s":   ("fluted", 72, 36, 14),       # S (36)
@@ -594,6 +649,10 @@ if __name__ == "__main__":
     out_dir = argv[1] if len(argv) > 1 else os.path.expanduser("~/CBR_previews")
     if what == "swatch":
         build_swatch(out_dir)
+    elif what == "rocker":
+        build_rockers(os.path.join(out_dir, "rocker"))
+    elif what == "push_red":
+        build_push(os.path.join(out_dir, "push_red"))
     elif what in STRIPS:
         kind, fpx, logical, rad = STRIPS[what]
         build_knob_strip(os.path.join(out_dir, what), kind, fpx, logical, rad)

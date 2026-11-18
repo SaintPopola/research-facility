@@ -30,16 +30,34 @@ def edge_fade(im, r_in=0.84, r_out=0.93):
     return Image.fromarray(a.round().astype(np.uint8), "RGBA")
 
 
+def rect_fade(im, px=3):
+    """Linear alpha fade over the last `px` pixels of a rectangular sprite."""
+    a = np.asarray(im).astype(np.float64)
+    h, w = a.shape[:2]
+    yy, xx = np.mgrid[0:h, 0:w]
+    d = np.minimum(np.minimum(xx, w - 1 - xx), np.minimum(yy, h - 1 - yy))
+    a[:, :, 3] *= np.clip((d - 1.0) / px, 0.0, 1.0)
+    return Image.fromarray(a.round().astype(np.uint8), "RGBA")
+
+
+SPRITES = {"rocker": 8, "push_red": 2}        # non-periodic sprite sheets: frame count
+
+
 def stitch(frames_dir, asset, n=16):
     src = Path(frames_dir) / asset
-    fr = [edge_fade(Image.open(src / f"{k:04d}.png").convert("RGBA")) for k in range(n + 1)]
+    if asset in SPRITES:
+        n = SPRITES[asset]
+        fr = [rect_fade(Image.open(src / f"{k:04d}.png").convert("RGBA")) for k in range(n)]
+        fr.append(fr[0])                        # no seam to check
+    else:
+        fr = [edge_fade(Image.open(src / f"{k:04d}.png").convert("RGBA")) for k in range(n + 1)]
     w, h = fr[0].size
     a0 = np.asarray(fr[0], dtype=np.float64) / 255.0
     a16 = np.asarray(fr[n], dtype=np.float64) / 255.0
     mad = float(np.abs(a0 - a16).mean())
     alpha = np.asarray(fr[0])[:, :, 3]
     ys, xs = np.nonzero(alpha > 2)
-    margin_ok = xs.min() >= 2 and ys.min() >= 2 and xs.max() <= w - 3 and ys.max() <= h - 3
+    margin_ok = xs.min() >= 1 and ys.min() >= 1 and xs.max() <= w - 2 and ys.max() <= h - 2
     sheet = Image.new("RGBA", (w, h * n), (0, 0, 0, 0))
     for k in range(n):
         sheet.paste(fr[k], (0, k * h))

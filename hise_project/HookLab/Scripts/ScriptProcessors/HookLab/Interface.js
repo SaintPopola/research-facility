@@ -107,6 +107,19 @@ inline function drawLed(g, r, text, font)
 
 inline function drawPush(g, x, y, d, hot, enabled)
 {
+    // sprite when the drawing panel loaded "push" (docs/28 vm_push_red_2x), else vector
+    if (PushPanels.indexOf(PushCur) >= 0 && PushCur.isImageLoaded("push"))
+    {
+        if (!enabled) g.setOpacity(0.45);
+        g.drawImage("push", [Math.round(x), Math.round(y), d, d], 0, 0);
+        if (!enabled) g.setOpacity(1.0);
+        if (hot && enabled)
+        {
+            g.setColour(Colours.withAlpha(T.accent, 0.35));
+            g.drawEllipse([x - 2, y - 2, d + 4, d + 4], 1.2);
+        }
+        return;
+    }
     if (!enabled) g.setOpacity(0.45);
     g.setColour(0x80000000);
     g.fillEllipse([x - 2, y - 1, d + 4, d + 4]);
@@ -140,6 +153,9 @@ inline function rackPlate(g, r, title)
     g.setFontWithSpacing(T.SUB, 11, 0.12);
     g.drawAlignedText(title, [r[0] + 20, r[1] + 4, r[2] - 40, 16], "centred");
 }
+
+reg PushCur = 0;                              // the panel whose paint routine is running
+const var PushPanels = [];
 
 // ============================================================================
 // KNOBS: K2 collet (continuous) and K3 pointer (stepped) per docs/28b
@@ -248,8 +264,11 @@ Bg.setPaintRoutine(function(g)
 const var Header = Content.addPanel("Header", 36, 16);
 Content.setPropertiesFromJSON("Header", {"width": 1128, "height": 52, "allowCallbacks": "Clicks & Hover", "saveInPreset": false});
 const var PK_X = [790, 848, 906, 964];
+PushPanels.push(Header);
+Header.loadImage("{PROJECT_FOLDER}vm_push_red_2x.png", "push");
 Header.setPaintRoutine(function(g)
 {
+    PushCur = Header;
     var hv = S.hover;
     g.setGradientFill([0xFFDCDEE0, 20, 11, T.aluDark, 20, 41, false]);
     g.fillRoundedRectangle([20, 11, 200, 30], 3.0);
@@ -341,8 +360,11 @@ const var SeedsKnob = addKnob("SeedsKnob", "SEEDS", 700, 176, 56, 1, 4, 4, 1, "H
 StyleKnob.set("stepSize", 1);
 
 const var HOOK_TILES_Y = 498;
+PushPanels.push(HookPage);
+HookPage.loadImage("{PROJECT_FOLDER}vm_push_red_2x.png", "push");
 HookPage.setPaintRoutine(function(g)
 {
+    PushCur = HookPage;
     rackPlate(g, [0, 0, 650, 330], "LYRICS");
     drawCard(g, [16, 44, 620, 230]);
     g.setColour(T.cardDim);
