@@ -845,8 +845,8 @@ inline function drawCapPill(g, r, text, on, hot)
 
 inline function layoutBrowser()
 {
-    local labels = ["ALL"];
-    local idx = [-1];
+    local labels = ["ALL", "REGGAETON"];
+    local idx = [-1, -2];
     local i = 0;
     for (i = 0; i < FACTORY_CAT_LABELS.length; i++)
     {
@@ -913,6 +913,10 @@ inline function buildList()
         if (S.cat >= 0)
         {
             if (p.cat != FACTORY_CATS[S.cat]) continue;
+        }
+        else if (S.cat == -2)
+        {
+            if (!isReggaeton(p.tags)) continue;
         }
         else if (p.cat == "archive" && !searching && !S.fav && S.vibe == "")
         {
@@ -1186,8 +1190,8 @@ Header.setMouseCallback(function(event)
         }
         else if (S.mode == 1)
         {
-            if (h == "prev") loadKit((S.kit + LOOP_KITS.length - 1) % LOOP_KITS.length);
-            else if (h == "next") loadKit((S.kit + 1) % LOOP_KITS.length);
+            if (h == "prev") kitStep(-1);
+            else if (h == "next") kitStep(1);
         }
         else if (h == "prev") stepPreset(-1);
         else if (h == "next") stepPreset(1);
@@ -1395,9 +1399,35 @@ OutPanel.setMouseCallback(function(event)
 // ============================================================================
 // loop kit list: a 7-row window that follows the loaded kit (packs can add many kits)
 const var KIT_ROW = 42;
+// REGGAETON is a top-level category in every browser (user, 2026-11-18): it groups these tags
+const var REG_TAGS = ["reggaeton", "dembow", "perreo", "latin-trap", "moombahton", "neoperreo"];
+inline function isReggaeton(tags)
+{
+    local t = 0;
+    for (t = 0; t < REG_TAGS.length; t++)
+        if (tags.indexOf(REG_TAGS[t]) >= 0) return true;
+    return false;
+}
+const var KIT_VIEW = [];                 // indices into LOOP_KITS shown in the kit drawer
+S.kitReg = false;
+inline function buildKitView()
+{
+    local i = 0;
+    KIT_VIEW.clear();
+    for (i = 0; i < LOOP_KITS.length; i++)
+        if (!S.kitReg || isReggaeton(LOOP_KITS[i].tags)) KIT_VIEW.push(i);
+    if (KIT_VIEW.length == 0) for (i = 0; i < LOOP_KITS.length; i++) KIT_VIEW.push(i);
+}
+buildKitView();
 inline function kitVis()
 {
-    return Math.min(LOOP_KITS.length, 7);
+    return Math.min(KIT_VIEW.length, 7);
+}
+inline function kitStep(d)
+{
+    local pos = KIT_VIEW.indexOf(S.kit);
+    local n = KIT_VIEW.length;
+    loadKit(KIT_VIEW[pos < 0 ? 0 : (pos + d + n) % n]);
 }
 
 const var Browser = Content.addPanel("Browser", LAYOUT.drawer[0], LAYOUT.drawer[1]);
@@ -1414,19 +1444,20 @@ Browser.setPaintRoutine(function(g)
         g.setFontWithSpacing(T.FONT, 9, 0.18);
         g.drawAlignedText("LOOP KITS", [16, 14, 120, 14], "left");
         var kvis = kitVis();
-        S.kitTop = Math.round(Math.range(S.kitTop, 0, Math.max(0, LOOP_KITS.length - kvis)));   // Math.range returns a double: "1.0-7.0"
-        if (LOOP_KITS.length > kvis)
+        S.kitTop = Math.round(Math.range(S.kitTop, 0, Math.max(0, KIT_VIEW.length - kvis)));   // Math.range returns a double: "1.0-7.0"
+        drawCapPill(g, [96, 10, 80, 20], "REGGAETON", S.kitReg, S.hoverItem == "kreg");
+        if (KIT_VIEW.length > kvis)
         {
             g.setColour(T.dim);
             g.fillPath(ARROW_L, [184, 15, 6, 10]);
             g.fillPath(ARROW_R, [236, 15, 6, 10]);
             g.setFont(T.FONT, 9);
-            g.drawAlignedText((S.kitTop + 1) + "-" + (S.kitTop + kvis) + "/" + LOOP_KITS.length, [192, 12, 42, 16], "centred");
+            g.drawAlignedText((S.kitTop + 1) + "-" + (S.kitTop + kvis) + "/" + KIT_VIEW.length, [192, 12, 42, 16], "centred");
         }
         var kr = 0;
         for (kr = 0; kr < kvis; kr++)
         {
-            k = S.kitTop + kr;
+            k = KIT_VIEW[S.kitTop + kr];
             var kt = LOOP_KITS[k];
             var rowY = 36 + kr * KIT_ROW;
             var kon = (k == S.kit);
@@ -1579,7 +1610,7 @@ Browser.setPaintRoutine(function(g)
     g.setColour(T.dim);
     g.setFontWithSpacing(T.FONT, 9, 0.12);
     g.drawAlignedText(S.list.length + " SOUNDS", [14, 494, 120, 20], "left");
-    var filtered = (S.cat >= 0 || S.vibe != "" || S.fav || S.query != "");
+    var filtered = (S.cat != -1 || S.vibe != "" || S.fav || S.query != "");
     if (filtered)
     {
         g.setColour(S.hoverItem == "clear" ? T.txt : T.accent);
@@ -1660,14 +1691,23 @@ Browser.setMouseCallback(function(event)
     if (S.mode == 1)
     {
         var kv = kitVis();
-        if (event.clicked && event.y >= 10 && event.y < 30 && event.x >= 176 && LOOP_KITS.length > kv)
+        var onReg = event.y >= 10 && event.y < 30 && event.x >= 96 && event.x < 176;
+        if (onReg != (S.hoverItem == "kreg")) { S.hoverItem = onReg ? "kreg" : ""; this.repaint(); }
+        if (event.clicked && onReg)
         {
-            if (event.x < 213) S.kitTop = Math.max(0, S.kitTop - kv);
-            else S.kitTop = Math.min(LOOP_KITS.length - kv, S.kitTop + kv);
+            S.kitReg = !S.kitReg;
+            buildKitView();
+            S.kitTop = 0;
             this.repaint();
         }
-        else if (event.clicked && event.y >= 36 && event.y < 36 + kv * KIT_ROW)
-            loadKit(S.kitTop + Math.floor((event.y - 36) / KIT_ROW));
+        else if (event.clicked && event.y >= 10 && event.y < 30 && event.x >= 176 && KIT_VIEW.length > kv)
+        {
+            if (event.x < 213) S.kitTop = Math.max(0, S.kitTop - kv);
+            else S.kitTop = Math.min(KIT_VIEW.length - kv, S.kitTop + kv);
+            this.repaint();
+        }
+        else if (event.clicked && event.y >= 36 && event.y < 36 + kv * KIT_ROW && S.kitTop + Math.floor((event.y - 36) / KIT_ROW) < KIT_VIEW.length)
+            loadKit(KIT_VIEW[S.kitTop + Math.floor((event.y - 36) / KIT_ROW)]);
         else
         {
             var lly = 36 + kv * KIT_ROW + 14;
@@ -4530,8 +4570,9 @@ inline function loadKit(i)
     if (i < 0 || i >= LOOP_KITS.length) return;
     local kit = LOOP_KITS[i];
     S.kit = i;
-    if (i < S.kitTop) S.kitTop = i;
-    if (i >= S.kitTop + kitVis()) S.kitTop = i - kitVis() + 1;
+    local vp = KIT_VIEW.indexOf(i);
+    if (vp >= 0 && vp < S.kitTop) S.kitTop = vp;
+    if (vp >= 0 && vp >= S.kitTop + kitVis()) S.kitTop = vp - kitVis() + 1;
     KitKey.setValue(kit.id);
     if (S.mode == 1) buildVD(kitLookOf(kit));
     if (LoopSampler.getCurrentSampleMapId() != kit.map)
@@ -4853,6 +4894,15 @@ inline function selfTest()
     if (findPreset("velvet_strings") < 0 || FACTORY_BANK[findPreset("velvet_strings")].id != "bowed_metal") { ok = false; Console.print("RF selftest retired alias"); }
     if (TEMPO_Q < 0) ok = false;
     if (tempoIndex("1/8D") < 0) ok = false;
+    // REGGAETON category: LIBRARY pill right after ALL, group matching, kit view
+    if (PILLS[1][0] != "REGGAETON" || PILLS[1][1] != -2 || !isReggaeton(["latin-trap"]) || isReggaeton(["house"])) { ok = false; Console.print("RF selftest reggaeton pill"); }
+    S.cat = -2;
+    buildList();
+    local regN = S.list.length;
+    S.cat = -1;
+    buildList();
+    if (regN < 1 || regN >= S.list.length) { ok = false; Console.print("RF selftest reggaeton filter " + regN); }
+    if (KIT_VIEW.length != LOOP_KITS.length) { ok = false; Console.print("RF selftest kit view"); }
     // docs/28 step 9: every top-level component inside 1200 x 800, Silk titles for every state
     local allc = Content.getAllComponents(".*");
     for (ms = 0; ms < allc.length; ms++)

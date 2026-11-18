@@ -265,17 +265,24 @@ inline function smpLoadIndex()
         local gk = 0;
         for (gk = 0; gk < it.g.length; gk++) gc[it.g[gk]] = gc[it.g[gk]] + 1;
     }
-    // GENRE chips: the 9 most common genres
-    SM.topGenres = [];
-    SM.genreOn = [];
+    // GENRE chips: REGGAETON first (a group of genres, user 2026-11-18), then the 8 most common
+    SM.topGenres = [-1];
+    SM.genreOn = [0];
+    SM.regGenres = [];
+    for (i = 0; i < SM.genres.length; i++)
+    {
+        local gl = ("" + SM.genres[i]).toLowerCase().replace(" ", "-");
+        if (gl.indexOf("reggaeton") >= 0 || gl.indexOf("dembow") >= 0 || gl.indexOf("perreo") >= 0 || gl.indexOf("latin-trap") >= 0 || gl.indexOf("moombah") >= 0)
+            SM.regGenres.push(i);
+    }
     local pick = 0;
-    for (pick = 0; pick < 9; pick++)
+    for (pick = 0; pick < 8; pick++)
     {
         local best = -1;
         local bc = 0;
         for (i = 0; i < gc.length; i++)
         {
-            if (gc[i] > bc && SM.topGenres.indexOf(i) < 0) { best = i; bc = gc[i]; }
+            if (gc[i] > bc && SM.topGenres.indexOf(i) < 0 && SM.regGenres.indexOf(i) < 0) { best = i; bc = gc[i]; }
         }
         if (best < 0) break;
         SM.topGenres.push(best);
@@ -381,7 +388,16 @@ inline function smpPass(ix)
     {
         local hit = false;
         for (j = 0; j < SM.topGenres.length; j++)
-            if (SM.genreOn[j] == 1 && it.g.indexOf(SM.topGenres[j]) >= 0) hit = true;
+        {
+            if (SM.genreOn[j] != 1) continue;
+            if (SM.topGenres[j] == -1)
+            {
+                local rg = 0;
+                for (rg = 0; rg < SM.regGenres.length; rg++)
+                    if (it.g.indexOf(SM.regGenres[rg]) >= 0) hit = true;
+            }
+            else if (it.g.indexOf(SM.topGenres[j]) >= 0) hit = true;
+        }
         if (!hit) return false;
     }
     if (SM.fitKey && SM.songRoot >= 0 && it.key >= 0 && Math.abs(smpShift(it) - SM.semi - SM.oct * 12) > 2) return false;
@@ -1043,7 +1059,7 @@ SmpRail.setPaintRoutine(function(g)
 
     for (k = 0; k < SM.topGenres.length; k++)
     {
-        var gname = SM.genres[SM.topGenres[k]].toUpperCase();
+        var gname = SM.topGenres[k] == -1 ? "REGGAETON" : SM.genres[SM.topGenres[k]].toUpperCase();
         if (gname.length > 11) gname = gname.substring(0, 10) + ".";
         smpPill(g, [12 + (k % 3) * 78, 208 + Math.floor(k / 3) * 26, 74, 22], gname, SM.genreOn[k] == 1, hv == "ge" + k);
     }

@@ -65,7 +65,8 @@ const var STEMS = [["lead", "LEAD"], ["dry", "DRY"], ["bed", "BED"], ["dbl", "DO
 // list replaces these, including its language and chain defaults)
 reg GENRES = [
     {"id": "hiphop", "label": "HIP-HOP / RAP", "genres": [["boom_bap", "BOOM BAP", 90], ["lofi", "LO-FI", 82], ["halftime_trap", "HALF-TIME TRAP", 140], ["melodic_trap", "MELODIC TRAP", 145], ["rage", "RAGE", 155], ["plugg", "PLUGG", 150], ["drill", "DRILL", 142], ["cloud", "CLOUD", 130], ["emo_rap", "EMO RAP", 135]]},
-    {"id": "latin", "label": "CARIBBEAN / LATIN / AFRO", "genres": [["dancehall", "DANCEHALL", 96], ["one_drop", "REGGAE ONE DROP", 76], ["roots", "ROOTS", 72], ["dub", "DUB", 70], ["reggaeton", "REGGAETON", 92], ["dembow", "DEMBOW", 120], ["perreo", "PERREO", 95], ["latin_trap", "LATIN TRAP", 140], ["cumbia", "CUMBIA", 96], ["bachata", "BACHATA", 128], ["afrobeats", "AFROBEATS", 106], ["amapiano", "AMAPIANO", 113]]},
+    {"id": "reggaeton", "label": "REGGAETON", "genres": [["reggaeton", "REGGAETON", 92], ["perreo", "PERREO", 95], ["old_school_perreo", "OLD-SCHOOL PERREO", 96], ["reggaeton_romantico", "REGGAETON ROMANTICO", 88], ["dembow", "DEMBOW", 120], ["neoperreo", "NEOPERREO", 100], ["latin_trap", "LATIN TRAP", 140], ["moombahton", "MOOMBAHTON", 108]]},
+    {"id": "caribbean", "label": "CARIBBEAN / AFRO", "genres": [["dancehall", "DANCEHALL", 96], ["reggae", "REGGAE", 76], ["dub", "DUB", 70], ["lovers_rock", "LOVERS ROCK", 76], ["cumbia", "CUMBIA", 96], ["bachata", "BACHATA", 128], ["afrobeats", "AFROBEATS", 106], ["afro_swing", "AFRO-SWING", 100], ["amapiano", "AMAPIANO", 113]]},
     {"id": "brazil", "label": "BRAZIL", "genres": [["br_phonk", "BRAZILIAN PHONK", 130], ["baile_funk", "BAILE FUNK", 130], ["brega_funk", "BREGA FUNK", 160], ["mpb", "MPB", 96], ["bossa", "BOSSA", 120]]},
     {"id": "indie", "label": "INDIE / ELECTRONIC", "genres": [["indie_pop", "INDIE POP", 118], ["bedroom", "BEDROOM", 100], ["dream_pop", "DREAM POP", 104], ["shoegaze", "SHOEGAZE", 110], ["garage_rock", "GARAGE ROCK", 140], ["surf_punk", "SURF PUNK", 160], ["post_punk", "POST-PUNK", 140], ["folk", "FOLK", 96], ["synth_pop", "SYNTH-POP", 118], ["disco_pop", "DISCO-POP", 120], ["house", "HOUSE", 124], ["ukg", "UK GARAGE", 132], ["electro", "ELECTRO", 125]]},
     {"id": "rnb", "label": "R&B / SOUL", "genres": [["midnight_halftime", "MIDNIGHT HALF-TIME", 68], ["gospel_piano", "GOSPEL PIANO", 72], ["afro_soul", "AFRO-SOUL SWAY", 100], ["night_sway", "NIGHT SWAY", 88], ["afro_house_soul", "AFTER-HOURS AFRO", 120], ["night_drive_80s", "80S NIGHT DRIVE", 104], ["soul_vamp", "SOUL VAMP", 84], ["stacked_heat", "STACKED HEAT", 96], ["alt_soul_lowlight", "ALT-SOUL LOW LIGHT", 74], ["night_call_answer", "CALL AND ANSWER", 92]]}
@@ -307,7 +308,7 @@ const var LangKnob = addKnob("LangKnob", "LANG", 330, 190, 0, 1, 0, 1, "Core");
 const var KeyKnob = addKnob("KeyKnob", "KEY", 528, 54, 0, 11, 9, 1, "Core");
 const var ScaleKnob = addKnob("ScaleKnob", "SCALE", 590, 54, 0, 1, 1, 1, "Core");
 const var BarsKnob = addKnob("BarsKnob", "BARS", 652, 54, 0, 3, 1, 1, "Core");
-const var FamilyKnob = addKnob("FamilyKnob", "FAMILY", 400, 144, 0, 4, 4, 1, "Core");
+const var FamilyKnob = addKnob("FamilyKnob", "FAMILY", 400, 144, 0, 5, 1, 1, "Core");      // opens on REGGAETON
 const var GenreKnob = addKnob("GenreKnob", "GENRE", 462, 144, 0, 9, 0, 1, "Core");
 const var SeedsKnob = addKnob("SeedsKnob", "TAKES", 676, 144, 1, 4, 4, 1, "Core");
 
@@ -821,13 +822,14 @@ inline function selfTest()
     Lyrics.set("text", "Dime si tu me quieres\n[en] say it one more time");
     local j = buildJob();
     if (j.lines.length != 2 || j.lines[1].lang != "en" || j.lines[0].lang != "es") { ok = false; Console.print("HL selftest lyric lines"); }
-    if (j.key != "A" || j.scale != "minor" || j.bars != 8 || j.n_seeds != 4 || j.family != "rnb") { ok = false; Console.print("HL selftest job defaults"); }
+    if (j.key != "A" || j.scale != "minor" || j.bars != 8 || j.n_seeds != 4 || j.family != "reggaeton" || j.genre != "reggaeton") { ok = false; Console.print("HL selftest job defaults"); }
     if (JSON.stringify(j).indexOf("\"genre\"") < 0) ok = false;
+    FamilyKnob.setValue(2);
+    onFamily(FamilyKnob, 2);
+    if (GenreKnob.get("max") != 8 || curGenre()[0] != "dancehall") { ok = false; Console.print("HL selftest genre family"); }
     FamilyKnob.setValue(1);
     onFamily(FamilyKnob, 1);
-    if (GenreKnob.get("max") != 11 || curGenre()[0] != "dancehall") { ok = false; Console.print("HL selftest genre family"); }
-    FamilyKnob.setValue(4);
-    onFamily(FamilyKnob, 4);
+    if (GenreKnob.get("max") != 7 || curGenre()[0] != "reggaeton") { ok = false; Console.print("HL selftest reggaeton family"); }
     local allc = Content.getAllComponents(".*");
     local i = 0;
     for (i = 0; i < allc.length; i++)
