@@ -17,7 +17,27 @@
    - Graphics.drawLine is (x1, x2, y1, y2, thickness)
    ============================================================================ */
 
-Content.makeFrontInterface(1024, 700);
+Content.makeFrontInterface(1200, 800);
+
+// docs/28 vintage panel: every window origin lives here (1200 x 800). Panel sizes are
+// unchanged from the 1024 x 700 layout, so all panel-local paint and hit code survives.
+const var LAYOUT = {
+    "header":   [36, 16, 1128, 52],
+    "drawer":   [58, 78, 256, 520],
+    "search":   [98, 93],
+    "bezel":    [344, 72, 736, 308],
+    "vis":      [352, 80],
+    "macro":    [352, 388],
+    "page":     [352, 72],
+    "smpSearch":[76, 107],
+    "smpRes":   [352, 72],
+    "smpAud":   [352, 452],
+    "out":      [1090, 72, 70, 532],
+    "outMeter": [1090, 76, 70, 420],
+    "silk":     [36, 606, 1128, 26],
+    "wheels":   [40, 652, 124, 132],
+    "keys":     [172, 656, 986, 124]
+};
 Synth.deferCallbacks(true);      // MIDI callbacks on the UI thread (visuals only)
 
 include("FactoryBank.js");
@@ -28,98 +48,119 @@ include("BuildInfo.js");       // BUILD_SHA: stamped by CI, "dev" in a local che
 
 
 // ============================================================================
-// DESIGN TOKENS  -  "Porcelain Lab" light theme (Sweet Melody v0.3)
-// Porcelain field, graphite touch, glass signal, colour = meaning.
-// One light, top-left. Ratios are WCAG 2.x against the named token, computed
-// from these exact hex values. Legacy keys (bg s1 s2 s3 line lineHi txt dim
-// faint accent accentHi warn heart FONT BOLD) keep their names so the v0.2
-// paint code still compiles during the port; their meaning is now LIGHT.
+// DESIGN TOKENS  -  docs/28 vintage presentation panel (replaces Porcelain Lab)
+// Black etched panel, warm-white silkscreen, amber lamps, cream patch cards, wood
+// cheeks. One key light from the upper left. Ratios are WCAG 2.x against panel bg
+// unless named. Key names are unchanged so every T.* use restyles in place.
 // ============================================================================
 const var T = {
-    // ---- porcelain surfaces (no pure white on large areas)
-    "bg":        0xFFD3D9DF,   // L0 shell face; flat, or bgHi -> bgLo satin gradient (outer shell only)
-    "bgHi":      0xFFE2E7EC,   // shell gradient top
-    "bgLo":      0xFFCBD2D9,   // shell gradient bottom
-    "s1":        0xFFE5E9ED,   // L1 module card face, flat (1.17:1 vs bg: every card carries a tape + 1px line)
-    "s2":        0xFFEFF2F5,   // raised: pills, small buttons, active tab, selected list row
-    "s3":        0xFFF6F8FA,   // hover and tiny highlights only (glare limit)
-    "well":      0xFFD6DBE1,   // L-1 recessed: fields, inactive tabs, fader slots (pair with bevelDark / bevelLight)
-    "line":      0xFFC2C9D0,   // decorative hairline + knob track ring (1.37:1 s1: decoration only)
-    "lineHi":    0xFF6F7882,   // outline that IDENTIFIES a control: slots, pills, toggles (3.67:1 s1 | 3.15:1 bg)
+    // ---- panel and surfaces
+    "bg":        0xFF1E1D1B,   // panel base
+    "bgHi":      0xFF292725,   // top-lit band (tilt cue)
+    "bgLo":      0xFF161514,
+    "s1":        0x001E1D1B,   // transparent on purpose: leftover card fills vanish, the panel shows
+    "s2":        0xFF2A2826,
+    "s3":        0xFF34312E,
+    "well":      0xFF0E0D0C,
+    "line":      0xFF5A564D,   // 2.30, decorative hairlines and dividers only
+    "lineHi":    0xFF7D786C,   // 3.83, outlines that identify a control
 
-    // ---- ink on porcelain
-    "txt":       0xFF1C2127,   // titles, values, selected rows       13.28:1 s1 | 11.39:1 bg
-    "dim":       0xFF444C56,   // knob and fader labels                 7.13:1 s1 |  6.25:1 well
-    "faint":     0xFF575F69,   // units, captions                       5.30:1 s1 |  4.55:1 bg (prefer cards)
-    "mute":      0xFF9AA2AB,   // disabled controls only (2.12:1, WCAG-exempt), never a live label
+    // ---- silkscreen ink
+    "txt":       0xFFE8E4D8,   // 13.25 (never pure white)
+    "dim":       0xFFB5AF9F,   // 7.70 scale numerals, secondary labels
+    "faint":     0xFF8E887B,   // 4.78 units and captions
+    "mute":      0xFF55514A,   // disabled only
 
-    // ---- the one accent: Melody Cyan (values, selection, macros, current page)
-    "accent":    0xFF007488,   // value arcs, curves, selection bars    4.47:1 s1 | 3.26:1 vs line track
-    "accentHi":  0xFF0089A0,   // hover / drag state of accent graphics (3.38:1 s1; hover is exempt)
-    "accentInk": 0xFF006272,   // accent TEXT and values on porcelain   5.76:1 s1 | 5.04:1 well
-    "onAccent":  0xFFFFFFFF,   // text or icon on an accent fill        5.45:1
-    "glow":      0xFF3FE3F2,   // accent inside glass only              11.55:1 glass (1.28:1 on s1: banned there)
-    "glowCore":  0xFFA8F7FF,   // hot core of meters / lit LEDs in glass 14.92:1
-    "accentOnFrame": 0xFF4CD3E6, // accent on graphite frame and tapes  8.30:1 frame | 5.86:1 tape
+    // ---- amber accent (lamps, selection, live rings)
+    "accent":    0xFFF2A93B,   // 8.43
+    "accentHi":  0xFFFFBE4D,
+    "accentInk": 0xFFFFBE4D,   // 11.77 on well, hover values
+    "onAccent":  0xFF1A1208,
+    "glow":      0xFF3FE3F2,   // inside glass only
+    "glowCore":  0xFFA8F7FF,
+    "accentOnFrame": 0xFFF2A93B,
 
-    // ---- graphite: frame (top bar, status bar, keybed), tapes, caps
-    "frame":     0xFF24282E,   // top bar 52px, keybed surround
-    "frameHi":   0xFF353B43,   // active page key, raised key on frame, LED off state
-    "frameDeep": 0xFF1A1D21,   // status bar, 1px frame edges
-    "onFrame":   0xFFE6E9EC,   // text on frame                         12.15:1 frame | 13.88:1 frameDeep
-    "onFrameDim":0xFFA7AFB8,   // inactive page keys, secondary text     6.68:1 frame |  5.10:1 frameHi
-    "tape":      0xFF3A4048,   // section header tape (20px)             8.58:1 vs s1 as a shape
-    "onTape":    0xFFF2F4F6,   // tape titles, button labels             9.49:1
-    "onTapeDim": 0xFFB4BCC5,   // inactive tabs on a tape, bypassed titles 5.45:1
-    "cap":       0xFF2E343C,   // graphite knob cap / button base       10.29:1 s1
-    "capHi":     0xFF46505B,   // top of graphite gradients (light from top-left)
-    "pointer":   0xFFFFFFFF,   // pointer on graphite caps              12.56:1 (the only pure-white use)
-    "capLight":  0xFFF6F8FA,   // porcelain key-parameter cap (1.15:1 s1: ALWAYS draw capRing)
-    "capRing":   0xFF23272D,   // 2px ring on porcelain caps            12.30:1 s1 | 14.09:1 capLight
-    "pointerDark":0xFF23272D,  // pointer on porcelain caps
+    // ---- frame, tapes, caps
+    "frame":     0xFF1E1D1B,
+    "frameHi":   0xFF2A2826,
+    "frameDeep": 0xFF121110,
+    "onFrame":   0xFFE8E4D8,
+    "onFrameDim":0xFFB5AF9F,
+    "tape":      0x00000000,   // tapes vanish; their titles read as silk sub-heads
+    "onTape":    0xFFE8E4D8,
+    "onTapeDim": 0xFF8E887B,
+    "cap":       0xFF0C0D0D,   // knob skirt
+    "capHi":     0xFF2A2B2E,
+    "pointer":   0xFFE8E4D8,   // index line
+    "capLight":  0xFFF4F2EC,   // spun aluminium cap light
+    "capRing":   0xFF7F8084,
+    "pointerDark":0xFF0C0D0D,
 
-    // ---- smoked glass (everything animated lives here)
-    "glass":     0xFF13171C,   // display wells, stage, editors, source tiles (gradient glassHi -> glass)
-    "glassHi":   0xFF1C2228,   // top of the glass gradient
-    "glassLine": 0xFF2A3139,   // grid lines inside glass (1.37:1, decorative)
-    "glassDim":  0xFF7F8A96,   // axis labels, secondary text in glass   5.12:1 glass | 4.57:1 glassHi
-    "onGlass":   0xFFE8ECEF,   // primary text in glass                 15.15:1
+    // ---- smoked glass (unchanged: STAGE and CRT insets)
+    "glass":     0xFF13171C,
+    "glassHi":   0xFF1C2228,
+    "glassLine": 0xFF2A3139,
+    "glassDim":  0xFF7F8A96,
+    "onGlass":   0xFFE8ECEF,
 
-    // ---- red LCD readouts, meter states, misc
-    "lcdBg":     0xFF1C0606,   // LCD glass
-    "lcdBezel":  0xFF0D0303,   // 1px LCD bezel
-    "lcdOff":    0xFF3B0F0E,   // ghost (unlit) segments, decorative 1.17:1
-    "lcdText":   0xFFFF5A4E,   // lit segments, peak-hold ticks          6.33:1 lcdBg
-    "warn":      0xFFFFB020,   // meter caution segments, queued loop LED (glass only) 9.84:1
-    "clip":      0xFFFF4A3D,   // clip / overload LED                    5.40:1 glass | 4.44:1 frame
-    "heart":     0xFFB8215F,   // favourite heart on porcelain          5.03:1 s1 (on frame use loopG)
-    "focus":     0xFF0A57CC,   // keyboard focus + valid drag-target ring 5.30:1 s1 | 4.54:1 bg
+    // ---- red LED readouts, meter states (unchanged)
+    "lcdBg":     0xFF1C0606,
+    "lcdBezel":  0xFF0D0303,
+    "lcdOff":    0xFF3B0F0E,
+    "lcdText":   0xFFFF5A4E,   // 6.33 on lcdBg
+    "warn":      0xFFFFB020,
+    "clip":      0xFFFF4A3D,
+    "heart":     0xFFFF4A5E,   // 5.13
+    "focus":     0xFF7AAACF,
 
-    // ---- modulation families: ink = porcelain (rings, labels, fader stripes, tab stripes)
-    //      G = glass (Source Bay tiles, editor curves). Ratios: ink on s1 | G on glass
-    "mPerf":  0xFF5B3EB6, "mPerfG":  0xFFA88CFF,   // VEL AT MW KEY        6.13 | 6.74
-    "mEnv":   0xFF9A3E0A, "mEnvG":   0xFFFF9452,   // AMP ENV2 ENV3        5.61 | 8.23
-    "mLfo":   0xFF1E6935, "mLfoG":   0xFF62E38D,   // LFO 1-4              5.50 | 11.05
-    "mStep":  0xFF735500, "mStepG":  0xFFFFC53D,   // STEP 1-2             5.68 | 11.40
-    "mRand":  0xFF9A1694, "mRandG":  0xFFF27BEC,   // RAND 1-2             5.90 | 7.56
-    "mMacro": 0xFF006272, "mMacroG": 0xFF3FE3F2,   // M1-M8 (= accent)     5.76 | 11.55
-    "loop":   0xFFA02D4B, "loopG":   0xFFFF7092,   // LOOPS page identity, shaper keys 5.79 | 6.84 (5.63 on frame)
+    // ---- modulation families: on black the ink keys take their glass values
+    "mPerf":  0xFFA88CFF, "mPerfG":  0xFFA88CFF,   // 6.30
+    "mEnv":   0xFFFF9452, "mEnvG":   0xFFFF9452,   // 7.71
+    "mLfo":   0xFF62E38D, "mLfoG":   0xFF62E38D,   // 10.34
+    "mStep":  0xFFFFC53D, "mStepG":  0xFFFFC53D,   // 10.67
+    "mRand":  0xFFF27BEC, "mRandG":  0xFFF27BEC,   // 7.07
+    "mMacro": 0xFF3FE3F2, "mMacroG": 0xFF3FE3F2,   // 10.81
+    "loop":   0xFFFF7092, "loopG":   0xFFFF7092,   // 6.40
 
-    // ---- alpha helpers (0xAARRGGBB); shadows are for the static Chrome panel only
-    "shadow":     0x808E97A1,  // 50% cool shadow under raised controls
-    "shadowSoft": 0x2E0F1A2A,  // ~18% ambient card shadow: radius 6, offset [0, 2]
-    "hiLight":    0xD9FFFFFF,  // 85% white: light half of a dual shadow, offset [-3, -3]
-    "bevelDark":  0x59000000,  // 35% black: 1px top edge of wells, glass and LCDs
-    "bevelLight": 0xB3FFFFFF,  // 70% white: 1px bottom lip of wells
-    "sheen":      0x0FFFFFFF,  // 6% white: glass top sheen over the top 30%
-    "cardEdge":   0x8CFFFFFF,  // 55% white: 1px top inner highlight on cards
+    // ---- alpha helpers
+    "shadow":     0x80000000,
+    "shadowSoft": 0x40000000,
+    "hiLight":    0x14FFFFFF,
+    "bevelDark":  0x99000000,
+    "bevelLight": 0x1AFFFFFF,
+    "sheen":      0x0FFFFFFF,
+    "cardEdge":   0x00000000,
 
-    // ---- type. Oxygen pair is HISE-embedded. SM Mono must be registered before the first paint:
-    //      Engine.loadFontAs("{PROJECT_FOLDER}fonts/<OFL mono>.ttf", "SM Mono");
-    //      an unknown id silently falls back to a system font (MainController::getFontFromString).
+    // ---- wood (figured amber lacquer, the user's angled reference; re-pick at the swatch)
+    "woodDark":  0xFF83290D, "wood": 0xFFB6491C, "woodHi": 0xFFD7662B, "woodEdge": 0xFFB98A5A,
+    // ---- metal
+    "alu": 0xFFC9CCCF, "aluDark": 0xFF7F8084, "brass": 0xFFB08D57,
+    // ---- rocker plastic and push buttons (graphics only: 3:1)
+    "rockOrange": 0xFFE06A26, "rockOrangeFaded": 0xFFF09048, "rockBlue": 0xFF3F7BAA, "rockCream": 0xFFE2DCCB,
+    "pushRed": 0xFFC8321C, "pushRedHi": 0xFFF2603E,
+    // ---- lamps
+    "lampOff": 0xFF5A0E0F, "lampRed": 0xFFA11719, "lampRedGlow": 0xFFFF3B2A,
+    "lampAmber": 0xFFF2A93B, "lampAmberGlow": 0xFFFFD27A,
+    // ---- typed paper cards
+    "card": 0xFFE3D7BB, "cardHi": 0xFFE9DFC6, "paperEdge": 0xFFB9AC8E,
+    "cardInk": 0xFF2A221A,     // 10.96 on card
+    "cardDim": 0xFF62553F,     // 5.09 on card
+    "cardRed": 0xFF9E2A1A,     // FAV stamp
+    "felt": 0xFF101112,
+    // ---- keys and wheels
+    "ivory": 0xFFE4E1D6, "ivoryAged": 0xFFD6D5CE, "keyBlack": 0xFF121010, "keyLabel": 0xFF5C564B,
+    "wheelGlow": 0xFFFFC27A,
+    // ---- VU meter
+    "vuLightTop": 0xFFF2C77A, "vuLightBot": 0xFFD99A3C, "vuInk": 0xFF2A2118, "vuNeedle": 0xFF141210, "vuRed": 0xFFB3261E,
+
+    // ---- type: Oxygen is HISE-embedded. docs/28 faces (VM Silk / Label / Bold / Type /
+    //      Digits) replace these once the OFL TTFs are bundled and registered with loadFontAs.
     "FONT":    "Oxygen",
     "BOLD":    "Oxygen Bold",
-    "MONO":    "Oxygen",          // SM Mono once an OFL mono .ttf is bundled + Engine.loadFontAs
+    "MONO":    "Oxygen",
+    "SILK":    "Oxygen Bold",
+    "TYPE":    "Oxygen",
+    "TYPEB":   "Oxygen Bold",
     "fsBrand": 15, "fsTape": 10, "fsLabel": 9, "fsValue": 10, "fsLcd": 13, "fsMin": 9,
 
     // ---- geometry (1200 x 800 base, 8px grid)
@@ -875,142 +916,214 @@ inline function scrollToCurrent()
 // BACKGROUND
 // ============================================================================
 const var Bg = Content.addPanel("Bg", 0, 0);
-Content.setPropertiesFromJSON("Bg", {"width": 1024, "height": 700, "allowCallbacks": "No Callbacks"});
+Content.setPropertiesFromJSON("Bg", {"width": 1200, "height": 800, "allowCallbacks": "No Callbacks"});
+// docs/28 chassis, vector fallback (vm_* Blender plates replace these fills behind
+// isImageLoaded in Phase 4). Short draw list: Bg replays under every child repaint.
+inline function woodFill(g, r, horiz)
+{
+    if (horiz)
+        g.setGradientFill([T.woodHi, r[0], r[1], T.woodDark, r[0], r[1] + r[3], false]);
+    else
+        g.setGradientFill([T.woodHi, r[0], r[1], T.woodDark, r[0] + r[2], r[1], false]);
+    g.fillRect(r);
+}
+
+inline function screwHead(g, x, y, d)
+{
+    g.setGradientFill([T.alu, x, y, T.aluDark, x + d, y + d, false]);
+    g.fillEllipse([x, y, d, d]);
+    g.setColour(0x99000000);
+    g.drawLine(x + 2, x + d - 2, y + d / 2, y + d / 2, 1.2);
+}
+
 Bg.setPaintRoutine(function(g)
 {
-    g.setGradientFill([T.bgHi, 0, 0, T.bgLo, 0, 590, false]);
-    g.fillRect([0, 0, 1024, 590]);
-    g.setColour(T.frame);
-    g.fillRect([0, 588, 1024, 112]);
-    g.setColour(T.frameDeep);
-    g.fillRect([0, 588, 1024, 1]);
+    // black etched panel with the top-lit tilt
+    g.setColour(T.bg);
+    g.fillRect([36, 16, 1128, 616]);
+    g.setGradientFill([Colours.withAlpha(T.bgHi, 0.35), 0, 16, Colours.withAlpha(T.bgHi, 0.0), 0, 140, false]);
+    g.fillRect([36, 16, 1128, 124]);
+    g.setGradientFill([0x00000000, 0, 140, 0x40000000, 0, 632, false]);
+    g.fillRect([36, 140, 1128, 492]);
+    g.setGradientFill([0x66000000, 0, 16, 0x00000000, 0, 22, false]);
+    g.fillRect([36, 16, 1128, 6]);
+    // aluminium edge trims
+    g.setGradientFill([T.alu, 32, 0, T.aluDark, 36, 0, false]);
+    g.fillRect([32, 16, 4, 616]);
+    g.setGradientFill([T.alu, 1164, 0, T.aluDark, 1168, 0, false]);
+    g.fillRect([1164, 16, 4, 616]);
+    // wood: top cap, cheeks, keybed cheek strip and front rail
+    woodFill(g, [32, 0, 1136, 16], true);
+    woodFill(g, [0, 0, 32, 800], false);
+    woodFill(g, [1168, 0, 32, 800], false);
+    g.setColour(0xFF0B0A09);
+    g.fillRect([32, 632, 1136, 6]);                          // hinge gap
+    woodFill(g, [32, 638, 1136, 18], true);
+    woodFill(g, [32, 780, 1136, 20], true);
+    g.setColour(Colours.withAlpha(T.woodEdge, 0.55));        // worn front edge
+    g.fillRect([32, 780, 1136, 1]);
+    g.setColour(0x33000000);
+    g.fillRect([32, 798, 1136, 2]);
+    screwHead(g, 114, 2, 12);
+    screwHead(g, 594, 2, 12);
+    screwHead(g, 1074, 2, 12);
+    // keybed: wheel plate recess and the key cavity
+    g.setColour(T.felt);
+    g.fillRect([170, 652, 990, 128]);
+    g.setColour(0xFF141312);
+    g.fillRoundedRectangle([40, 652, 124, 128], 3.0);
+    g.setColour(0xFF060605);
+    g.fillRoundedRectangle([56, 658, 40, 108], 4.0);
+    g.fillRoundedRectangle([108, 658, 40, 108], 4.0);
+    // drawer frame (wood) around the browser drawer
+    woodFill(g, [46, 72, 280, 6], true);
+    woodFill(g, [46, 598, 280, 6], true);
+    woodFill(g, [46, 78, 12, 520], false);
+    woodFill(g, [314, 78, 12, 520], false);
+    // full-height dividers and the header rule
+    g.setColour(Colours.withAlpha(T.txt, 0.55));
+    g.fillRect([340, 72, 1, 560]);
+    g.fillRect([1084, 72, 1, 560]);
+    g.fillRect([36, 69, 1128, 1]);
+    // serial tag
+    g.setGradientFill([T.alu, 0, 640, T.aluDark, 0, 654, false]);
+    g.fillRoundedRectangle([1052, 640, 96, 14], 2.0);
+    g.setColour(T.cardInk);
+    g.setFont(T.FONT, 9);
+    g.drawAlignedText("NO. " + BUILD_SHA, [1052, 640, 96, 14], "centred");
 });
 
 // ============================================================================
 // HEADER
 // ============================================================================
-// page switch segments: PLAY 36, SHAPE 40, MOD 34, LOOPS 40, SAMPLES 52 (docs/21 geometry)
-const var HDR_SEG_X = [734, 770, 810, 844, 884];
-const var HDR_SEG_W = [36, 40, 34, 40, 52];
-const var Header = Content.addPanel("Header", 0, 0);
-Content.setPropertiesFromJSON("Header", {"width": 1024, "height": 52, "allowCallbacks": "Clicks & Hover"});
+// docs/28 header (local to LAYOUT.header): nameplate, prev/next paddles, typed patch card
+// in an aluminium holder with the FAV stamp, five ivory page keys with lamps, OPTION plate
+const var HDR_SEG_X = [772, 830, 888, 946, 1004];
+const var HDR_SEG_W = [56, 56, 56, 56, 56];
+const var HDR_SEGS = [["PLAY", "play"], ["SHAPE", "shape"], ["MOD", "mod"], ["LOOPS", "loops"], ["SAMPLES", "samples"]];
+const var Header = Content.addPanel("Header", LAYOUT.header[0], LAYOUT.header[1]);
+Content.setPropertiesFromJSON("Header", {"width": LAYOUT.header[2], "height": LAYOUT.header[3], "allowCallbacks": "Clicks & Hover"});
 Header.data.hover = "";
 Header.loadImage("{PROJECT_FOLDER}sm_logo.png", "logo");
 
+inline function pad3(n)
+{
+    local v = Math.round(n);
+    if (v < 10) return "00" + v;
+    if (v < 100) return "0" + v;
+    return "" + v;
+}
+
+inline function drawPaddle(g, r, left, hot)
+{
+    // cream paddle, top-lit; hover reads as pressed (1 px down, 8% darker)
+    local o = hot ? 1 : 0;
+    g.setGradientFill([hot ? 0xFFD2CBB9 : T.rockCream, 0, r[1] + o, hot ? 0xFFB9B2A1 : 0xFFC9C2B0, 0, r[1] + r[3] + o, false]);
+    g.fillRoundedRectangle([r[0], r[1] + o, r[2], r[3]], 4.0);
+    g.setColour(0x66000000);
+    g.drawRoundedRectangle([r[0] + 0.5, r[1] + o + 0.5, r[2] - 1, r[3] - 1], 4.0, 1.0);
+    g.setColour(T.cardInk);
+    g.fillPath(left ? ARROW_L : ARROW_R, [r[0] + r[2] / 2 - 4, r[1] + o + r[3] / 2 - 6, 8, 12]);
+}
+
+inline function drawPageKey(g, x, lbl, on, hot)
+{
+    g.setGradientFill([hot ? T.cardHi : T.ivory, 0, 8, on ? 0xFFC9C6BB : T.ivoryAged, 0, 44, false]);
+    g.fillRoundedRectangle([x, on ? 9 : 8, 56, 36], 3.0);
+    g.setColour(0x80000000);
+    g.drawRoundedRectangle([x + 0.5, (on ? 9 : 8) + 0.5, 55, 35], 3.0, 1.0);
+    g.setColour(on ? T.lampAmber : T.lampOff);                    // lamp lens
+    g.fillRoundedRectangle([x + 24, on ? 13 : 12, 8, 4], 1.5);
+    if (on)
+    {
+        g.setColour(Colours.withAlpha(T.lampAmberGlow, 0.35));
+        g.fillRoundedRectangle([x + 21, 11, 14, 8], 3.0);
+    }
+    g.setColour(T.cardInk);
+    g.setFontWithSpacing(T.BOLD, 9, 0.08);
+    g.drawAlignedText(lbl, [x, on ? 23 : 22, 56, 14], "centred");
+}
+
 Header.setPaintRoutine(function(g)
 {
-    var nowT = Engine.getUptime();
-    if (nowT - S.lastPaint > 1.0) armFocus();      // editor (re)opened: the clock repaints this every 133 ms
-    S.lastPaint = nowT;
     var p = FACTORY_BANK[S.cur];
-    var col = catColour(p.cat);
-
-    g.setColour(T.frame);
-    g.fillRect([0, 0, 1024, 52]);
-    g.setColour(T.frameHi);
-    g.fillRect([0, 51, 1024, 1]);
-
-    // 3D specimen-vial mark (Blender render, design/blender/sm_ui_assets.py)
-    g.drawImage("logo", [8, 4, 44, 44], 0, 0);
-
-    g.setColour(T.onFrame);
-    g.setFontWithSpacing(T.BOLD, 13, 0.12);
-    g.drawAlignedText("SWEET MELODY", [54, 11, 230, 16], "left");
-    g.setColour(T.onFrameDim);
-    g.setFontWithSpacing(T.FONT, 9, 0.06);
-    g.drawAlignedText("BY RESEARCH FACILITY  V0.2  " + BUILD_SHA, [54, 28, 240, 12], "left");   // which build is loaded (must fit before the LCD at x 300)
-
-    // preset display
     var hv = this.data.hover;
-    g.setColour(T.lcdBg);
-    g.fillRoundedRectangle([300, 8, 424, 36], 6.0);
-    g.setColour(T.bevelDark);
-    g.fillRect([306, 8, 412, 1]);
-    g.setColour(hv == "name" ? T.onFrameDim : T.frameHi);
-    g.drawRoundedRectangle([300.5, 8.5, 423, 35], 8.0, 1.0);
 
-    g.setColour(hv == "prev" ? T.accentOnFrame : T.onFrameDim);
-    g.fillPath(ARROW_L, [313, 20, 8, 12]);
-    g.setColour(hv == "next" ? T.accentOnFrame : T.onFrameDim);
-    g.fillPath(ARROW_R, [703, 20, 8, 12]);
-    g.setColour(T.frameHi);
-    g.fillRect([336, 16, 1, 20]);
-    g.fillRect([688, 16, 1, 20]);
+    // nameplate: brushed aluminium, engraved black-filled caps, two screws (vector until vm_nameplate)
+    g.setGradientFill([0xFFDCDEE0, 20, 11, T.aluDark, 20, 41, false]);
+    g.fillRoundedRectangle([20, 11, 200, 30], 3.0);
+    g.setColour(0x26FFFFFF);
+    g.fillRect([22, 12, 196, 1]);
+    g.setColour(0x80000000);
+    g.drawRoundedRectangle([20.5, 11.5, 199, 29], 3.0, 1.0);
+    g.drawImage("logo", [30, 14, 24, 24], 0, 0);
+    g.setColour(T.cardInk);
+    g.setFontWithSpacing(T.BOLD, 13, 0.24);
+    g.drawAlignedText("SWEET MELODY", [58, 13, 156, 16], "left");
+    g.setColour(0xFF3A342B);
+    g.setFontWithSpacing(T.FONT, 9, 0.18);
+    g.drawAlignedText("RESEARCH FACILITY", [58, 28, 156, 11], "left");
+    screwHead(g, 23, 23, 6);
+    screwHead(g, 211, 23, 6);
 
-    if (S.mode >= 1) col = T.accentOnFrame;
-    var lbl = S.mode == 1 ? "LOOPS" : (S.mode == 2 ? "SAMPLES" : catLabel(p.cat));
-    var cw = Math.round(lbl.length * 6.6 + 14);
-    g.setColour(Colours.withAlpha(col, 0.16));
-    g.fillRoundedRectangle([348, 17, cw, 18], 4.0);
-    g.setColour(col);
-    g.setFontWithSpacing(T.BOLD, 9, 0.1);
-    g.drawAlignedText(lbl, [348, 17, cw, 18], "centred");
+    drawPaddle(g, [226, 10, 30, 32], true, hv == "prev");
+    drawPaddle(g, [720, 10, 30, 32], false, hv == "next");
 
-    g.setColour(T.lcdText);
-    g.setFont(T.BOLD, 16);
+    // card holder + typed patch card
+    g.setColour(T.aluDark);
+    g.drawRect([262, 8, 452, 36], 1.0);
+    g.setColour(T.alu);
+    g.fillEllipse([264, 24, 3, 3]);
+    g.fillEllipse([709, 24, 3, 3]);
+    g.setGradientFill([hv == "name" ? 0xFFF0E8D2 : T.cardHi, 0, 11, T.card, 0, 41, false]);
+    g.fillRect([265, 11, 446, 30]);
+    g.setColour(0x40000000);
+    g.fillRect([265, 11, 446, 1]);
+
+    var dotCol = S.mode == 1 ? T.loop : (S.mode == 2 ? T.cardDim : catInk(p.cat));
+    g.setColour(dotCol);
+    g.fillEllipse([275, 19, 14, 14]);
+    g.setColour(0x40000000);
+    g.drawEllipse([275, 19, 14, 14], 1.0);
+
     var kitNow = LOOP_KITS[S.kit];
     var smpIx = S.mode == 2 ? smpSelItem() : -1;
     var lcdName = S.mode == 1 ? kitNow.name : p.name;
     if (S.mode == 2) lcdName = smpIx >= 0 ? SM.items[smpIx].n : (SM.loaded ? "Pick a sound" : "Samples");
-    g.drawAlignedText(lcdName, [348 + cw + 10, 8, 250 - cw, 36], "left");
+    g.setColour(T.cardInk);
+    g.setFont(T.TYPEB, 15);
+    g.drawAlignedText(lcdName, [297, 11, 300, 30], "left");
 
+    g.setColour(T.cardDim);
+    g.setFont(T.TYPE, 11);
     var pos = S.list.indexOf(S.cur);
-    var tot = S.list.length;
-    g.setColour(T.onFrameDim);
-    g.setFont(T.FONT, 10);
-    if (S.mode == 1)
+    var cnt = "";
+    if (S.mode == 1) cnt = kitNow.bpm + " BPM";
+    else if (S.mode == 2) cnt = SM.sel >= 0 ? (SM.sel + 1) + "/" + SM.res.length : "";
+    else if (pos >= 0) cnt = pad3(pos + 1) + "/" + pad3(S.list.length);
+    g.drawAlignedText(cnt, [600, 11, 64, 30], "right");
+
+    if (S.mode != 1)
     {
-        g.drawAlignedText(kitNow.bpm + " BPM  " + kitNow.key, [536, 8, 140, 36], "right");
-    }
-    else if (S.mode == 2)
-    {
-        if (SM.sel >= 0) g.drawAlignedText((SM.sel + 1) + "/" + SM.res.length, [586, 8, 60, 36], "right");
-        var sfav = smpIsFav(smpIx);
-        g.setColour(sfav ? T.loopG : (hv == "heart" ? T.onFrame : T.onFrameDim));
-        if (sfav) g.fillPath(HEART, [656, 19, 16, 14]);
-        else g.drawPath(HEART, [656, 19, 16, 14], 1.4);
-    }
-    else
-    {
-        if (pos >= 0)
-            g.drawAlignedText((pos + 1) + "/" + tot, [596, 8, 50, 36], "right");
-        var fav = isFav(p.id);
-        g.setColour(fav ? T.loopG : (hv == "heart" ? T.onFrame : T.onFrameDim));
-        if (fav) g.fillPath(HEART, [656, 19, 16, 14]);
-        else g.drawPath(HEART, [656, 19, 16, 14], 1.4);
+        var fav = S.mode == 2 ? smpIsFav(smpIx) : isFav(p.id);
+        g.setColour(Colours.withAlpha(T.cardRed, hv == "heart" || fav ? 1.0 : 0.75));
+        if (fav) g.fillPath(HEART, [681, 18, 16, 14]);
+        else g.drawPath(HEART, [681, 18, 16, 14], 1.6);
+        g.drawEllipse([676, 13, 26, 26], 1.2);                     // rubber-stamp ring
     }
 
-    // PLAY | SHAPE | MOD | LOOPS | SAMPLES switch (the first three are the instrument's pages)
-    g.setColour(T.frameDeep);
-    g.fillRoundedRectangle([732, 12, 206, 28], 14.0);
-    g.setColour(T.frameHi);
-    g.drawRoundedRectangle([732.5, 12.5, 205, 27], 14.0, 1.0);
+    // page keys + OPTION plate
     var seg = S.mode == 1 ? 3 : (S.mode == 2 ? 4 : S.page);
-    g.setColour(Colours.withAlpha(T.accentOnFrame, 0.2));
-    g.fillRoundedRectangle([HDR_SEG_X[seg], 14, HDR_SEG_W[seg], 24], 12.0);
-    g.setFontWithSpacing(T.BOLD, 8, 0.08);
-    var segs = [["PLAY", "play"], ["SHAPE", "shape"], ["MOD", "mod"], ["LOOPS", "loops"], ["SAMPLES", "samples"]];
     var si = 0;
     for (si = 0; si < 5; si++)
-    {
-        var sg = segs[si];
-        g.setColour(seg == si ? T.accentOnFrame : (hv == sg[1] ? T.onFrame : T.onFrameDim));
-        g.drawAlignedText(sg[0], [HDR_SEG_X[si], 14, HDR_SEG_W[si], 24], "centred");
-    }
-
-    // performance readout + meters
-    g.setColour(T.onFrameDim);
-    g.setFontWithSpacing(T.FONT, 8, 0.12);
-    var vs = S.voices < 10 ? "0" + S.voices : "" + S.voices;
-    g.drawAlignedText("VOX " + vs, [944, 12, 44, 12], "left");
-    g.drawAlignedText("CPU " + Math.round(S.cpu) + "%", [944, 28, 44, 12], "left");
-    g.setColour(T.frameHi);
-    g.fillRoundedRectangle([988, 15, 28, 5], 2.0);
-    g.fillRoundedRectangle([988, 30, 28, 5], 2.0);
-    g.setColour(S.lvlL > 0.97 ? T.warn : T.accentOnFrame);
-    g.fillRoundedRectangle([988, 15, 28 * S.lvlL, 5], 2.0);
-    g.setColour(S.lvlR > 0.97 ? T.warn : T.accentOnFrame);
-    g.fillRoundedRectangle([988, 30, 28 * S.lvlR, 5], 2.0);
+        drawPageKey(g, HDR_SEG_X[si], HDR_SEGS[si][0], seg == si, hv == HDR_SEGS[si][1]);
+    g.setGradientFill([0xFFD5D8DB, 0, 8, T.aluDark, 0, 44, false]);
+    g.fillRoundedRectangle([1062, 8, 56, 36], 3.0);
+    screwHead(g, 1065, 23, 5);
+    screwHead(g, 1110, 23, 5);
+    g.setColour(T.cardInk);
+    g.setFontWithSpacing(T.FONT, 9, 0.12);
+    g.drawAlignedText("OPTION", [1062, 8, 56, 36], "centred");
 });
 
 Header.setMouseCallback(function(event)
@@ -1019,15 +1132,16 @@ Header.setMouseCallback(function(event)
     var h = "";
     if (event.y >= 8 && event.y <= 44)
     {
-        if (event.x >= 300 && event.x < 336) h = "prev";
-        else if (event.x >= 688 && event.x < 724) h = "next";
-        else if (event.x >= 648 && event.x < 680) h = "heart";
-        else if (event.x >= 336 && event.x < 688) h = "name";
-        else if (event.x >= 734 && event.x < 770) h = "play";
-        else if (event.x >= 770 && event.x < 810) h = "shape";
-        else if (event.x >= 810 && event.x < 844) h = "mod";
-        else if (event.x >= 844 && event.x < 884) h = "loops";
-        else if (event.x >= 884 && event.x < 936) h = "samples";
+        if (event.x >= 670 && event.x < 712 && S.mode != 1) h = "heart";
+        else if (event.x >= 222 && event.x < 260) h = "prev";
+        else if (event.x >= 716 && event.x < 754) h = "next";
+        else if (event.x >= 262 && event.x < 714) h = "name";
+        else
+        {
+            var k = 0;
+            for (k = 0; k < 5; k++)
+                if (event.x >= HDR_SEG_X[k] && event.x < HDR_SEG_X[k] + HDR_SEG_W[k]) h = HDR_SEGS[k][1];
+        }
     }
     if (event.clicked)
     {
@@ -1061,6 +1175,178 @@ Header.setMouseCallback(function(event)
 });
 
 // ============================================================================
+// SILK BAND + OUTPUT COLUMN (docs/28)
+// ============================================================================
+const var SILK = [
+    [["LIBRARY", 36, 340], ["PERFORMANCE", 352, 520], ["VOICE", 520, 688], ["TONE", 688, 820], ["AMBIENCE", 820, 1072], ["OUTPUT", 1084, 1164]],
+    [["LIBRARY", 36, 340], ["SOURCES", 352, 530], ["FILTER", 530, 712], ["CONTOUR", 712, 894], ["PITCH", 894, 1072], ["OUTPUT", 1084, 1164]],
+    [["LIBRARY", 36, 340], ["SOURCES", 352, 555], ["SOURCE EDIT", 555, 821], ["ROUTING", 821, 1072], ["OUTPUT", 1084, 1164]],
+    [["LOOP KITS", 36, 340], ["LOOP FX", 352, 1072], ["OUTPUT", 1084, 1164]],
+    [["SAMPLE LIBRARY", 36, 340], ["SAMPLES", 352, 1072], ["OUTPUT", 1084, 1164]]
+];
+inline function silkState()
+{
+    return S.mode == 1 ? 3 : (S.mode == 2 ? 4 : S.page);
+}
+
+const var Silk = Content.addPanel("Silk", LAYOUT.silk[0], LAYOUT.silk[1]);
+Content.setPropertiesFromJSON("Silk", {"width": LAYOUT.silk[2], "height": LAYOUT.silk[3], "allowCallbacks": "No Callbacks",
+    "bufferToImage": true, "saveInPreset": false});
+Silk.setPaintRoutine(function(g)
+{
+    var row = SILK[silkState()];
+    var i = 0;
+    for (i = 0; i < row.length; i++)
+    {
+        var st = row[i];
+        var x0 = st[1] - LAYOUT.silk[0];
+        var x1 = st[2] - LAYOUT.silk[0];
+        g.setColour(T.txt);
+        g.setFontWithSpacing(T.SILK, 14, 0.10);
+        g.drawAlignedText(st[0], [x0, 3, x1 - x0, 16], "centred");
+        if (st[1] != 36 && st[1] != 352 && st[1] != 1084)              // section dividers continue through the band
+        {
+            g.setColour(Colours.withAlpha(T.txt, 0.55));
+            g.fillRect([x0, 0, 1, 26]);
+        }
+    }
+});
+
+inline function drawLed(g, r, text, ghost)
+{
+    g.setColour(T.lcdBg);
+    g.fillRoundedRectangle(r, 2.0);
+    g.setColour(T.lcdBezel);
+    g.drawRoundedRectangle([r[0] + 0.5, r[1] + 0.5, r[2] - 1, r[3] - 1], 2.0, 1.0);
+    g.setFont(T.MONO, 14);
+    g.setColour(T.lcdOff);
+    g.drawAlignedText(ghost, [r[0] + 4, r[1], r[2] - 8, r[3]], "right");
+    g.setColour(T.lcdText);
+    g.drawAlignedText(text, [r[0] + 4, r[1], r[2] - 8, r[3]], "right");
+}
+
+inline function drawLamp(g, x, y, d, on, col, glow)
+{
+    if (on)
+    {
+        g.setColour(Colours.withAlpha(glow, 0.25));
+        g.fillEllipse([x - 3, y - 3, d + 6, d + 6]);
+        g.setGradientFill([glow, x + d * 0.4, y + d * 0.35, col, x + d, y + d, true]);
+        g.fillEllipse([x, y, d, d]);
+    }
+    else
+    {
+        g.setColour(T.lampOff);
+        g.fillEllipse([x, y, d, d]);
+        g.setColour(0x59FFFFFF);
+        g.fillEllipse([x + d * 0.28, y + d * 0.22, 2, 2]);
+    }
+    g.setColour(0x80000000);
+    g.drawEllipse([x, y, d, d], 1.0);
+}
+
+const var VU_MARKS = [0, -3, -6, -12, -20, -30, -40];
+inline function drawVu(g, x, v, lbl)
+{
+    local top = 36;
+    local h = 232;
+    local i = 0;
+    local yy = 0.0;
+    g.setGradientFill([T.vuLightTop, 0, top, T.vuLightBot, 0, top + h, false]);
+    g.fillRect([x, top, 22, h]);
+    g.setColour(T.vuRed);
+    g.fillRect([x + 18, top, 3, Math.round(h * 3.0 / 40.0)]);
+    g.setFont(T.FONT, 9);
+    for (i = 0; i < VU_MARKS.length; i++)
+    {
+        yy = top + h * (1.0 - (VU_MARKS[i] + 40.0) / 40.0);
+        g.setColour(T.vuInk);
+        g.fillRect([x + 1, Math.round(yy), 5, 1]);
+        if (i % 2 == 0 || i == 1) g.drawAlignedText("" + Math.abs(VU_MARKS[i]), [x + 5, Math.round(yy) - 5, 14, 10], "left");
+    }
+    yy = top + h * (1.0 - v);
+    g.setColour(0x40000000);
+    g.fillRect([x, Math.round(yy) + 1, 22, 1]);
+    g.setColour(T.vuNeedle);
+    g.fillRect([x, Math.round(yy) - 1, 22, 2]);
+    g.setColour(0xFF000000);
+    g.drawRect([x, top, 22, h], 1.0);
+    g.setColour(T.txt);
+    g.setFontWithSpacing(T.BOLD, 9, 0.1);
+    g.drawAlignedText(lbl, [x, 270, 22, 12], "centred");
+}
+
+S.vuL = 0.0;
+S.vuR = 0.0;
+S.peakHold = 0;
+const var OutMeter = Content.addPanel("OutMeter", LAYOUT.outMeter[0], LAYOUT.outMeter[1]);
+Content.setPropertiesFromJSON("OutMeter", {"width": LAYOUT.outMeter[2], "height": LAYOUT.outMeter[3],
+    "allowCallbacks": "No Callbacks", "saveInPreset": false});
+OutMeter.setPaintRoutine(function(g)
+{
+    var nowT = Engine.getUptime();
+    if (nowT - S.lastPaint > 1.0) armFocus();      // editor (re)opened: the clock repaints this at least every 133 ms
+    S.lastPaint = nowT;
+    var on = S.cpu > 0.0;
+    drawLamp(g, 27, 2, 16, on, T.lampAmber, T.lampAmberGlow);
+    g.setColour(T.txt);
+    g.setFontWithSpacing(T.BOLD, 9, 0.1);
+    g.drawAlignedText("ON", [0, 19, 70, 10], "centred");
+    drawVu(g, 9, S.vuL, "L");
+    drawVu(g, 39, S.vuR, "R");
+    g.setColour(T.txt);
+    g.setFontWithSpacing(T.BOLD, 9, 0.1);
+    g.drawAlignedText("VOICES", [0, 288, 70, 10], "centred");
+    drawLed(g, [9, 300, 52, 24], S.voices < 10 ? "0" + S.voices : "" + S.voices, "88");
+    g.setColour(T.txt);
+    g.setFontWithSpacing(T.BOLD, 9, 0.1);
+    g.drawAlignedText("CPU %", [0, 332, 70, 10], "centred");
+    drawLed(g, [9, 344, 52, 24], "" + Math.round(S.cpu), "88");
+    drawLamp(g, 27, 378, 16, S.peakHold > 0, T.lampRed, T.lampRedGlow);
+    g.setColour(T.txt);
+    g.setFontWithSpacing(T.BOLD, 9, 0.1);
+    g.drawAlignedText("PEAK", [0, 396, 70, 10], "centred");
+});
+
+inline function drawPush(g, x, y, d, hot, enabled)
+{
+    // round red momentary button (vector until vm_push_red_2x.png)
+    if (!enabled) g.setOpacity(0.45);
+    g.setColour(0x80000000);
+    g.fillEllipse([x - 2, y - 1, d + 4, d + 4]);
+    g.setGradientFill([T.alu, x, y - 2, T.aluDark, x, y + d + 2, false]);
+    g.fillEllipse([x - 2, y - 2, d + 4, d + 4]);
+    g.setGradientFill([hot ? T.pushRedHi : 0xFFE0482C, x + d * 0.35, y + d * 0.3, T.pushRed, x + d, y + d, true]);
+    g.fillEllipse([x + 1, y + 1, d - 2, d - 2]);
+    g.setColour(0x40FFFFFF);
+    g.fillEllipse([x + d * 0.3, y + d * 0.22, d * 0.22, d * 0.14]);
+    if (!enabled) g.setOpacity(1.0);
+}
+
+const var OutPanel = Content.addPanel("OutPanel", LAYOUT.out[0], LAYOUT.out[1]);
+Content.setPropertiesFromJSON("OutPanel", {"width": LAYOUT.out[2], "height": LAYOUT.out[3],
+    "allowCallbacks": "Clicks & Hover", "saveInPreset": false});
+OutPanel.data.hot = false;
+OutPanel.setPaintRoutine(function(g)
+{
+    g.setColour(T.txt);
+    g.setFontWithSpacing(T.BOLD, 9, 0.1);
+    g.drawAlignedText("PREVIEW", [0, 494, 70, 10], "centred");
+    drawPush(g, 23, 506, 24, this.data.hot, S.mode == 0);
+});
+OutPanel.setMouseCallback(function(event)
+{
+    var inBtn = event.x >= 21 && event.x < 49 && event.y >= 504 && event.y < 532;
+    if (event.clicked && inBtn && S.mode == 0) previewCurrent();
+    if (event.mouseUp) refocusKeys();
+    if (inBtn != this.data.hot)
+    {
+        this.data.hot = inBtn;
+        this.repaint();
+    }
+});
+
+// ============================================================================
 // BROWSER
 // ============================================================================
 // loop kit list: a 7-row window that follows the loaded kit (packs can add many kits)
@@ -1070,7 +1356,7 @@ inline function kitVis()
     return Math.min(LOOP_KITS.length, 7);
 }
 
-const var Browser = Content.addPanel("Browser", 16, 60);
+const var Browser = Content.addPanel("Browser", LAYOUT.drawer[0], LAYOUT.drawer[1]);
 Content.setPropertiesFromJSON("Browser", {"width": 256, "height": 520,
     "allowCallbacks": "Clicks, Hover & Dragging"});
 
@@ -1289,7 +1575,7 @@ Browser.setPaintRoutine(function(g)
 });
 
 // editable search field on top of the browser card
-const var SearchField = Content.addLabel("SearchField", 16 + 40, 60 + 15);
+const var SearchField = Content.addLabel("SearchField", LAYOUT.search[0], LAYOUT.search[1]);
 Content.setPropertiesFromJSON("SearchField", {
     "width": 172, "height": 24,
     "text": "",
@@ -1300,7 +1586,7 @@ Content.setPropertiesFromJSON("SearchField", {
     "fontName": "Oxygen",
     "fontSize": 13,
     "alignment": "left",
-    "textColour": 0xFF1C2127,              // T.txt: the query must be readable on the porcelain well
+    "textColour": 0xFFE8E4D8,              // T.txt until the cream search tape lands (docs/28 Phase 2: T.cardInk)
     "bgColour": 0x00000000,
     "itemColour": 0x00000000,
     "itemColour2": 0x00000000,
@@ -1742,7 +2028,7 @@ const var SPEC_AREA = [16, 44, 652, 176];
 const var SCOPE_AREA = [16, 214, 180, 58];
 const var STRUM_SCALE = [0, 3, 5, 7, 10];        // minor pentatonic
 
-const var Visualiser = Content.addPanel("Visualiser", 288, 60);
+const var Visualiser = Content.addPanel("Visualiser", LAYOUT.vis[0], LAYOUT.vis[1]);
 Content.setPropertiesFromJSON("Visualiser", {"width": VIS_W, "height": VIS_H, "opaque": true,
     "allowCallbacks": "Clicks, Hover & Dragging"});
 Visualiser.data.hover = false;
@@ -2120,32 +2406,7 @@ Visualiser.setPaintRoutine(function(g)
         g.setFontWithSpacing(T.FONT, 9, 0.1);
         g.drawAlignedText(S.mode == 1 ? "KEYS C3  /  BASS E3  /  PLUCK G#3  /  AIR C4" : VD.scene + "   " + p.tags.join("  /  ").toUpperCase(), [210, 258, 460, 14], "left");
     }
-    // preview pill (instrument only: LOOPS plays its lanes from the keys)
-    var pb = Visualiser.data.hoverPlay && S.mode == 0;
-    if (S.mode == 0)
-    {
-    g.setColour(pb ? Colours.withAlpha(T.glow, 0.22) : T.glassHi);
-    g.fillRoundedRectangle([600, 10, 104, 22], 11.0);
-    g.setColour(pb ? T.glow : T.glassDim);
-    g.drawRoundedRectangle([600.5, 10.5, 103, 21], 11.0, 1.0);
-    g.setColour(T.glow);
-    g.fillPath(PLAY_ICON, [612, 16, 8, 10]);
-    g.setColour(pb ? T.onGlass : T.glassDim);
-    g.setFontWithSpacing(T.BOLD, 9, 0.12);
-    g.drawAlignedText("PREVIEW", [624, 10, 72, 22], "centred");
-    }
-    // output meters
-    var mh = 176;
-    g.setColour(T.glassHi);
-    g.fillRoundedRectangle([684, 44, 6, mh], 3.0);
-    g.fillRoundedRectangle([696, 44, 6, mh], 3.0);
-    g.setColour(S.lvlL > 0.97 ? T.warn : T.glow);
-    g.fillRoundedRectangle([684, 44 + mh * (1.0 - S.lvlL), 6, mh * S.lvlL], 3.0);
-    g.setColour(S.lvlR > 0.97 ? T.warn : T.glow);
-    g.fillRoundedRectangle([696, 44 + mh * (1.0 - S.lvlR), 6, mh * S.lvlR], 3.0);
-    g.setColour(T.glassDim);
-    g.setFont(T.FONT, 8);
-    g.drawAlignedText("L  R", [680, 224, 28, 12], "centred");
+    // (preview and output meters live in the OUTPUT column, docs/28)
     // COVER: the stage at rest, the sound's name on the wall
     if (S.quiet > 60 && S.lastNote < 0)
     {
@@ -2193,7 +2454,7 @@ Visualiser.setMouseCallback(function(event)
         return;
     }
     if (event.mouseUp) refocusKeys();
-    var inPlay = (event.x >= 600 && event.x < 704 && event.y >= 10 && event.y < 32);
+    var inPlay = false;                                  // PREVIEW moved to the OUTPUT column
     if (inPlay != this.data.hoverPlay)
     {
         this.data.hoverPlay = inPlay;
@@ -2217,85 +2478,190 @@ Visualiser.setMouseCallback(function(event)
 // ============================================================================
 // MACRO CARD + KNOBS
 // ============================================================================
-const var MC_X = 288;
-const var MC_Y = 364;
+const var MC_X = LAYOUT.macro[0];
+const var MC_Y = LAYOUT.macro[1];
 
 const var MacroCard = Content.addPanel("MacroCard", MC_X, MC_Y);
 Content.setPropertiesFromJSON("MacroCard", {"width": 720, "height": 216, "allowCallbacks": "Clicks, Hover & Dragging"});
 MacroCard.data.hover = "";
 
 const var knobLaf = Content.createLocalLookAndFeel();
-knobLaf.loadImage("{PROJECT_FOLDER}sm_knob_strip.png", "knob");     // 64-frame 3D cap (Blender)
+// docs/28 + 28b knobs. Vector until the Blender strips land (Phase 4, behind isImageLoaded).
+// K1 fluted (PLAY macros, ATTACK, RELEASE): black skirt, spun aluminium cap, index line.
+// K2 collet (every rack-page knob): black body, flat coloured cap by function, printed line.
+// 300 deg sweep from 7 o'clock; scales and legends are painted by the plate, not here.
+const var K1_IDS = ["ToneKnob", "BodyKnob", "MotionKnob", "WidthKnob", "SpaceKnob", "EchoKnob", "GritKnob", "PumpKnob", "AttackKnob", "ReleaseKnob"];
+const var CAPC = {};                         // id -> [cap colour, line ink], resolved once per knob
+inline function capFor(id, txt)
+{
+    if (isDefined(CAPC[id])) return CAPC[id];
+    local t = " " + txt.toUpperCase() + " ";
+    local c = [0xFFE2DCCB, 0xFF1A1A1A];                                  // cream: space, character
+    if (t.indexOf("LEVEL") >= 0 || t.indexOf("VEL>AMP") >= 0 || t.indexOf("DRIVE") >= 0 || t.indexOf("GAIN") >= 0)
+        c = [0xFFB23A26, 0xFFE8E4D8];                                    // red: level and drive
+    else if (t.indexOf("CUT") >= 0 || t.indexOf("RESO") >= 0 || t.indexOf("ENV AMT") >= 0 || t.indexOf("KEYTRK") >= 0 || t.indexOf("TONE") >= 0)
+        c = [0xFF3F7BAA, 0xFFE8E4D8];                                    // blue: filter and tone
+    else if (t.indexOf("RATE") >= 0 || t.indexOf("VIB") >= 0 || t.indexOf("DEPTH") >= 0)
+        c = [0xFF3E7B52, 0xFFE8E4D8];                                    // green: modulation
+    else if (t.indexOf("ATTACK") >= 0 || t.indexOf("HOLD") >= 0 || t.indexOf("DECAY") >= 0 || t.indexOf("SUST") >= 0 || t.indexOf("RELEASE") >= 0 || t.indexOf("CURVE") >= 0 || t.indexOf("FADE") >= 0 || t.indexOf("DELAY") >= 0 || t == " A " || t == " D " || t == " S " || t == " R ")
+        c = [0xFF8F999F, 0xFF1A1A1A];                                    // grey: time and envelope
+    else if (t.indexOf("DRIFT") >= 0 || t.indexOf("TUNE") >= 0 || t.indexOf("SEMI") >= 0 || t.indexOf("PITCH") >= 0 || t.indexOf("BEND") >= 0 || t.indexOf("GLIDE") >= 0)
+        c = [0xFFD9A33A, 0xFF1A1A1A];                                    // yellow: pitch
+    CAPC[id] = c;
+    return c;
+}
+
+// class geometry: [cx, cy, body R, ring r]; K1 by width (XL >= 90, L >= 70, S), K2 likewise
+inline function knobGeo(w, k1)
+{
+    if (k1)
+    {
+        if (w >= 90) return [48.0, 60.0, 28.0, 36.5];
+        if (w >= 70) return [40.0, 52.0, 22.0, 29.5];
+        return [w / 2.0, 35.0, 14.0, 21.0];
+    }
+    if (w >= 90) return [48.0, 60.0, 28.0, 37.0];
+    if (w >= 70) return [38.0, 52.0, 22.0, 30.5];
+    if (w >= 50) return [28.0, 35.0, 16.0, 23.0];
+    return [w / 2.0, 35.0, 13.0, 20.0];
+}
+
 knobLaf.registerFunction("drawRotarySlider", function(g, obj)
 {
     var a = obj.area;
     var w = a[2];
-    var big = w >= 60;
-    var R = big ? 25.0 : 14.0;
-    var cx = w / 2.0;
-    var cy = R + 6.0;
+    var k1 = K1_IDS.indexOf(obj.id) >= 0;
+    var geo = knobGeo(w, k1);
+    var cx = geo[0];
+    var cy = geo[1];
+    var R = geo[2];
+    var RR = geo[3];
     var v = obj.valueNormalized;
     var hot = obj.hover || obj.clicked;
-    var th = big ? 3.0 : 2.0;
-    var a0 = -2.356;
-    var a1 = a0 + 4.712 * v;
+    var ang = -2.618 + 5.236 * v;
 
-    ARC.clear();
-    ARC.addArc([cx - R, cy - R, R * 2.0, R * 2.0], a0, 2.356);
-    g.setColour(T.line);
-    g.drawPath(ARC, false, th);
-
-    if (v > 0.004)
-    {
-        ARC.clear();
-        ARC.addArc([cx - R, cy - R, R * 2.0, R * 2.0], a0, a1);
-        g.setColour(hot ? T.accentHi : T.accent);
-        g.drawPath(ARC, false, th);
-    }
-
-    // matrix target: outer arc from the knob value to the live modulated value
+    // drag-target halo and matrix arc (live modulated value) at the class ring radius
     var ti = MOD_TGT_COMP.indexOf(obj.id);
     if (S.dragging && ti >= 0 && Content.getComponentUnderDrag() == obj.id)
     {
         g.setColour(Colours.withAlpha(MOD_COL[Math.max(0, S.dragSrc)], 0.25));
-        g.fillEllipse([cx - R - 6, cy - R - 6, (R + 6) * 2.0, (R + 6) * 2.0]);
+        g.fillEllipse([cx - RR - 2, cy - RR - 2, (RR + 2) * 2.0, (RR + 2) * 2.0]);
     }
     if (ti >= 0 && TGT_COUNT[ti] > 0)
     {
         var mv = Matrix.getModValue(obj.id);
-        var b0 = a0 + 4.712 * v;
-        var b1 = a0 + 4.712 * mv;
-        var RR = R + 4.0;
+        var b1 = -2.618 + 5.236 * mv;
         ARC.clear();
-        ARC.addArc([cx - RR, cy - RR, RR * 2.0, RR * 2.0], Math.min(b0, b1), Math.max(b0, b1) + 0.01);
+        ARC.addArc([cx - RR, cy - RR, RR * 2.0, RR * 2.0], Math.min(ang, b1), Math.max(ang, b1) + 0.01);
         g.setColour(T.mLfo);
         g.drawPath(ARC, false, 2.0);
         g.fillEllipse([cx + RR * Math.sin(b1) - 2.5, cy - RR * Math.cos(b1) - 2.5, 5, 5]);
-        g.setFont(T.BOLD, 8);
-        g.drawAlignedText("" + TGT_COUNT[ti], [w - 12, 0, 12, 10], "right");
+        g.setFont(T.BOLD, 9);
+        g.drawAlignedText("" + TGT_COUNT[ti], [w - 14, 0, 14, 12], "right");
     }
 
-    // 3D machined cap: frame 0 = minimum, 63 = maximum (pointer baked in)
-    var cr = R - (big ? 3.0 : 2.0);
-    var fi = Math.round(v * 63.0);
-    g.drawImage("knob", [cx - cr, cy - cr, cr * 2.0, cr * 2.0], 0, fi * 128);
+    // body
+    g.setColour(0x66000000);                                             // seat shadow
+    g.fillEllipse([cx - R + 1.0, cy - R + 2.0, R * 2.0, R * 2.0]);
+    g.setGradientFill([T.capHi, cx - R * 0.6, cy - R * 0.8, T.cap, cx + R * 0.5, cy + R * 0.9, false]);
+    g.fillEllipse([cx - R, cy - R, R * 2.0, R * 2.0]);
+    g.setColour(0x33FFFFFF);
+    g.drawEllipse([cx - R + 0.5, cy - R + 0.5, R * 2.0 - 1.0, R * 2.0 - 1.0], 1.0);
+    var lineIn = 0.62;
+    var ink = T.pointer;
+    if (k1)
+    {
+        var cr = R * 0.56;                                                // spun aluminium cap
+        g.setGradientFill([0xFFF7F6F2, cx - cr * 0.4, cy - cr * 0.5, T.capRing, cx + cr, cy + cr, true]);
+        g.fillEllipse([cx - cr, cy - cr, cr * 2.0, cr * 2.0]);
+        g.setColour(0x40000000);
+        g.drawEllipse([cx - cr, cy - cr, cr * 2.0, cr * 2.0], 1.0);
+    }
+    else
+    {
+        var cc = capFor(obj.id, obj.text);
+        var cr2 = R * 0.78;
+        g.setColour(0x80000000);                                          // seat ring
+        g.fillEllipse([cx - cr2 - 1.0, cy - cr2 - 1.0, cr2 * 2.0 + 2.0, cr2 * 2.0 + 2.0]);
+        g.setGradientFill([Colours.mix(cc[0], 0xFFFFFFFF, 0.25), cx - cr2 * 0.5, cy - cr2 * 0.6, cc[0], cx + cr2, cy + cr2, true]);
+        g.fillEllipse([cx - cr2, cy - cr2, cr2 * 2.0, cr2 * 2.0]);
+        lineIn = 0.20;
+        ink = cc[1];
+        R = cr2 / 0.92;
+    }
+    // index line (shadow then ink)
+    var sx = Math.sin(ang);
+    var sy = -Math.cos(ang);
+    var r0 = R * lineIn;
+    var r1 = k1 ? R - 1.5 : R * 0.92;
+    g.setColour(0x59000000);
+    g.drawLine(cx + sx * r0 + 0.6, cx + sx * r1 + 0.6, cy + sy * r0 + 0.6, cy + sy * r1 + 0.6, k1 ? 2.2 : 2.0);
+    g.setColour(ink);
+    g.drawLine(cx + sx * r0, cx + sx * r1, cy + sy * r0, cy + sy * r1, k1 ? 1.8 : 1.6);
     if (hot)
     {
         g.setColour(Colours.withAlpha(T.accentHi, 0.35));
-        g.drawEllipse([cx - cr + 1, cy - cr + 1, cr * 2.0 - 2, cr * 2.0 - 2], 1.2);
+        g.drawEllipse([cx - geo[2] - 2.0, cy - geo[2] - 2.0, geo[2] * 2.0 + 4.0, geo[2] * 2.0 + 4.0], 1.2);
     }
 
-    var label = hot ? obj.valueAsText : obj.text;
-    g.setColour(hot ? T.txt : T.dim);
-    g.setFontWithSpacing(hot ? T.FONT : T.BOLD, big ? 10 : 9, 0.1);
-    g.drawAlignedText(label, [0, cy + R + (big ? 6 : 3), w, 14], "centred");
+    // label above the control; value on hover or drag
+    g.setColour(hot ? T.accentInk : T.txt);
+    g.setFontWithSpacing(T.BOLD, w < 70 ? 9 : 10, 0.08);
+    g.drawAlignedText(hot ? obj.valueAsText : obj.text.toUpperCase(), [0, 0, w, 12], "centred");
 });
+
+// plate-painted scale around a knob: 11 dashes; kinds "ten" (0..10), "hz" (TONE skew), "time"
+const var SCALE_HZ = [[80, "80"], [200, "200"], [500, "500"], [1200, "1.2K"], [3000, "3K"], [8000, "8K"], [20000, "20K"]];
+inline function drawScale(g, cx, cy, cls, kind)
+{
+    local t0 = cls == 2 ? 30.0 : (cls == 1 ? 24.0 : 16.0);
+    local t1 = cls == 2 ? 34.0 : (cls == 1 ? 27.0 : 19.0);
+    local rn = cls == 2 ? 42.0 : 35.0;
+    local i = 0;
+    local an = 0.0;
+    g.setColour(Colours.withAlpha(T.txt, 0.85));
+    for (i = 0; i < 11; i++)
+    {
+        an = -2.618 + 5.236 * i / 10.0;
+        g.drawLine(cx + t0 * Math.sin(an), cx + t1 * Math.sin(an), cy - t0 * Math.cos(an), cy - t1 * Math.cos(an), 1.2);
+    }
+    g.setColour(T.dim);
+    g.setFont(T.FONT, 9);
+    if (kind == "ten")
+    {
+        for (i = 0; i <= 10; i += 2)
+        {
+            an = -2.618 + 5.236 * i / 10.0;
+            g.drawAlignedText("" + i, [cx + rn * Math.sin(an) - 10, cy - rn * Math.cos(an) - 5, 20, 10], "centred");
+        }
+    }
+    else if (kind == "hz")
+    {
+        for (i = 0; i < SCALE_HZ.length; i++)
+        {
+            local pnorm = Math.pow((SCALE_HZ[i][0] - 80.0) / (20000.0 - 80.0), 0.2408);
+            an = -2.618 + 5.236 * pnorm;
+            g.drawAlignedText(SCALE_HZ[i][1], [cx + rn * Math.sin(an) - 14, cy - rn * Math.cos(an) - 5, 28, 10], "centred");
+        }
+    }
+    else if (kind == "time")
+    {
+        g.setColour(T.faint);
+        g.drawAlignedText("M-SEC.", [cx - t1 - 22, cy + t1 + 2, 40, 10], "left");
+        g.drawAlignedText("SEC.", [cx + t1 - 18, cy + t1 + 2, 40, 10], "right");
+    }
+}
+
+// PLAY face knob rects (window), by MACRO_IDS order: TONE BODY MOTION WIDTH SPACE ECHO GRIT PUMP
+const var MAC_POS = [[706, 400, 96, 100], [522, 410, 80, 84], [354, 410, 80, 84], [822, 410, 80, 84],
+                     [906, 410, 80, 84], [990, 410, 80, 84], [606, 410, 80, 84], [438, 410, 80, 84]];
+const var AR_POS = [[694, 528, 56, 58], [758, 528, 56, 58]];
 
 const var MACROS = [];
 for (mk = 0; mk < 8; mk++)
 {
     var kid = MACRO_IDS[mk];
-    var kn = Content.addKnob(kid, MC_X + 13 + mk * 87, MC_Y + 34);
+    var kn = Content.addKnob(kid, MAC_POS[mk][0], MAC_POS[mk][1]);
     MACROS.push(kn);
 }
 
@@ -2309,7 +2675,7 @@ for (mk = 1; mk < 8; mk++)
 for (mk = 0; mk < 8; mk++)
 {
     Content.setPropertiesFromJSON(MACRO_IDS[mk], {
-        "width": 66, "height": 84, "text": MACRO_LABELS[mk], "tooltip": MACRO_TIPS[mk],
+        "width": MAC_POS[mk][2], "height": MAC_POS[mk][3], "text": MACRO_LABELS[mk], "tooltip": MACRO_TIPS[mk],
         "saveInPreset": true, "isPluginParameter": true,
         "pluginParameterName": MACRO_LABELS[mk].substring(0, 1) + MACRO_LABELS[mk].substring(1, 10).toLowerCase()});
     MACROS[mk].setLocalLookAndFeel(knobLaf);
@@ -2517,11 +2883,11 @@ inline function onMacro(component, value)
 }
 for (mk = 0; mk < 8; mk++) MACROS[mk].setControlCallback(onMacro);
 
-const var AttackKnob = Content.addKnob("AttackKnob", MC_X + 14, MC_Y + 140);
+const var AttackKnob = Content.addKnob("AttackKnob", AR_POS[0][0], AR_POS[0][1]);
 Content.setPropertiesFromJSON("AttackKnob", {"width": 56, "height": 58, "text": "ATTACK",
     "min": 0, "max": 3000, "mode": "Time", "middlePosition": 150, "defaultValue": 5, "stepSize": 1,
     "tooltip": "Amp attack", "saveInPreset": true, "isPluginParameter": true, "pluginParameterName": "Attack"});
-const var ReleaseKnob = Content.addKnob("ReleaseKnob", MC_X + 76, MC_Y + 140);
+const var ReleaseKnob = Content.addKnob("ReleaseKnob", AR_POS[1][0], AR_POS[1][1]);
 Content.setPropertiesFromJSON("ReleaseKnob", {"width": 56, "height": 58, "text": "RELEASE",
     "min": 10, "max": 6000, "mode": "Time", "middlePosition": 700, "defaultValue": 600, "stepSize": 1,
     "tooltip": "Amp release", "saveInPreset": true, "isPluginParameter": true, "pluginParameterName": "Release"});
@@ -2595,10 +2961,10 @@ MacroCard.setPaintRoutine(function(g)
         if (on)
         {
             var lvl = clamp01(Math.abs(md[1]));
-            var kcx = 13 + mi * 87 + 33;
-            var kcy = 34 + 31;
+            var kcx = MAC_POS[mi][0] - MC_X + 40;
+            var kcy = MAC_POS[mi][1] - MC_Y + 52;
             RING.clear();
-            RING.addArc([kcx - 30, kcy - 30, 60, 60], -2.356, -2.356 + 4.712 * lvl);
+            RING.addArc([kcx - 32, kcy - 32, 64, 64], -2.618, -2.618 + 5.236 * lvl);
             g.setColour(Colours.withAlpha(md[2], 0.55));
             g.drawPath(RING, false, 1.5);
         }
@@ -2621,16 +2987,34 @@ MacroCard.setPaintRoutine(function(g)
         g.drawAlignedText(b[0], [b[1], 2, b[2], 16], "centred");
     }
 
-    // lower strip: envelope + voicing readout
+    // docs/28 PLAY face: section dividers, printed scales, CONTOUR rule, typed info card
+    g.setColour(Colours.withAlpha(T.txt, 0.55));
+    g.fillRect([168, 22, 1, 194]);
+    g.fillRect([336, 22, 1, 194]);
+    g.fillRect([468, 22, 1, 194]);
+    for (k = 0; k < 8; k++)
+    {
+        var mp = MAC_POS[k];
+        var big = mp[2] >= 90;
+        drawScale(g, mp[0] - MC_X + (big ? 48 : 40), mp[1] - MC_Y + (big ? 60 : 52), big ? 2 : 1, k == 0 ? "hz" : "ten");
+    }
+    for (k = 0; k < 2; k++)
+        drawScale(g, AR_POS[k][0] - MC_X + 28, AR_POS[k][1] - MC_Y + 35, 0, "time");
     g.setColour(T.line);
-    g.fillRect([16, 130, 688, 1]);
-    var info = "ECHO " + p.dly + "     PUMP 1/4     VELOCITY " + Math.round(p.vel * 100) + "%     FILTER Q " + Engine.doubleToString(p.reso, 1);
+    g.fillRect([340, 124, 124, 1]);
     g.setColour(T.txt);
-    g.setFontWithSpacing(T.FONT, 10, 0.08);
-    g.drawAlignedText(info, [190, 150, 510, 16], "left");
-    g.setColour(T.faint);
-    g.setFont(T.FONT, 10);
-    g.drawAlignedText("Hover a knob for its value. Every macro is automatable from the host.", [190, 172, 510, 16], "left");
+    g.setFontWithSpacing(T.BOLD, 9, 0.12);
+    g.drawAlignedText("CONTOUR", [340, 127, 124, 12], "centred");
+    g.setGradientFill([T.cardHi, 0, 124, T.card, 0, 200, false]);
+    g.fillRect([480, 124, 228, 76]);
+    g.setColour(T.paperEdge);
+    g.drawRect([480, 124, 228, 76], 1.0);
+    g.setColour(T.cardInk);
+    g.setFont(T.TYPE, 10);
+    g.drawAlignedText("ECHO " + p.dly + "   PUMP 1/4", [490, 130, 212, 14], "left");
+    g.drawAlignedText("VELOCITY " + Math.round(p.vel * 100) + "%   FILTER Q " + Engine.doubleToString(p.reso, 1), [490, 146, 212, 14], "left");
+    g.setColour(T.cardDim);
+    g.drawAlignedText("Hover a knob for its value. Every macro is automatable.", [490, 166, 212, 28], "topLeft");
 });
 
 // ---- snapshots (doc 23 B7): preset, 8 macros, A/R, every SHAPE and MOD value, the matrix
@@ -2834,19 +3218,30 @@ inline function macKeyFor(n)
 
 keyLaf.registerFunction("drawWhiteNote", function(g, obj)
 {
+    // docs/28 vintage keyboard (vector until vm_key_white_2x.png lands): ivory with a
+    // top-lit gradient, the tint strip, lane and Mac-key labels, amber MIDI-held glow
     var a = obj.area;
-    var x = a[0] + 1;
-    var y = a[1];
-    var w = a[2] - 2;
-    var h = a[3] - 1;
+    var x = Math.round(a[0]) + 1;
+    var y = Math.round(a[1]);
+    var w = Math.round(a[2]) - 2;
+    var h = Math.round(a[3]) - 1;
     var isDown = keyIsDown(obj.noteNumber, obj.down);
+    g.setGradientFill([isDown ? T.ivoryAged : T.ivory, 0, y, isDown ? 0xFFC9C6BB : T.ivoryAged, 0, y + h, false]);
+    g.fillRoundedRectangle([x, y, w, h], 2.5);
+    if (obj.hover && !isDown)
+    {
+        g.setColour(Colours.withAlpha(T.accent, 0.08));
+        g.fillRoundedRectangle([x, y, w, h], 2.5);
+    }
     if (isDown)
-        g.setGradientFill([T.glow, 0, y, T.accent, 0, y + h, false]);
-    else if (obj.hover)
-        g.setGradientFill([0xFFE9EDF1, 0, y, 0xFFFFFFFF, 0, y + h, false]);
-    else
-        g.setGradientFill([T.bgLo, 0, y, T.s3, 0, y + h, false]);
-    g.fillRoundedRectangle([x, y, w, h], 4.0);
+    {
+        g.setGradientFill([Colours.withAlpha(T.accent, 0.25), 0, y, Colours.withAlpha(T.accent, 0.0), 0, y + 40, false]);
+        g.fillRect([x, y, w, 40]);
+    }
+    g.setColour(0x33000000);                               // key gap shadow on the right edge
+    g.fillRect([x + w - 1, y, 1, h]);
+    g.setColour(0x26000000);                               // front lip
+    g.fillRect([x, y + h - 3, w, 3]);
     if (!isDown && obj.keyColour != 0)
     {
         g.setColour(obj.keyColour);
@@ -2855,16 +3250,16 @@ keyLaf.registerFunction("drawWhiteNote", function(g, obj)
     var ll = loopLabel(obj.noteNumber);
     if (ll != "")
     {
-        g.setColour(isDown ? T.bg : T.txt);
+        g.setColour(T.cardInk);
         g.setFont(T.BOLD, 10);
         g.drawAlignedText(ll, [x, y + h - 44, w, 12], "centred");        // lane + take on the key
-        g.setColour(isDown ? T.bg : 0xFF6B737D);
-        g.setFont(T.FONT, 8);
+        g.setColour(T.keyLabel);
+        g.setFont(T.FONT, 9);
         g.drawAlignedText(macKeyFor(obj.noteNumber), [x, y + h - 56, w, 10], "centred");
     }
     if (obj.noteNumber % 12 == 0)
     {
-        g.setColour(isDown ? T.bg : 0xFF6B737D);
+        g.setColour(T.keyLabel);
         g.setFont(T.BOLD, 9);
         g.drawAlignedText("C" + Engine.doubleToString(Math.floor(obj.noteNumber / 12) - 2, 0), [x, y + h - 16, w, 12], "centred");
     }
@@ -2873,34 +3268,33 @@ keyLaf.registerFunction("drawBlackNote", function(g, obj)
 {
     var a = obj.area;
     var isDown = keyIsDown(obj.noteNumber, obj.down);
-    if (isDown)
-        g.setGradientFill([T.accent, 0, a[1], 0xFF007A5C, 0, a[1] + a[3], false]);
-    else if (obj.hover)
-        g.setGradientFill([0xFF343A44, 0, a[1], 0xFF1F242C, 0, a[1] + a[3], false]);
-    else
-        g.setGradientFill([T.capHi, 0, a[1], T.frameDeep, 0, a[1] + a[3], false]);
-    g.fillRoundedRectangle([a[0], a[1] - 3, a[2], a[3] + 3], 3.0);
+    var bx = Math.round(a[0]);
+    var by = Math.round(a[1]);
+    var bw = Math.round(a[2]);
+    var bh = Math.round(a[3]);
+    g.setGradientFill([isDown ? 0xFF2A2622 : 0xFF2B2826, 0, by, T.keyBlack, 0, by + bh, false]);
+    g.fillRoundedRectangle([bx, by - 3, bw, bh + 3], 2.0);
+    g.setColour(isDown ? Colours.withAlpha(T.accent, 0.30) : 0x1AFFFFFF);    // top-lit bevel / held glow
+    g.fillRoundedRectangle([bx + 2, by + bh - (isDown ? 12 : 9), bw - 4, isDown ? 8 : 5], 2.0);
     if (!isDown && obj.keyColour != 0)
     {
         g.setColour(obj.keyColour);
-        g.fillRoundedRectangle([a[0] + 2, a[1] + a[3] - 16, a[2] - 4, 6], 2.0);
+        g.fillRoundedRectangle([bx + 2, by + bh - 18, bw - 4, 6], 2.0);
     }
-    g.setColour(0x14FFFFFF);
-    g.fillRoundedRectangle([a[0] + 2, a[1] + a[3] - 8, a[2] - 4, 4], 2.0);
     var bll = loopLabel(obj.noteNumber);
     if (bll != "")
     {
-        g.setColour(isDown ? T.bg : T.onFrame);
-        g.setFont(T.BOLD, 8);
-        g.drawAlignedText(bll, [a[0], a[1] + a[3] - 30, a[2], 10], "centred");
-        g.setColour(T.onFrameDim);
-        g.setFont(T.FONT, 7);
-        g.drawAlignedText(macKeyFor(obj.noteNumber), [a[0], a[1] + a[3] - 40, a[2], 9], "centred");
+        g.setColour(T.txt);
+        g.setFont(T.BOLD, 9);
+        g.drawAlignedText(bll, [bx, by + bh - 32, bw, 10], "centred");
+        g.setColour(T.dim);
+        g.setFont(T.FONT, 9);
+        g.drawAlignedText(macKeyFor(obj.noteNumber), [bx, by + bh - 43, bw, 10], "centred");
     }
 });
 
-const var Keys = Content.addFloatingTile("Keys", 19, 594);
-Content.setPropertiesFromJSON("Keys", {"width": 986, "height": 100});
+const var Keys = Content.addFloatingTile("Keys", LAYOUT.keys[0], LAYOUT.keys[1]);
+Content.setPropertiesFromJSON("Keys", {"width": LAYOUT.keys[2], "height": LAYOUT.keys[3]});
 Keys.setContentData({
     "Type": "Keyboard",
     "KeyWidth": 34,
@@ -2997,7 +3391,7 @@ const var SP_HELP = ["Main layer level and feel, plus the sine sub underneath it
                      "Mod wheel = vibrato while VIA WHEEL is lit. BEND sets the pitch wheel range."];
 const var SP_HIT = {"ftype": [190, 28, 158, 24], "subOct": [8, 124, 158, 24], "via": [554, 200, 158, 24]};
 
-const var ShapePage = Content.addPanel("ShapePage", 288, 60);
+const var ShapePage = Content.addPanel("ShapePage", LAYOUT.page[0], LAYOUT.page[1]);
 Content.setPropertiesFromJSON("ShapePage", {"width": SP_W, "height": SP_H, "allowCallbacks": "Clicks, Hover & Dragging", "visible": false});
 const var SP_CARD_H = 462;           // cards stop here; the source dock sits below (docs/16 Stage 3)
 const var DOCK_Y = 470;
@@ -3092,6 +3486,8 @@ inline function setPage(pg)
     showModEditor(mod ? S.modSrc : -1);
     if (shape) syncProxies();
     Header.repaint();
+    Silk.repaint();
+    OutPanel.repaint();
     ShapePage.repaint();
     ModPage.repaint();
 }
@@ -3540,7 +3936,7 @@ inline function onModParam(component, value)
     ModPage.repaint();
 }
 
-const var ModPage = Content.addPanel("ModPage", 288, 60);
+const var ModPage = Content.addPanel("ModPage", LAYOUT.page[0], LAYOUT.page[1]);
 Content.setPropertiesFromJSON("ModPage", {"width": 720, "height": 532, "allowCallbacks": "Clicks, Hover & Dragging", "visible": false});
 ModPage.data.hover = "";
 
@@ -4236,6 +4632,16 @@ Visualiser.setTimerCallback(function()
     var rn = clamp01(0.01 * (100.0 + Engine.getDecibelsForGainFactor(rg)) * 1.25 - 0.25);
     S.lvlL = Math.max(ln, S.lvlL - 0.035);
     S.lvlR = Math.max(rn, S.lvlR - 0.035);
+    // VU needles (docs/28: -40..0 dBFS, rise 0.6 / fall 0.12 per tick), PEAK holds 600 ms
+    var nL = clamp01((Math.range(Engine.getDecibelsForGainFactor(lg), -40.0, 0.0) + 40.0) / 40.0);
+    var nR = clamp01((Math.range(Engine.getDecibelsForGainFactor(rg), -40.0, 0.0) + 40.0) / 40.0);
+    var oL = S.vuL;
+    var oR = S.vuR;
+    S.vuL = S.vuL + (nL - S.vuL) * (nL > S.vuL ? 0.6 : 0.12);
+    S.vuR = S.vuR + (nR - S.vuR) * (nR > S.vuR ? 0.6 : 0.12);
+    if (Math.max(lg, rg) > 0.966) S.peakHold = 18;
+    else if (S.peakHold > 0) S.peakHold = S.peakHold - 1;
+    if (Math.abs(S.vuL - oL) > 0.002 || Math.abs(S.vuR - oR) > 0.002 || S.peakHold == 17 || S.peakHold == 1 || S.tick % 4 == 0) OutMeter.repaint();
     var loud = (lg > 0.0005 || rg > 0.0005);
     if (loud) S.quiet = 0;
     else S.quiet = S.quiet + 1;
@@ -4314,6 +4720,22 @@ inline function selfTest()
     if (findPreset("velvet_strings") < 0 || FACTORY_BANK[findPreset("velvet_strings")].id != "bowed_metal") { ok = false; Console.print("RF selftest retired alias"); }
     if (TEMPO_Q < 0) ok = false;
     if (tempoIndex("1/8D") < 0) ok = false;
+    // docs/28 step 9: every top-level component inside 1200 x 800, Silk titles for every state
+    local allc = Content.getAllComponents(".*");
+    for (ms = 0; ms < allc.length; ms++)
+    {
+        local cc = allc[ms];
+        if (cc.get("parentComponent") != "") continue;
+        if (cc.get("x") < 0 || cc.get("y") < 0 || cc.get("x") + cc.get("width") > 1200 || cc.get("y") + cc.get("height") > 800)
+        {
+            ok = false;
+            Console.print("RF selftest outside the window: " + cc.getId());
+        }
+    }
+    for (ms = 0; ms < 5; ms++)
+    {
+        if (SILK[ms].length < 3 || SILK[ms][SILK[ms].length - 1][0] != "OUTPUT") { ok = false; Console.print("RF selftest silk state " + ms); }
+    }
     if (S.list.length < 40) ok = false;
     if (!matchesQuery(FACTORY_BANK[0], ["keys"])) ok = false;
     if (LOOP_KITS.length < 3) ok = false;

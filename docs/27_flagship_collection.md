@@ -2002,3 +2002,19 @@ Spec corrections made while building:
 3. Seventy-One Throats: a velvet decorrelator of 0.2 can only reach L/R correlation of about 0.92 ((1-a^2)/(1+a^2)), so 0.5 is used (correlation 0.74-0.93, mono fold within -2.2 dB).
 4. Vibrato written as 2^(c/1200) has a positive mean frequency that breaks the L-lock; zero-mean linear FM is used instead.
 5. Seventy-One Throats tuning tolerance is 8 cents, because its two ranks sit 6 cents apart.
+
+### Stage 1 complete (357a92c, 2026-11-18)
+
+All 8 Stage 1 flagships ship: ouroboros_bass, seventy_one_throats, resonance_wraith (+ resonance_wraith_bowl), orbiting_tines, glasgow_forks, harbor_lights_brass, willow_gate_bells, three_track_frame (+ _a, _ab, _bc, _c, one preset per tape-head position until a live HEAD switch is wired). Gates at push: render QA clean on 8,327 files and 1,717 loops, flagship DSP gates 0 failures, flagship QA on 13 presets, HISE self-test PASS (243 presets).
+
+More deviations from the spec, found while building:
+- Ouroboros Bass: cutoff keytrack 0.72 (both keyboard-control switches on, plus margin); at 0.333 the upper keys fell to a 2.2-2.9 x f0 centroid, and at 0.667 key 54 sat at 2.97 x on the 3 x floor.
+- Resonance Wraith bowl: a self-oscillating ring is a near-pure sine at any strike, so it opts out of the soft/hard centroid gate (centroid_gate false); its map starts at MIDI 60 because below that the ring barely builds before knorm drops under 1.
+- Willow Gate Bells: LED peaks 0.8 / 4 / 32 mA instead of 14 / 22 / 32 (all three of those open the gate fully at about 2 kohm, so the layers were identical); the vactrol law is extended below the paper's 10 uA clamp so the gate can close (at 10 uA a low note still leaked at -36 dB); the closing gate pulls soft bass notes up to 14 c flat through growing group delay, so tuning tolerance is 16 c over a 0.02-0.42 s window.
+- Orbiting Tines: soft-layer level gap scaled to 0.6 x in dB, so soft playing is not 30 dB under the bank; notes below about MIDI 51 reach the 12 s cap and the last second is faded instead of the planned looped 0.5 s plus DecayTime chain (needs an Amp Env hold over 2 s plus a KeyNumber chain, queued for the live-chain pass, with the release trigger, Suitcase chain and mystic variant).
+- Harbor Lights Brass: line I alone tunes within 0.78 c; the printed files carry the +7 c line II and the chorus, so tolerance is 9 c. Pressure sampler, ribbon and rain variant queued.
+- Glasgow Forks: treble hammers are lighter and harder (5 g / 2e9 down to 1 g / 5e12), because soft felt on the stiff top forks only pushed the prong aside and gave a thud 50 dB over the tone; round robins spread hammer speed +/-8 %, since identical takes correlated at 0.9999.
+- Three-Track Frame: tune_c 20 (per-strip speed error plus choir spread); dur 8.15 s so the bank's 5 Hz DC blocker settles in the tail silence.
+- Related bank note: tape wow and flutter were removed again from cruise_whistle_lead, ribbon_wraith and wet_rim_seraph (1-2.5 s loops against a 0.4 Hz wow dipped the crossfade -10 to -19 dB); wow returns once the two-pass loop render gives the stage the final loop.
+
+Flagships on kit lanes (10, chosen for note range inside each flagship's map and attack fit): afterglow_soft_rock AIR and bedroom_interlock AIR -> three_track_frame; black_glove_lullaby PLUCK and candle_glass_vigil PLUCK -> glasgow_forks; bronze_monsoon_cycle PLUCK -> willow_gate_bells; carousel_after_hours KEYS -> orbiting_tines; cathedral_smog AIR and eight_second_vespers AIR -> seventy_one_throats; keytar_boulevard BASS and lowrider_sunset BASS -> ouroboros_bass.

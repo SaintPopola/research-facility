@@ -903,7 +903,7 @@ inline function smpWave(g, r, w, col)
 
 // ---------------------------------------------------------------- FILTER RAIL (left, 256 x 520)
 const var SR_CHIP = [[12, 94], [70, 94], [128, 94], [186, 94], [12, 118], [70, 118], [128, 118]];
-const var SmpRail = Content.addPanel("SmpRail", 16, 60);
+const var SmpRail = Content.addPanel("SmpRail", LAYOUT.drawer[0], LAYOUT.drawer[1]);
 Content.setPropertiesFromJSON("SmpRail", {"width": 256, "height": 520, "allowCallbacks": "Clicks & Hover", "visible": false});
 
 inline function smpRailHit(x, y)
@@ -1161,11 +1161,11 @@ SmpRail.setMouseCallback(function(event)
     }
 });
 
-const var SmpSearch = Content.addLabel("SmpSearch", 16 + 18, 60 + 29);
+const var SmpSearch = Content.addLabel("SmpSearch", LAYOUT.smpSearch[0], LAYOUT.smpSearch[1]);
 Content.setPropertiesFromJSON("SmpSearch", {
     "width": 196, "height": 24, "text": "", "editable": true, "updateEachKey": true, "multiline": false,
     "saveInPreset": false, "fontName": "Oxygen", "fontSize": 13, "alignment": "left", "visible": false,
-    "textColour": 0xFF1C2127, "bgColour": 0x00000000, "itemColour": 0x00000000, "itemColour2": 0x00000000,
+    "textColour": 0xFFE8E4D8, "bgColour": 0x00000000, "itemColour": 0x00000000, "itemColour2": 0x00000000,
     "tooltip": "AND search over name, pack and tags. 140 = BPM, Fm = key, -drums excludes"
 });
 
@@ -1179,7 +1179,7 @@ inline function onSmpSearch(component, value)
 SmpSearch.setControlCallback(onSmpSearch);
 
 // ---------------------------------------------------------------- RESULTS (720 x 372)
-const var SmpResults = Content.addPanel("SmpResults", 288, 60);
+const var SmpResults = Content.addPanel("SmpResults", LAYOUT.smpRes[0], LAYOUT.smpRes[1]);
 Content.setPropertiesFromJSON("SmpResults", {"width": 720, "height": 372, "allowCallbacks": "Clicks, Hover & Dragging", "visible": false});
 
 SmpResults.setPaintRoutine(function(g)
@@ -1326,7 +1326,7 @@ SmpResults.setMouseCallback(function(event)
 });
 
 // ---------------------------------------------------------------- AUDITION (720 x 148)
-const var SmpAudition = Content.addPanel("SmpAudition", 288, 440);
+const var SmpAudition = Content.addPanel("SmpAudition", LAYOUT.smpAud[0], LAYOUT.smpAud[1]);
 Content.setPropertiesFromJSON("SmpAudition", {"width": 720, "height": 148, "allowCallbacks": "Clicks, Hover & Dragging", "visible": false});
 
 inline function smpAudHit(x, y)
