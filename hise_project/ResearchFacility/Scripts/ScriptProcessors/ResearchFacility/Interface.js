@@ -86,8 +86,8 @@ const var T = {
     "accentHi":  0xFFFFBE4D,
     "accentInk": 0xFFFFBE4D,   // 11.77 on well, hover values
     "onAccent":  0xFF1A1208,
-    "glow":      0xFF3FE3F2,   // inside glass only
-    "glowCore":  0xFFA8F7FF,
+    "glow":      0xFFFFB347,   // amber phosphor inside glass only (vintage scope)
+    "glowCore":  0xFFFFE2B0,
     "accentOnFrame": 0xFFF2A93B,
 
     // ---- frame, tapes, caps
@@ -650,7 +650,7 @@ inline function applyVoicing(p)
     }
     S.trim = p.trim;
     applyALevel();
-    S.col = catColour(p.cat);
+    S.col = Colours.mix(0xFFFFB347, catColour(p.cat), 0.15);
 }
 
 // ============================================================================
@@ -831,6 +831,18 @@ reg BR_ROWS = 11;
 const var PILLS = [];    // [label, catIndex(-1 = all), x, y, w]
 const var CHIPS = [];    // [key, label, x, y, w]
 
+// docs/28 review: browser pills are dark caps with uppercase silk; the active one is lit amber
+inline function drawCapPill(g, r, text, on, hot)
+{
+    g.setGradientFill([on ? 0xFF4A3412 : (hot ? 0xFF34312E : 0xFF2A2826), 0, r[1], on ? 0xFF2E200B : 0xFF161514, 0, r[1] + r[3], false]);
+    g.fillRoundedRectangle(r, 3.0);
+    g.setColour(on ? Colours.withAlpha(T.accent, 0.8) : 0x33FFFFFF);
+    g.drawRoundedRectangle([r[0] + 0.5, r[1] + 0.5, r[2] - 1, r[3] - 1], 3.0, 1.0);
+    g.setColour(on ? T.accentInk : (hot ? T.txt : T.dim));
+    g.setFontWithSpacing(T.BOLD, 9, 0.08);
+    g.drawAlignedText(text, r, "centred");
+}
+
 inline function layoutBrowser()
 {
     local labels = ["ALL"];
@@ -845,7 +857,7 @@ inline function layoutBrowser()
     local y = 52;
     for (i = 0; i < labels.length; i++)
     {
-        local w = Math.round(labels[i].length * 6.2 + 12);
+        local w = Math.round(labels[i].length * 6.6 + 14);
         if (x + w > 244) { x = 12; y = y + 24; }
         PILLS.push([labels[i], idx[i], x, y, w]);
         x = x + w + 5;
@@ -861,7 +873,7 @@ inline function layoutBrowser()
     }
     for (i = 0; i < keys.length; i++)
     {
-        local w2 = Math.round(names[i].length * 5.4 + 12);
+        local w2 = Math.round(names[i].length * 6.4 + 14 + (keys[i] == "fav" ? 10 : 0));
         if (x + w2 > 244) { x = 12; y = y + 22; }
         CHIPS.push([keys[i], names[i], x, y, w2]);
         x = x + w2 + 4;
@@ -987,11 +999,14 @@ Bg.setPaintRoutine(function(g)
     g.setColour(0xFF060605);
     g.fillRoundedRectangle([56, 658, 40, 108], 4.0);
     g.fillRoundedRectangle([108, 658, 40, 108], 4.0);
-    // drawer frame (wood) around the browser drawer
-    woodFill(g, [46, 72, 280, 6], true);
-    woodFill(g, [46, 598, 280, 6], true);
-    woodFill(g, [46, 78, 12, 520], false);
-    woodFill(g, [314, 78, 12, 520], false);
+    // browser drawer: a recessed black well with a 1 px dark bevel (docs/28 review)
+    g.setColour(T.well);
+    g.fillRect([54, 74, 264, 528]);
+    g.setColour(T.bevelDark);
+    g.fillRect([54, 74, 264, 1]);
+    g.fillRect([54, 74, 1, 528]);
+    g.setColour(T.bevelLight);
+    g.fillRect([54, 601, 264, 1]);
     // full-height dividers and the header rule
     g.setColour(Colours.withAlpha(T.txt, 0.55));
     g.fillRect([340, 72, 1, 560]);
@@ -1260,12 +1275,12 @@ inline function drawLamp(g, x, y, d, on, col, glow)
 const var VU_MARKS = [0, -3, -6, -12, -20, -30, -40];
 inline function drawVu(g, x, v, lbl)
 {
-    local top = 36;
-    local h = 232;
+    local top = 42;                                  // 6 px inset inside the 36..268 window
+    local h = 220;
     local i = 0;
     local yy = 0.0;
-    g.setGradientFill([T.vuLightTop, 0, top, T.vuLightBot, 0, top + h, false]);
-    g.fillRect([x, top, 22, h]);
+    g.setGradientFill([T.vuLightTop, 0, 36, T.vuLightBot, 0, 268, false]);
+    g.fillRect([x, 36, 22, 232]);
     g.setColour(T.vuRed);
     g.fillRect([x + 18, top, 3, Math.round(h * 3.0 / 40.0)]);
     g.setFont(T.FONT, 9);
@@ -1282,7 +1297,7 @@ inline function drawVu(g, x, v, lbl)
     g.setColour(T.vuNeedle);
     g.fillRect([x, Math.round(yy) - 1, 22, 2]);
     g.setColour(0xFF000000);
-    g.drawRect([x, top, 22, h], 1.0);
+    g.drawRect([x, 36, 22, 232], 1.0);
     g.setColour(T.txt);
     g.setFontWithSpacing(T.BOLD, 9, 0.1);
     g.drawAlignedText(lbl, [x, 270, 22, 12], "centred");
@@ -1391,13 +1406,7 @@ Content.setPropertiesFromJSON("Browser", {"width": 256, "height": 520,
 
 Browser.setPaintRoutine(function(g)
 {
-    var k = 0;
-    g.setColour(T.s1);
-    g.fillRoundedRectangle([0, 0, 256, 520], 8.0);
-    g.setColour(T.line);
-    g.drawRoundedRectangle([0.5, 0.5, 255, 519], 6.0, 1.0);
-    g.setColour(T.cardEdge);
-    g.fillRect([6, 1, 244, 1]);
+    var k = 0;                                    // the recessed well is painted by Bg (docs/28 review)
 
     if (S.mode == 1)
     {
@@ -1493,17 +1502,7 @@ Browser.setPaintRoutine(function(g)
         var pl = PILLS[k];
         var on = (pl[1] == S.cat);
         var hov = (S.hoverItem == "p" + k);
-        var pc = pl[1] < 0 ? T.accentInk : catInk(FACTORY_CATS[pl[1]]);
-        g.setColour(on ? Colours.withAlpha(pc, 0.18) : (hov ? T.s3 : T.s2));
-        g.fillRoundedRectangle([pl[2], pl[3], pl[4], 20], 10.0);
-        if (on)
-        {
-            g.setColour(Colours.withAlpha(pc, 0.7));
-            g.drawRoundedRectangle([pl[2] + 0.5, pl[3] + 0.5, pl[4] - 1, 19], 10.0, 1.0);
-        }
-        g.setColour(on ? pc : (hov ? T.txt : T.dim));
-        g.setFontWithSpacing(T.BOLD, 9, 0.08);
-        g.drawAlignedText(pl[0], [pl[2], pl[3], pl[4], 20], "centred");
+        drawCapPill(g, [pl[2], pl[3], pl[4], 20], pl[0].toUpperCase(), on, hov);
     }
 
     // vibe chips + favourites filter
@@ -1512,26 +1511,11 @@ Browser.setPaintRoutine(function(g)
         var ch = CHIPS[k];
         var con = (ch[0] == "fav") ? S.fav : (S.vibe == ch[0]);
         var chov = (S.hoverItem == "c" + k);
-        g.setColour(con ? T.accent : (chov ? T.s3 : T.s2));
-        g.fillRoundedRectangle([ch[2], ch[3], ch[4], 18], 4.0);
-        if (!con)
-        {
-            g.setColour(T.line);
-            g.drawRoundedRectangle([ch[2] + 0.5, ch[3] + 0.5, ch[4] - 1, 17], 4.0, 1.0);
-        }
+        drawCapPill(g, [ch[2], ch[3], ch[4], 18], (ch[0] == "fav" ? "   " : "") + ch[1].toUpperCase(), con, chov);
         if (ch[0] == "fav")
         {
-            g.setColour(con ? T.onAccent : T.heart);
-            g.fillPath(HEART, [ch[2] + 6, ch[3] + 5, 8, 7]);
-            g.setColour(con ? T.onAccent : (chov ? T.txt : T.dim));
-            g.setFont(T.FONT, 10);
-            g.drawAlignedText(ch[1], [ch[2] + 14, ch[3], ch[4] - 16, 18], "centred");
-        }
-        else
-        {
-            g.setColour(con ? T.onAccent : (chov ? T.txt : T.dim));
-            g.setFont(T.FONT, 10);
-            g.drawAlignedText(ch[1], [ch[2], ch[3], ch[4], 18], "centred");
+            g.setColour(con ? T.accentInk : T.heart);
+            g.fillPath(HEART, [ch[2] + 8, ch[3] + 5, 8, 7]);
         }
     }
 
@@ -1813,6 +1797,7 @@ const var LOOK_RIG = {"CLUB": "PERREO", "PRISM": "PERREO", "CHOP": "THUMP", "SYR
                       "DEEP": "VELVET", "BLOOM": "VELVET", "NOIR": "TAPE"};          // Stage 1 borrowing
 const var TINT_FIX = {"LAB": 0xFFB8C2CC, "PRISM": 0xFFFF9BE6, "DEEP": 0xFF2A7FD8};   // keep stage light off the cyan family
 
+const var PHOSPHOR = 0xFFFFB347;
 inline function buildLook()
 {
     local nm = VD.scene;
@@ -1821,6 +1806,11 @@ inline function buildLook()
     VD.wc = isDefined(TINT_FIX[nm]) ? TINT_FIX[nm] : VD.tint;               // wall / bleed colour
     VD.ca = own ? VD.lk.a : VD.wc;
     VD.cb = own ? VD.lk.b : Colours.mix(VD.ca, 0xFFFFFFFF, 0.45);
+    // docs/28 review: the STAGE reads as a phosphor scope; scene colours keep a 12-15% hint
+    VD.tint = Colours.mix(PHOSPHOR, VD.tint, 0.12);
+    VD.wc = Colours.mix(PHOSPHOR, VD.wc, 0.12);
+    VD.ca = Colours.mix(PHOSPHOR, VD.ca, 0.15);
+    VD.cb = Colours.mix(0xFFFFE2B0, VD.cb, 0.15);
 }
 const var CAT_SCENE = {"bass": 5, "vox": 6, "pads": 10, "bells": 4, "chords": 8, "guitar": 7};
 
@@ -2057,11 +2047,62 @@ const var SPEC_AREA = [16, 44, 652, 176];
 const var SCOPE_AREA = [16, 214, 180, 58];
 const var STRUM_SCALE = [0, 3, 5, 7, 10];        // minor pentatonic
 
+// docs/28 CRT bezel: an 8 px black lacquer ring with a chrome inner edge and four screws
+const var Bezel = Content.addPanel("Bezel", LAYOUT.bezel[0], LAYOUT.bezel[1]);
+Content.setPropertiesFromJSON("Bezel", {"width": LAYOUT.bezel[2], "height": LAYOUT.bezel[3], "allowCallbacks": "No Callbacks",
+    "bufferToImage": true, "saveInPreset": false, "enabled": false});
+Bezel.setPaintRoutine(function(g)
+{
+    g.setColour(0xFF0B0B0C);
+    g.fillRoundedRectangle([0, 0, LAYOUT.bezel[2], LAYOUT.bezel[3]], 10.0);
+    g.setGradientFill([T.alu, 0, 6, T.aluDark, 0, LAYOUT.bezel[3] - 6, false]);
+    g.drawRoundedRectangle([6.5, 6.5, LAYOUT.bezel[2] - 13, LAYOUT.bezel[3] - 13], 9.0, 1.0);
+    screwHead(g, 0, 0, 8);
+    screwHead(g, LAYOUT.bezel[2] - 8, 0, 8);
+    screwHead(g, 0, LAYOUT.bezel[3] - 8, 8);
+    screwHead(g, LAYOUT.bezel[2] - 8, LAYOUT.bezel[3] - 8, 8);
+});
+
 const var Visualiser = Content.addPanel("Visualiser", LAYOUT.vis[0], LAYOUT.vis[1]);
 Content.setPropertiesFromJSON("Visualiser", {"width": VIS_W, "height": VIS_H, "opaque": true,
     "allowCallbacks": "Clicks, Hover & Dragging"});
 Visualiser.data.hover = false;
 Visualiser.data.hoverPlay = false;
+
+// glass over the STAGE (docs/28 CRT): scanlines, rounded corners, top sheen. Cached
+// (bufferToImage) and click-through (enabled false), so the 30 fps stage pays nothing.
+const var GLASS_CORNERS = Content.createPath();
+GLASS_CORNERS.startNewSubPath(0, 0);
+GLASS_CORNERS.lineTo(14, 0);
+GLASS_CORNERS.quadraticTo(0, 0, 0, 14);
+GLASS_CORNERS.closeSubPath();
+GLASS_CORNERS.startNewSubPath(720, 0);
+GLASS_CORNERS.lineTo(720, 14);
+GLASS_CORNERS.quadraticTo(720, 0, 706, 0);
+GLASS_CORNERS.closeSubPath();
+GLASS_CORNERS.startNewSubPath(0, 292);
+GLASS_CORNERS.lineTo(0, 278);
+GLASS_CORNERS.quadraticTo(0, 292, 14, 292);
+GLASS_CORNERS.closeSubPath();
+GLASS_CORNERS.startNewSubPath(720, 292);
+GLASS_CORNERS.lineTo(706, 292);
+GLASS_CORNERS.quadraticTo(720, 292, 720, 278);
+GLASS_CORNERS.closeSubPath();
+const var VisGlass = Content.addPanel("VisGlass", LAYOUT.vis[0], LAYOUT.vis[1]);
+Content.setPropertiesFromJSON("VisGlass", {"width": 720, "height": 292, "allowCallbacks": "No Callbacks",
+    "bufferToImage": true, "saveInPreset": false, "enabled": false});
+VisGlass.setPaintRoutine(function(g)
+{
+    var y = 0;
+    g.setColour(0x16000000);
+    for (y = 1; y < 292; y += 3) g.fillRect([0, y, 720, 1]);
+    g.setColour(0x0AFFB347);
+    g.fillRect([0, 0, 720, 292]);
+    g.setGradientFill([0x14FFFFFF, 0, 0, 0x00FFFFFF, 0, 110, false]);
+    g.fillRect([0, 0, 720, 110]);
+    g.setColour(0xFF0B0B0C);
+    g.fillPath(GLASS_CORNERS, [0, 0, 720, 292]);
+});
 Visualiser.loadImage("{PROJECT_FOLDER}sm_stage_plate.png", "stage");   // 1440x584 opaque plate (scripts/build_stage_assets.py)
 Visualiser.loadImage("{PROJECT_FOLDER}sm_led_mesh.png", "mesh");       // 1024x312 LED seams, 1:1 on the wall
 Visualiser.loadImage("{PROJECT_FOLDER}sm_orb_strip.png", "orb");      // ORB wall content (VELVET rigs)
@@ -2718,9 +2759,9 @@ inline function drawScale(g, cx, cy, cls, kind)
 }
 
 // PLAY face knob rects (window), by MACRO_IDS order: TONE BODY MOTION WIDTH SPACE ECHO GRIT PUMP
-const var MAC_POS = [[706, 400, 96, 100], [522, 410, 80, 84], [354, 410, 80, 84], [822, 410, 80, 84],
+const var MAC_POS = [[706, 446, 96, 100], [522, 410, 80, 84], [354, 410, 80, 84], [822, 410, 80, 84],
                      [906, 410, 80, 84], [990, 410, 80, 84], [606, 410, 80, 84], [438, 410, 80, 84]];
-const var AR_POS = [[694, 528, 56, 58], [758, 528, 56, 58]];
+const var AR_POS = [[534, 528, 56, 58], [614, 528, 56, 58]];      // CONTOUR, under VOICE
 
 const var MACROS = [];
 for (mk = 0; mk < 8; mk++)
@@ -2965,7 +3006,7 @@ AttackKnob.setControlCallback(onAttack);
 ReleaseKnob.setControlCallback(onRelease);
 
 // [id, x, y, w, h] local to the MacroCard (docs/28 BTN table)
-const var MC_BTN = [["AB", 20, 150, 36, 20], ["UNDO", 96, 148, 24, 24], ["VARIATION", 192, 148, 24, 24], ["RESET", 276, 148, 24, 24]];
+const var MC_BTN = [["AB", 26, 132, 36, 20], ["UNDO", 118, 130, 24, 24], ["VARIATION", 32, 182, 24, 24], ["RESET", 118, 182, 24, 24]];
 MacroCard.data.down = "";
 MacroCard.loadImage("{PROJECT_FOLDER}vm_push_red_2x.png", "push");
 MacroCard.loadImage("{PROJECT_FOLDER}vm_rocker_2x.png", "rocker");
@@ -3052,7 +3093,7 @@ MacroCard.setPaintRoutine(function(g)
         var dead = (b[0] == "UNDO" && !isDefined(S.undo.cur));
         g.setColour(T.txt);
         g.setFontWithSpacing(T.BOLD, 9, 0.08);
-        g.drawAlignedText(b[0] == "AB" ? "COMPARE" : b[0], [b[1] - 30, 136, b[3] + 60, 10], "centred");
+        g.drawAlignedText(b[0] == "AB" ? "COMPARE" : b[0], [b[1] - 30, b[2] - 13, b[3] + 60, 10], "centred");
         if (b[0] == "AB")
         {
             var on = S.ab == "B";
@@ -3061,9 +3102,9 @@ MacroCard.setPaintRoutine(function(g)
             if (hot) { g.setColour(Colours.withAlpha(T.txt, 0.4)); g.drawRoundedRectangle([b[1] - 1, b[2] - 1, 38, 22], 3.0, 1.0); }
             g.setColour(S.ab == "A" ? T.accentInk : T.dim);
             g.setFont(T.BOLD, 9);
-            g.drawAlignedText("A", [b[1], 172, 10, 10], "centred");
+            g.drawAlignedText("A", [b[1], b[2] + 21, 10, 10], "centred");
             g.setColour(S.ab == "B" ? T.accentInk : T.dim);
-            g.drawAlignedText("B", [b[1] + 26, 172, 10, 10], "centred");
+            g.drawAlignedText("B", [b[1] + 26, b[2] + 21, 10, 10], "centred");
         }
         else
         {
@@ -3089,10 +3130,10 @@ MacroCard.setPaintRoutine(function(g)
     for (k = 0; k < 2; k++)
         drawScale(g, AR_POS[k][0] - MC_X + 28, AR_POS[k][1] - MC_Y + 35, 0, k == 0 ? "timeL" : "timeR");
     g.setColour(T.line);
-    g.fillRect([340, 124, 124, 1]);
+    g.fillRect([176, 116, 152, 1]);
     g.setColour(T.txt);
     g.setFontWithSpacing(T.BOLD, 9, 0.12);
-    g.drawAlignedText("CONTOUR", [340, 127, 124, 12], "centred");
+    g.drawAlignedText("CONTOUR", [176, 119, 152, 12], "centred");
     g.setGradientFill([T.cardHi, 0, 124, T.card, 0, 200, false]);
     g.fillRect([480, 124, 228, 76]);
     g.setColour(T.paperEdge);
@@ -3334,8 +3375,8 @@ keyLaf.registerFunction("drawWhiteNote", function(g, obj)
     g.fillRect([x, y + h - 3, w, 3]);
     if (!isDown && obj.keyColour != 0)
     {
-        g.setColour(obj.keyColour);
-        g.fillRoundedRectangle([x + 2, y + h - 26, w - 4, 8], 3.0);
+        g.setColour(Colours.withAlpha(obj.keyColour, 0.9));          // thin lamp strip, not a stain
+        g.fillRoundedRectangle([x + 4, y + 3, w - 8, 3], 1.5);
     }
     var ll = loopLabel(obj.noteNumber);
     if (ll != "")
@@ -3368,8 +3409,8 @@ keyLaf.registerFunction("drawBlackNote", function(g, obj)
     g.fillRoundedRectangle([bx + 2, by + bh - (isDown ? 12 : 9), bw - 4, isDown ? 8 : 5], 2.0);
     if (!isDown && obj.keyColour != 0)
     {
-        g.setColour(obj.keyColour);
-        g.fillRoundedRectangle([bx + 2, by + bh - 18, bw - 4, 6], 2.0);
+        g.setColour(Colours.withAlpha(obj.keyColour, 0.9));
+        g.fillRoundedRectangle([bx + 4, by + 3, bw - 8, 3], 1.5);
     }
     var bll = loopLabel(obj.noteNumber);
     if (bll != "")
@@ -3568,6 +3609,8 @@ inline function setPage(pg)
     ShapePage.showControl(shape);
     ModPage.showControl(mod);
     Visualiser.showControl(play);
+    VisGlass.showControl(play);
+    Bezel.showControl(play);
     MacroCard.showControl(play);
     for (i = 0; i < 8; i++) MACROS[i].showControl(play && S.mode == 0);   // LOOPS draws LOOP FX in this card
     AttackKnob.showControl(play && S.mode == 0);

@@ -12,6 +12,11 @@ name: Build VST3/AU plugin
 
 on:
   workflow_dispatch:
+    inputs:
+      standalone_only:
+        description: "Build only the macOS standalone app (UI screenshots; skips the plugin jobs)"
+        type: boolean
+        default: false
   workflow_call:      # lets release.yml reuse this exact build + installer job
   push:
     branches: [main]
@@ -23,6 +28,7 @@ on:
 
 jobs:
   build_macos:
+    if: ${{ !inputs.standalone_only }}
     name: macOS Universal
     runs-on: macos-15    # Apple Silicon runner (macos-14 image retired: 'configuration not supported'); universal build
 
@@ -498,6 +504,7 @@ jobs:
           if-no-files-found: warn
 
   build_windows:
+    if: ${{ !inputs.standalone_only }}
     name: Windows x64 VST3
     runs-on: windows-latest
     timeout-minutes: 180
@@ -617,6 +624,7 @@ jobs:
           retention-days: 2
 
   build_linux:
+    if: ${{ !inputs.standalone_only }}
     name: Linux x64 VST3
     runs-on: ubuntu-latest
     timeout-minutes: 180
