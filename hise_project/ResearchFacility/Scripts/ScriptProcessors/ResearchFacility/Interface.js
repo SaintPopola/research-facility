@@ -2498,6 +2498,11 @@ Content.setPropertiesFromJSON("MacroCard", {"width": 720, "height": 216, "allowC
 MacroCard.data.hover = "";
 
 const var knobLaf = Content.createLocalLookAndFeel();
+// Blender strips (docs/28 Phase 4): 16 frames over one flute / knurl period, vertical
+knobLaf.loadImage("{PROJECT_FOLDER}vm_knob_l_2x.png", "skL");     // 144 px frames: K1 XL 72, L 56
+knobLaf.loadImage("{PROJECT_FOLDER}vm_knob_s_2x.png", "skS");     // 72 px frames:  K1 S 36
+knobLaf.loadImage("{PROJECT_FOLDER}vm_collet_l_2x.png", "clL");   // 144 px frames: K2 CXL 72, CL 56
+knobLaf.loadImage("{PROJECT_FOLDER}vm_collet_s_2x.png", "clS");   // 80 px frames:  K2 CM 40, CS 34
 // docs/28 + 28b knobs. Vector until the Blender strips land (Phase 4, behind isImageLoaded).
 // K1 fluted (PLAY macros, ATTACK, RELEASE): black skirt, spun aluminium cap, index line.
 // K2 collet (every rack-page knob): black body, flat coloured cap by function, printed line.
@@ -2572,22 +2577,39 @@ knobLaf.registerFunction("drawRotarySlider", function(g, obj)
         g.drawAlignedText("" + TGT_COUNT[ti], [w - 14, 0, 14, 12], "right");
     }
 
-    // body
-    g.setColour(0x66000000);                                             // seat shadow
-    g.fillEllipse([cx - R + 1.0, cy - R + 2.0, R * 2.0, R * 2.0]);
-    g.setGradientFill([T.capHi, cx - R * 0.6, cy - R * 0.8, T.cap, cx + R * 0.5, cy + R * 0.9, false]);
-    g.fillEllipse([cx - R, cy - R, R * 2.0, R * 2.0]);
-    g.setColour(0x33FFFFFF);
-    g.drawEllipse([cx - R + 0.5, cy - R + 0.5, R * 2.0 - 1.0, R * 2.0 - 1.0], 1.0);
+    // body: the Blender strip frame (rotation inside one flute / knurl period), else vector
+    var deg = ang * 57.29578;
+    var dSz = k1 ? (w >= 90 ? 72 : (w >= 70 ? 56 : 36)) : (w >= 90 ? 72 : (w >= 70 ? 56 : (w >= 50 ? 40 : 34)));
+    var sImg = k1 ? (dSz >= 56 ? "skL" : "skS") : (dSz >= 56 ? "clL" : "clS");
+    var fH = k1 ? (dSz >= 56 ? 144 : 72) : (dSz >= 56 ? 144 : 80);
+    var per = k1 ? 15.0 : 10.0;
+    var haveImg = knobLaf.isImageLoaded(sImg);
+    if (haveImg)
+    {
+        var fi = Math.round(Math.wrap(deg, per) / per * 16.0) % 16;
+        g.drawImage(sImg, [Math.round(cx - dSz / 2), Math.round(cy - dSz / 2), dSz, dSz], 0, fi * fH);
+    }
+    else
+    {
+        g.setColour(0x66000000);                                         // seat shadow
+        g.fillEllipse([cx - R + 1.0, cy - R + 2.0, R * 2.0, R * 2.0]);
+        g.setGradientFill([T.capHi, cx - R * 0.6, cy - R * 0.8, T.cap, cx + R * 0.5, cy + R * 0.9, false]);
+        g.fillEllipse([cx - R, cy - R, R * 2.0, R * 2.0]);
+        g.setColour(0x33FFFFFF);
+        g.drawEllipse([cx - R + 0.5, cy - R + 0.5, R * 2.0 - 1.0, R * 2.0 - 1.0], 1.0);
+    }
     var lineIn = 0.62;
     var ink = T.pointer;
     if (k1)
     {
-        var cr = R * 0.56;                                                // spun aluminium cap
-        g.setGradientFill([0xFFF7F6F2, cx - cr * 0.4, cy - cr * 0.5, T.capRing, cx + cr, cy + cr, true]);
-        g.fillEllipse([cx - cr, cy - cr, cr * 2.0, cr * 2.0]);
-        g.setColour(0x40000000);
-        g.drawEllipse([cx - cr, cy - cr, cr * 2.0, cr * 2.0], 1.0);
+        if (!haveImg)
+        {
+            var cr = R * 0.56;                                            // spun aluminium cap (baked in the strip)
+            g.setGradientFill([0xFFF7F6F2, cx - cr * 0.4, cy - cr * 0.5, T.capRing, cx + cr, cy + cr, true]);
+            g.fillEllipse([cx - cr, cy - cr, cr * 2.0, cr * 2.0]);
+            g.setColour(0x40000000);
+            g.drawEllipse([cx - cr, cy - cr, cr * 2.0, cr * 2.0], 1.0);
+        }
     }
     else
     {

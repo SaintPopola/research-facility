@@ -524,11 +524,78 @@ def build_swatch(out):
     print("VM swatch written", sc.render.filepath)
 
 
+def strip_scene(frame_px, logical):
+    """Transparent sprite scene: one frame of frame_px square showing `logical` px of panel."""
+    sc = fresh_scene(frame_px, frame_px, samples=512)
+    sc.cycles.use_denoising = False
+    sc.render.film_transparent = True
+    sc.render.image_settings.color_mode = "RGBA"
+    sc.render.filter_size = 1.0
+    ortho_camera(logical)
+    vm_rig()
+    bpy.ops.mesh.primitive_plane_add(size=1.0, location=(0, 0, 0))
+    pl = bpy.context.active_object
+    pl.is_shadow_catcher = True
+    return sc
+
+
+def spun_alu():
+    m = bsdf("VM_Spun", srgb("#C9CCCF"), rough=0.24, metallic=1.0, aniso=0.7)
+    nt = m.node_tree
+    tg = nt.nodes.new("ShaderNodeTangent")
+    tg.direction_type = "RADIAL"
+    tg.axis = "Z"
+    nt.links.new(tg.outputs["Tangent"], nt.nodes["Principled BSDF"].inputs["Tangent"])
+    return m
+
+
+def build_knob_strip(out, kind, frame_px, logical, radius_px, frames=16):
+    """K1 fluted ('fluted': 24 flutes, spun cap 0.56 of the skirt, period 15 deg) or K2
+    collet ('collet': 36 straight knurls, flat top, cap drawn in vector, period 10 deg).
+    Renders frames 0..16; frame 16 must equal frame 0 (periodic strip). No pointer baked."""
+    sc = strip_scene(frame_px, logical)
+    r = radius_px * PX
+    grp = bpy.data.objects.new("Knob", None)
+    bpy.context.scene.collection.objects.link(grp)
+    if kind == "fluted":
+        skirt = bsdf("VM_Skirt", srgb("#0C0D0D"), rough=0.32, coat=0.4, coat_rough=0.15)
+        a = cyl("Skirt", 0, 0, r, 14 * 0.001, 0.0, skirt, verts=24 * 8, flutes=24, bevel=0.0006)
+        b = cyl("Cap", 0, 0, r * 0.56, 0.0016, 0.014, spun_alu(), verts=128, dome=0.0008, bevel=0.0004)
+        period = 15.0
+        parts = [a, b]
+    else:
+        body = bsdf("VM_Collet", srgb("#0E0F10"), rough=0.38, coat=0.2, coat_rough=0.2)
+        a = cyl("Collet", 0, 0, r, 12 * 0.001, 0.0, body, verts=36 * 6, flutes=36, bevel=0.0005)
+        seat = bsdf("VM_Seat", srgb("#050505"), rough=0.5)
+        b = cyl("Seat", 0, 0, r * 0.80, 0.0006, 0.012, seat, verts=96, bevel=0.0002)
+        period = 10.0
+        parts = [a, b]
+    for o in parts:
+        o.parent = grp
+    os.makedirs(out, exist_ok=True)
+    for k in range(frames + 1):
+        grp.rotation_euler.z = -math.radians(k * period / frames)
+        sc.render.filepath = os.path.join(out, f"{k:04d}.png")
+        bpy.ops.render.render(write_still=True)
+    print("VM strip written", out)
+
+
+STRIPS = {
+    "knob_l":   ("fluted", 144, 72, 28),      # serves XL (72) and L (56)
+    "knob_s":   ("fluted", 72, 36, 14),       # S (36)
+    "collet_l": ("collet", 144, 72, 28),      # CXL (72) and CL (56)
+    "collet_s": ("collet", 80, 40, 16),       # CM (40) and CS (34)
+}
+
+
 if __name__ == "__main__":
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     what = argv[0] if argv else "swatch"
     out_dir = argv[1] if len(argv) > 1 else os.path.expanduser("~/CBR_previews")
     if what == "swatch":
         build_swatch(out_dir)
+    elif what in STRIPS:
+        kind, fpx, logical, rad = STRIPS[what]
+        build_knob_strip(os.path.join(out_dir, what), kind, fpx, logical, rad)
     else:
-        raise SystemExit(f"unknown asset {what!r} (have: swatch)")
+        raise SystemExit(f"unknown asset {what!r} (have: swatch, {', '.join(STRIPS)})")
