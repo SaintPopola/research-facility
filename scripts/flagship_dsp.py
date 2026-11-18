@@ -416,8 +416,8 @@ def gen_moog_core(note, n, p, rng):
     dT = float(np.clip(rr, -1, 1)) if p.get("thermal", True) else 0.0
     loop = p.get("_loop")
     n_loop = (loop[1] - loop[0]) if loop else n
-    kr = np.random.default_rng(p.get("_wseed", 5) ^ (note * 7919))
-    dseed = p.get("_wseed", 5) ^ (note * 131) ^ ((rr + 2) * 0x9E37)    # drift differs per key and RR take
+    kr = np.random.default_rng(p.get("_wseed", 5) ^ (int(round(note)) * 7919))
+    dseed = p.get("_wseed", 5) ^ (int(round(note)) * 131) ^ ((rr + 2) * 0x9E37)    # drift differs per key and RR take
     # drift: common + own per oscillator, 1/f, periodic over the loop (seamless)
     def drift_c(cents, seed):
         d = loop_drift(n_loop * os_, np.random.default_rng(seed), cents, f_lo=0.02, f_hi=3.0, sr=fs)
@@ -465,7 +465,7 @@ def gen_moog_core(note, n, p, rng):
     if bu:
         # a short Hann noise burst strikes the (self-oscillating) ladder: a pinged 'bowl'
         kb = max(8, int(bu.get("ms", 1.5) * 0.001 * fs))
-        nzb = np.random.default_rng(p.get("_wseed", 5) ^ (note * 31) ^ ((rr + 3) * 0x7F1)).standard_normal(kb)
+        nzb = np.random.default_rng(p.get("_wseed", 5) ^ (int(round(note)) * 31) ^ ((rr + 3) * 0x7F1)).standard_normal(kb)
         osc[:kb] += nzb / (float(np.abs(nzb).max()) + 1e-12) * np.hanning(kb)
     t = np.arange(no) / fs
     fenv = env_rc(no, p.get("f_attack", 0.002), p.get("f_decay", 0.28), p.get("f_sustain", 0.2), sr=fs)
@@ -546,8 +546,9 @@ TOP_DIV = [478, 451, 426, 402, 379, 358, 338, 319, 301, 284, 268, 253]   # C8 ..
 def poly_divide_f8(note):
     """The 8' pitch of a key from the top-octave divider (up to +/-1.2 c from equal
     temperament, on purpose: that table is the instrument's tuning)."""
-    pc = note % 12
-    return (TOP_CLOCK / TOP_DIV[pc]) / 2.0 ** ((108 + pc - note) / 12.0)
+    key = int(round(note))                     # loop lanes pass a humanised note (+/- a few cents)
+    pc = key % 12
+    return (TOP_CLOCK / TOP_DIV[pc]) / 2.0 ** ((108 + pc - key) / 12.0) * 2.0 ** ((note - key) / 12.0)
 
 
 @nb.njit(cache=True)
@@ -630,7 +631,7 @@ def gen_poly_divide(note, n, p, rng):
     loop = p.get("_loop")
     L = ((loop[1] - loop[0]) / SR) if loop else n / SR
     rr = int(p.get("_rr", 1))
-    pr = np.random.default_rng(p.get("_wseed", 9) ^ (rr * 0x51F) ^ (note * 17))
+    pr = np.random.default_rng(p.get("_wseed", 9) ^ (rr * 0x51F) ^ (int(round(note)) * 17))
     t = np.arange(no) / fs
     f8 = poly_divide_f8(note)
 

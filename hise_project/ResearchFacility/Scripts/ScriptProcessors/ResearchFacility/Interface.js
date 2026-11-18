@@ -19,6 +19,16 @@
 
 Content.makeFrontInterface(1200, 800);
 
+// docs/28 type: SIL OFL faces in Images/fonts (each weight under its own id; an unknown id
+// silently falls back to a system font). Exported builds use the embedded font tree.
+Engine.loadFontAs("{PROJECT_FOLDER}fonts/Jost-500-Medium.ttf", "VM Silk");
+Engine.loadFontAs("{PROJECT_FOLDER}fonts/Jost-600-Semi.ttf", "VM Label");
+Engine.loadFontAs("{PROJECT_FOLDER}fonts/Jost-700-Bold.ttf", "VM Bold");
+Engine.loadFontAs("{PROJECT_FOLDER}fonts/CourierPrime-Regular.ttf", "VM Type");
+Engine.loadFontAs("{PROJECT_FOLDER}fonts/CourierPrime-Bold.ttf", "VM Type Bold");
+Engine.loadFontAs("{PROJECT_FOLDER}fonts/DSEG7Classic-Bold.ttf", "VM Digits");
+Engine.loadFontAs("{PROJECT_FOLDER}fonts/DSEG14Classic-Bold.ttf", "VM Alpha");
+
 // docs/28 vintage panel: every window origin lives here (1200 x 800). Panel sizes are
 // unchanged from the 1024 x 700 layout, so all panel-local paint and hit code survives.
 const var LAYOUT = {
@@ -153,14 +163,16 @@ const var T = {
     // ---- VU meter
     "vuLightTop": 0xFFF2C77A, "vuLightBot": 0xFFD99A3C, "vuInk": 0xFF2A2118, "vuNeedle": 0xFF141210, "vuRed": 0xFFB3261E,
 
-    // ---- type: Oxygen is HISE-embedded. docs/28 faces (VM Silk / Label / Bold / Type /
-    //      Digits) replace these once the OFL TTFs are bundled and registered with loadFontAs.
-    "FONT":    "Oxygen",
-    "BOLD":    "Oxygen Bold",
-    "MONO":    "Oxygen",
-    "SILK":    "Oxygen Bold",
-    "TYPE":    "Oxygen",
-    "TYPEB":   "Oxygen Bold",
+    // ---- type: docs/28 OFL faces registered after makeFrontInterface
+    "FONT":    "VM Label",
+    "BOLD":    "VM Label",
+    "MONO":    "VM Type",
+    "SILK":    "VM Silk",
+    "SUB":     "VM Bold",
+    "TYPE":    "VM Type",
+    "TYPEB":   "VM Type Bold",
+    "DIGITS":  "VM Digits",
+    "ALPHA":   "VM Alpha",
     "fsBrand": 15, "fsTape": 10, "fsLabel": 9, "fsValue": 10, "fsLcd": 13, "fsMin": 9,
 
     // ---- geometry (1200 x 800 base, 8px grid)
@@ -1218,7 +1230,7 @@ inline function drawLed(g, r, text, ghost)
     g.fillRoundedRectangle(r, 2.0);
     g.setColour(T.lcdBezel);
     g.drawRoundedRectangle([r[0] + 0.5, r[1] + 0.5, r[2] - 1, r[3] - 1], 2.0, 1.0);
-    g.setFont(T.MONO, 14);
+    g.setFont(T.DIGITS, 14);
     g.setColour(T.lcdOff);
     g.drawAlignedText(ghost, [r[0] + 4, r[1], r[2] - 8, r[3]], "right");
     g.setColour(T.lcdText);

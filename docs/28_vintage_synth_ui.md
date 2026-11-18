@@ -1712,3 +1712,31 @@ Sources: /Users/noxvitae/.claude/skills/blender/SKILL.md (sections 0, 3, 4, 6, 1
 - Wood choice (golden walnut vs. red figured gloss) is the user's call at the swatch.
 
 Sources: /Users/noxvitae/Desktop/ResearchFacility/docs/17_ui_aesthetic.md (render plan item 2: no downloaded HDRIs or textures)
+
+## Download log (approved by the user per file, 2026-11-18)
+
+Fonts (bundled in hise_project/ResearchFacility/Images/fonts, shipped unmodified with their licence files):
+
+| File | Bytes | SHA-256 (first 16) | Source | Licence |
+|---|---|---|---|---|
+| Jost-500-Medium.ttf | 102,240 | 4f96c348370bb0b4 | github.com/indestructible-type/Jost fonts/ttf | SIL OFL 1.1 (OFL-Jost.txt) |
+| Jost-600-Semi.ttf | 104,416 | 45136d63fdbe5d30 | same | SIL OFL 1.1 |
+| Jost-700-Bold.ttf | 116,772 | 95f16d0769854923 | same | SIL OFL 1.1 |
+| CourierPrime-Regular.ttf | 71,188 | 72f793376f8e2841 | github.com/google/fonts ofl/courierprime | SIL OFL 1.1 (OFL-CourierPrime.txt) |
+| CourierPrime-Bold.ttf | 72,856 | ff1f38786c849d1c | same | SIL OFL 1.1 |
+| DSEG7Classic-Bold.ttf | 23,040 | d16181c4eeae29e6 | github.com/keshikan/DSEG release v0.46 (fonts-DSEG_v046.zip, 1,095,157 B) | SIL OFL 1.1 with Reserved Font Name "DSEG" (DSEG-LICENSE.txt) |
+| DSEG14Classic-Bold.ttf | 28,424 | 10755549540ea735 | same | same |
+
+Textures (Blender sources only, kept outside the repo in ~/Desktop/Sweet Melody UI assets/downloads, one folder per asset):
+
+| File | Bytes | Source | Licence |
+|---|---|---|---|
+| walnut_veneer_diff / nor_gl / rough_2k.jpg | 2,060,618 / 1,891,517 / 2,426,374 | dl.polyhaven.org Textures/jpg/2k/walnut_veneer | CC0 (Poly Haven) |
+| black_walnut_veneer_02_diff / nor_gl / rough_2k.jpg | 2,365,710 / 1,877,332 / 2,670,532 | dl.polyhaven.org .../black_walnut_veneer_02 | CC0 |
+| sapele_veneer_diff / nor_gl / rough_2k.jpg | 2,829,181 / 2,527,515 / 1,582,778 | dl.polyhaven.org .../sapele_veneer | CC0 |
+| blue_metal_plate_nor_gl / rough_2k.jpg | 948,237 / 1,588,770 | dl.polyhaven.org .../blue_metal_plate | CC0 |
+| Metal028_2K-JPG.zip | 27,221,254 | ambientcg.com/get?file=Metal028_2K-JPG.zip | CC0 1.0 (ambientCG) |
+| Metal051A_2K-JPG.zip | 9,147,838 | ambientcg.com/get?file=Metal051A_2K-JPG.zip | CC0 1.0 |
+| Plastic006_2K-JPG.zip | 15,867,501 | ambientcg.com/get?file=Plastic006_2K-JPG.zip | CC0 1.0 |
+| Plastic010_2K-JPG.zip | 12,649,692 | ambientcg.com/get?file=Plastic010_2K-JPG.zip | CC0 1.0 |
+| Scratches004_2K-JPG.zip | 22,117,319 | ambientcg.com/get?file=Scratches004_2K-JPG.zip | CC0 1.0 |
