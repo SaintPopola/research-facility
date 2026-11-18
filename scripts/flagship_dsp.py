@@ -76,8 +76,16 @@ def llock_n(f_low, target_s, sr=SR):
     """Loop length (samples) holding a whole number of periods of the lowest oscillator.
     N = round(k sr / f), k = round(target_s f): the period error is under half a sample, so
     the tuning error is below 0.004 c for loops of 5 s or more (docs/27 bar item 8)."""
-    k = max(1, int(round(target_s * f_low)))
-    return int(round(k * sr / f_low))
+    # among whole-period counts within 5% under the target, take the one whose sample count
+    # lands closest to an exact number of periods (half a sample of slip multiplies up the
+    # footages: 4' of a C6 lost 0.002 of correlation at the seam)
+    k0 = max(1, int(round(target_s * f_low)))
+    best_k, best_e = k0, 1e9
+    for k in range(max(1, int(k0 * 0.95)), k0 + 1):         # never longer than the target: it must fit
+        e = abs(round(k * sr / f_low) * f_low / sr - k)
+        if e < best_e - 1e-12:
+            best_k, best_e = k, e
+    return int(round(best_k * sr / f_low))
 
 
 def snap_beat(f, detune_c, n_loop, sr=SR):
@@ -299,3 +307,328 @@ def additive_osc(freq, fs, shape="saw", pw=0.5, fmax=23000.0, phase0=0.0):
     freq: Hz per sample (array) or scalar with n samples given by an array input."""
     f = np.ascontiguousarray(np.asarray(freq, np.float64))
     return _additive(f, float(fs), SHAPES[shape], float(pw if shape != "square" else 0.5), float(fmax), float(phase0))
+
+
+# ---------------------------------------------------------------------------------------
+# moog_core (docs/27 E2): Model D-type voice. VCOs -> ADAA tanh mixer (with the post-VCA
+# output fed back, the reissue's ext-in loop) -> D'Angelo ladder (contour on the cutoff) ->
+# VCA, all at 4x, then the Kaiser-10 decimator. Velocity layers pick a drive stage (mixer
+# drive, feedback, volts into the ladder, contour depth); RR takes are thermal states.
+# ---------------------------------------------------------------------------------------
+@nb.njit(cache=True)
+def _moog_voice(osc, amp, fcs, kn, fs, drive, fb, vin):
+    n = osc.shape[0]
+    out = np.zeros(n)
+    N = 4
+    si = np.zeros(N)
+    sf = np.zeros(N)
+    sg = np.zeros(N)
+    vt2 = 2.0 * VT
+    vt2i = 1.0 / vt2
+    k = kn * (1.0 / math.cos(math.pi / N)) ** N
+    alpha = math.sqrt(1.0 + k ** 0.5 - 2.0 * k ** 0.25 * math.cos(math.pi / N))
+    bcoef = np.array([4.0, 6.0, 4.0, 1.0])
+    rg = np.zeros(N)
+    qg = np.zeros(N)
+    prev = 0.0
+    xm_prev = 0.0
+    F_prev = 0.0
+    for i in range(n):
+        # mixer: ADAA1 tanh of (oscillators + fed-back output), F = log cosh
+        xm = drive * (osc[i] + fb * prev)
+        a = abs(xm)
+        F = a + math.log1p(math.exp(-2.0 * a)) - math.log(2.0)
+        d = xm - xm_prev
+        if abs(d) > 1e-7:
+            m = (F - F_prev) / d
+        else:
+            m = math.tanh(0.5 * (xm + xm_prev))
+        xm_prev = xm
+        F_prev = F
+        x = m * vin                                  # volts into the ladder
+        g = math.tan(math.pi / fs * fcs[i]) / alpha
+        p0s = 1.0 / (1.0 + g)
+        q0s = 1.0 - g
+        r1s = -g
+        k0s = vt2 * g * p0s
+        kgN = k * (1.0 - p0s) ** N
+        p0g = 1.0 / (1.0 + kgN)
+        gp = (g - 1.0) * p0s
+        for j in range(N):
+            rg[j] = -bcoef[j] * kgN
+            qg[j] = rg[j] - bcoef[j] * gp ** (j + 1)
+        k0g = -vt2i * p0g
+        yo = math.tanh(k0g * (x + sg[0]))
+        yy = 0.0
+        for mm in range(N):
+            yi = yo
+            yd = k0s * (yi + sf[mm])
+            yy = yd + si[mm]
+            yo = math.tanh(vt2i * yy)
+            si[mm] = yd + yy
+            sf[mm] = r1s * yi - q0s * yo
+        yf = k * yy
+        for mm in range(N - 1):
+            sg[mm] = rg[mm] * x + qg[mm] * yf + sg[mm + 1]
+        sg[N - 1] = rg[N - 1] * x + qg[N - 1] * yf
+        y = yy / vin * amp[i]                        # back to mixer units, then the VCA
+        prev = y
+        out[i] = y
+    return out
+
+
+def vco(freq, fs, shape, pw=0.5):
+    """VCO at rate fs: polyBLEP below 1 kHz (alias negligible there at 4x), additive above."""
+    import sigbank_dsp as sd
+    f = np.asarray(freq, np.float64)
+    if float(f.max()) > 1000.0:
+        return additive_osc(f, fs, shape if shape != "rsaw" else "rsaw", pw)
+    scaled = f * (sd.SR / fs)                        # the BLEP helpers divide by 48 kHz
+    if shape in ("saw", "rsaw"):
+        y = sd._saw_blep(scaled, 0.0)
+        return -y if shape == "rsaw" else y
+    if shape in ("pulse", "square"):
+        return sd._pulse_blep(scaled, float(pw if shape == "pulse" else 0.5), 0.0)
+    return additive_osc(f, fs, "tri")
+
+
+def gen_moog_core(note, n, p, rng):
+    """Model D-type flagship voice (docs/27 Ouroboros Bass and kin)."""
+    os_ = int(p.get("oversample", 4))
+    fs = SR * os_
+    no = n * os_
+    f0 = 440.0 * 2.0 ** ((note - 69) / 12.0)
+    st = int(p.get("drive_stage", 1))
+
+    def at_stage(v):
+        return v[st] if isinstance(v, list) else v
+    mix_drive = at_stage(p.get("mix_drive", 1.8))
+    ext_fb = at_stage(p.get("ext_fb", 0.8))
+    input_v = at_stage(p.get("input_v", 0.10))
+    fenv_oct = at_stage(p.get("fenv_oct", 2.6))
+    era = p.get("era", "original_rev2")
+    rr = int(p.get("_rr", 1)) - 1                    # RR takes are thermal states dT -1 / 0 / +1 K
+    dT = float(np.clip(rr, -1, 1)) if p.get("thermal", True) else 0.0
+    loop = p.get("_loop")
+    n_loop = (loop[1] - loop[0]) if loop else n
+    kr = np.random.default_rng(p.get("_wseed", 5) ^ (note * 7919))
+    dseed = p.get("_wseed", 5) ^ (note * 131) ^ ((rr + 2) * 0x9E37)    # drift differs per key and RR take
+    # drift: common + own per oscillator, 1/f, periodic over the loop (seamless)
+    def drift_c(cents, seed):
+        d = loop_drift(n_loop * os_, np.random.default_rng(seed), cents, f_lo=0.02, f_hi=3.0, sr=fs)
+        reps = int(math.ceil(no / d.size)) + 1
+        start = (loop[0] * os_) % d.size if loop else 0
+        return np.roll(np.tile(d, reps), start)[:no]
+    common = drift_c(p.get("drift_common_c", 1.2), dseed ^ 0xC0)
+    static_err = kr.uniform(-10.0, 10.0) if era == "reissue_2016" else 0.0
+    thermal_c = 4.0 * dT * (note - 41) / 12.0 * (1.0 - p.get("tempco", 0.85))
+    if loop:
+        # L-lock: a pitch offset must keep whole periods over the loop, so the thermal shift is
+        # snapped to the loop's 1 / L grid (usually 0 at these few cents); the cutoff keeps it
+        L = n_loop / SR
+        flo = f0 * min(2.0 ** (o[0] / 12.0) for o in p.get("oscs", [[0]]))
+        dfl = round(flo * (2.0 ** (thermal_c / 1200.0) - 1.0) * L) / L
+        thermal_c = 1200.0 * math.log2(1.0 + dfl / flo)
+    osc = np.zeros(no)
+    oscs = p.get("oscs", [[0, "saw", 10, 0.0], [0, "saw", 8, 0.25], [-12, "rsaw", 6, 0.0]])
+    prev_sig = None
+    for oi, (semi, shape, lvl, beat) in enumerate(oscs):
+        own = drift_c(p.get("drift_own_c", 1.0), dseed ^ (0x10 + oi))
+        fo = f0 * 2.0 ** (semi / 12.0)
+        if beat:
+            fo = snap_beat(fo, 1200.0 * math.log2(1.0 + beat / fo), n_loop) if loop else fo + beat
+        fr = fo * 2.0 ** ((common + own + static_err + thermal_c) / 1200.0)
+        # an oscillator under 30 Hz fades out: a 32' sub at the bottom keys is subsonic
+        s = vco(fr, fs, shape) * (lvl / 10.0) ** 1.5 * float(np.clip((fo - 20.0) / 10.0, 0.0, 1.0))
+        if prev_sig is not None:
+            s = s + prev_sig * 10 ** (p.get("bleed_db", -60.0) / 20.0)     # rev-2 oscillator bleed
+        prev_sig = s
+        osc += s
+    nz_lvl = p.get("noise", 0.5) * (0.5 if era == "reissue_2016" else 1.0)
+    if nz_lvl > 0:
+        w = np.random.default_rng(p.get("_wseed", 5) ^ 0xBEEF).standard_normal(n_loop * os_)
+        pink = np.fft.irfft(np.fft.rfft(w) / np.sqrt(np.maximum(np.arange(w.size // 2 + 1), 1)), w.size)
+        pink /= float(np.std(pink)) + 1e-12
+        reps = int(math.ceil(no / pink.size)) + 1
+        start = (loop[0] * os_) % pink.size if loop else 0
+        osc += np.roll(np.tile(pink, reps), start)[:no] * (nz_lvl / 10.0) ** 1.5 * 0.3
+    osc /= max(1.0, sum((o[2] / 10.0) ** 1.5 for o in oscs))
+    t = np.arange(no) / fs
+    fenv = env_rc(no, p.get("f_attack", 0.002), p.get("f_decay", 0.28), p.get("f_sustain", 0.2), sr=fs)
+    aenv = env_rc(no, p.get("a_attack", 0.003), p.get("a_decay", 0.9), p.get("a_sustain", 0.85), sr=fs)
+    kt = p.get("keytrack", 1.0 / 3.0)
+    fc0 = p.get("cutoff", 260.0) * 2.0 ** (kt * (note - p.get("cutoff_ref_note", 29)) / 12.0)
+    fc0 *= 1.0 / (1.0 + dT / 300.0)
+    fcs = np.clip(fc0 * 2.0 ** (fenv_oct * fenv), 20.0, 0.45 * fs)
+    kn = p.get("knorm", 0.28)
+    if era == "original_rev2" and fc0 < 150.0:      # emphasis fades below ~150 Hz (original)
+        kn *= max(0.5, fc0 / 150.0)
+    y = _moog_voice(np.ascontiguousarray(osc), np.ascontiguousarray(aenv), np.ascontiguousarray(fcs),
+                    float(kn), float(fs), float(mix_drive), float(ext_fb), float(input_v))
+    y = decimate(y, os_)[:n]
+    from scipy.signal import butter, sosfilt
+    y = sosfilt(butter(4, p.get("hp_hz", 20.0), "highpass", fs=SR, output="sos"), y)   # nothing under 20 Hz
+    return y, y.copy()
+
+
+# ---------------------------------------------------------------------------------------
+# poly_divide (docs/27 E3): Polymoog-type divide-down ensemble. One top-octave set (MK50240-
+# style: 2,000,240 Hz clock, divisors 478..239), every footage an exact octave division of
+# its pitch class, two ranks with independent vibratos, a per-key articulator, the 'vox'
+# mode EQ and resonators, a static ladder, vnd width above 300 Hz.
+# ---------------------------------------------------------------------------------------
+TOP_CLOCK = 2000240.0
+TOP_DIV = [478, 451, 426, 402, 379, 358, 338, 319, 301, 284, 268, 253]   # C8 .. B8
+
+
+def poly_divide_f8(note):
+    """The 8' pitch of a key from the top-octave divider (up to +/-1.2 c from equal
+    temperament, on purpose: that table is the instrument's tuning)."""
+    pc = note % 12
+    return (TOP_CLOCK / TOP_DIV[pc]) / 2.0 ** ((108 + pc - note) / 12.0)
+
+
+@nb.njit(cache=True)
+def _pulse_pwm(ph, dt, pw):
+    """polyBLEP pulse from a running phase with a per-sample width, DC removed."""
+    n = ph.shape[0]
+    y = np.empty(n)
+    for i in range(n):
+        f = ph[i] - math.floor(ph[i])
+        w = pw[i]
+        v = 1.0 if f < w else -1.0
+        t = f
+        d = dt[i]
+        if t < d:
+            x = t / d
+            v += x + x - x * x - 1.0
+        elif t > 1.0 - d:
+            x = (t - 1.0) / d
+            v += x * x + x + x + 1.0
+        t2 = f - w
+        if t2 < 0.0:
+            t2 += 1.0
+        if t2 < d:
+            x = t2 / d
+            v -= x + x - x * x - 1.0
+        elif t2 > 1.0 - d:
+            x = (t2 - 1.0) / d
+            v -= x * x + x + x + 1.0
+        y[i] = v - (2.0 * w - 1.0)
+    return y
+
+
+@nb.njit(cache=True)
+def _saw_phase(ph, dt):
+    n = ph.shape[0]
+    y = np.empty(n)
+    for i in range(n):
+        f = ph[i] - math.floor(ph[i])
+        v = 2.0 * f - 1.0
+        d = dt[i]
+        if f < d:
+            x = f / d
+            v -= x + x - x * x - 1.0
+        elif f > 1.0 - d:
+            x = (f - 1.0) / d
+            v -= x * x + x + x + 1.0
+        y[i] = v
+    return y
+
+
+def _biquad_peak(f0, q, gain_db, fs):
+    a = 10 ** (gain_db / 40.0)
+    w = 2 * math.pi * f0 / fs
+    al = math.sin(w) / (2 * q)
+    b = [1 + al * a, -2 * math.cos(w), 1 - al * a]
+    aa = [1 + al / a, -2 * math.cos(w), 1 - al / a]
+    return np.array(b) / aa[0], np.array(aa) / aa[0]
+
+
+def _biquad_shelf(f0, gain_db, fs, high=True):
+    a = 10 ** (gain_db / 40.0)
+    w = 2 * math.pi * f0 / fs
+    cs, sn = math.cos(w), math.sin(w)
+    al = sn / 2 * math.sqrt(2.0)
+    sq = 2 * math.sqrt(a) * al
+    if high:
+        b = [a * ((a + 1) + (a - 1) * cs + sq), -2 * a * ((a - 1) + (a + 1) * cs), a * ((a + 1) + (a - 1) * cs - sq)]
+        aa = [(a + 1) - (a - 1) * cs + sq, 2 * ((a - 1) - (a + 1) * cs), (a + 1) - (a - 1) * cs - sq]
+    else:
+        b = [a * ((a + 1) - (a - 1) * cs + sq), 2 * a * ((a - 1) - (a + 1) * cs), a * ((a + 1) - (a - 1) * cs - sq)]
+        aa = [(a + 1) + (a - 1) * cs + sq, -2 * ((a - 1) + (a + 1) * cs), (a + 1) + (a - 1) * cs - sq]
+    return np.array(b) / aa[0], np.array(aa) / aa[0]
+
+
+def gen_poly_divide(note, n, p, rng):
+    from scipy.signal import lfilter
+    os_ = int(p.get("oversample", 2))
+    fs = SR * os_
+    no = n * os_
+    loop = p.get("_loop")
+    L = ((loop[1] - loop[0]) / SR) if loop else n / SR
+    rr = int(p.get("_rr", 1))
+    pr = np.random.default_rng(p.get("_wseed", 9) ^ (rr * 0x51F) ^ (note * 17))
+    t = np.arange(no) / fs
+    f8 = poly_divide_f8(note)
+
+    def snap_rate(hz):
+        return max(1, round(hz * L)) / L if loop else hz
+
+    x = np.zeros(no)
+    for rk in p.get("ranks", []):
+        vib = rk.get("vibrato", {})
+        vr = snap_rate(vib.get("rate", 5.5))
+        cents = vib.get("cents", 8.0) * np.sin(2 * np.pi * vr * t + pr.uniform(0, 6.28))
+        fb = f8
+        if rk.get("detune_c", 0.0):
+            beat = f8 * (2.0 ** (rk["detune_c"] / 1200.0) - 1.0)
+            fb = f8 + (round(beat * L) / L if loop else beat)       # a whole number of beats per loop
+        # zero-mean linear FM: 2^(c/1200) has a small positive mean, which crept the phase
+        # every loop; whole vibrato cycles of a sine integrate to exactly nothing
+        f_inst = fb * (1.0 + math.log(2.0) / 1200.0 * cents)
+        ph8 = np.cumsum(f_inst) / fs + pr.uniform(0, 1)
+        pwm = rk.get("pwm", {})
+        pw = np.full(no, rk.get("pw", 0.5))
+        if pwm:
+            pw = pw + pwm.get("depth", 0.1) * np.sin(2 * np.pi * snap_rate(pwm.get("rate", 0.67)) * t + pr.uniform(0, 6.28))
+            pw = np.clip(pw, 0.05, 0.95)
+        for feet, lvl in rk.get("footages", [[8, 1.0]]):
+            ratio = 8.0 / feet
+            ph = ph8 * ratio
+            dt = f_inst * ratio / fs
+            if rk.get("shape", "pulse") == "saw":
+                x += lvl * _saw_phase(ph, dt)
+            else:
+                x += lvl * _pulse_pwm(ph, dt, pw)
+    # per-key articulator (attack; release is the plug-in's)
+    a = max(1, int(p.get("art_attack", 0.12) * fs))
+    env = np.ones(no)
+    env[:a] = 0.5 - 0.5 * np.cos(np.linspace(0, np.pi, a))
+    x = x * env
+    # mode EQ ('vox' defaults) and the three resonators
+    for kind, f, q_or_g, g in p.get("mode_eq", [["peak", 1100, 2.0, 5.0], ["highshelf", 3500, 0, -6.0], ["lowshelf", 180, 0, -4.0]]):
+        if kind == "peak":
+            bb, aa = _biquad_peak(f, q_or_g, g, fs)
+        else:
+            bb, aa = _biquad_shelf(f, g, fs, high=(kind == "highshelf"))
+        x = lfilter(bb, aa, x)
+    res = np.zeros(no)
+    for f, em in p.get("resonators", [[700, 0.5], [1400, 0.4], [2800, 0.3]]):
+        bb, aa = _biquad_peak(f, 6.0, 0.0, fs)
+        w = 2 * math.pi * f / fs
+        al = math.sin(w) / (2 * 6.0)
+        res += em * lfilter([al, 0, -al], [1 + al, -2 * math.cos(w), 1 - al], x)
+    x = x + res
+    lv = p.get("input_v", 0.05)
+    y = ladder(x / max(float(np.abs(x).max()), 1e-9) * lv, fs, p.get("ladder_fc", 3200.0), p.get("ladder_knorm", 0.2)) / lv
+    y = decimate(y, os_)[:n]
+    from scipy.signal import butter, sosfilt
+    y = sosfilt(butter(4, p.get("hp_hz", 20.0), "highpass", fs=SR, output="sos"), y)   # vibrato/PWM intermod below 20 Hz
+    bal = p.get("octave_balance", [0.9, 1.0, 0.8])
+    y *= bal[0] if note < 48 else (bal[1] if note <= 71 else bal[2])
+    return y, y.copy()
+
+
+# generators whose real pitch is not equal temperament (L-lock and the tuning gate use it)
+F_LOW = {"poly_divide": poly_divide_f8}

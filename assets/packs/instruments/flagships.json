@@ -1,0 +1,278 @@
+{
+ "pack": "flagships",
+ "presets": [
+  {
+   "id": "ouroboros_bass",
+   "name": "Ouroboros Bass",
+   "cat": "bass",
+   "tags": [
+    "flagship",
+    "moog",
+    "model-d",
+    "analog",
+    "mono",
+    "overdrive",
+    "rare"
+   ],
+   "gen": "moog_core",
+   "gp": {
+    "era": "original_rev2",
+    "oscs": [
+     [
+      0,
+      "saw",
+      10,
+      0.0
+     ],
+     [
+      0,
+      "saw",
+      8,
+      0.25
+     ],
+     [
+      -12,
+      "rsaw",
+      6,
+      0.0
+     ]
+    ],
+    "noise": 0.5,
+    "mix_drive": [
+     1.2,
+     1.8,
+     2.6
+    ],
+    "ext_fb": [
+     0.3,
+     0.8,
+     1.6
+    ],
+    "input_v": [
+     0.04,
+     0.1,
+     0.25
+    ],
+    "fenv_oct": [
+     1.8,
+     2.6,
+     3.2
+    ],
+    "knorm": 0.28,
+    "cutoff": 260.0,
+    "cutoff_ref_note": 29,
+    "keytrack": 0.333,
+    "f_attack": 0.002,
+    "f_decay": 0.28,
+    "f_sustain": 0.2,
+    "a_attack": 0.003,
+    "a_decay": 0.9,
+    "a_sustain": 0.85,
+    "drift_common_c": 1.2,
+    "drift_own_c": 1.0,
+    "bleed_db": -60.0,
+    "tempco": 0.85,
+    "thermal": true,
+    "oversample": 4,
+    "vel_axis": {
+     "param": "drive_stage",
+     "values": [
+      0,
+      1,
+      2
+     ]
+    },
+    "llock": {
+     "ratio": 0.5,
+     "target_s": 4.0
+    },
+    "loop_start": 1.5,
+    "tune_check": true,
+    "tune_c": 4.0,
+    "tune_offset_hz": 0.1043
+   },
+   "m": [
+    20000,
+    0.0,
+    0.0,
+    0.0,
+    0.05,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 3,
+    "rel": 900,
+    "reso": 0.7,
+    "vel": 0.3,
+    "lfo": 0.1,
+    "dly": "1/8D",
+    "subsus": -60
+   },
+   "z": [
+    24,
+    55,
+    1
+   ],
+   "dur": 5.6,
+   "loop": true,
+   "vl": 3,
+   "rr": 3,
+   "desc": "A Model D bass that swallows its own tail: the output fed back into the mixer overdrives a nonlinear ladder (D'Angelo-Valimaki model, 4x) and breathes with the filter contour. Three layers of drive, three thermal round robins, one key per sample."
+  },
+  {
+   "id": "seventy_one_throats",
+   "name": "Seventy-One Throats",
+   "cat": "pads",
+   "tags": [
+    "flagship",
+    "divide-down",
+    "ensemble",
+    "vox",
+    "polyphonic",
+    "80s",
+    "rare"
+   ],
+   "gen": "poly_divide",
+   "gp": {
+    "ranks": [
+     {
+      "shape": "pulse",
+      "footages": [
+       [
+        8,
+        1.0
+       ],
+       [
+        16,
+        0.4
+       ]
+      ],
+      "pw": 0.42,
+      "pwm": {
+       "depth": 0.12,
+       "rate": 0.67
+      },
+      "vibrato": {
+       "rate": 6.1,
+       "cents": 7.0
+      }
+     },
+     {
+      "shape": "saw",
+      "footages": [
+       [
+        8,
+        0.9
+       ],
+       [
+        4,
+        0.35
+       ]
+      ],
+      "detune_c": 6.0,
+      "vibrato": {
+       "rate": 5.4,
+       "cents": 9.0
+      }
+     }
+    ],
+    "art_attack": 0.12,
+    "mode_eq": [
+     [
+      "peak",
+      1100,
+      2.0,
+      5.0
+     ],
+     [
+      "highshelf",
+      3500,
+      0,
+      -6.0
+     ],
+     [
+      "lowshelf",
+      180,
+      0,
+      -4.0
+     ]
+    ],
+    "resonators": [
+     [
+      700,
+      0.5
+     ],
+     [
+      1400,
+      0.4
+     ],
+     [
+      2800,
+      0.3
+     ]
+    ],
+    "ladder_fc": 3200.0,
+    "ladder_knorm": 0.2,
+    "input_v": 0.05,
+    "octave_balance": [
+     0.9,
+     1.0,
+     0.8
+    ],
+    "oversample": 2,
+    "vel_axis": {
+     "param": "input_v",
+     "values": [
+      0.035,
+      0.05
+     ]
+    },
+    "llock": {
+     "ratio": 0.5,
+     "target_s": 6.0
+    },
+    "loop_start": 1.5,
+    "vnd": {
+     "amt": 0.5,
+     "hp": 300,
+     "len_ms": 30,
+     "density": 1000,
+     "decay_db": 30
+    },
+    "tune_check": true,
+    "tune_c": 8.0
+   },
+   "m": [
+    20000,
+    0.0,
+    0.1,
+    0.5,
+    0.35,
+    0.15,
+    0.0,
+    0.0
+   ],
+   "v": {
+    "atk": 120,
+    "rel": 900,
+    "reso": 0.7,
+    "vel": 0.4,
+    "lfo": 0.1,
+    "dly": "1/4D",
+    "subsus": -60
+   },
+   "z": [
+    36,
+    96,
+    2
+   ],
+   "dur": 7.6,
+   "loop": true,
+   "vl": 2,
+   "rr": 2,
+   "desc": "A divide-down vox ensemble breathing through a throat per key: two ranks from one top-octave divider, each on its own vibrato, through the vox formant EQ, three resonators and a static nonlinear ladder. Every beat and vibrato fits the loop exactly."
+  }
+ ]
+}

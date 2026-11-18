@@ -43,7 +43,8 @@ def read(path):
         x = np.frombuffer(raw, "<i2").astype(np.float64) / 32768.0
     else:
         x = np.frombuffer(raw, "<i4").astype(np.float64) / 2147483648.0
-    return x.reshape(-1, ch)
+    x = x.reshape(-1, ch)
+    return np.repeat(x, 2, axis=1) if ch == 1 else x
 
 
 def db(v):
@@ -100,7 +101,7 @@ def main():
             if abs(float(mono.mean())) > 1e-3:
                 fails.append(f"{fn}: DC {db(abs(float(mono.mean()))):.1f} dBFS")
             tot = float(np.sum(mono ** 2)) + 1e-20
-            sub = np.fft.rfft(mono)
+            sub = np.fft.rfft(mono * np.hanning(len(mono)))    # windowed: no leakage from a low fundamental
             fr = np.fft.rfftfreq(len(mono), 1 / SR)
             sub_e = float(np.sum(np.abs(sub[fr < 20]) ** 2)) / (float(np.sum(np.abs(sub) ** 2)) + 1e-20)
             if sub_e > 10 ** (-50 / 10):
@@ -118,6 +119,10 @@ def main():
             if meta.get("llock") and le_on == "1":
                 ls_, le_ = int(ls), int(le)
                 w = int(0.01 * SR)
+                if le_ > len(mono) or ls_ < w:
+                    fails.append(f"{fn}: loop {ls_}-{le_} lies outside the file ({len(mono)} samples)")
+                    by_key.setdefault(int(root), []).append((int(lov), int(rr), x))
+                    continue
                 a = mono[le_ - w: le_]
                 b_ = mono[ls_ - w: ls_]
                 step = abs(db(float(np.sqrt(np.mean(a ** 2)))) - db(float(np.sqrt(np.mean(b_ ** 2)))))

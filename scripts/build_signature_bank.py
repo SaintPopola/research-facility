@@ -37,6 +37,10 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import sigbank_dsp as dsp  # noqa: E402
+import flagship_dsp as fdsp  # noqa: E402  (docs/27 flagship generators)
+
+dsp.GENERATORS["moog_core"] = fdsp.gen_moog_core
+dsp.GENERATORS["poly_divide"] = fdsp.gen_poly_divide
 
 SR = dsp.SR
 ROOT = Path(__file__).resolve().parents[1]
@@ -69,14 +73,14 @@ VIBES = ["underwater", "rnb", "lofi", "slowed", "reggaeton", "house",
 #   dur = seconds per sample, loop = sustain loop
 # ---------------------------------------------------------------------------
 
-def P(id, name, cat, tags, gen, gp, m, v, z, dur, loop, desc, vl=1, d=None, mod=None):
+def P(id, name, cat, tags, gen, gp, m, v, z, dur, loop, desc, vl=1, d=None, mod=None, rr=1):
     """vl = velocity layers (1 or 2). Layer 1 (soft) is rendered with a gentler
     excitation from soften(); layer 2 is the recipe as written.
     d = optional SHAPE-page values {componentId: value}, checked against
     scripts/deep_params.json (missing ids keep the registry default).
     mod = optional mod-matrix rows [{"Source", "Target", "Intensity", "Mode", "Inverted"}]."""
     return dict(id=id, name=name, cat=cat, tags=tags, gen=gen, gp=gp, m=m, v=v,
-                z=z, dur=dur, loop=loop, desc=desc, vl=vl, d=d or {}, mod=mod or [])
+                z=z, dur=dur, loop=loop, desc=desc, vl=vl, d=d or {}, mod=mod or [], rr=rr)
 
 
 def V(atk=5, rel=600, reso=0.9, vel=0.5, lfo=0.2, dly="1/8D", subdec=1200, subsus=-30, trim=0.0):
@@ -714,7 +718,7 @@ PRESETS = [
 # recipes are appended to PRESETS, so build_loop_lines.py can use them too.
 # ---------------------------------------------------------------------------
 PACK_DIR = ROOT / "assets" / "packs"
-RECIPE_KEYS = {"id", "name", "cat", "tags", "gen", "gp", "m", "v", "z", "dur", "loop", "desc", "vl", "d", "mod", "map"}
+RECIPE_KEYS = {"id", "name", "cat", "tags", "gen", "gp", "m", "v", "z", "dur", "loop", "desc", "vl", "d", "mod", "map", "rr"}
 
 
 def pack_files(folder: Path) -> list[Path]:
@@ -750,11 +754,15 @@ def load_instrument_packs() -> list[dict]:
             assert set(r["v"]) <= vkeys, f"{where}: v keys must be from {sorted(vkeys)}"
             assert len(r["z"]) == 3 and r["z"][0] <= r["z"][1] and r["z"][2] > 0, f"{where}: z = [lo, hi, step]"
             assert 0.2 <= r["dur"] <= 12.0, f"{where}: dur seconds 0.2..12"
-            assert r.get("vl", 1) in (1, 2), f"{where}: vl is 1 or 2"
+            assert 1 <= r.get("vl", 1) <= 6, f"{where}: vl is 1..6"
+            assert 1 <= r.get("rr", 1) <= 5, f"{where}: rr is 1..5"
+            if r.get("vl", 1) >= 3:
+                ax = r["gp"].get("vel_axis")
+                assert ax and len(ax.get("values", [])) == r["vl"], f"{where}: vl >= 3 needs gp vel_axis with one value per layer"
             assert all(t == t.lower() for t in r["tags"]), f"{where}: tags lowercase"
             out.append(P(r["id"], r["name"], r["cat"], list(r["tags"]), r["gen"], dict(r["gp"]),
                          list(r["m"]), V(**r["v"]), tuple(r["z"]), float(r["dur"]), bool(r["loop"]),
-                         r["desc"], vl=r.get("vl", 1), d=r.get("d"), mod=r.get("mod")))
+                         r["desc"], vl=r.get("vl", 1), d=r.get("d"), mod=r.get("mod"), rr=r.get("rr", 1)))
             out[-1]["pack"] = pack
             if r.get("map"):
                 out[-1]["map"] = r["map"]          # doc 25 B6: a snapshot of another preset's samples
@@ -773,6 +781,11 @@ RETIRED = {
     "floating_dream_pad": "singing_bowl_field",
     "analog_dusk": "ladder_drone_pad",
     "velvet_strings": "bowed_metal",
+    "long_808": "sigh_circuit_808",
+    "hazy_reed_keys": "dust_harmonium",
+    "ooh_ensemble": "cave_chant",
+    "tape_organ": "strip_choir",
+    "grit_saw_lead": "undertone_lead",
 }
 PRESETS[:] = [p for p in PRESETS if p["id"] not in RETIRED]
 
@@ -803,6 +816,19 @@ def write_wav24(path: Path, l: np.ndarray, r: np.ndarray, rng) -> None:
     raw = inter.view(np.uint8).reshape(-1, 4)[:, :3].tobytes()   # little-endian low 3 bytes
     with wave.open(str(path), "wb") as w:
         w.setnchannels(2)
+        w.setsampwidth(3)
+        w.setframerate(SR)
+        w.writeframes(raw)
+
+
+def write_wav24_mono(path: Path, x: np.ndarray, rng) -> None:
+    """48 kHz / 24-bit MONO PCM with TPDF dither (HISE plays a mono file on both channels)."""
+    q = 8388607.0
+    dither = (rng.random(len(x)) - rng.random(len(x))) / q
+    xi = np.clip(np.round((x + dither) * q), -8388608, 8388607).astype("<i4")
+    raw = xi.view(np.uint8).reshape(-1, 4)[:, :3].tobytes()
+    with wave.open(str(path), "wb") as w:
+        w.setnchannels(1)
         w.setsampwidth(3)
         w.setframerate(SR)
         w.writeframes(raw)
@@ -902,7 +928,10 @@ def render_voice(p, gp, note, n, rng):
     gp["_eseed"] = seed_for(p["id"] + ":excite", 0)  # doc 25 B11: one pluck noise per preset
     if p.get("loop"):                                # doc 25 B10: generators can fit cycles to the loop
         ls = gp.get("loop_start", max(gp.get("attack", 0.01) + 0.6, 1.0))
-        gp["_loop"] = (int(ls * SR), max(int(ls * SR) + 1, n - int(0.03 * SR)))
+        if gp.get("llock"):
+            gp["_loop"] = llock_region(p, gp, note)
+        else:
+            gp["_loop"] = (int(ls * SR), max(int(ls * SR) + 1, n - int(0.03 * SR)))
     slow = gp.get("slow", 1.0)
     speed = gp.get("speed", 1.0)
     if speed > 1.0:
@@ -1016,11 +1045,26 @@ def xfade_dip(l, r, ls, le, xf, gamma):
     return 20.0 * math.log10(rms(blend[mid]) / ref + 1e-12)
 
 
+def llock_region(p, gp, note):
+    """docs/27 L-lock: the loop holds a whole number of periods of the lowest oscillator
+    (f0 x llock ratio); generators make every beat and drift periodic over it."""
+    import flagship_dsp as fd
+    lk = gp["llock"]
+    ls = int(gp.get("loop_start", 1.0) * SR)
+    f_key = fd.F_LOW[p["gen"]](note) if p["gen"] in fd.F_LOW else dsp.mtof(note)   # a divider's own tuning
+    n_loop = fd.llock_n(f_key * lk.get("ratio", 1.0), lk.get("target_s", 5.0))
+    return ls, ls + n_loop
+
+
 def loop_points(p, l, r, note):
     """Sustain loop (doc 25 B3): the end is searched (within 0.5 s) for the spot whose last
     xf samples best match the xf samples before the loop start, which is what HISE's loop
     crossfade blends (StreamingSamplerSound 4.1.0). Returns ls, le, xf, correlation."""
     n = len(l)
+    if p["gp"].get("llock"):                     # exact by construction: no search, no crossfade
+        ls, le = llock_region(p, p["gp"], note)
+        assert le <= n - int(0.02 * SR), f'{p["id"]} zone {note}: L-lock loop ends at {le}, past the render ({n}): raise dur'
+        return ls, le, 0, 1.0
     atk = p["gp"].get("attack", 0.01)
     ls = int(p["gp"].get("loop_start", max(atk + 0.6, 1.0)) * SR)
     le0 = n - int(0.03 * SR)
@@ -1067,6 +1111,8 @@ def render_preset(p) -> list[dict]:
     zones = []
     raw = []
     layers = p.get("vl", 1)
+    if layers >= 3 or p.get("rr", 1) > 1:
+        return render_preset_multi(p)
     for note in zone_roots(p["z"]):
         hard_l, hard_r = zone_render(p, p["gp"], note, n, seed_for(p["id"], note))
         nz = len(hard_l)
@@ -1107,20 +1153,91 @@ def render_preset(p) -> list[dict]:
     return zones
 
 
+def render_preset_multi(p) -> list[dict]:
+    """docs/27 E0: velocity layers 1..6 rendered along a physical axis (gp vel_axis
+    {param, values}: hammer speed, drive, pressure), never gain-only, and round robins 1..5
+    with their own seeds (RR 1 keeps the preset's seed). One gain per zone, from its loudest
+    layer and RR 1, shared by every take so the physics sets the level steps."""
+    n = int(p["dur"] * SR)
+    layers = p.get("vl", 1)
+    rrs = p.get("rr", 1)
+    ax = p["gp"].get("vel_axis") or {}
+    raw = []
+    for note in zone_roots(p["z"]):
+        takes = []
+        for li in range(layers):
+            gp = dict(p["gp"])
+            if ax and len(ax.get("values", [])) == layers:     # an explicit physical axis always wins
+                gp[ax["param"]] = ax["values"][li]
+            elif layers == 2 and li == 0:
+                gp = soften(p["gen"], p["gp"])
+            for rk in range(rrs):
+                seed = seed_for(p["id"], note) ^ (rk << 12) ^ (li << 20)
+                gpr = dict(gp)
+                gpr["_rr"] = rk if rrs > 1 else 1         # 0..rrs-1 (thermal state etc.)
+                l, r = zone_render(p, gpr, note, n, seed)
+                takes.append((li, rk, l, r))
+        nz = min(len(t[2]) for t in takes)
+        top = [t for t in takes if t[0] == layers - 1 and t[1] == 0][0]
+        tilt_db = -max(0, note - 72) * 0.12
+        g = (10 ** (tilt_db / 20.0)) * 0.18 / loud400(top[2], top[3])
+        for li, rk, l, r in takes:
+            raw.append((note, li + 1 if layers > 1 else 0, rk, l[:nz] * g, r[:nz] * g))
+    rms_max = max(loud400(l, r) for _, _, _, l, r in raw)
+    norm = 0.12 / max(rms_max, 1e-9)
+    zones = []
+    for note, layer, rk, l, r in raw:
+        l = l * norm
+        r = r * norm
+        a = np.abs(np.concatenate([l, r]))
+        if a.max() > 0.6:                          # same soft limiter as render_preset
+            def lim(x):
+                ax_ = np.abs(x)
+                y = x.copy()
+                o = ax_ > 0.6
+                y[o] = np.sign(x[o]) * (0.6 + 0.35 * np.tanh((ax_[o] - 0.6) / 0.35))
+                return y
+            l, r = lim(l), lim(r)
+        if not p["loop"]:
+            fade = int(0.04 * SR)
+            ramp = np.linspace(1.0, 0.0, fade)
+            l[-fade:] *= ramp
+            r[-fade:] *= ramp
+        zones.append(dict(note=note, layer=layer, rr=rk, l=l, r=r))
+    return zones
+
+
+def vel_ranges(p):
+    """Velocity range per layer: vl 1/2 keep the bank's fixed split (85), vl 3..6 split evenly
+    or at gp vel_splits (the boundaries, ascending)."""
+    vl = p.get("vl", 1)
+    if vl <= 2:
+        return {0: (0, 127), 1: (0, 84), 2: (85, 127)}
+    cuts = p["gp"].get("vel_splits") or [round(128 * k / vl) for k in range(1, vl)]
+    edges = [0] + list(cuts) + [128]
+    return {k + 1: (edges[k], edges[k + 1] - 1) for k in range(vl)}
+
+
 def write_preset_audio(p, zones) -> None:
     roots = sorted(set(z["note"] for z in zones))
     step = p["z"][2]
     entries = []
     today = date.today().isoformat()
-    VEL = {0: (0, 127), 1: (0, 84), 2: (85, 127)}
+    VEL = vel_ranges(p)
     corrs = []
     loops = []
     for i, z in enumerate(zones):
         note = z["note"]
         layer = z["layer"]
         fname = f"SIG_{p['id']}_{note}.wav" if layer == 0 else f"SIG_{p['id']}_{note}_v{layer}.wav"
+        rk = z.get("rr", 0)
+        if rk:
+            fname = fname[:-4] + f"_r{rk + 1}.wav"
         rng = np.random.default_rng(seed_for(p["id"], note) ^ 0x5EED ^ layer)
-        write_wav24(SAMPLES / fname, z["l"], z["r"], rng)
+        if "flagship" in p["tags"] and np.array_equal(z["l"], z["r"]):
+            write_wav24_mono(SAMPLES / fname, z["l"], rng)          # dry mono flagship: half the size
+        else:
+            write_wav24(SAMPLES / fname, z["l"], z["r"], rng)
         meta = {
             "filename": fname,
             "source": {
@@ -1133,6 +1250,13 @@ def write_preset_audio(p, zones) -> None:
             "musical": {"category": p["cat"], "tags": p["tags"], "root_midi": note,
                         "preset": p["name"]},
         }
+        if p["gp"].get("tune_check"):               # docs/27 bar 9: the flagship QA tunes these
+            f_key = fdsp.F_LOW[p["gen"]](note) if p["gen"] in fdsp.F_LOW else dsp.mtof(note)
+            meta["musical"]["f0_hz"] = round(f_key * p["gp"].get("tune_ratio", 1.0)
+                                             + p["gp"].get("tune_offset_hz", 0.0), 4)
+            meta["musical"]["tune_c"] = p["gp"].get("tune_c", 1.0)
+        if p["gp"].get("llock"):
+            meta["musical"]["llock"] = True
         (SAMPLES / (fname + ".meta.json")).write_text(json.dumps(meta, indent=2))
         ri = roots.index(note)
         lo = 0 if ri == 0 else note - step // 2
@@ -1149,7 +1273,7 @@ def write_preset_audio(p, zones) -> None:
             loop_attr = 'LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"'
         entries.append(
             f'  <sample ID="{i}" FileName="{{PROJECT_FOLDER}}{fname}" Root="{note}" HiKey="{hi}"\n'
-            f'          LoKey="{lo}" LoVel="{lov}" HiVel="{hiv}" RRGroup="1" Volume="0" Pan="0"\n'
+            f'          LoKey="{lo}" LoVel="{lov}" HiVel="{hiv}" RRGroup="{z.get("rr", 0) + 1}" Volume="0" Pan="0"\n'
             f'          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="{n}"\n'
             f'          SampleStartMod="0" {loop_attr}\n'
             f'          LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"\n'
@@ -1164,7 +1288,7 @@ def write_preset_audio(p, zones) -> None:
             gamma = g
             break
     xml = ('<?xml version="1.0" encoding="UTF-8"?>\n\n'
-           f'<samplemap ID="SIG_{p["id"]}" SaveMode="1" RRGroupAmount="1.0" MicPositions=";"\n'
+           f'<samplemap ID="SIG_{p["id"]}" SaveMode="1" RRGroupAmount="{float(p.get("rr", 1))}" MicPositions=";"\n'
            f'           CrossfadeGamma="{gamma}">\n' + "\n".join(entries) + "\n</samplemap>\n")
     (MAPS / f"SIG_{p['id']}.xml").write_text(xml)
 
@@ -1259,7 +1383,8 @@ def load_deep_registry() -> dict:
 
 
 RENDER_KEYS = {"slow", "speed", "decim", "bbd", "ensemble", "vnd", "decim_drive", "tape", "reverse", "post_hp", "post_shelf",
-               "attack", "loop_start", "t60", "soft_mul", "soft_level", "stage_order", "soft"}
+               "attack", "loop_start", "t60", "soft_mul", "soft_level", "stage_order", "soft",
+               "vel_axis", "vel_splits", "llock", "tune_check", "tune_c", "tune_ratio", "tune_offset_hz"}
 
 
 def gen_keys() -> dict:

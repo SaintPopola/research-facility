@@ -2044,70 +2044,6 @@
    "desc": "Bright, barky stab keys that sit on a dembow groove. Pump locked to the beat."
   },
   {
-   "id": "tape_organ",
-   "name": "Tape Organ",
-   "cat": "keys",
-   "tags": [
-    "lofi",
-    "vintage",
-    "gospel",
-    "warm"
-   ],
-   "map": "SIG_tape_organ",
-   "m": [
-    2000,
-    0.3,
-    0.35,
-    0.5,
-    0.45,
-    0.1,
-    0.2,
-    0.0
-   ],
-   "atk": 8,
-   "rel": 350,
-   "reso": 0.8,
-   "vel": 0.25,
-   "lfo": 0.3,
-   "dly": "1/8D",
-   "subdec": 1200,
-   "subsus": -12,
-   "trim": 0.0,
-   "desc": "Soft drawbar organ printed to a worn tape. Sustains forever."
-  },
-  {
-   "id": "hazy_reed_keys",
-   "name": "Hazy Reed Keys",
-   "cat": "keys",
-   "tags": [
-    "lofi",
-    "gritty",
-    "warm",
-    "underwater"
-   ],
-   "map": "SIG_hazy_reed_keys",
-   "m": [
-    1800,
-    0.3,
-    0.3,
-    0.5,
-    0.45,
-    0.18,
-    0.25,
-    0.0
-   ],
-   "atk": 3,
-   "rel": 600,
-   "reso": 1.0,
-   "vel": 0.6,
-   "lfo": 0.22,
-   "dly": "1/8D",
-   "subdec": 1200,
-   "subsus": -30,
-   "trim": 0.0,
-   "desc": "Reed electric piano with bite on the attack, then a hazy low-passed body."
-  },
-  {
    "id": "submerged_choir",
    "name": "Submerged Choir",
    "cat": "pads",
@@ -2686,38 +2622,6 @@
    "desc": "Low, fuzzy synth brass: dirty, nothing bright. Heavy reggaeton riffs."
   },
   {
-   "id": "grit_saw_lead",
-   "name": "Grit Saw Lead",
-   "cat": "leads",
-   "tags": [
-    "gritty",
-    "aggressive",
-    "future-bass",
-    "lead"
-   ],
-   "map": "SIG_grit_saw_lead",
-   "m": [
-    5000,
-    0.3,
-    0.3,
-    0.55,
-    0.3,
-    0.2,
-    0.5,
-    0.0
-   ],
-   "atk": 3,
-   "rel": 220,
-   "reso": 1.2,
-   "vel": 0.4,
-   "lfo": 0.35,
-   "dly": "1/8D",
-   "subdec": 1200,
-   "subsus": -10,
-   "trim": 0.0,
-   "desc": "Driven saw lead with teeth. Cuts through a busy drop."
-  },
-  {
    "id": "crystal_fm_bell",
    "name": "Crystal FM Bell",
    "cat": "bells",
@@ -2845,38 +2749,6 @@
    "desc": "Inharmonic metal bars that beat against each other."
   },
   {
-   "id": "ooh_ensemble",
-   "name": "Ooh Ensemble",
-   "cat": "vox",
-   "tags": [
-    "choir",
-    "lush",
-    "vocal",
-    "emotional"
-   ],
-   "map": "SIG_ooh_ensemble",
-   "m": [
-    7000,
-    0.25,
-    0.35,
-    0.85,
-    0.65,
-    0.1,
-    0.0,
-    0.0
-   ],
-   "atk": 500,
-   "rel": 2200,
-   "reso": 0.8,
-   "vel": 0.35,
-   "lfo": 0.12,
-   "dly": "1/8D",
-   "subdec": 1200,
-   "subsus": -12,
-   "trim": 0.0,
-   "desc": "Six synthetic singers on an 'ooh'. Big, soft background vocals."
-  },
-  {
    "id": "ah_chop_stack",
    "name": "Ah Chop Stack",
    "cat": "vox",
@@ -2971,38 +2843,6 @@
    "subsus": -14,
    "trim": 0.0,
    "desc": "Vowels morphing a-o-e-u while you hold the note."
-  },
-  {
-   "id": "long_808",
-   "name": "Long 808",
-   "cat": "bass",
-   "tags": [
-    "808",
-    "trap",
-    "reggaeton",
-    "deep"
-   ],
-   "map": "SIG_long_808",
-   "m": [
-    18000,
-    0.0,
-    0.0,
-    0.0,
-    0.0,
-    0.0,
-    0.1,
-    0.0
-   ],
-   "atk": 1,
-   "rel": 250,
-   "reso": 0.7,
-   "vel": 0.35,
-   "lfo": 0.1,
-   "dly": "1/8D",
-   "subdec": 200,
-   "subsus": -40,
-   "trim": 0.0,
-   "desc": "Clean, long 808 with a short pitch drop. Glue for every low end."
   },
   {
    "id": "grit_808",
@@ -3195,6 +3035,76 @@
    "subsus": -40,
    "trim": 0.0,
    "desc": "Round plucky bass for tight reggaeton lines."
+  },
+  {
+   "id": "ouroboros_bass",
+   "name": "Ouroboros Bass",
+   "cat": "bass",
+   "tags": [
+    "flagship",
+    "moog",
+    "model-d",
+    "analog",
+    "mono",
+    "overdrive",
+    "rare"
+   ],
+   "map": "SIG_ouroboros_bass",
+   "m": [
+    20000,
+    0.0,
+    0.0,
+    0.0,
+    0.05,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "atk": 3,
+   "rel": 900,
+   "reso": 0.7,
+   "vel": 0.3,
+   "lfo": 0.1,
+   "dly": "1/8D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "A Model D bass that swallows its own tail: the output fed back into the mixer overdrives a nonlinear ladder (D'Angelo-Valimaki model, 4x) and breathes with the filter contour. Three layers of drive, three thermal round robins, one key per sample."
+  },
+  {
+   "id": "seventy_one_throats",
+   "name": "Seventy-One Throats",
+   "cat": "pads",
+   "tags": [
+    "flagship",
+    "divide-down",
+    "ensemble",
+    "vox",
+    "polyphonic",
+    "80s",
+    "rare"
+   ],
+   "map": "SIG_seventy_one_throats",
+   "m": [
+    20000,
+    0.0,
+    0.1,
+    0.5,
+    0.35,
+    0.15,
+    0.0,
+    0.0
+   ],
+   "atk": 120,
+   "rel": 900,
+   "reso": 0.7,
+   "vel": 0.4,
+   "lfo": 0.1,
+   "dly": "1/4D",
+   "subdec": 1200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "A divide-down vox ensemble breathing through a throat per key: two ranks from one top-octave divider, each on its own vibrato, through the vox formant EQ, three resonators and a static nonlinear ladder. Every beat and vibrato fits the loop exactly."
   },
   {
    "id": "lg_low_end_chop",

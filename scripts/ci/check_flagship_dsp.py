@@ -85,7 +85,7 @@ for amp, h3_ref in ((0.05, -52.0), (0.3, -16.0)):
 # 5 L-lock
 for f in (27.5, 55.0, 110.0, 440.0):
     n = fd.llock_n(f, 5.0)
-    k = round(5.0 * f)
+    k = round(n * f / 48000)                 # the whole-period count the solver chose
     c = 1200 * math.log2(k * 48000 / n / f)
     check(abs(c) < 0.004, f"L-lock {f} Hz: N {n}, error {c:+.5f} c")
 
