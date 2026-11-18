@@ -41,6 +41,11 @@ import flagship_dsp as fdsp  # noqa: E402  (docs/27 flagship generators)
 
 dsp.GENERATORS["moog_core"] = fdsp.gen_moog_core
 dsp.GENERATORS["poly_divide"] = fdsp.gen_poly_divide
+dsp.GENERATORS["tine_v2"] = fdsp.gen_tine_v2
+dsp.GENERATORS["fork"] = fdsp.gen_fork
+dsp.GENERATORS["cs_dual"] = fdsp.gen_cs_dual
+dsp.GENERATORS["easel_cx"] = fdsp.gen_easel_cx
+dsp.GENERATORS["tape_frame"] = fdsp.gen_tape_frame
 
 SR = dsp.SR
 ROOT = Path(__file__).resolve().parents[1]
@@ -753,7 +758,8 @@ def load_instrument_packs() -> list[dict]:
             assert 80 <= r["m"][0] <= 20000 and all(0.0 <= x <= 1.0 for x in r["m"][1:]), f"{where}: macro range"
             assert set(r["v"]) <= vkeys, f"{where}: v keys must be from {sorted(vkeys)}"
             assert len(r["z"]) == 3 and r["z"][0] <= r["z"][1] and r["z"][2] > 0, f"{where}: z = [lo, hi, step]"
-            assert 0.2 <= r["dur"] <= 12.0, f"{where}: dur seconds 0.2..12"
+            cap = 14.0 if "flagship" in r.get("tags", []) else 12.0     # flagship L-lock loops start after 3+ s
+            assert 0.2 <= r["dur"] <= cap, f"{where}: dur seconds 0.2..{cap:g}"
             assert 1 <= r.get("vl", 1) <= 6, f"{where}: vl is 1..6"
             assert 1 <= r.get("rr", 1) <= 5, f"{where}: rr is 1..5"
             if r.get("vl", 1) >= 3:
@@ -1016,7 +1022,10 @@ def zone_render(p, gp, note, n_base, rng_seed):
     If the tail is above -40 dB, render up to max(2 x dur, 1.3 x t60) (cap 12 s) and keep it
     only if the sound really decays there (a held tone stays at dur); end at -60 dB."""
     l, r = render_voice(p, gp, note, n_base, np.random.default_rng(rng_seed))
-    if p["loop"] or tail_db(l, r) < -40.0:
+    # flagships render to the floor (docs/27 bar 7): extend while the tail is above -54 dB
+    thr = -54.0 if "flagship" in p["tags"] else -40.0
+    # generators that size their own takes (flagship_dsp.F_DUR) already end at the floor
+    if p["loop"] or p["gen"] in fdsp.F_DUR or tail_db(l, r) < thr:
         return l, r
     t60 = p["gp"].get("t60", 0.0) or 0.0
     n_cap = int(min(ONESHOT_CAP_S, max(2.0 * p["dur"], 1.3 * t60)) * SR)
@@ -1165,6 +1174,7 @@ def render_preset_multi(p) -> list[dict]:
     raw = []
     for note in zone_roots(p["z"]):
         takes = []
+        n_note = int(fdsp.F_DUR[p["gen"]](note, p["gp"]) * SR) if p["gen"] in fdsp.F_DUR else n
         for li in range(layers):
             gp = dict(p["gp"])
             if ax and len(ax.get("values", [])) == layers:     # an explicit physical axis always wins
@@ -1175,9 +1185,18 @@ def render_preset_multi(p) -> list[dict]:
                 seed = seed_for(p["id"], note) ^ (rk << 12) ^ (li << 20)
                 gpr = dict(gp)
                 gpr["_rr"] = rk if rrs > 1 else 1         # 0..rrs-1 (thermal state etc.)
-                l, r = zone_render(p, gpr, note, n, seed)
+                gpr["_nrr"] = rrs
+                l, r = zone_render(p, gpr, note, n_note, seed)
                 takes.append((li, rk, l, r))
         nz = min(len(t[2]) for t in takes)
+        sc = p["gp"].get("layer_db_scale")
+        if sc is not None and layers > 1:
+            # keep each layer's timbre, shrink its level step to the top layer (dB x sc): a
+            # struck instrument's full pp-ff range (25-30 dB) leaves the soft layers inaudible
+            # next to the rest of the bank. RRs of a layer share the gain of its RR 1.
+            lv_db = {li: 20.0 * math.log10(loud400(l, r) + 1e-12) for li, rk, l, r in takes if rk == 0}
+            lg = {li: 10 ** ((1.0 - sc) * (lv_db[layers - 1] - lv_db[li]) / 20.0) for li in lv_db}
+            takes = [(li, rk, l * lg[li], r * lg[li]) for li, rk, l, r in takes]
         top = [t for t in takes if t[0] == layers - 1 and t[1] == 0][0]
         tilt_db = -max(0, note - 72) * 0.12
         g = (10 ** (tilt_db / 20.0)) * 0.18 / loud400(top[2], top[3])
@@ -1185,12 +1204,16 @@ def render_preset_multi(p) -> list[dict]:
             raw.append((note, li + 1 if layers > 1 else 0, rk, l[:nz] * g, r[:nz] * g))
     rms_max = max(loud400(l, r) for _, _, _, l, r in raw)
     norm = 0.12 / max(rms_max, 1e-9)
+    ceil = p["gp"].get("peak_ceiling")
+    if ceil:                                       # a strike's transient is physics: scale, never limit
+        pk_max = max(max(float(np.abs(l).max()), float(np.abs(r).max())) for _, _, _, l, r in raw)
+        norm = min(norm, ceil / max(pk_max, 1e-9))
     zones = []
     for note, layer, rk, l, r in raw:
         l = l * norm
         r = r * norm
         a = np.abs(np.concatenate([l, r]))
-        if a.max() > 0.6:                          # same soft limiter as render_preset
+        if a.max() > 0.6 and not ceil:             # same soft limiter as render_preset
             def lim(x):
                 ax_ = np.abs(x)
                 y = x.copy()
@@ -1255,6 +1278,8 @@ def write_preset_audio(p, zones) -> None:
             meta["musical"]["f0_hz"] = round(f_key * p["gp"].get("tune_ratio", 1.0)
                                              + p["gp"].get("tune_offset_hz", 0.0), 4)
             meta["musical"]["tune_c"] = p["gp"].get("tune_c", 1.0)
+            if p["gp"].get("tune_win"):              # percussive: tune the strike, not the decay
+                meta["musical"]["tune_win"] = p["gp"]["tune_win"]
         if p["gp"].get("llock"):
             meta["musical"]["llock"] = True
         (SAMPLES / (fname + ".meta.json")).write_text(json.dumps(meta, indent=2))
@@ -1384,7 +1409,8 @@ def load_deep_registry() -> dict:
 
 RENDER_KEYS = {"slow", "speed", "decim", "bbd", "ensemble", "vnd", "decim_drive", "tape", "reverse", "post_hp", "post_shelf",
                "attack", "loop_start", "t60", "soft_mul", "soft_level", "stage_order", "soft",
-               "vel_axis", "vel_splits", "llock", "tune_check", "tune_c", "tune_ratio", "tune_offset_hz"}
+               "vel_axis", "vel_splits", "llock", "tune_check", "tune_c", "tune_ratio", "tune_offset_hz", "centroid_gate",
+               "peak_ceiling", "layer_db_scale", "tune_win", "lowend_gate"}
 
 
 def gen_keys() -> dict:
@@ -1395,9 +1421,12 @@ def gen_keys() -> dict:
     src = {name: inspect.getsource(fn) for name, fn in dsp.GENERATORS.items()}
     funcs = {nm: inspect.getsource(getattr(dsp, nm)) for nm in dir(dsp)
              if nm.startswith(("gen_", "_formant", "tape_age")) and callable(getattr(dsp, nm))}
+    # flagship helpers that read gp (fork_strike, fork_t60, tine_dur, _tine_ref ...)
+    funcs.update({nm: inspect.getsource(getattr(fdsp, nm)) for nm in dir(fdsp)
+                  if nm.startswith(("fork_", "tine_", "_tine_")) and callable(getattr(fdsp, nm))})
     def keys_of(code, seen):
         ks = set(re.findall(r'p(?:\.get\(|\[)"([A-Za-z_0-9]+)"', code))
-        for callee in set(re.findall(r"\b(gen_[a-z_0-9]+|_formant_filter|tape_age)\(", code)):
+        for callee in set(re.findall(r"\b(gen_[a-z_0-9]+|_formant_filter|tape_age|fork_[a-z_0-9]+|_?tine_[a-z_0-9]+)\(", code)):
             if callee in funcs and callee not in seen:
                 seen.add(callee)
                 ks |= keys_of(funcs[callee], seen)

@@ -247,7 +247,7 @@ Map:
 Live: mono script with LOW priority and single trigger; glide by Synth.addPitchFade over 0-8 s (neither original nor reissue reaches the spec's 10 s, SOS).
 
 QA:
-- 40-60 Hz within 3 dB of 200 Hz at vl2.
+- At vl2 the fundamental sits within 6 dB of the loudest partial, and the 0.5 s spectral centroid falls between 3 and 6 times f0 (a saw bass cannot hold 40-60 Hz within 3 dB of 200 Hz: its H5 is already -14 dB).
 - Centroid rises vl1 < vl2 < vl3.
 - No runaway at ext_fb 1.6.
 - Droop and alias gates; seam under 0.1 dB.
@@ -443,7 +443,7 @@ Option 'tight': a static 1-pole HP at 60 Hz in the ladder feedback (Zavalishin f
 
 QA:
 - Beating at exactly 0.6 Hz.
-- 40-60 Hz within 3 dB of 200 Hz.
+- At vl2 the fundamental sits within 6 dB of the loudest partial, and the 0.5 s spectral centroid falls between 3 and 6 times f0 (a saw bass cannot hold 40-60 Hz within 3 dB of 200 Hz: its H5 is already -14 dB).
 - vl3 attack centroid at least 1.5x vl1.
 - Mystic variant: 'Undercroft': everything below 200 Hz stays dry and mono, so the purr seems to rise from the stone under the floor. Above 200 Hz:
 - Dark-chamber Random Hall: T60 2.2 s at 1 kHz and 0.8 s at 6 kHz, predelay 20 ms, 18% wet.
@@ -1991,3 +1991,14 @@ OPEN RESEARCH BEFORE THE STAGES THAT NEED IT
 - A Farfisa primary source.
 - The VP-330 filter centres.
 - Valid verifier verdicts for the synths, sources, mystic and quality lanes. They were missing from my input; spot checks only were done here.
+
+## Build notes (2026-11-18, from building the first two flagships)
+
+Shipped in 57cd470 (tag 'flagship', assets/packs/instruments/flagships.json): Ouroboros Bass (moog_core, per key MIDI 24-55, 3 drive layers x 3 thermal round robins, 4 s L-locked loops, mono, 222 MB) and Seventy-One Throats (poly_divide, MIDI 36-96 step 2, 2 layers x 2 round robins, 6 s L-locked loops with exact seams, 259 MB). Both pass check_flagship_qa. The Stage 0 builder is in: vel_axis {param, values} layers (never gain-only), rr 1-5, llock {ratio, target_s}, tune_check, an F_LOW hook and mono WAV for dry flagships.
+
+Spec corrections made while building:
+1. Ouroboros oscillator offsets of -12/-24 st under MIDI 24-55 would put C1 at 8 Hz. Read as the 16'/32' relationship: main saw at the key, a beating twin, reverse saw one octave down; oscillators below 30 Hz fade out, plus a 20 Hz high-pass.
+2. The Ouroboros low-end QA line is restated above (fundamental within 6 dB of the loudest partial, centroid 3-6 x f0).
+3. Seventy-One Throats: a velvet decorrelator of 0.2 can only reach L/R correlation of about 0.92 ((1-a^2)/(1+a^2)), so 0.5 is used (correlation 0.74-0.93, mono fold within -2.2 dB).
+4. Vibrato written as 2^(c/1200) has a positive mean frequency that breaks the L-lock; zero-mean linear FM is used instead.
+5. Seventy-One Throats tuning tolerance is 8 cents, because its two ranks sit 6 cents apart.

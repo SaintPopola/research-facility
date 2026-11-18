@@ -1386,6 +1386,8 @@ def bbd_stage(l, r, p, rng):
     st = b.get("stages", 256)
     wl = _bbd_line(x, mid + half * _lfo(t, hz, shape), st)
     wr = _bbd_line(x, mid - half * _lfo(t, hz, shape), st)
+    if b.get("hp_hz"):                           # bbd_hp: lows stay dry and mono
+        wl, wr = hp(wl, b["hp_hz"]), hp(wr, b["hp_hz"])
     wet = b.get("mix", 0.5) / 0.5                # mix 0.5 = the measured Juno balance
     return x * JUNO_DRY + wl * wet, x * JUNO_DRY + wr * wet
 

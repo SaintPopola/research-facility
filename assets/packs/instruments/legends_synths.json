@@ -670,7 +670,16 @@
    "gp": {
     "h2": 0.28,
     "drive": 1.4,
-    "sustain": 1.0
+    "sustain": 1.0,
+    "tape": {
+     "wow_c": 0,
+     "wow_hz": 0.4,
+     "flutter_c": 0.0,
+     "flutter_hz": 7,
+     "hiss": 0.002,
+     "lp": 14000,
+     "sat": 1.05
+    }
    },
    "m": [
     9000,
@@ -732,7 +741,7 @@
       0.6
      ]
     ],
-    "air": 0.0,
+    "air": 0.002,
     "attack": 0.005
    },
    "m": [
@@ -753,7 +762,7 @@
     "lfo": 0.2,
     "dly": "1/8D",
     "subsus": -60,
-    "trim": -6.0
+    "trim": 0.0
    },
    "z": [
     72,
@@ -910,7 +919,16 @@
     "h2": 0.0,
     "drive": 0.5,
     "sustain": 1.0,
-    "post_hp": 350
+    "post_hp": 350,
+    "tape": {
+     "wow_c": 0,
+     "wow_hz": 0.4,
+     "flutter_c": 0.0,
+     "flutter_hz": 7,
+     "hiss": 0.002,
+     "lp": 14000,
+     "sat": 1.05
+    }
    },
    "m": [
     9000,
@@ -930,7 +948,7 @@
     "lfo": 0.2,
     "dly": "1/4D",
     "subsus": -60,
-    "trim": 1.5
+    "trim": 0.0
    },
    "z": [
     72,
@@ -968,7 +986,16 @@
     "post_shelf": [
      4500,
      -6.0
-    ]
+    ],
+    "tape": {
+     "wow_c": 0,
+     "wow_hz": 0.4,
+     "flutter_c": 0.0,
+     "flutter_hz": 7,
+     "hiss": 0.002,
+     "lp": 14000,
+     "sat": 1.05
+    }
    },
    "m": [
     4500,
@@ -1031,7 +1058,8 @@
     "decay": 0.6,
     "sustain": 0.85,
     "decim": 24000,
-    "decim_drive": 0.05
+    "decim_drive": 0.05,
+    "spread": 0.35
    },
    "m": [
     3000,
@@ -1168,7 +1196,7 @@
     "lfo": 0.1,
     "subdec": 200,
     "subsus": -60,
-    "trim": -8.5
+    "trim": 0.0
    },
    "z": [
     24,
@@ -1211,7 +1239,8 @@
     "drive": 1.8,
     "attack": 0.001,
     "decay": 0.6,
-    "sustain": 0.85
+    "sustain": 0.85,
+    "spread": 0.35
    },
    "m": [
     3500,
@@ -1237,7 +1266,7 @@
     72,
     3
    ],
-   "dur": 3.0,
+   "dur": 5.0,
    "loop": true,
    "desc": "Three-oscillator ladder bass overdriven back into itself: a fast filter snap, then a fat growl.",
    "vl": 2,
@@ -1305,7 +1334,7 @@
     "lfo": 0.1,
     "dly": "1/8",
     "subsus": -60,
-    "trim": 8.0
+    "trim": 0.0
    },
    "z": [
     24,

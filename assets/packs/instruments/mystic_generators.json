@@ -33,8 +33,11 @@
      "pitch_c": 3
     },
     "soft": {
-     "drive": 0.45
-    }
+     "drive": 0.45,
+     "cutoff": 0.6,
+     "fenv": 0.6
+    },
+    "loop_start": 2.0
    },
    "m": [
     6000,
@@ -274,7 +277,8 @@
     "pan_modes": 0.5,
     "soft": {
      "rub_level": 0.6
-    }
+    },
+    "loop_start": 2.0
    },
    "m": [
     9000,
@@ -300,7 +304,7 @@
     84,
     3
    ],
-   "dur": 12.0,
+   "dur": 6.5,
    "loop": true,
    "desc": "Bronze bowl modes in close doublets, rubbed at the rim instead of struck, so the beating rolls slowly across the stereo field. Dusk pads and held drones.",
    "vl": 2,
@@ -348,7 +352,8 @@
     "bow_level": 0.8,
     "bow_rough": 0.03,
     "t60": 10,
-    "pan_modes": 0.5
+    "pan_modes": 0.5,
+    "loop_start": 3.0
    },
    "m": [
     7000,
@@ -423,7 +428,8 @@
      "ratio": 1.0,
      "q": 30,
      "mix": 0.3
-    }
+    },
+    "loop_start": 2.5
    },
    "m": [
     8000,
@@ -519,7 +525,9 @@
     "pan_modes": 0.5,
     "soft": {
      "bow_rough": 0.5
-    }
+    },
+    "loop_start": 4.0,
+    "soft_level": 0.5
    },
    "m": [
     8000,

@@ -11,9 +11,19 @@ Per preset
 - Mono fold: the mid signal's level within 3 dB of the louder side (bar 11).
 - Velocity: soft / hard attack centroid ratio below 0.8 when there are 3+ layers (bar 4).
 - Round robins: no two RR takes of one key and layer correlate above 0.999 (bar 5).
-- Tuning: zones whose meta carries f0_hz are within +/-tune_c (default 1 c) (bar 9).
+- Tuning: zones whose meta carries f0_hz are within +/-tune_c (default 1 c) (bar 9), measured
+  over 0.15-1.15 s or the zone's tune_win.
 - L-locked loops (meta llock true): seam level step under 0.1 dB and loop-point correlation
   above 0.999 (bar 8).
+tine_v2 presets (docs/27 Orbiting Tines)
+- T60 of the fundamental band at every key within 20% of Shear's table (middle layer, RR 1).
+- H2 / H1 rises with every velocity layer at the middle key.
+Low end (gp lowend_gate, docs/27 Ouroboros Bass as restated 2026-11-18)
+- At the given layer, every key: the fundamental within fund_within_db of the loudest partial,
+  and the spectral centroid of the first win_s seconds between centroid_x [lo, hi] x f0.
+fork presets (docs/27 Glasgow Forks)
+- The octave-to-fundamental ratio rises with every velocity layer at the middle key.
+- The octave's dB decay rate is twice the fundamental's within 10% (middle key and layer).
 """
 import json
 import math
@@ -63,9 +73,10 @@ def centroid(x):
     return float(np.sum(sp * fr) / (np.sum(sp) + 1e-15))
 
 
-def f0_of(x, guess):
-    """Fundamental near a guess: FFT peak in +/-3% with parabolic interpolation (1 s window)."""
-    seg = x[int(0.15 * SR): int(1.15 * SR)]
+def f0_of(x, guess, win=(0.15, 1.15)):
+    """Fundamental near a guess: FFT peak in +/-3% with parabolic interpolation (1 s window,
+    or the preset's tune_win for percussive sounds, whose decay may bend)."""
+    seg = x[int(win[0] * SR): int(win[1] * SR)]
     nf = 1 << 20
     sp = np.abs(np.fft.rfft(seg * np.hanning(len(seg)), nf))
     fr = np.fft.rfftfreq(nf, 1 / SR)
@@ -77,6 +88,110 @@ def f0_of(x, guess):
     a, b_, c = np.log(sp[k - 1:k + 2] + 1e-20)
     off = 0.5 * (a - c) / (a - 2 * b_ + c) if (a - 2 * b_ + c) != 0 else 0.0
     return (k + off) * SR / nf
+
+
+def fund_t60(mono, f0):
+    """T60 (s) of the fundamental band: dB slope of 50 ms RMS blocks from 0.5 s to the start of
+    the end fade (1.2 s before the end, at most 10 s), within 50 dB of the band's peak."""
+    from scipy.signal import butter, sosfiltfilt
+    b = sosfiltfilt(butter(2, [f0 / 1.25, f0 * 1.25], "bandpass", fs=SR, output="sos"), mono)
+    blk = int(0.05 * SR)
+    nb_ = len(b) // blk
+    env = 20 * np.log10(np.sqrt(np.mean(b[: nb_ * blk].reshape(nb_, blk) ** 2, axis=1)) + 1e-12)
+    tt = (np.arange(nb_) + 0.5) * blk / SR
+    m = (tt > 0.5) & (tt < min(len(mono) / SR - 1.2, 10.0)) & (env > env.max() - 50)
+    if m.sum() < 4:
+        return None
+    return -60.0 / float(np.polyfit(tt[m], env[m], 1)[0])
+
+
+def harm_db(mono, f0, k):
+    seg = mono[int(0.15 * SR): int(0.65 * SR)]
+    nf = 1 << 19
+    sp = np.abs(np.fft.rfft(seg * np.hanning(len(seg)), nf))
+    fr = np.fft.rfftfreq(nf, 1 / SR)
+    m = (fr > f0 * k * 0.98) & (fr < f0 * k * 1.02)
+    return 20 * math.log10(float(sp[m].max()) + 1e-20)
+
+
+def tine_gates(p, by_key):
+    import flagship_dsp as fd
+    out = []
+    for key, takes in sorted(by_key.items()):
+        f0 = 440.0 * 2 ** ((key - 69) / 12)
+        layers = sorted({z[0] for z in takes})
+        mid = layers[len(layers) // 2]
+        x = next(z[2] for z in takes if z[0] == mid and z[1] == 1).mean(axis=1)
+        t60 = fund_t60(x, f0)
+        ref = fd.tine_t60(key)
+        if t60 is None or abs(t60 / ref - 1.0) > 0.2:
+            out.append(f"{p['id']} key {key}: T60 {t60 if t60 is None else round(t60, 2)} s vs table {ref:.2f} s")
+    key = sorted(by_key)[len(by_key) // 2]
+    f0 = 440.0 * 2 ** ((key - 69) / 12)
+    layers = sorted({z[0] for z in by_key[key]})
+    h21 = []
+    for lv in layers:
+        x = next(z[2] for z in by_key[key] if z[0] == lv and z[1] == 1).mean(axis=1)
+        h21.append(harm_db(x, f0, 2) - harm_db(x, f0, 1))
+    if any(b_ <= a for a, b_ in zip(h21, h21[1:])):
+        out.append(f"{p['id']} key {key}: H2/H1 by layer {[round(v, 1) for v in h21]} does not rise with velocity")
+    return out
+
+
+def band_slope(mono, f, t_end):
+    """dB per second of the band around f, 50 ms RMS blocks from 0.3 s to t_end, within 45 dB
+    of the band's peak."""
+    from scipy.signal import butter, sosfiltfilt
+    b = sosfiltfilt(butter(2, [f / 1.12, f * 1.12], "bandpass", fs=SR, output="sos"), mono)
+    blk = int(0.05 * SR)
+    nb_ = len(b) // blk
+    env = 20 * np.log10(np.sqrt(np.mean(b[: nb_ * blk].reshape(nb_, blk) ** 2, axis=1)) + 1e-12)
+    tt = (np.arange(nb_) + 0.5) * blk / SR
+    m = (tt > 0.3) & (tt < t_end) & (env > env.max() - 45)
+    return float(np.polyfit(tt[m], env[m], 1)[0]) if m.sum() >= 4 else None
+
+
+def lowend_gates(p, by_key):
+    g = p["gp"]["lowend_gate"]
+    out = []
+    for key, takes in sorted(by_key.items()):
+        layers = sorted({z[0] for z in takes})
+        lv = layers[min(g.get("layer", 2), len(layers)) - 1]
+        x = next(z[2] for z in takes if z[0] == lv and z[1] == 1).mean(axis=1)[: int(g.get("win_s", 0.5) * SR)]
+        f0 = 440.0 * 2 ** ((key - 69) / 12)
+        nf = 1 << 18
+        sp = np.abs(np.fft.rfft(x * np.hanning(len(x)), nf))
+        fr = np.fft.rfftfreq(nf, 1 / SR)
+        parts = []
+        for k in range(1, int(20000 / f0) + 1):
+            m = (fr > f0 * k * 0.97) & (fr < f0 * k * 1.03)
+            parts.append(float(sp[m].max()) if m.any() else 0.0)
+        fund_db = 20 * math.log10(parts[0] / (max(parts) + 1e-20) + 1e-20)
+        cx = centroid(x) / f0
+        lo, hi = g.get("centroid_x", [3.0, 6.0])
+        if fund_db < -g.get("fund_within_db", 6.0) or not lo <= cx <= hi:
+            out.append(f"{p['id']} key {key}: fundamental {fund_db:+.1f} dB re loudest partial, centroid {cx:.2f} x f0 (want within {g.get('fund_within_db', 6.0)} dB, {lo}-{hi} x f0)")
+    return out
+
+
+def fork_gates(p, by_key):
+    out = []
+    key = sorted(by_key)[len(by_key) // 2]
+    f0 = 440.0 * 2 ** ((key - 69) / 12)
+    takes = by_key[key]
+    layers = sorted({z[0] for z in takes})
+    ratios = []
+    for lv in layers:
+        x = next(z[2] for z in takes if z[0] == lv and z[1] == 1).mean(axis=1)
+        ratios.append(harm_db(x, f0, 2) - harm_db(x, f0, 1))
+    if any(b_ <= a for a, b_ in zip(ratios, ratios[1:])):
+        out.append(f"{p['id']} key {key}: octave / fundamental by layer {[round(v, 1) for v in ratios]} does not rise with velocity")
+    x = next(z[2] for z in takes if z[0] == layers[len(layers) // 2] and z[1] == 1).mean(axis=1)
+    t_end = min(len(x) / SR - 1.2, 6.0)
+    s1, s2 = band_slope(x, f0, t_end), band_slope(x, 2 * f0, t_end)
+    if s1 is None or s2 is None or abs(s2 / s1 / 2.0 - 1.0) > 0.1:
+        out.append(f"{p['id']} key {key}: octave decay {s2} dB/s vs fundamental {s1} dB/s (want 2x within 10%)")
+    return out
 
 
 def main():
@@ -111,7 +226,7 @@ def main():
                 if db(tail / pk) > -54:
                     fails.append(f"{fn}: ends {db(tail / pk):.1f} dB under its peak (cut while sounding)")
             if meta.get("f0_hz"):
-                f = f0_of(mono, meta["f0_hz"])
+                f = f0_of(mono, meta["f0_hz"], tuple(meta.get("tune_win", (0.15, 1.15))))
                 tol = meta.get("tune_c", 1.0)
                 if f is None or abs(1200 * math.log2(f / meta["f0_hz"])) > tol:
                     got = "none" if f is None else f"{1200 * math.log2(f / meta['f0_hz']):+.2f} c"
@@ -146,7 +261,9 @@ def main():
                 if fold < -3.0:
                     fails.append(f"{p['id']}: mono fold {fold:.1f} dB")
             layers = sorted({z[0] for z in takes})
-            if len(layers) >= 3:
+            # a self-oscillating ring is a near-pure sine at any strike: its layers differ in level
+            # and decay, and the recipe opts out with gp centroid_gate false (stated in its desc)
+            if len(layers) >= 3 and p["gp"].get("centroid_gate", True):
                 soft = next(z[2] for z in takes if z[0] == layers[0]).mean(axis=1)[: int(0.1 * SR)]
                 hard = next(z[2] for z in takes if z[0] == layers[-1]).mean(axis=1)[: int(0.1 * SR)]
                 ratio = centroid(soft) / (centroid(hard) + 1e-9)
@@ -161,6 +278,12 @@ def main():
                         cc = float(np.dot(a, b_) / (np.sqrt(np.dot(a, a) * np.dot(b_, b_)) + 1e-15))
                         if cc > 0.999:
                             fails.append(f"{p['id']} key {key} layer {lv}: RR takes {i}/{j} correlate {cc:.4f}")
+        if p["gen"] == "tine_v2" and by_key:
+            fails.extend(tine_gates(p, by_key))
+        if p["gen"] == "fork" and by_key:
+            fails.extend(fork_gates(p, by_key))
+        if p["gp"].get("lowend_gate") and by_key:
+            fails.extend(lowend_gates(p, by_key))
     print(f"flagship QA: {len(flag)} flagship presets checked")
     if fails:
         print(f"flagship QA FAILED: {len(fails)} problems")

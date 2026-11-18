@@ -435,6 +435,16 @@
     },
     "soft": {
      "strike": 0.35
+    },
+    "beat_c": 1.0,
+    "tape": {
+     "wow_c": 3,
+     "wow_hz": 0.4,
+     "flutter_c": 1.0,
+     "flutter_hz": 7,
+     "hiss": 0.002,
+     "lp": 14000,
+     "sat": 1.05
     }
    },
    "m": [
@@ -521,6 +531,15 @@
     },
     "soft": {
      "strike": 0.4
+    },
+    "tape": {
+     "wow_c": 3,
+     "wow_hz": 0.4,
+     "flutter_c": 1.0,
+     "flutter_hz": 7,
+     "hiss": 0.002,
+     "lp": 14000,
+     "sat": 1.05
     }
    },
    "m": [
