@@ -649,6 +649,57 @@ def build_push(out):
     print("VM strip written", out)
 
 
+def bar_pointer(name, tip_px, tail_px, hw_px, taper_px, z0, h, mat):
+    """Bar pointer outline (+Y = tip): parallel sides, pointed tip, rounded tail, as a 2D
+    curve extruded with a small round bevel (one pass, no mesh ops)."""
+    cu = bpy.data.curves.new(name, "CURVE")
+    cu.dimensions = "2D"
+    cu.fill_mode = "BOTH"
+    cu.extrude = h / 2.0
+    cu.bevel_depth = 0.00035
+    cu.bevel_resolution = 3
+    sp = cu.splines.new("POLY")
+    cy = -(tail_px - hw_px)
+    pts = [(0.0, tip_px), (hw_px, tip_px - taper_px), (hw_px, cy)]
+    n = 16
+    for i in range(1, n):
+        a = -math.pi * i / n
+        pts.append((hw_px * math.cos(a), cy + hw_px * math.sin(a)))
+    pts += [(-hw_px, cy), (-hw_px, tip_px - taper_px)]
+    sp.points.add(len(pts) - 1)
+    for pt, (x, y) in zip(sp.points, pts):
+        pt.co = (x * PX, y * PX, 0.0, 1.0)
+    sp.use_cyclic_u = True
+    o = bpy.data.objects.new(name, cu)
+    o.location = (0, 0, z0 + h / 2.0)
+    bpy.context.scene.collection.objects.link(o)
+    o.data.materials.append(mat)
+    return o
+
+
+def build_pointer_strip(out, frame_px=96, logical=48, frames=61):
+    """K3 pointer selector (docs/28b knob_families): black phenolic bar pointer with an inlaid
+    warm-white line on a knurled round base. The pointer is not rotation-symmetric, so every
+    angle is baked: 61 frames at exactly 5 deg, -150..+150 (frame = round((deg + 150) / 5)),
+    so 15 / 25 / 30 / 40 deg detents all land on exact frames. Light stays fixed."""
+    sc = strip_scene(frame_px, logical)
+    grp = bpy.data.objects.new("Pointer", None)
+    bpy.context.scene.collection.objects.link(grp)
+    phen = bsdf("VM_Phenolic", srgb("#0C0D0D"), rough=0.28, coat=0.5, coat_rough=0.12)
+    base = cyl("PtrBase", 0, 0, 10.5 * PX, 0.007, 0.0, phen, verts=30 * 6, flutes=30, bevel=0.0005)
+    bar = bar_pointer("PtrBar", 20.5, 13.5, 5.5, 6.5, 0.007, 0.0055, phen)
+    ink = bsdf("VM_PtrInk", srgb("#E8E4D8"), rough=0.45)
+    line = box("PtrLine", 0, 8.5 * PX, 1.6 * PX, 15.0 * PX, 0.0003, 0.007 + 0.0055 + 0.00025, ink, bevel=0.0)
+    for o in (base, bar, line):
+        o.parent = grp
+    os.makedirs(out, exist_ok=True)
+    for k in range(frames):
+        grp.rotation_euler.z = -math.radians(-150.0 + 5.0 * k)
+        sc.render.filepath = os.path.join(out, f"{k:04d}.png")
+        bpy.ops.render.render(write_still=True)
+    print("VM strip written", out)
+
+
 STRIPS = {
     "knob_l":   ("fluted", 144, 72, 28),      # serves XL (72) and L (56)
     "knob_s":   ("fluted", 72, 36, 14),       # S (36)
@@ -667,6 +718,8 @@ if __name__ == "__main__":
         build_rockers(os.path.join(out_dir, "rocker"))
     elif what == "push_red":
         build_push(os.path.join(out_dir, "push_red"))
+    elif what == "ptr_l":
+        build_pointer_strip(os.path.join(out_dir, "ptr_l"))
     elif what in STRIPS:
         kind, fpx, logical, rad = STRIPS[what]
         build_knob_strip(os.path.join(out_dir, what), kind, fpx, logical, rad)

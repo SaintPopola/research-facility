@@ -2618,6 +2618,10 @@ knobLaf.loadImage("{PROJECT_FOLDER}vm_knob_l_2x.png", "skL");     // 144 px fram
 knobLaf.loadImage("{PROJECT_FOLDER}vm_knob_s_2x.png", "skS");     // 72 px frames:  K1 S 36
 knobLaf.loadImage("{PROJECT_FOLDER}vm_collet_l_2x.png", "clL");   // 144 px frames: K2 CXL 72, CL 56
 knobLaf.loadImage("{PROJECT_FOLDER}vm_collet_s_2x.png", "clS");   // 80 px frames:  K2 CM 40, CS 34
+knobLaf.loadImage("{PROJECT_FOLDER}vm_ptr_l_2x.png", "ptrL");     // 96 px frames:  K3 pointer, 61 angles -150..+150 at 5 deg
+// K3 pointer selectors (docs/28b): detent step in degrees, positions centred on 12 o'clock.
+// The plate paints legends and detent dots at the frame angle, so pointer and engraving agree.
+const var SWITCH_STEP = {"FTypeKnob": 40, "SubOctKnob": 30};
 // docs/28 + 28b knobs. Vector until the Blender strips land (Phase 4, behind isImageLoaded).
 // K1 fluted (PLAY macros, ATTACK, RELEASE): black skirt, spun aluminium cap, index line.
 // K2 collet (every rack-page knob): black body, flat coloured cap by function, printed line.
@@ -2662,6 +2666,33 @@ knobLaf.registerFunction("drawRotarySlider", function(g, obj)
 {
     var a = obj.area;
     var w = a[2];
+    if (isDefined(SWITCH_STEP[obj.id]))
+    {
+        // K3: PL 64x72 centre (32,44) image 48; PM 56x58 centre (28,36) image 36
+        var pn = Math.round(obj.max - obj.min + 1);
+        var pix = Math.round(obj.value - obj.min);
+        var pdeg = -0.5 * (pn - 1) * SWITCH_STEP[obj.id] + pix * SWITCH_STEP[obj.id];
+        var pfr = Math.round((pdeg + 150.0) / 5.0);
+        var pbig = w >= 60;
+        var pcx = pbig ? 32 : 28;
+        var pcy = pbig ? 44 : 36;
+        var psz = pbig ? 48 : 36;
+        if (knobLaf.isImageLoaded("ptrL")) g.drawImage("ptrL", [pcx - psz / 2, pcy - psz / 2, psz, psz], 0, pfr * 96);
+        else
+        {
+            var pa = pdeg / 57.29578;
+            g.setColour(T.cap);
+            g.fillEllipse([pcx - psz * 0.22, pcy - psz * 0.22, psz * 0.44, psz * 0.44]);
+            g.setColour(T.pointer);
+            g.drawLine(pcx, pcx + Math.sin(pa) * psz * 0.42, pcy, pcy - Math.cos(pa) * psz * 0.42, 3.0);
+        }
+        if (obj.hover || obj.clicked)
+        {
+            g.setColour(Colours.withAlpha(T.accentHi, 0.35));
+            g.drawEllipse([pcx - psz * 0.25, pcy - psz * 0.25, psz * 0.5, psz * 0.5], 1.2);
+        }
+        return;
+    }
     var k1 = K1_IDS.indexOf(obj.id) >= 0;
     var geo = knobGeo(w, k1);
     var cx = geo[0];
@@ -2775,9 +2806,13 @@ knobLaf.registerFunction("drawRotarySlider", function(g, obj)
 const var SCALE_HZ = [[80, "80"], [200, "200"], [500, "500"], [1200, "1.2K"], [3000, "3K"], [8000, "8K"], [20000, "20K"]];
 inline function drawScale(g, cx, cy, cls, kind)
 {
+    // K1: 2 XL, 1 L, 0 S. K2 collets (docs/28b table): 5 CXL, 3 CM, 4 CS
     local t0 = cls == 2 ? 30.0 : (cls == 1 ? 24.0 : 16.0);
     local t1 = cls == 2 ? 34.0 : (cls == 1 ? 27.0 : 19.0);
     local rn = cls == 2 ? 42.0 : 35.0;
+    if (cls == 5) { t0 = 31.0; t1 = 35.0; rn = 43.0; }
+    else if (cls == 3) { t0 = 18.0; t1 = 21.0; }
+    else if (cls == 4) { t0 = 15.0; t1 = 18.0; }
     local i = 0;
     local an = 0.0;
     g.setColour(Colours.withAlpha(T.txt, 0.85));
@@ -3628,19 +3663,24 @@ Content.setKeyPressCallback("5", onMacVel5);
 // ============================================================================
 const var SP_W = 720;
 const var SP_H = 532;
-const var SP_CW = 174;
-const var SP_CARDS = [["SOURCE", 0], ["FILTER", 182], ["AMP", 364], ["PITCH", 546]];
+// docs/28b SHAPE = 8U rack: [name, y0, y1, finish 0 black / 1 anthracite / 2 brushed aluminium]
+const var SP_UNITS = [["SOURCE", 0, 67, 0], ["VOICE FILTER", 67, 266, 1], ["CONTOUR", 266, 399, 0], ["PITCH", 399, 466, 0], ["MOD PATCH", 466, 532, 2]];
+const var FT_SHORT = ["SVF LP", "LADDER", "WARM", "SVF HP", "BAND", "NOTCH"];
+const var SUB_LEG = ["-2", "-1", "0"];
+const var CUT_LEG = [[20, "20"], [100, "100"], [500, "500"], [1500, "1.5K"], [5000, "5K"], [20000, "20K"]];
+const var CUT_SKEW = Math.log(0.5) / Math.log((1500.0 - 20.0) / (20000.0 - 20.0));   // HISE middlePosition skew, k 0.2663
+const var MOD_DESIG = ["LFO1", "LFO2", "LFO3", "LFO4", "ENV2", "ENV3", "VEL", "KEY", "RAND", "MW", "AT"];
 const var SP_HELP = ["Main layer level and feel, plus the sine sub underneath it.",
                      "A filter on every note. Wide open SVF LP = off. ENV AMT closes it after each hit, like a pluck.",
                      "The main layer's volume shape. Curves turn straight ramps into swells or snaps.",
                      "Mod wheel = vibrato while VIA WHEEL is lit. BEND sets the pitch wheel range."];
-const var SP_HIT = {"ftype": [190, 28, 158, 24], "subOct": [8, 124, 158, 24], "via": [554, 200, 158, 24]};
+const var SP_HIT = {"via": [500, 423, 28, 28]};          // B1 amber lit latching key (docs/28b PITCH 1U)
 
 const var ShapePage = Content.addPanel("ShapePage", LAYOUT.page[0], LAYOUT.page[1]);
 Content.setPropertiesFromJSON("ShapePage", {"width": SP_W, "height": SP_H, "allowCallbacks": "Clicks, Hover & Dragging", "visible": false});
-const var SP_CARD_H = 462;           // cards stop here; the source dock sits below (docs/16 Stage 3)
-const var DOCK_Y = 470;
-const var DOCK_CHIP = [8, 496, 60, 28];   // first chip x, y, w, h; chips step 64 px
+const var DOCK_Y = 466;                    // MOD PATCH 1U (docs/28b): the old source dock as a patch bay
+const var DOCK_CHIP = [25, 486, 54, 40];   // first jack cell x, y, w, h; jacks centred at x 52 + 54k, y 500
+const var DOCK_STEP = 54;
 ShapePage.data.hover = "";
 
 const var DEEP_COMP = {};
@@ -3679,6 +3719,12 @@ for (dp = 0; dp < DEEP_PARAMS.length; dp++)
     if (isDefined(de.unit)) dk.set("suffix", " " + de.unit);
     dk.setValue(de["default"]);
     dk.setLocalLookAndFeel(knobLaf);
+    if (de.kind == "switch")
+    {
+        // docs/28b K3 feel: vertical drag, about 36 px per detent, double-click = default
+        dk.set("dragDirection", "Vertical");
+        dk.set("mouseSensitivity", (de.max - de.min) * 36 / 250.0);
+    }
     if (MATRIX_OWNED.indexOf(de.id) < 0) dk.setControlCallback(onDeep);
     DEEP_COMP[de.id] = dk;
 }
@@ -3783,116 +3829,295 @@ inline function drawEnv(g, area, atk, hold, dec, sus, rel, floor, col)
     local lf = yb - floor * hh;
     local lt = area[1];
     local ls = yb - (floor + (1.0 - floor) * sus) * hh;
-    g.setColour(T.line);
-    g.drawRect(area, 1.0);
-    g.setColour(col);
-    g.drawLine(x0, x1, lf, lt, 2.0);
-    g.drawLine(x1, x2, lt, lt, 2.0);
-    g.drawLine(x2, x3, lt, ls, 2.0);
-    g.drawLine(x3, x4, ls, ls, 2.0);
-    g.drawLine(x4, x5, ls, lf, 2.0);
+    local ps = 0;
+    for (ps = 0; ps < 2; ps++)
+    {
+        local th = ps == 0 ? 4.0 : 1.6;
+        g.setColour(ps == 0 ? Colours.withAlpha(col, 0.22) : col);
+        g.drawLine(x0, x1, lf, lt, th);
+        g.drawLine(x1, x2, lt, lt, th);
+        g.drawLine(x2, x3, lt, ls, th);
+        g.drawLine(x3, x4, ls, ls, th);
+        g.drawLine(x4, x5, ls, lf, th);
+    }
+}
+
+// ---- docs/28b rack plate painters (SHAPE now, MOD / SAMPLES / HOOK next) ----
+inline function drawPlate(g, y0, y1, fin)
+{
+    local h = y1 - y0 - 1;
+    local k = 0;
+    if (fin == 1) g.setGradientFill([0xFF404A4E, 0, y0, 0xFF333B3F, 0, y0 + h, false]);        // anthracite, near RAL 7016
+    else if (fin == 2) g.setGradientFill([0xFFB6B9B7, 0, y0, 0xFF979A98, 0, y0 + h, false]);   // brushed aluminium, near RAL 9006
+    else g.setGradientFill([0xFF242220, 0, y0, 0xFF191817, 0, y0 + h, false]);                 // black paint
+    g.fillRect([0, y0, 720, h]);
+    if (fin == 2)
+    {
+        for (k = 1; k < h; k += 2)
+        {
+            g.setColour((k * 37) % 7 < 3 ? 0x12FFFFFF : 0x0D000000);
+            g.fillRect([0, y0 + k, 720, 1]);
+        }
+    }
+    g.setColour(T.bevelLight);
+    g.fillRect([0, y0, 720, 1]);
+    g.setColour(0xFF0A0A0D);
+    g.fillRect([0, y0 + h, 720, 1]);
+}
+
+inline function drawUnitName(g, name, sub, r)
+{
+    g.setColour(T.txt);
+    g.setFontWithSpacing(T.SUB, 11, 0.12);
+    g.drawAlignedText(name, [r[0], r[1], r[2], 12], "left");
+    if (sub != "")
+    {
+        g.setColour(T.faint);
+        g.setFontWithSpacing(T.BOLD, 8, 0.12);
+        g.drawFittedText(sub, [r[0], r[1] + 16, r[2], r[3] - 16], "topLeft", 3, 1.0);
+    }
+}
+
+inline function drawEngraved(g, text, r, align)
+{
+    // black engraved and filled, on brushed aluminium (docs/28b finishes)
+    g.setColour(0x59000000);
+    g.drawAlignedText(text, [r[0] - 0.5, r[1] - 0.5, r[2], r[3]], align);
+    g.setColour(0x1FFFFFFF);
+    g.drawAlignedText(text, [r[0] + 0.5, r[1] + 0.5, r[2], r[3]], align);
+    g.setColour(0xFF1A1A1A);
+    g.drawAlignedText(text, r, align);
+}
+
+inline function drawHandle(g, x, y0, y1)
+{
+    // polished U-handle seen from the front: mounting feet, bar, cast shadow
+    local h = y1 - y0;
+    g.setColour(0x73000000);
+    g.fillRoundedRectangle([x + 2, y0 + 3, 14, h], 6.0);
+    g.setGradientFill([0xFF6E7074, x, 0, 0xFF4A4C50, x + 14, 0, false]);
+    g.fillRoundedRectangle([x, y0, 14, 12], 3.0);
+    g.fillRoundedRectangle([x, y1 - 12, 14, 12], 3.0);
+    g.setGradientFill([0xFFF2F3F4, x + 2, 0, 0xFF8A8D91, x + 12, 0, false]);
+    g.fillRoundedRectangle([x + 2, y0 + 4, 10, h - 8], 5.0);
+    g.setColour(0x8CFFFFFF);
+    g.fillRect([x + 4, y0 + 10, 1.5, h - 20]);
+    g.setColour(0x40000000);
+    g.drawRoundedRectangle([x + 2, y0 + 4, 10, h - 8], 5.0, 1.0);
+}
+
+inline function drawScribble(g, r, text)
+{
+    // cream masking-tape strip, typed (docs/28b): the help text that used to sit under each card
+    g.setColour(0x40000000);
+    g.fillRect([r[0] + 1, r[1] + 2, r[2], r[3]]);
+    g.setGradientFill([T.cardHi, 0, r[1], T.card, 0, r[1] + r[3], false]);
+    g.fillRect(r);
+    g.setColour(Colours.withAlpha(T.paperEdge, 0.8));
+    g.drawRect(r, 1.0);
+    g.setColour(T.cardInk);
+    g.setFont(T.TYPE, 10);
+    g.drawFittedText(text, [r[0] + 6, r[1] + 3, r[2] - 12, r[3] - 6], "topLeft", 6, 0.9);
+}
+
+inline function drawCrt(g, r)
+{
+    // small phosphor scope: black bezel, warm-black glass, faint amber graticule
+    local k = 0;
+    g.setColour(0xFF0A0A0B);
+    g.fillRoundedRectangle([r[0] - 3, r[1] - 3, r[2] + 6, r[3] + 6], 5.0);
+    g.setGradientFill([0xFF1C150C, r[0] + r[2] / 2, r[1] + r[3] / 2, 0xFF0B0907, r[0], r[1], true]);
+    g.fillRoundedRectangle(r, 4.0);
+    g.setColour(Colours.withAlpha(PHOSPHOR, 0.08));
+    for (k = 1; k < 4; k++)
+    {
+        g.fillRect([r[0] + r[2] * k / 4, r[1] + 3, 1, r[3] - 6]);
+        g.fillRect([r[0] + 3, r[1] + r[3] * k / 4, r[2] - 6, 1]);
+    }
+    g.setColour(0x14FFFFFF);
+    g.drawRoundedRectangle([r[0] + 0.5, r[1] + 0.5, r[2] - 1, r[3] - 1], 4.0, 1.0);
+}
+
+inline function drawSwitchLegends(g, id, cx, cy, rr, labels, sel)
+{
+    local n = labels.length;
+    local st = SWITCH_STEP[id];
+    local i = 0;
+    g.setFontWithSpacing(T.BOLD, 9, 0.06);
+    for (i = 0; i < n; i++)
+    {
+        local deg = -0.5 * (n - 1) * st + i * st;
+        deg = Math.round((deg + 150.0) / 5.0) * 5.0 - 150.0;     // the strip's frame angle
+        local t = deg / 57.29578;
+        local ax = cx + rr * Math.sin(t);
+        local ay = cy - rr * Math.cos(t);
+        g.setColour(Colours.withAlpha(T.txt, 0.7));
+        g.fillEllipse([cx + (rr - 7) * Math.sin(t) - 1.2, cy - (rr - 7) * Math.cos(t) - 1.2, 2.4, 2.4]);
+        g.setColour(i == sel ? T.accentInk : T.dim);
+        if (Math.abs(deg) < 15) g.drawAlignedText(labels[i], [ax - 30, ay - 5, 60, 10], "centred");
+        else if (deg < 0) g.drawAlignedText(labels[i], [ax - 62, ay - 5, 60, 10], "right");
+        else g.drawAlignedText(labels[i], [ax + 2, ay - 5, 60, 10], "left");
+    }
+}
+
+inline function drawLitSq(g, r, on, hot, lens)
+{
+    // B1 illuminated square push (vector until vm_lit_sq_2x lands): bezel, smoked or lit lens
+    local x = r[0];
+    local y = r[1];
+    local d = r[2];
+    g.setColour(0xFF0B0B0C);
+    g.fillRoundedRectangle([x, y, d, d], 3.0);
+    g.setColour(0x22FFFFFF);
+    g.drawLine(x + 1, x + d - 2, y + 0.5, y + 0.5, 1.0);
+    if (on)
+    {
+        g.setColour(Colours.withAlpha(lens, 0.25));
+        g.fillRoundedRectangle([x - 4, y - 4, d + 8, d + 8], 6.0);
+        g.setGradientFill([Colours.mix(lens, 0xFFFFFFFF, 0.35), x + d / 2, y + d * 0.4, lens, x + 2, y + 2, true]);
+    }
+    else g.setGradientFill([0xFF46423D, 0, y + 3, 0xFF2E2B28, 0, y + d - 3, false]);
+    g.fillRoundedRectangle([x + 3, y + 3 + (on ? 1 : 0), d - 6, d - 6], 2.0);
+    g.setColour(on ? 0x2EFFFFFF : 0x26FFFFFF);
+    g.fillRect([x + 4, y + 4 + (on ? 1 : 0), d - 8, 1]);
+    if (hot)
+    {
+        g.setColour(Colours.withAlpha(T.txt, 0.4));
+        g.drawRoundedRectangle([x - 1.5, y - 1.5, d + 3, d + 3], 3.5, 1.0);
+    }
+}
+
+inline function drawJack(g, cx, cy, col, lit)
+{
+    // B9 patch jack (vector): knurled nut, bushing, socket; ring in the source colour when live
+    g.setColour(0x66000000);
+    g.fillEllipse([cx - 9 + 1, cy - 9 + 1.5, 18, 18]);
+    g.setGradientFill([0xFFE4E6E8, cx - 6, cy - 7, 0xFF6F7276, cx + 7, cy + 8, false]);
+    g.fillEllipse([cx - 9, cy - 9, 18, 18]);
+    g.setColour(0x59000000);
+    g.drawEllipse([cx - 9, cy - 9, 18, 18], 1.0);
+    g.setGradientFill([0xFF9EA1A5, cx - 4, cy - 5, 0xFF505357, cx + 5, cy + 5, false]);
+    g.fillEllipse([cx - 6.5, cy - 6.5, 13, 13]);
+    g.setColour(lit ? col : 0xFF141416);
+    g.fillEllipse([cx - 4.5, cy - 4.5, 9, 9]);
+    g.setColour(0xFF050505);
+    g.fillEllipse([cx - 3, cy - 3, 6, 6]);
 }
 
 ShapePage.setPaintRoutine(function(g)
 {
-    var c = 0;
+    var u = 0;
+    var k = 0;
     var hv = this.data.hover;
-    for (c = 0; c < 4; c++)
-    {
-        var cd = SP_CARDS[c];
-        var cx = cd[1];
-        g.setColour(T.s1);
-        g.fillRoundedRectangle([cx, 0, SP_CW, SP_CARD_H], 8.0);
-        g.setColour(T.line);
-        g.drawRoundedRectangle([cx + 0.5, 0.5, SP_CW - 1, SP_CARD_H - 1], 8.0, 1.0);
-        g.setColour(T.tape);
-        g.fillRoundedRectangle([cx, 0, SP_CW, 20], 6.0);
-        g.fillRect([cx, 10, SP_CW, 10]);
-        g.setColour(T.onTape);
-        g.setFontWithSpacing(T.BOLD, 9, 0.18);
-        g.drawAlignedText(cd[0], [cx + 12, 0, SP_CW - 24, 20], "left");
-        g.setColour(T.line);
-        g.fillRect([cx + 12, 404, SP_CW - 24, 1]);
-        g.setColour(T.faint);
-        g.setFont(T.FONT, 10);
-        g.drawFittedText(SP_HELP[c], [cx + 12, 410, SP_CW - 24, 48], "topLeft", 4, 1.0);
-    }
+    for (u = 0; u < SP_UNITS.length; u++) drawPlate(g, SP_UNITS[u][1], SP_UNITS[u][2], SP_UNITS[u][3]);
 
-    // source dock: drag a chip onto CUTOFF, RESO, SEMI or LEVEL (click opens it on the MOD page)
-    g.setColour(T.s1);
-    g.fillRoundedRectangle([0, DOCK_Y, SP_W, SP_H - DOCK_Y], 8.0);
-    g.setColour(T.line);
-    g.drawRoundedRectangle([0.5, DOCK_Y + 0.5, SP_W - 1, SP_H - DOCK_Y - 1], 8.0, 1.0);
-    g.setColour(T.tape);
-    g.fillRoundedRectangle([0, DOCK_Y, SP_W, 20], 6.0);
-    g.fillRect([0, DOCK_Y + 10, SP_W, 10]);
-    g.setColour(T.onTape);
-    g.setFontWithSpacing(T.BOLD, 9, 0.18);
-    g.drawAlignedText("MOD SOURCES  /  DRAG ONTO CUTOFF, RESO, SEMI OR LEVEL", [12, DOCK_Y, 600, 20], "left");
-    var dc = 0;
-    for (dc = 0; dc < MOD_SOURCES.length; dc++)
+    // knob scales (the plate paints scales; the LAF draws only the knob)
+    for (k = 0; k < DEEP_PARAMS.length; k++)
     {
-        var dx = DOCK_CHIP[0] + dc * 64;
-        var dy = DOCK_CHIP[1];
-        var hot = (hv == "chip" + dc) || (S.dragging && S.dragSrc == dc);
-        g.setColour(hot ? Colours.withAlpha(MOD_COL[dc], 0.2) : T.s2);
-        g.fillRoundedRectangle([dx, dy, DOCK_CHIP[2], DOCK_CHIP[3]], 5.0);
-        g.setColour(MOD_COL[dc]);
-        g.drawRoundedRectangle([dx + 0.5, dy + 0.5, DOCK_CHIP[2] - 1, DOCK_CHIP[3] - 1], 5.0, 1.0);
-        var dl = clamp01(Math.abs(MOD_MODS[dc].getCurrentLevel()));
-        g.fillRoundedRectangle([dx + 4, dy + DOCK_CHIP[3] - 5, (DOCK_CHIP[2] - 8) * dl, 2], 1.0);
-        g.setColour(T.txt);
-        g.setFont(T.BOLD, 9);
-        g.drawAlignedText(MOD_SOURCES[dc], [dx, dy, DOCK_CHIP[2], DOCK_CHIP[3] - 4], "centred");
-        if (SRC_COUNT[dc] > 0)
+        var de = DEEP_PARAMS[k];
+        if (de.kind == "knob" || de.kind == "proxy")
         {
-            g.setColour(MOD_COL[dc]);
-            g.fillEllipse([dx + DOCK_CHIP[2] - 9, dy - 3, 11, 11]);
-            g.setColour(T.onAccent);
-            g.setFont(T.BOLD, 7);
-            g.drawAlignedText("" + SRC_COUNT[dc], [dx + DOCK_CHIP[2] - 9, dy - 3, 11, 11], "centred");
+            if (de.w >= 90) drawScale(g, de.x + 48, de.y + 60, 5, "none");
+            else drawScale(g, de.x + de.w / 2, de.y + 35, de.w >= 50 ? 3 : 4, "none");
         }
     }
 
-    // section captions
-    g.setColour(T.faint);
-    g.setFontWithSpacing(T.BOLD, 8, 0.16);
-    g.drawAlignedText("SUB LAYER", [12, 106, 150, 14], "left");
-    g.drawAlignedText("FILTER ENVELOPE", [194, 202, 150, 14], "left");
-    g.drawAlignedText("VIBRATO", [558, 112, 150, 14], "left");
-    g.drawAlignedText("SHAPE", [376, 280, 150, 14], "left");
-    g.drawAlignedText("SWEEP", [194, 280, 150, 14], "left");
+    // SOURCE 1U
+    drawUnitName(g, "SOURCE", "MAIN LAYER + SINE SUB", [24, 8, 72, 50]);
+    g.setColour(T.txt);
+    g.setFontWithSpacing(T.BOLD, 9, 0.08);
+    g.drawAlignedText("SUB OCT", [244, 1, 56, 10], "centred");
+    drawSwitchLegends(g, "SubOctKnob", 272, 43, 25, SUB_LEG, Math.round(DV.SubOctKnob));
+    drawScribble(g, [500, 10, 196, 46], SP_HELP[0]);
 
-    // steppers + toggle
-    var ft = DEEP_FILTER_TYPES[Math.round(DV.FTypeKnob)];
-    drawStepper(g, SP_HIT.ftype, ft[0], hv == "ftype");
-    var so = DEEP_SUB_OCTAVES[Math.round(DV.SubOctKnob)];
-    drawStepper(g, SP_HIT.subOct, "SUB OCT  " + (so == 0 ? "0" : "" + so), hv == "subOct");
-    var via = DV.ViaWheelKnob > 0.5;
-    var vr = SP_HIT.via;
-    g.setColour(via ? Colours.withAlpha(T.accent, 0.16) : (hv == "via" ? T.s3 : T.s2));
-    g.fillRoundedRectangle(vr, 4.0);
-    g.setColour(via ? T.accent : (hv == "via" ? T.lineHi : T.line));
-    g.drawRoundedRectangle([vr[0] + 0.5, vr[1] + 0.5, vr[2] - 1, vr[3] - 1], 4.0, 1.0);
-    g.setColour(via ? T.accentInk : T.dim);
+    // VOICE FILTER 3U (anthracite, handles)
+    drawHandle(g, 2, 91, 241);
+    drawHandle(g, 704, 91, 241);
+    drawUnitName(g, "VOICE FILTER", "", [24, 75, 140, 10]);
+    g.setColour(T.txt);
+    g.setFontWithSpacing(T.BOLD, 9, 0.08);
+    g.drawAlignedText("TYPE", [64, 84, 64, 9], "centred");
+    drawSwitchLegends(g, "FTypeKnob", 96, 140, 36, FT_SHORT, Math.round(DV.FTypeKnob));
+    g.setColour(T.dim);
+    g.setFont(T.FONT, 9);
+    for (k = 0; k < CUT_LEG.length; k++)
+    {
+        var cn = Math.pow((CUT_LEG[k][0] - 20.0) / 19980.0, CUT_SKEW);
+        var ca = -2.618 + 5.236 * cn;
+        g.drawAlignedText(CUT_LEG[k][1], [236 + 43 * Math.sin(ca) - 14, 142 - 43 * Math.cos(ca) - 5, 28, 10], "centred");
+    }
+    g.setColour(0x66000000);
+    g.fillRect([440, 75, 1, 183]);
+    g.setColour(0x1AFFFFFF);
+    g.fillRect([441, 75, 1, 183]);
+    g.setColour(T.txt);
     g.setFontWithSpacing(T.BOLD, 9, 0.12);
-    g.drawAlignedText(via ? "VIA WHEEL  ON" : "VIA WHEEL  OFF", vr, "centred");
-
-    // filter envelope as a cutoff sweep (the floor is how far ENV AMT closes it)
+    g.drawAlignedText("SWEEP", [452, 76, 246, 9], "left");
+    g.drawAlignedText("FILTER ENVELOPE", [452, 186, 246, 9], "left");
+    drawCrt(g, [452, 88, 246, 92]);
     var amt = DV.FEnvAmtKnob;
     var fs = Engine.getGainFactorForDecibels(DV.FSusKnob);
-    drawEnv(g, [194, 298, 150, 84], DV.FAtkKnob, 0, DV.FDecKnob, fs, DV.FRelKnob, 1.0 - amt, amt > 0.001 ? T.accent : T.mute);
+    drawEnv(g, [458, 94, 234, 80], DV.FAtkKnob, 0, DV.FDecKnob, fs, DV.FRelKnob, 1.0 - amt, amt > 0.001 ? PHOSPHOR : Colours.withAlpha(PHOSPHOR, 0.3));
+    drawScribble(g, [24, 188, 140, 64], SP_HELP[1]);
 
-    // amp envelope
+    // CONTOUR 2U
+    drawUnitName(g, "CONTOUR", "", [24, 272, 240, 10]);
+    g.setColour(T.txt);
+    g.setFontWithSpacing(T.BOLD, 9, 0.12);
+    g.drawAlignedText("SHAPE", [344, 276, 116, 9], "centred");
+    drawCrt(g, [480, 276, 218, 112]);
     var as = Engine.getGainFactorForDecibels(DV.AmpSusKnob);
-    drawEnv(g, [376, 298, 150, 84], AttackKnob.getValue(), DV.AmpHoldKnob, DV.AmpDecKnob, as, ReleaseKnob.getValue(), 0.0, T.accent);
+    drawEnv(g, [486, 282, 206, 100], AttackKnob.getValue(), DV.AmpHoldKnob, DV.AmpDecKnob, as, ReleaseKnob.getValue(), 0.0, PHOSPHOR);
+    drawScribble(g, [24, 354, 436, 38], SP_HELP[2]);
+
+    // PITCH 1U
+    drawUnitName(g, "PITCH", "TUNE + VIBRATO", [24, 407, 72, 50]);
+    g.setColour(T.txt);
+    g.setFontWithSpacing(T.BOLD, 9, 0.08);
+    g.drawAlignedText("VIA WHEEL", [480, 409, 68, 9], "centred");
+    drawLitSq(g, SP_HIT.via, DV.ViaWheelKnob > 0.5, hv == "via", T.accent);
+    drawScribble(g, [560, 407, 136, 52], SP_HELP[3]);
+
+    // MOD PATCH 1U (brushed aluminium): drag a jack onto CUTOFF, RESO, SEMI or LEVEL
+    g.setFontWithSpacing(T.BOLD, 9, 0.1);
+    for (k = 0; k < MOD_SOURCES.length; k++)
+    {
+        var jx = 52 + DOCK_STEP * k;
+        var live = (hv == "chip" + k) || (S.dragging && S.dragSrc == k);
+        drawEngraved(g, MOD_DESIG[k], [jx - 27, 472, 54, 12], "centred");
+        drawJack(g, jx, 500, MOD_COL[k], live || SRC_COUNT[k] > 0);
+        if (live)
+        {
+            g.setColour(Colours.withAlpha(MOD_COL[k], 0.5));
+            g.drawEllipse([jx - 11, 489, 22, 22], 1.5);
+        }
+        var lv = clamp01(Math.abs(MOD_MODS[k].getCurrentLevel()));
+        g.setColour(lv > 0.02 ? Colours.withAlpha(MOD_COL[k], 0.35 + 0.65 * lv) : 0xFF3A3A3C);
+        g.fillEllipse([jx - 3, 515, 6, 6]);
+        g.setColour(0x80000000);
+        g.drawEllipse([jx - 3, 515, 6, 6], 0.8);
+        if (SRC_COUNT[k] > 0)
+        {
+            g.setColour(T.lcdBg);
+            g.fillRoundedRectangle([jx + 10, 493, 10, 14], 1.5);
+            g.setColour(T.lcdText);
+            g.setFont(T.DIGITS, 10);
+            g.drawAlignedText("" + SRC_COUNT[k], [jx + 10, 493, 10, 14], "centred");
+            g.setFontWithSpacing(T.BOLD, 9, 0.1);
+        }
+    }
+    g.setFontWithSpacing(T.SUB, 10, 0.12);
+    drawEngraved(g, "MOD PATCH", [632, 476, 70, 12], "left");
+    g.setFontWithSpacing(T.BOLD, 8, 0.1);
+    drawEngraved(g, "DRAG TO", [632, 494, 70, 10], "left");
+    drawEngraved(g, "A KNOB", [632, 505, 70, 10], "left");
 });
 
 inline function dockChipAt(x, y)
 {
     if (y < DOCK_CHIP[1] || y >= DOCK_CHIP[1] + DOCK_CHIP[3] || x < DOCK_CHIP[0]) return -1;
-    local i = Math.floor((x - DOCK_CHIP[0]) / 64);
-    if (i >= MOD_SOURCES.length || (x - DOCK_CHIP[0]) - i * 64 >= DOCK_CHIP[2]) return -1;
+    local i = Math.floor((x - DOCK_CHIP[0]) / DOCK_STEP);
+    if (i >= MOD_SOURCES.length || (x - DOCK_CHIP[0]) - i * DOCK_STEP >= DOCK_CHIP[2]) return -1;
     return i;
 }
 
@@ -3959,23 +4184,10 @@ ShapePage.setMouseCallback(function(event)
     var h = "";
     var hc = dockChipAt(event.x, event.y);
     if (hc >= 0) h = "chip" + hc;
-    else if (inRect(SP_HIT.ftype, event.x, event.y)) h = "ftype";
-    else if (inRect(SP_HIT.subOct, event.x, event.y)) h = "subOct";
     else if (inRect(SP_HIT.via, event.x, event.y)) h = "via";
     if (event.clicked)
     {
-        if (h == "ftype")
-        {
-            var fr = SP_HIT.ftype;
-            stepState("FTypeKnob", event.x < fr[0] + fr[2] / 2 ? -1 : 1, DEEP_FILTER_TYPES.length);
-        }
-        else if (h == "subOct")
-        {
-            var sr = SP_HIT.subOct;
-            stepState("SubOctKnob", event.x < sr[0] + sr[2] / 2 ? -1 : 1, DEEP_SUB_OCTAVES.length);
-        }
-        else if (h == "via")
-            stepState("ViaWheelKnob", 1, 2);
+        if (h == "via") stepState("ViaWheelKnob", 1, 2);
         this.repaint();
     }
     if (h != this.data.hover)
@@ -4976,6 +5188,14 @@ inline function selfTest()
     if (FocusClock.isTimerRunning() || Globals.macKeys != false) { ok = false; Console.print("RF selftest mac keys off still grabs focus"); }
     applyMacKeys(macWas, false);
     FocusClock.stopTimer();
+    // SHAPE rack (docs/28b): every control inside its 720 x 532 page, K3 switches visible and vertical
+    local spi = 0;
+    for (spi = 0; spi < DEEP_PARAMS.length; spi++)
+    {
+        local sde = DEEP_PARAMS[spi];
+        if (sde.kind != "state" && (sde.x < 0 || sde.y < 0 || sde.x + sde.w > SP_W || sde.y + sde.h > SP_H)) { ok = false; Console.print("RF selftest SHAPE rect " + sde.id); }
+    }
+    if (DEEP_COMP.FTypeKnob.get("visible") != true || DEEP_COMP.SubOctKnob.get("dragDirection") != "Vertical" || !isDefined(SWITCH_STEP.FTypeKnob)) { ok = false; Console.print("RF selftest SHAPE switches"); }
     // REGGAETON category: LIBRARY pill right after ALL, group matching, kit view
     if (PILLS[1][0] != "REGGAETON" || PILLS[1][1] != -2 || !isReggaeton(["latin-trap"]) || isReggaeton(["house"])) { ok = false; Console.print("RF selftest reggaeton pill"); }
     S.cat = -2;
