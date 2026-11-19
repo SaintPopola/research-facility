@@ -226,7 +226,7 @@ const var S = {
     "lvlL": 0.0, "lvlR": 0.0, "voices": 0, "cpu": 0.0,
     "strumNote": -1, "orbPhase": 0.0, "orbFrame": 0,
     "mode": 0, "kit": 0, "loopQ": -1, "shift": 0, "playShift": 0,
-    "page": 0, "trim": 0.0, "vfIdle": true, "kitTop": 0, "lastLpCut": 0, "fullPreload": false, "latch": false, "latchSeen": 0, "lfx": [20000, 0.08, 0.0, 5, 60], "lfxDrag": -1, "uiReady": false, "undo": 0, "snapA": 0, "snapB": 0, "ab": "A", "noSnap": false, "macVel": 110, "shiftKeep": 0,
+    "page": 0, "trim": 0.0, "vfIdle": true, "kitTop": 0, "lastLpCut": 0, "fullPreload": false, "latch": false, "latchSeen": 0, "lfx": [20000, 0.08, 0.0, 5, 60], "uiReady": false, "undo": 0, "snapA": 0, "snapB": 0, "ab": "A", "noSnap": false, "macVel": 110, "shiftKeep": 0,
     "cutConn": 0, "modSrc": 0, "histPos": 0, "connDrag": -1,
     "focusTries": 0, "lastPaint": 0.0, "dragSrc": -1, "dragging": false
 };
@@ -2766,7 +2766,9 @@ knobLaf.registerFunction("drawRotarySlider", function(g, obj)
     // label above the control; value on hover or drag
     g.setColour(hot ? T.accentInk : T.txt);
     g.setFontWithSpacing(T.BOLD, w < 70 ? 9 : 10, 0.08);
-    g.drawAlignedText(hot ? obj.valueAsText : obj.text.toUpperCase(), [0, 0, w, 12], "centred");
+    var lfxI = obj.id.indexOf("LfxKnob") == 0 ? parseInt(obj.id.substring(7, 8)) : -1;
+    var hv = lfxI >= 0 ? lfxText(lfxI, lfxFromNorm(lfxI, v)) : obj.valueAsText;
+    g.drawAlignedText(hot ? hv : obj.text.toUpperCase(), [0, 0, w, 12], "centred");
 });
 
 // plate-painted scale around a knob: 11 dashes; kinds "ten" (0..10), "hz" (TONE skew), "time"
@@ -2842,6 +2844,44 @@ for (mk = 0; mk < 8; mk++)
         "saveInPreset": true, "isPluginParameter": true,
         "pluginParameterName": MACRO_LABELS[mk].substring(0, 1) + MACRO_LABELS[mk].substring(1, 10).toLowerCase()});
     MACROS[mk].setLocalLookAndFeel(knobLaf);
+}
+
+// LOOP FX knobs (docs/28b section 4): K2 CL collets on the MacroCard in LOOPS, replacing the
+// painted sliders. Values are normalised 0..1 and mapped by lfxFromNorm; the set keeps the
+// mapped values in the hidden LoopFxKey. Not host parameters (see LoopFxKey).
+const var LFX_KX = [36, 176, 266, 398, 488];                // MacroCard-local x, y 30, 76 x 84
+const var LFX_LBL = ["TONE", "SPACE", "ECHO", "ATTACK", "RELEASE"];
+const var LFX_DEF = [1.0, 0.16, 0.0, 0.2686, 0.2386];       // lfxNorm of the reset state [20000, 0.08, 0, 5, 60]
+const var LFX_LEG = [[[0.0, "200"], [0.199, "500"], [0.5, "2K"], [0.699, "5K"], [1.0, "20K"]],
+                     [[0.0, "0"], [0.2, "2"], [0.4, "4"], [0.6, "6"], [0.8, "8"], [1.0, "10"]],
+                     [[0.0, "0"], [0.2, "2"], [0.4, "4"], [0.6, "6"], [0.8, "8"], [1.0, "10"]],
+                     [[0.0, "1"], [0.384, "10"], [0.769, "100"], [1.0, "400"]],
+                     [[0.0, "20"], [0.5, "200"], [1.0, "2K"]]];
+const var LFX_KNOBS = [];
+for (mk = 0; mk < 5; mk++)
+{
+    LFX_KNOBS.push(Content.addKnob("LfxKnob" + mk, MC_X + LFX_KX[mk], MC_Y + 30));
+    Content.setPropertiesFromJSON("LfxKnob" + mk, {"width": 76, "height": 84, "min": 0.0, "max": 1.0,
+        "stepSize": 0.001, "defaultValue": LFX_DEF[mk], "text": LFX_LBL[mk], "visible": false,
+        "tooltip": "Loops only. Double-click to reset.", "saveInPreset": false, "isPluginParameter": false});
+    LFX_KNOBS[mk].setValue(LFX_DEF[mk]);
+    LFX_KNOBS[mk].setLocalLookAndFeel(knobLaf);
+}
+
+inline function onLfxKnob(component, value)
+{
+    local i = parseInt(component.getId().substring(7, 8));
+    S.lfx[i] = lfxFromNorm(i, value);
+    if (S.mode == 1) applyLoopFx();
+    LoopFxKey.setValue(S.lfx.join("|"));
+    MacroCard.repaint();
+}
+for (mk = 0; mk < 5; mk++) LFX_KNOBS[mk].setControlCallback(onLfxKnob);
+
+inline function syncLfxKnobs()
+{
+    local i = 0;
+    for (i = 0; i < 5; i++) LFX_KNOBS[i].setValue(lfxNorm(i, S.lfx[i]));
 }
 
 // ===== STAGE motion (docs/18b): sections, camera, beams, CO2. Reads MACROS / M_Move. =====
@@ -3089,35 +3129,54 @@ MacroCard.setPaintRoutine(function(g)
 
     if (S.mode == 1)
     {
-        // five sliders that act on the loops only (saved with the set, not host parameters)
+        // docs/28b LOOP FX 3U: five K2 collet knobs (components), printed scales, LED readouts
+        var j = 0;
+        g.setColour(Colours.withAlpha(T.txt, 0.55));
+        g.fillRect([150, 22, 1, 194]);
+        g.fillRect([372, 22, 1, 194]);
+        g.fillRect([594, 22, 1, 194]);
         for (k = 0; k < 5; k++)
         {
-            var ly = 34 + k * 30;
-            var lt = lfxNorm(k, S.lfx[k]);
+            var lx = LFX_KX[k];
+            var lcx = lx + 38;
+            drawScale(g, lcx, 82, 1, "none");
+            var leg = LFX_LEG[k];
             g.setColour(T.dim);
-            g.setFontWithSpacing(T.BOLD, 9, 0.12);
-            g.drawAlignedText(LFX_NAME[k], [16, ly, 80, 20], "left");
-            g.setColour(T.well);
-            g.fillRoundedRectangle([100, ly + 6, 420, 8], 4.0);
-            g.setColour(bh == "l" + k || S.lfxDrag == k ? T.accentHi : T.accent);
-            g.fillRoundedRectangle([100, ly + 6, Math.max(8, 420 * lt), 8], 4.0);
-            g.setColour(T.capLight);
-            g.fillEllipse([100 + 420 * lt - 7, ly + 3, 14, 14]);
-            g.setColour(T.capRing);
-            g.drawEllipse([100 + 420 * lt - 7, ly + 3, 14, 14], 1.5);
-            g.setColour(T.txt);
-            g.setFont(T.MONO, 11);
-            g.drawAlignedText(lfxText(k, S.lfx[k]), [532, ly, 90, 20], "left");
+            g.setFont(T.FONT, 9);
+            for (j = 0; j < leg.length; j++)
+            {
+                var lan = -2.618 + 5.236 * leg[j][0];
+                g.drawAlignedText(leg[j][1], [lcx + 35 * Math.sin(lan) - 14, 82 - 35 * Math.cos(lan) - 5, 28, 10], "centred");
+            }
+            var lv = S.lfx[k];
+            var lt = "";
+            var un = "MS";
+            var gh = "888";
+            if (k == 0)
+            {
+                if (lv >= 1000) { lt = Engine.doubleToString(lv / 1000.0, 1); un = "KHZ"; gh = "88.8"; }
+                else { lt = "" + Math.round(lv); un = "HZ"; }
+            }
+            else if (k < 3) { lt = "" + Math.round(lv * 200); un = "%"; }
+            else { lt = "" + Math.round(lv); gh = k == 4 ? "8888" : "888"; }
+            drawLed(g, [lx + 6, 128, 50, 22], lt, gh);
+            g.setColour(T.dim);
+            g.setFontWithSpacing(T.BOLD, 8, 0.1);
+            g.drawAlignedText(un, [lx + 58, 134, 24, 10], "left");
         }
+        g.setColour(T.txt);
+        g.setFontWithSpacing(T.BOLD, 9, 0.14);
+        g.drawAlignedText("FILTER", [0, 172, 150, 10], "centred");
+        g.drawAlignedText("SPACE / ECHO", [150, 172, 222, 10], "centred");
+        g.drawAlignedText("ENVELOPE", [372, 172, 222, 10], "centred");
+        g.drawAlignedText("RESET", [616, 42, 60, 10], "centred");
+        if (this.isImageLoaded("push")) g.drawImage("push", [634, 56, 24, 24], 0, this.data.down == "RESET" ? 48 : 0);
+        else drawPush(g, 634, 56, 24, bh == "RESET", true);
+        if (bh == "RESET") { g.setColour(Colours.withAlpha(T.accent, 0.35)); g.drawEllipse([632, 54, 28, 28], 1.2); }
         g.setColour(T.faint);
-        g.setFont(T.FONT, 10);
-        g.drawAlignedText("Loops only. Saved with your set.", [532, 186, 180, 16], "left");
-        var rb = bh == "RESET";
-        g.setColour(rb ? T.onTape : Colours.withAlpha(T.onTape, 0.12));
-        g.drawRoundedRectangle([624.5, 2.5, 91, 15], 7.0, 1.0);
-        g.setColour(rb ? T.onTape : T.onTapeDim);
         g.setFontWithSpacing(T.BOLD, 8, 0.12);
-        g.drawAlignedText("RESET", [624, 2, 92, 16], "centred");
+        g.drawAlignedText("LOOPS ONLY", [604, 150, 108, 10], "centred");
+        g.drawAlignedText("SAVED WITH YOUR SET", [604, 162, 108, 10], "centred");
         return;
     }
 
@@ -3289,6 +3348,7 @@ inline function resetMacros()
     {
         S.lfx = [20000, 0.08, 0.0, 5, 60];
         LoopFxKey.setValue(S.lfx.join("|"));
+        syncLfxKnobs();
         applyLoopFx();
         MacroCard.repaint();
         return;
@@ -3328,10 +3388,9 @@ MacroCard.setMouseCallback(function(event)
     if (event.mouseUp)
     {
         refocusKeys();
-        if (S.lfxDrag >= 0) { S.lfxDrag = -1; LoopFxKey.setValue(S.lfx.join("|")); this.repaint(); }
     }
     var h = "";
-    if (S.mode == 1 && event.y >= 1 && event.y < 19 && event.x >= 624 && event.x < 716) h = "RESET";
+    if (S.mode == 1 && event.x >= 632 && event.x < 660 && event.y >= 54 && event.y < 82) h = "RESET";
     if (S.mode == 0)
     {
         var bi = 0;
@@ -3340,25 +3399,10 @@ MacroCard.setMouseCallback(function(event)
             var bb = MC_BTN[bi];
             if (event.x >= bb[1] - 2 && event.x < bb[1] + bb[3] + 2 && event.y >= bb[2] - 2 && event.y < bb[2] + bb[4] + 2) h = bb[0];
         }
-        var dn = event.mouseDown && (h == "UNDO" || h == "VARIATION" || h == "RESET") ? h : "";
-        if (event.mouseUp) dn = "";
-        if (dn != this.data.down) { this.data.down = dn; this.repaint(); }
     }
-    if (S.mode == 1)
-    {
-        // LOOP FX sliders: rows at y 34 + k * 30, track x 100 .. 520
-        var row = Math.round(Math.floor((event.y - 34) / 30));
-        if (h == "" && row >= 0 && row < 5 && event.x >= 90 && event.x < 530) h = "l" + row;
-        var drow = Math.round(Math.floor((event.mouseDownY - 34) / 30));
-        if ((event.clicked || event.drag) && drow >= 0 && drow < 5 && event.mouseDownX >= 90 && event.mouseDownX < 530)
-        {
-            S.lfxDrag = drow;
-            S.lfx[drow] = lfxFromNorm(drow, (event.x - 100) / 420.0);
-            applyLoopFx();
-            if (event.clicked) LoopFxKey.setValue(S.lfx.join("|"));
-            this.repaint();
-        }
-    }
+    var dn = event.mouseDown && (h == "UNDO" || h == "VARIATION" || h == "RESET") ? h : "";
+    if (event.mouseUp) dn = "";
+    if (dn != this.data.down) { this.data.down = dn; this.repaint(); }
     if (event.clicked)
     {
         if (h == "VARIATION") variation();
@@ -3685,6 +3729,7 @@ inline function setPage(pg)
     for (i = 0; i < 8; i++) MACROS[i].showControl(play && S.mode == 0);   // LOOPS draws LOOP FX in this card
     AttackKnob.showControl(play && S.mode == 0);
     ReleaseKnob.showControl(play && S.mode == 0);
+    for (i = 0; i < 5; i++) LFX_KNOBS[i].showControl(play && S.mode == 1);
     MacroCard.repaint();
     showModEditor(mod ? S.modSrc : -1);
     if (shape) syncProxies();
@@ -4541,6 +4586,7 @@ inline function onLoopFxKey(component, value)
     local i = 0;
     if (parts.length != 5) return;
     for (i = 0; i < 5; i++) S.lfx[i] = Math.range(parseFloat(parts[i]), LFX_LO[i], LFX_HI[i]);
+    syncLfxKnobs();
     if (S.mode == 1) applyLoopFx();
 }
 LoopFxKey.setControlCallback(onLoopFxKey);
@@ -4620,7 +4666,6 @@ inline function loadKit(i)
 const var M_LoopEnv = Synth.getModulator("Loop Env");
 const var LE_ATK = M_LoopEnv.getAttributeIndex("Attack");
 const var LE_REL = M_LoopEnv.getAttributeIndex("Release");
-const var LFX_NAME = ["TONE", "SPACE", "ECHO", "ATTACK", "RELEASE"];
 const var LFX_LO = [200, 0.0, 0.0, 1, 20];
 const var LFX_HI = [20000, 0.5, 0.4, 400, 2000];
 const var LFX_LOG = [true, false, false, true, true];
@@ -4963,6 +5008,12 @@ inline function selfTest()
     if (LOOP_FIRST_NOTE != 60) { ok = false; Console.print("RF selftest loop zone " + LOOP_FIRST_NOTE); }
     if (loopLabel(60) != "K1" || loopLabel(75) != "A4" || macKeyFor(60) != "A" || macKeyFor(75) != "P") { ok = false; Console.print("RF selftest loop labels " + loopLabel(60) + macKeyFor(60)); }
     if (FX_Filter.getAttribute(A.fFreq) < 19999) { ok = false; Console.print("RF selftest loop fx tone " + FX_Filter.getAttribute(A.fFreq)); }
+    if (!LFX_KNOBS[0].get("visible") || !LFX_KNOBS[4].get("visible") || MACROS[0].get("visible")) { ok = false; Console.print("RF selftest LOOP FX knobs not shown in LOOPS"); }
+    LFX_KNOBS[0].setValue(0.5);
+    onLfxKnob(LFX_KNOBS[0], 0.5);
+    if (Math.abs(S.lfx[0] - 2000) > 1 || Math.abs(FX_Filter.getAttribute(A.fFreq) - 2000) > 1) { ok = false; Console.print("RF selftest LOOP FX tone knob " + S.lfx[0]); }
+    resetMacros();
+    if (Math.abs(LFX_KNOBS[0].getValue() - 1.0) > 0.001 || Math.abs(LFX_KNOBS[3].getValue() - LFX_DEF[3]) > 0.002 || S.lfx[0] != 20000) { ok = false; Console.print("RF selftest LOOP FX reset"); }
     local kmaps = LoopSampler.getSampleMapList();
     for (ms = 0; ms < LOOP_KITS.length; ms++)
     {
