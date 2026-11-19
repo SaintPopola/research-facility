@@ -3487,6 +3487,284 @@
    "desc": "A keyboard of tape strips, the head on the flute track. Every key plays its own 8-second strip with its own tuning, level, wear and hiss, recorded from this bank's own voices; hold a note past eight seconds and the strip runs out. Two takes per key differ only in the pinch roller and the start-up scoop."
   },
   {
+   "id": "hollow_log_drum",
+   "name": "Hollow Log Drum",
+   "cat": "bass",
+   "tags": [
+    "genre-pack",
+    "amapiano",
+    "log-drum",
+    "bass",
+    "pitched",
+    "percussive"
+   ],
+   "map": "SIG_hollow_log_drum",
+   "m": [
+    12000,
+    0,
+    0,
+    0,
+    0.08,
+    0,
+    0.1,
+    0
+   ],
+   "atk": 0,
+   "rel": 140,
+   "reso": 0.7,
+   "vel": 0.5,
+   "lfo": 0.1,
+   "dly": "1/8",
+   "subdec": 200,
+   "subsus": -60,
+   "trim": 0,
+   "desc": "A pitched log drum for amapiano basslines: every hit thumps in a few semitones sharp and drops onto the note within about 80 ms, with a hollow, woody honk in the mids that fades into a round low tone, so the line talks on phone speakers and still moves the floor. Harder hits honk more; bend it for slides between notes.",
+   "d": {
+    "DriftKnob": 0,
+    "BendKnob": 12
+   }
+  },
+  {
+   "id": "offbeat_bubble_organ",
+   "name": "Offbeat Bubble Organ",
+   "cat": "keys",
+   "tags": [
+    "genre-pack",
+    "reggae",
+    "one-drop",
+    "dub",
+    "lovers-rock",
+    "organ",
+    "bubble"
+   ],
+   "map": "SIG_offbeat_bubble_organ",
+   "m": [
+    6500,
+    0.05,
+    0.2,
+    0.45,
+    0.25,
+    0.05,
+    0.12,
+    0
+   ],
+   "atk": 2,
+   "rel": 70,
+   "reso": 0.7,
+   "vel": 0.3,
+   "lfo": 0.2,
+   "dly": "1/8",
+   "subdec": 200,
+   "subsus": -60,
+   "trim": 0,
+   "desc": "Drawbar organ with fast third-harmonic percussion on every key: it pops on the attack and fades within about half a second, tonewheel-steady and spread a little wide. Chop it short on the off-beats, left hand and right hand trading, and it bubbles under a one-drop; hold it for dub chords and it never wavers.",
+   "d": {
+    "DriftKnob": 0.3
+   }
+  },
+  {
+   "id": "choked_skank_guitar",
+   "name": "Choked Skank Guitar",
+   "cat": "guitar",
+   "tags": [
+    "genre-pack",
+    "reggae",
+    "dancehall",
+    "one-drop",
+    "guitar",
+    "skank",
+    "muted"
+   ],
+   "map": "SIG_choked_skank_guitar",
+   "m": [
+    8500,
+    0,
+    0.1,
+    0.35,
+    0.3,
+    0.25,
+    0.1,
+    0
+   ],
+   "atk": 0,
+   "rel": 60,
+   "reso": 0.7,
+   "vel": 0.6,
+   "lfo": 0.1,
+   "dly": "1/8D",
+   "subdec": 200,
+   "subsus": -60,
+   "trim": 0,
+   "desc": "Clean electric guitar choked the moment it speaks: a bright scratch, a short ring, then gone. Stack three-note voicings on beats 2 and 4 for a one-drop, or on every off-beat for dancehall, and let the dotted echo answer.",
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 9000,
+    "ResoKnob": 0.7,
+    "FVelKnob": 0.35,
+    "DriftKnob": 1
+   },
+   "mod": [
+    {
+     "Source": "Random",
+     "Target": "Cutoff",
+     "Intensity": 0.12,
+     "Mode": "Scale"
+    }
+   ]
+  },
+  {
+   "id": "low_sun_steel_pan",
+   "name": "Low Sun Steel Pan",
+   "cat": "plucks",
+   "tags": [
+    "genre-pack",
+    "dancehall",
+    "afro-swing",
+    "lovers-rock",
+    "steel-pan",
+    "tropical"
+   ],
+   "map": "SIG_low_sun_steel_pan",
+   "m": [
+    9000,
+    0,
+    0.15,
+    0.5,
+    0.4,
+    0.25,
+    0,
+    0
+   ],
+   "atk": 1,
+   "rel": 700,
+   "reso": 0.7,
+   "vel": 0.7,
+   "lfo": 0.15,
+   "dly": "1/8D",
+   "subdec": 200,
+   "subsus": -60,
+   "trim": 0,
+   "desc": "A tenor steel pan voiced from measured partials: octave and twelfth sit slightly flat, the way a real pan note rings, with a rubber-tip tick on the strike. Soft hits are round, hard hits shimmer. Sweet on top, a little sad underneath.",
+   "d": {
+    "DriftKnob": 0.5
+   }
+  },
+  {
+   "id": "palm_wine_pluck",
+   "name": "Palm Wine Pluck",
+   "cat": "guitar",
+   "tags": [
+    "genre-pack",
+    "afrobeats",
+    "afro-swing",
+    "highlife",
+    "guitar",
+    "clean",
+    "ostinato"
+   ],
+   "map": "SIG_palm_wine_pluck",
+   "m": [
+    9500,
+    0,
+    0.15,
+    0.45,
+    0.3,
+    0.2,
+    0.05,
+    0
+   ],
+   "atk": 0,
+   "rel": 220,
+   "reso": 0.7,
+   "vel": 0.65,
+   "lfo": 0.15,
+   "dly": "1/8",
+   "subdec": 200,
+   "subsus": -60,
+   "trim": 0,
+   "desc": "Bright single-coil guitar picked near the bridge, clean and dry enough to sit in the gaps. Made for looping highlife lines in thirds and sixths that dance around the vocal; every pluck has the same warm twang up the neck.",
+   "d": {
+    "DriftKnob": 1,
+    "BendKnob": 2
+   }
+  },
+  {
+   "id": "overcast_chorus_bass",
+   "name": "Overcast Chorus Bass",
+   "cat": "bass",
+   "tags": [
+    "genre-pack",
+    "post-punk",
+    "bass",
+    "chorus",
+    "picked",
+    "melodic"
+   ],
+   "map": "SIG_overcast_chorus_bass",
+   "m": [
+    7000,
+    0.1,
+    0.1,
+    0.5,
+    0.15,
+    0,
+    0.15,
+    0
+   ],
+   "atk": 1,
+   "rel": 250,
+   "reso": 0.7,
+   "vel": 0.6,
+   "lfo": 0.1,
+   "dly": "1/8",
+   "subdec": 200,
+   "subsus": -60,
+   "trim": 0,
+   "desc": "Picked electric bass played high up the neck through a bucket-brigade chorus and a small, pushed amp. The lows stay centred and solid while the clank swims wide. It carries the melody when the guitars go cold.",
+   "d": {
+    "DriftKnob": 1,
+    "BendKnob": 2
+   }
+  },
+  {
+   "id": "square_bounce_bass",
+   "name": "Square Bounce Bass",
+   "cat": "bass",
+   "tags": [
+    "genre-pack",
+    "jersey-club",
+    "electro",
+    "bass",
+    "square",
+    "bounce"
+   ],
+   "map": "SIG_square_bounce_bass",
+   "m": [
+    9000,
+    0,
+    0,
+    0,
+    0.05,
+    0,
+    0.15,
+    0
+   ],
+   "atk": 0,
+   "rel": 80,
+   "reso": 0.7,
+   "vel": 0.5,
+   "lfo": 0.1,
+   "dly": "1/8",
+   "subdec": 200,
+   "subsus": -60,
+   "trim": 0,
+   "desc": "Hollow square wave and a square sub an octave down, snapped open by a quick ladder sweep, then held round and steady. Bouncy triplet lines at club tempo, or stiff electro riffs locked to the kick.",
+   "d": {
+    "DriftKnob": 0.3,
+    "BendKnob": 2
+   }
+  },
+  {
    "id": "lg_low_end_chop",
    "name": "Low End Chop",
    "cat": "keys",

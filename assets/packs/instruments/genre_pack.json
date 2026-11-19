@@ -1,0 +1,633 @@
+{
+ "pack": "genre_pack",
+ "presets": [
+  {
+   "id": "hollow_log_drum",
+   "name": "Hollow Log Drum",
+   "cat": "bass",
+   "tags": [
+    "genre-pack",
+    "amapiano",
+    "log-drum",
+    "bass",
+    "pitched",
+    "percussive"
+   ],
+   "gen": "808",
+   "gp": {
+    "drop_st": 7,
+    "drop_t": 0.02,
+    "t60": 0.65,
+    "click": 0.3,
+    "drive": 6,
+    "lp": 2800,
+    "post_hp": 30,
+    "post_shelf": [
+     160,
+     6
+    ],
+    "tape": {
+     "wow_c": 0,
+     "wow_hz": 0.5,
+     "flutter_c": 0,
+     "flutter_hz": 9,
+     "bump": 0.2,
+     "lp": 6000,
+     "hiss": 0,
+     "crackle": 0,
+     "sat": 3
+    },
+    "soft_mul": {
+     "drive": 0.5,
+     "click": 0.4
+    }
+   },
+   "m": [
+    12000,
+    0,
+    0,
+    0,
+    0.08,
+    0,
+    0.1,
+    0
+   ],
+   "v": {
+    "atk": 0,
+    "rel": 140,
+    "reso": 0.7,
+    "vel": 0.5,
+    "lfo": 0.1,
+    "dly": "1/8",
+    "subdec": 200,
+    "subsus": -60,
+    "trim": 0
+   },
+   "z": [
+    24,
+    60,
+    3
+   ],
+   "dur": 1.2,
+   "loop": false,
+   "desc": "A pitched log drum for amapiano basslines: every hit thumps in a few semitones sharp and drops onto the note within about 80 ms, with a hollow, woody honk in the mids that fades into a round low tone, so the line talks on phone speakers and still moves the floor. Harder hits honk more; bend it for slides between notes.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 0,
+    "BendKnob": 12
+   }
+  },
+  {
+   "id": "offbeat_bubble_organ",
+   "name": "Offbeat Bubble Organ",
+   "cat": "keys",
+   "tags": [
+    "genre-pack",
+    "reggae",
+    "one-drop",
+    "dub",
+    "lovers-rock",
+    "organ",
+    "bubble"
+   ],
+   "gen": "modal",
+   "gp": {
+    "modes": [
+     [
+      0.5,
+      0.55,
+      1
+     ],
+     [
+      1,
+      1,
+      1
+     ],
+     [
+      2,
+      0.7,
+      1
+     ],
+     [
+      3,
+      0.7,
+      0.0003
+     ],
+     [
+      4,
+      0.14,
+      1
+     ],
+     [
+      6,
+      0.05,
+      1
+     ]
+    ],
+    "t60": 3000,
+    "strike": 0.1,
+    "pan_modes": 0.25,
+    "attack": 0.004,
+    "lp": 6000,
+    "post_hp": 70
+   },
+   "m": [
+    6500,
+    0.05,
+    0.2,
+    0.45,
+    0.25,
+    0.05,
+    0.12,
+    0
+   ],
+   "v": {
+    "atk": 2,
+    "rel": 70,
+    "reso": 0.7,
+    "vel": 0.3,
+    "lfo": 0.2,
+    "dly": "1/8",
+    "subdec": 200,
+    "subsus": -60,
+    "trim": 0
+   },
+   "z": [
+    36,
+    88,
+    4
+   ],
+   "dur": 3,
+   "loop": true,
+   "desc": "Drawbar organ with fast third-harmonic percussion on every key: it pops on the attack and fades within about half a second, tonewheel-steady and spread a little wide. Chop it short on the off-beats, left hand and right hand trading, and it bubbles under a one-drop; hold it for dub chords and it never wavers.",
+   "vl": 1,
+   "d": {
+    "DriftKnob": 0.3
+   }
+  },
+  {
+   "id": "choked_skank_guitar",
+   "name": "Choked Skank Guitar",
+   "cat": "guitar",
+   "tags": [
+    "genre-pack",
+    "reggae",
+    "dancehall",
+    "one-drop",
+    "guitar",
+    "skank",
+    "muted"
+   ],
+   "gen": "karplus",
+   "gp": {
+    "t60": 0.3,
+    "bright": 6000,
+    "damp": 0.1,
+    "pos": 0.13,
+    "body": 0,
+    "lp": 7500,
+    "post_hp": 260,
+    "post_shelf": [
+     2200,
+     2
+    ],
+    "chorus": 0
+   },
+   "m": [
+    8500,
+    0,
+    0.1,
+    0.35,
+    0.3,
+    0.25,
+    0.1,
+    0
+   ],
+   "v": {
+    "atk": 0,
+    "rel": 60,
+    "reso": 0.7,
+    "vel": 0.6,
+    "lfo": 0.1,
+    "dly": "1/8D",
+    "subdec": 200,
+    "subsus": -60,
+    "trim": 0
+   },
+   "z": [
+    48,
+    84,
+    3
+   ],
+   "dur": 0.8,
+   "loop": false,
+   "desc": "Clean electric guitar choked the moment it speaks: a bright scratch, a short ring, then gone. Stack three-note voicings on beats 2 and 4 for a one-drop, or on every off-beat for dancehall, and let the dotted echo answer.",
+   "vl": 2,
+   "d": {
+    "FTypeKnob": 0,
+    "CutoffKnob": 9000,
+    "ResoKnob": 0.7,
+    "FVelKnob": 0.35,
+    "DriftKnob": 1
+   },
+   "mod": [
+    {
+     "Source": "Random",
+     "Target": "Cutoff",
+     "Intensity": 0.12,
+     "Mode": "Scale"
+    }
+   ]
+  },
+  {
+   "id": "low_sun_steel_pan",
+   "name": "Low Sun Steel Pan",
+   "cat": "plucks",
+   "tags": [
+    "genre-pack",
+    "dancehall",
+    "afro-swing",
+    "lovers-rock",
+    "steel-pan",
+    "tropical"
+   ],
+   "gen": "modal",
+   "gp": {
+    "modes": [
+     [
+      1,
+      1,
+      1
+     ],
+     [
+      1.97,
+      0.688,
+      0.6
+     ],
+     [
+      2.935,
+      0.389,
+      0.4
+     ],
+     [
+      4.62,
+      0.106,
+      0.18
+     ],
+     [
+      5.87,
+      0.077,
+      0.12
+     ]
+    ],
+    "t60": 2.6,
+    "strike": 0.2,
+    "beat_c": 0.8,
+    "attack": 0.002,
+    "lp": 9500,
+    "post_hp": 90,
+    "vel_axis": {
+     "param": "modes",
+     "values": [
+      [
+       [
+        1,
+        1,
+        1
+       ],
+       [
+        1.97,
+        0.475,
+        0.6
+       ],
+       [
+        2.935,
+        0.202,
+        0.4
+       ],
+       [
+        4.62,
+        0.038,
+        0.18
+       ],
+       [
+        5.87,
+        0.026,
+        0.12
+       ]
+      ],
+      [
+       [
+        1,
+        1,
+        1
+       ],
+       [
+        1.97,
+        0.575,
+        0.6
+       ],
+       [
+        2.935,
+        0.29,
+        0.4
+       ],
+       [
+        4.62,
+        0.07,
+        0.18
+       ],
+       [
+        5.87,
+        0.05,
+        0.12
+       ]
+      ],
+      [
+       [
+        1,
+        1,
+        1
+       ],
+       [
+        1.97,
+        0.688,
+        0.6
+       ],
+       [
+        2.935,
+        0.389,
+        0.4
+       ],
+       [
+        4.62,
+        0.106,
+        0.18
+       ],
+       [
+        5.87,
+        0.077,
+        0.12
+       ]
+      ]
+     ]
+    }
+   },
+   "m": [
+    9000,
+    0,
+    0.15,
+    0.5,
+    0.4,
+    0.25,
+    0,
+    0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 700,
+    "reso": 0.7,
+    "vel": 0.7,
+    "lfo": 0.15,
+    "dly": "1/8D",
+    "subdec": 200,
+    "subsus": -60,
+    "trim": 0
+   },
+   "z": [
+    50,
+    89,
+    3
+   ],
+   "dur": 2.5,
+   "loop": false,
+   "desc": "A tenor steel pan voiced from measured partials: octave and twelfth sit slightly flat, the way a real pan note rings, with a rubber-tip tick on the strike. Soft hits are round, hard hits shimmer. Sweet on top, a little sad underneath.",
+   "vl": 3,
+   "d": {
+    "DriftKnob": 0.5
+   }
+  },
+  {
+   "id": "palm_wine_pluck",
+   "name": "Palm Wine Pluck",
+   "cat": "guitar",
+   "tags": [
+    "genre-pack",
+    "afrobeats",
+    "afro-swing",
+    "highlife",
+    "guitar",
+    "clean",
+    "ostinato"
+   ],
+   "gen": "karplus",
+   "gp": {
+    "excite": "halfsine",
+    "ex_ms": 0.25,
+    "t60": 1.4,
+    "bright": 9000,
+    "damp": 0.06,
+    "pos": 0.11,
+    "body": 0,
+    "post_hp": 120,
+    "post_shelf": [
+     3000,
+     3
+    ],
+    "chorus": 0
+   },
+   "m": [
+    9500,
+    0,
+    0.15,
+    0.45,
+    0.3,
+    0.2,
+    0.05,
+    0
+   ],
+   "v": {
+    "atk": 0,
+    "rel": 220,
+    "reso": 0.7,
+    "vel": 0.65,
+    "lfo": 0.15,
+    "dly": "1/8",
+    "subdec": 200,
+    "subsus": -60,
+    "trim": 0
+   },
+   "z": [
+    43,
+    88,
+    3
+   ],
+   "dur": 2,
+   "loop": false,
+   "desc": "Bright single-coil guitar picked near the bridge, clean and dry enough to sit in the gaps. Made for looping highlife lines in thirds and sixths that dance around the vocal; every pluck has the same warm twang up the neck.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 1,
+    "BendKnob": 2
+   }
+  },
+  {
+   "id": "overcast_chorus_bass",
+   "name": "Overcast Chorus Bass",
+   "cat": "bass",
+   "tags": [
+    "genre-pack",
+    "post-punk",
+    "bass",
+    "chorus",
+    "picked",
+    "melodic"
+   ],
+   "gen": "karplus",
+   "gp": {
+    "excite": "halfsine",
+    "ex_ms": 0.4,
+    "t60": 3.2,
+    "bright": 5000,
+    "damp": 0.3,
+    "pos": 0.2,
+    "body": 0,
+    "lp": 5000,
+    "post_hp": 35,
+    "post_shelf": [
+     1000,
+     3
+    ],
+    "chorus": 0,
+    "bbd": {
+     "rate_hz": 0.7,
+     "lfo": "triangle",
+     "base_ms": 4,
+     "depth_ms": 2.2,
+     "stages": 512,
+     "mix": 0.5,
+     "hp_hz": 180
+    },
+    "tape": {
+     "wow_c": 0,
+     "wow_hz": 0.5,
+     "flutter_c": 0,
+     "flutter_hz": 9,
+     "bump": 0.15,
+     "lp": 9000,
+     "hiss": 0.0006,
+     "crackle": 0,
+     "sat": 1.6
+    }
+   },
+   "m": [
+    7000,
+    0.1,
+    0.1,
+    0.5,
+    0.15,
+    0,
+    0.15,
+    0
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 250,
+    "reso": 0.7,
+    "vel": 0.6,
+    "lfo": 0.1,
+    "dly": "1/8",
+    "subdec": 200,
+    "subsus": -60,
+    "trim": 0
+   },
+   "z": [
+    28,
+    64,
+    3
+   ],
+   "dur": 3.5,
+   "loop": false,
+   "desc": "Picked electric bass played high up the neck through a bucket-brigade chorus and a small, pushed amp. The lows stay centred and solid while the clank swims wide. It carries the melody when the guitars go cold.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 1,
+    "BendKnob": 2
+   }
+  },
+  {
+   "id": "square_bounce_bass",
+   "name": "Square Bounce Bass",
+   "cat": "bass",
+   "tags": [
+    "genre-pack",
+    "jersey-club",
+    "electro",
+    "bass",
+    "square",
+    "bounce"
+   ],
+   "gen": "ladder",
+   "gp": {
+    "voices": 1,
+    "osc": "pulse",
+    "pw": 0.5,
+    "sub": 0.35,
+    "cutoff": 550,
+    "keytrack": 0.6,
+    "res": 0.3,
+    "fenv": 3000,
+    "fenv_t": 0.09,
+    "drive": 2,
+    "vt": 0.5,
+    "attack": 0.001,
+    "decay": 0.35,
+    "sustain": 0.5,
+    "oversample": 2,
+    "wander": {
+     "pitch_c": 0
+    },
+    "post_hp": 28,
+    "loop_start": 0.8,
+    "soft": {
+     "fenv": 0.5,
+     "cutoff": 0.8
+    }
+   },
+   "m": [
+    9000,
+    0,
+    0,
+    0,
+    0.05,
+    0,
+    0.15,
+    0
+   ],
+   "v": {
+    "atk": 0,
+    "rel": 80,
+    "reso": 0.7,
+    "vel": 0.5,
+    "lfo": 0.1,
+    "dly": "1/8",
+    "subdec": 200,
+    "subsus": -60,
+    "trim": 0
+   },
+   "z": [
+    24,
+    60,
+    3
+   ],
+   "dur": 3,
+   "loop": true,
+   "desc": "Hollow square wave and a square sub an octave down, snapped open by a quick ladder sweep, then held round and steady. Bouncy triplet lines at club tempo, or stiff electro riffs locked to the kick.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 0.3,
+    "BendKnob": 2
+   }
+  }
+ ]
+}
