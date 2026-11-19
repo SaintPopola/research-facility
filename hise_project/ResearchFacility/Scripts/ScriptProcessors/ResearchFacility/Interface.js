@@ -336,6 +336,16 @@ const var RING = Content.createPath();      // reused by the macro card mod ring
 // ============================================================================
 const var favFile = FileSystem.getFolder(FileSystem.AppData).getChildFile("favourites.json");
 
+// MAC KEYS (P0, 2026-11-18): inside a DAW the QWERTY row belongs to the host by default, so
+// Live's computer MIDI keyboard plays AND records the armed track. ON = preview through the
+// on-screen piano (the host cannot record those). Per user, never per preset. The patched
+// HISE keyboard (scripts/ci/patch_hise.py) reads Globals.macKeys: unset or true = take keys.
+const var prefsFile = FileSystem.getFolder(FileSystem.AppData).getChildFile("prefs.json");
+S.macKeys = !Engine.isPlugin();
+const var PREFS0 = prefsFile.isFile() ? prefsFile.loadAsObject() : {};
+if (isDefined(PREFS0) && isDefined(PREFS0.macKeys)) S.macKeys = PREFS0.macKeys == true;
+Globals.macKeys = S.macKeys;
+
 inline function loadFavourites()
 {
     if (favFile.isFile())
@@ -1499,7 +1509,8 @@ Browser.setPaintRoutine(function(g)
         }
         g.setColour(T.faint);
         g.setFont(T.FONT, 10);
-        g.drawMultiLineText("Play MIDI C3 to D#4 or the Mac keys shown on the piano. Loops follow the host tempo. LATCH: a press starts a loop, the next press stops it.", [16, ly + 136], 224, "left", 0.0);
+        g.drawMultiLineText(S.macKeys ? "Play MIDI C3 to D#4 or the Mac keys shown on the piano (preview: the host does not record these). Loops follow the host tempo. LATCH: a press starts a loop, the next press stops it."
+                                      : "Play MIDI C3 to D#4 or Live's computer keyboard. Loops follow the host tempo. LATCH: a press starts a loop, the next press stops it.", [16, ly + 136], 224, "left", 0.0);
         return;
     }
 
@@ -2108,6 +2119,7 @@ Content.setPropertiesFromJSON("Visualiser", {"width": VIS_W, "height": VIS_H, "o
     "allowCallbacks": "Clicks, Hover & Dragging"});
 Visualiser.data.hover = false;
 Visualiser.data.hoverPlay = false;
+Visualiser.data.hoverMac = false;
 
 // glass over the STAGE (docs/28 CRT): scanlines, rounded corners, top sheen. Cached
 // (bufferToImage) and click-through (enabled false), so the 30 fps stage pays nothing.
@@ -2484,7 +2496,9 @@ Visualiser.setPaintRoutine(function(g)
     g.drawRoundedRectangle([12.5, 10.5, 124, 21], 10.0, 1.0);                          // a visible stepper
     g.setColour(T.glassDim);
     g.drawAlignedText("STAGE  /  " + TRIP_NM[STG.tripI] + "  >", [22, 14, 112, 14], "left");   // click cycles the show level
-    g.drawAlignedText("MAC KEYS " + qwertyRange() + "  VEL " + S.macVel + "   [ ]  1-5", [300, 14, 290, 14], "right");
+    g.drawAlignedText(S.macKeys ? "PREVIEW ONLY, LIVE DOES NOT RECORD THESE   " + qwertyRange() + "  VEL " + S.macVel + "   [ ]  1-5"
+                                : "KEYS GO TO LIVE (RECORDS)", [130, 14, 462, 14], "right");
+    drawCapPill(g, [600, 10, 112, 22], S.macKeys ? "MAC KEYS: PREVIEW" : "MAC KEYS: OFF", S.macKeys, Visualiser.data.hoverMac);
     if (S.lastNote >= 0)
     {
         g.setColour(T.onGlass);
@@ -2565,6 +2579,9 @@ Visualiser.setMouseCallback(function(event)
     }
     if (event.mouseUp) refocusKeys();
     var inPlay = false;                                  // PREVIEW moved to the OUTPUT column
+    var inMac = event.x >= 600 && event.x < 712 && event.y >= 8 && event.y < 34;
+    if (inMac != this.data.hoverMac) { this.data.hoverMac = inMac; this.repaint(); }
+    if (event.clicked && inMac) { applyMacKeys(!S.macKeys, true); return; }
     if (inPlay != this.data.hoverPlay)
     {
         this.data.hoverPlay = inPlay;
@@ -3487,6 +3504,7 @@ Keys.setLocalLookAndFeel(keyLaf);
 // hands it straight back (the search field keeps it while you type in it).
 inline function refocusKeys()
 {
+    if (!S.macKeys) return;                      // keys belong to the host: never take focus
     Keys.grabFocus();
 }
 
@@ -3496,6 +3514,7 @@ inline function refocusKeys()
 const var FocusClock = Engine.createTimerObject();
 FocusClock.setTimerCallback(function()
 {
+    if (!S.macKeys) { this.stopTimer(); return; }
     refocusKeys();
     S.focusTries = S.focusTries + 1;
     if (S.focusTries >= 10) this.stopTimer();
@@ -3503,8 +3522,19 @@ FocusClock.setTimerCallback(function()
 
 inline function armFocus()
 {
+    if (!S.macKeys) { FocusClock.stopTimer(); return; }
     S.focusTries = 0;
     FocusClock.startTimer(300);
+}
+
+inline function applyMacKeys(on, save)
+{
+    S.macKeys = on;
+    Globals.macKeys = on;
+    if (save) prefsFile.writeObject({"macKeys": on});
+    if (on) armFocus();
+    else FocusClock.stopTimer();
+    Visualiser.repaint();
 }
 
 inline function shiftOctave(d)
@@ -4894,6 +4924,13 @@ inline function selfTest()
     if (findPreset("velvet_strings") < 0 || FACTORY_BANK[findPreset("velvet_strings")].id != "bowed_metal") { ok = false; Console.print("RF selftest retired alias"); }
     if (TEMPO_Q < 0) ok = false;
     if (tempoIndex("1/8D") < 0) ok = false;
+    // MAC KEYS off (the plugin default): no focus clock, the keyboard is told to let keys go
+    local macWas = S.macKeys;
+    applyMacKeys(false, false);
+    armFocus();
+    if (FocusClock.isTimerRunning() || Globals.macKeys != false) { ok = false; Console.print("RF selftest mac keys off still grabs focus"); }
+    applyMacKeys(macWas, false);
+    FocusClock.stopTimer();
     // REGGAETON category: LIBRARY pill right after ALL, group matching, kit view
     if (PILLS[1][0] != "REGGAETON" || PILLS[1][1] != -2 || !isReggaeton(["latin-trap"]) || isReggaeton(["house"])) { ok = false; Console.print("RF selftest reggaeton pill"); }
     S.cat = -2;

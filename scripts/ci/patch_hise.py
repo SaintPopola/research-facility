@@ -51,9 +51,17 @@ H_ADD = H_ANCHOR + b"""
 		CustomKeyboard& kb;
 	};
 
+	// Sweet Melody patch: MAC KEYS switch. The script sets Globals.macKeys; when it is false
+	// (the default inside a host) the QWERTY row is not the plugin's: keys are neither
+	// consumed nor focused here, so they reach the host (Live's computer MIDI keyboard
+	// plays AND records the armed track). Unset = true (standalone, older scripts).
+	bool macKeysEnabled() const;
+	bool keyPressed(const juce::KeyPress& key) override { return macKeysEnabled() && MidiKeyboardComponent::keyPressed(key); }
+	bool keyStateChanged(bool isKeyDown) override { return macKeysEnabled() && MidiKeyboardComponent::keyStateChanged(isKeyDown); }
+
 	bool shouldForwardKeys() const
 	{
-		return isShowing() && dynamic_cast<juce::TextEditor*>(juce::Component::getCurrentlyFocusedComponent()) == nullptr;
+		return macKeysEnabled() && isShowing() && dynamic_cast<juce::TextEditor*>(juce::Component::getCurrentlyFocusedComponent()) == nullptr;
 	}
 
 	bool forwardKeyPressed(const juce::KeyPress& key) { return shouldForwardKeys() && MidiKeyboardComponent::keyPressed(key); }
@@ -71,8 +79,14 @@ H_ADD = H_ANCHOR + b"""
 		FocusWatch(CustomKeyboard& k) : kb(k) {}
 		void timerCallback() override
 		{
+			// MAC KEYS off: never hold the keyboard focus (a mouse click on the piano would
+			// otherwise take it and swallow the host's computer keyboard)
+			const bool macOn = kb.macKeysEnabled();
+			kb.setWantsKeyboardFocus(macOn);
+			if (!macOn && kb.hasKeyboardFocus(false))
+				kb.giveAwayKeyboardFocus();
 			auto peer = kb.getPeer();
-			const bool keysLive = peer != nullptr && peer->isFocused()
+			const bool keysLive = macOn && peer != nullptr && peer->isFocused()
 				&& dynamic_cast<juce::TextEditor*>(juce::Component::getCurrentlyFocusedComponent()) == nullptr;
 			if (!keysLive && !released)
 			{
@@ -96,7 +110,17 @@ C_DTOR_NEW = C_DTOR + b"""	// """ + KB_MARK + b""": detach from the top-level co
 
 """
 C_APPEND_ANCHOR = b"void CustomKeyboard::buttonClicked(Button* b)\n"
-C_FUNC = b"""// """ + KB_MARK + b""": follow the keyboard to whatever top-level component holds it
+C_FUNC = b"""// """ + KB_MARK + b""": the script's MAC KEYS switch (Globals.macKeys; unset = on)
+bool CustomKeyboard::macKeysEnabled() const
+{
+	auto g = mc != nullptr ? mc->getGlobalVariableObject() : nullptr;
+	if (g == nullptr)
+		return true;
+	auto v = g->getProperty(juce::Identifier("macKeys"));
+	return v.isVoid() ? true : (bool)v;
+}
+
+// """ + KB_MARK + b""": follow the keyboard to whatever top-level component holds it
 void CustomKeyboard::parentHierarchyChanged()
 {
 	MidiKeyboardComponent::parentHierarchyChanged();
