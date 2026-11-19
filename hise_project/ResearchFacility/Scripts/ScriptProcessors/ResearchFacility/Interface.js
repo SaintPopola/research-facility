@@ -2853,7 +2853,7 @@ inline function drawScale(g, cx, cy, cls, kind)
     else if (kind == "timeL")
     {
         g.setColour(T.faint);
-        g.drawAlignedText("M-SEC.", [cx - t1 - 26, cy + t1 + 2, 40, 10], "left");
+        g.drawAlignedText("M-SEC.", [cx - t1 - 16, cy + t1 + 2, 40, 10], "left");   // clear of the PERFORMANCE / VOICE divider
     }
     else if (kind == "timeR")
     {
