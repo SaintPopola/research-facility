@@ -84,10 +84,12 @@ fi
 # hangs until someone answers). Copy as APFS clones (cp -c): no extra disk space.
 # HISE reads LinkOSX from the AppData ROOT.
 SAMPLES_SRC="$ROOT/hise_project/ResearchFacility/Samples"
-ls "$SAMPLES_SRC"/SIG_*.wav >/dev/null 2>&1 || python3 "$ROOT/scripts/build_signature_bank.py"
+[ -n "$(find "$SAMPLES_SRC" -maxdepth 1 -name 'SIG_*.wav' -print -quit 2>/dev/null)" ] || python3 "$ROOT/scripts/build_signature_bank.py"
 mkdir -p "$APPDATA"
-rm -f "$APPDATA"/SIG_*.wav
-cp -c "$SAMPLES_SRC"/*.wav "$APPDATA/"
+# find + xargs, not shell globs: 9000+ samples overflow ARG_MAX ("Argument list too long")
+copy_samples() { find "$SAMPLES_SRC" -maxdepth 1 -name '*.wav' -print0 | xargs -0 -J % cp -c % "$APPDATA/"; }
+find "$APPDATA" -maxdepth 1 -name 'SIG_*.wav' -delete
+copy_samples
 printf '%s' "$APPDATA" > "$(dirname "$APPDATA")/LinkOSX"
 
 # every sample the BUILT commit's maps reference must be installed (a stale working tree,
@@ -104,7 +106,7 @@ if [ -n "$MISSING" ]; then
   echo "== $(echo "$MISSING" | wc -l | tr -d ' ') samples missing for $SHA: rendering"
   PYTHONDONTWRITEBYTECODE=1 python3 "$ROOT/scripts/build_signature_bank.py"
   PYTHONDONTWRITEBYTECODE=1 python3 "$ROOT/scripts/build_loop_lines.py"
-  cp -c "$SAMPLES_SRC"/*.wav "$APPDATA/"
+  copy_samples
   MISSING="$(missing_list)"
   if [ -n "$MISSING" ]; then
     echo "ERROR: still missing after render (first 5):" >&2; echo "$MISSING" | head -5 >&2; exit 4
