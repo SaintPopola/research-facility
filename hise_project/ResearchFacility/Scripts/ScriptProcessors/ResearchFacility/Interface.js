@@ -227,7 +227,7 @@ const var S = {
     "strumNote": -1, "orbPhase": 0.0, "orbFrame": 0,
     "mode": 0, "kit": 0, "loopQ": -1, "shift": 0, "playShift": 0,
     "page": 0, "trim": 0.0, "vfIdle": true, "kitTop": 0, "lastLpCut": 0, "fullPreload": false, "latch": false, "latchSeen": 0, "lfx": [20000, 0.08, 0.0, 5, 60], "uiReady": false, "undo": 0, "snapA": 0, "snapB": 0, "ab": "A", "noSnap": false, "macVel": 110, "shiftKeep": 0,
-    "cutConn": 0, "modSrc": 0, "histPos": 0, "connDrag": -1,
+    "cutConn": 0, "modSrc": 0, "histPos": 0, "connDrag": -1, "connFrac0": 0.0,
     "focusTries": 0, "lastPaint": 0.0, "dragSrc": -1, "dragging": false
 };
 
@@ -2619,9 +2619,13 @@ knobLaf.loadImage("{PROJECT_FOLDER}vm_knob_s_2x.png", "skS");     // 72 px frame
 knobLaf.loadImage("{PROJECT_FOLDER}vm_collet_l_2x.png", "clL");   // 144 px frames: K2 CXL 72, CL 56
 knobLaf.loadImage("{PROJECT_FOLDER}vm_collet_s_2x.png", "clS");   // 80 px frames:  K2 CM 40, CS 34
 knobLaf.loadImage("{PROJECT_FOLDER}vm_ptr_l_2x.png", "ptrL");     // 96 px frames:  K3 pointer, 61 angles -150..+150 at 5 deg
+knobLaf.loadImage("{PROJECT_FOLDER}vm_k4_l_2x.png", "k4L");       // one 144 px frame: K4 DL 56 (rotation-symmetric)
+knobLaf.loadImage("{PROJECT_FOLDER}vm_k4_s_2x.png", "k4S");       // one 80 px frame:  K4 DM 40
+// K4 stepped attenuators (docs/28b): smooth skirt + spun cap, vector line 0.55R..R, plate ticks every detent
+const var K4_IDS = ["ASemiKnob", "BendKnob"];
 // K3 pointer selectors (docs/28b): detent step in degrees, positions centred on 12 o'clock.
 // The plate paints legends and detent dots at the frame angle, so pointer and engraving agree.
-const var SWITCH_STEP = {"FTypeKnob": 40, "SubOctKnob": 30};
+const var SWITCH_STEP = {"FTypeKnob": 40, "SubOctKnob": 30, "Lfo1Wave": 30, "Lfo2Wave": 30, "Lfo3Wave": 30, "Lfo4Wave": 30};
 // docs/28 + 28b knobs. Vector until the Blender strips land (Phase 4, behind isImageLoaded).
 // K1 fluted (PLAY macros, ATTACK, RELEASE): black skirt, spun aluminium cap, index line.
 // K2 collet (every rack-page knob): black body, flat coloured cap by function, printed line.
@@ -2694,6 +2698,7 @@ knobLaf.registerFunction("drawRotarySlider", function(g, obj)
         return;
     }
     var k1 = K1_IDS.indexOf(obj.id) >= 0;
+    var k4 = K4_IDS.indexOf(obj.id) >= 0;
     var geo = knobGeo(w, k1);
     var cx = geo[0];
     var cy = geo[1];
@@ -2726,13 +2731,13 @@ knobLaf.registerFunction("drawRotarySlider", function(g, obj)
     // body: the Blender strip frame (rotation inside one flute / knurl period), else vector
     var deg = ang * 57.29578;
     var dSz = k1 ? (w >= 90 ? 72 : (w >= 70 ? 56 : 36)) : (w >= 90 ? 72 : (w >= 70 ? 56 : (w >= 50 ? 40 : 34)));
-    var sImg = k1 ? (dSz >= 56 ? "skL" : "skS") : (dSz >= 56 ? "clL" : "clS");
+    var sImg = k4 ? (dSz >= 56 ? "k4L" : "k4S") : (k1 ? (dSz >= 56 ? "skL" : "skS") : (dSz >= 56 ? "clL" : "clS"));
     var fH = k1 ? (dSz >= 56 ? 144 : 72) : (dSz >= 56 ? 144 : 80);
     var per = k1 ? 15.0 : 10.0;
     var haveImg = knobLaf.isImageLoaded(sImg);
     if (haveImg)
     {
-        var fi = Math.round(Math.wrap(deg, per) / per * 16.0) % 16;
+        var fi = k4 ? 0 : Math.round(Math.wrap(deg, per) / per * 16.0) % 16;
         g.drawImage(sImg, [Math.round(cx - dSz / 2), Math.round(cy - dSz / 2), dSz, dSz], 0, fi * fH);
     }
     else
@@ -2757,6 +2762,10 @@ knobLaf.registerFunction("drawRotarySlider", function(g, obj)
             g.drawEllipse([cx - cr, cy - cr, cr * 2.0, cr * 2.0], 1.0);
         }
     }
+    else if (k4)
+    {
+        lineIn = 0.55;                                                    // line on the skirt, outside the cap
+    }
     else
     {
         var cc = capFor(obj.id, obj.text);
@@ -2777,7 +2786,7 @@ knobLaf.registerFunction("drawRotarySlider", function(g, obj)
     g.setColour(0x59000000);
     g.drawLine(cx + sx * r0 + 0.6, cx + sx * r1 + 0.6, cy + sy * r0 + 0.6, cy + sy * r1 + 0.6, k1 ? 2.2 : 2.0);
     g.setColour(ink);
-    g.drawLine(cx + sx * r0, cx + sx * r1, cy + sy * r0, cy + sy * r1, k1 ? (w >= 70 ? 2.2 : 1.8) : 1.6);
+    g.drawLine(cx + sx * r0, cx + sx * r1, cy + sy * r0, cy + sy * r1, k1 ? (w >= 70 ? 2.2 : 1.8) : (k4 ? 2.0 : 1.6));
     if (k1)
     {
         // a dot where the index line meets the cap edge, readable at arm's length
@@ -3725,6 +3734,7 @@ for (dp = 0; dp < DEEP_PARAMS.length; dp++)
         dk.set("dragDirection", "Vertical");
         dk.set("mouseSensitivity", (de.max - de.min) * 36 / 250.0);
     }
+    if (K4_IDS.indexOf(de.id) >= 0) dk.set("mouseSensitivity", (de.max - de.min) * 24 / 250.0);   // 24 px per detent
     if (MATRIX_OWNED.indexOf(de.id) < 0) dk.setControlCallback(onDeep);
     DEEP_COMP[de.id] = dk;
 }
@@ -3938,6 +3948,29 @@ inline function drawCrt(g, r)
     g.drawRoundedRectangle([r[0] + 0.5, r[1] + 0.5, r[2] - 1, r[3] - 1], 4.0, 1.0);
 }
 
+inline function drawDetents(g, cx, cy, n, legs)
+{
+    // K4 plate: a tick at every detent over 300 deg, long ticks + legends at [index, text] pairs
+    local i = 0;
+    local an = 0.0;
+    local j = 0;
+    g.setColour(Colours.withAlpha(T.txt, 0.75));
+    for (i = 0; i < n; i++)
+    {
+        an = -2.618 + 5.236 * i / (n - 1);
+        g.drawLine(cx + 18.5 * Math.sin(an), cx + 21.0 * Math.sin(an), cy - 18.5 * Math.cos(an), cy - 21.0 * Math.cos(an), 1.0);
+    }
+    g.setFont(T.FONT, 9);
+    for (j = 0; j < legs.length; j++)
+    {
+        an = -2.618 + 5.236 * legs[j][0] / (n - 1);
+        g.setColour(T.txt);
+        g.drawLine(cx + 17.0 * Math.sin(an), cx + 22.5 * Math.sin(an), cy - 17.0 * Math.cos(an), cy - 22.5 * Math.cos(an), 1.4);
+        g.setColour(T.dim);
+        if (legs[j][1] != "") g.drawAlignedText(legs[j][1], [cx + 25.0 * Math.sin(an) - 12, cy - 25.0 * Math.cos(an) - 5, 24, 10], "centred");
+    }
+}
+
 inline function drawSwitchLegends(g, id, cx, cy, rr, labels, sel)
 {
     local n = labels.length;
@@ -4015,7 +4048,9 @@ ShapePage.setPaintRoutine(function(g)
     for (k = 0; k < DEEP_PARAMS.length; k++)
     {
         var de = DEEP_PARAMS[k];
-        if (de.kind == "knob" || de.kind == "proxy")
+        if (de.id == "ASemiKnob") drawDetents(g, de.x + 28, de.y + 35, 25, [[0, "-12"], [12, ""], [24, "+12"]]);
+        else if (de.id == "BendKnob") drawDetents(g, de.x + 28, de.y + 35, 13, [[0, "0"], [12, "12"]]);
+        else if (de.kind == "knob" || de.kind == "proxy")
         {
             if (de.w >= 90) drawScale(g, de.x + 48, de.y + 60, 5, "none");
             else drawScale(g, de.x + de.w / 2, de.y + 35, de.w >= 50 ? 3 : 4, "none");
@@ -4116,7 +4151,7 @@ ShapePage.setPaintRoutine(function(g)
 inline function dockChipAt(x, y)
 {
     if (y < DOCK_CHIP[1] || y >= DOCK_CHIP[1] + DOCK_CHIP[3] || x < DOCK_CHIP[0]) return -1;
-    local i = Math.floor((x - DOCK_CHIP[0]) / DOCK_STEP);
+    local i = Math.round(Math.floor((x - DOCK_CHIP[0]) / DOCK_STEP));
     if (i >= MOD_SOURCES.length || (x - DOCK_CHIP[0]) - i * DOCK_STEP >= DOCK_CHIP[2]) return -1;
     return i;
 }
@@ -4335,13 +4370,13 @@ for (ms = 4; ms < 6; ms++)
 // [id, label, source index, kind, column, min, max, default, mode, middle, step]
 const var MOD_PARAMS = [
     ["Lfo1Rate", "RATE", 0, "knob", 0, 0, 1, 0.2778, "Linear", 0.5, 0.001], ["Lfo1Fade", "FADE", 0, "knob", 1, 0, 3000, 0, "Time", 500, 1],
-    ["Lfo1Sync", "SYNC", 0, "state", 0, 0, 1, 1, "Linear", 0.5, 1], ["Lfo1Wave", "WAVE", 0, "state", 0, 0, 4, 0, "Linear", 3, 1],
+    ["Lfo1Sync", "SYNC", 0, "state", 0, 0, 1, 1, "Linear", 0.5, 1], ["Lfo1Wave", "WAVE", 0, "switch", 0, 0, 4, 0, "Linear", 3, 1],
     ["Lfo2Rate", "RATE", 1, "knob", 0, 0, 1, 0.4444, "Linear", 0.5, 0.001], ["Lfo2Fade", "FADE", 1, "knob", 1, 0, 3000, 0, "Time", 500, 1],
-    ["Lfo2Sync", "SYNC", 1, "state", 0, 0, 1, 1, "Linear", 0.5, 1], ["Lfo2Wave", "WAVE", 1, "state", 0, 0, 6, 1, "Linear", 3, 1],
+    ["Lfo2Sync", "SYNC", 1, "state", 0, 0, 1, 1, "Linear", 0.5, 1], ["Lfo2Wave", "WAVE", 1, "switch", 0, 0, 6, 1, "Linear", 3, 1],
     ["Lfo3Rate", "RATE", 2, "knob", 0, 0, 1, 0.6111, "Linear", 0.5, 0.001], ["Lfo3Fade", "FADE", 2, "knob", 1, 0, 3000, 0, "Time", 500, 1],
-    ["Lfo3Sync", "SYNC", 2, "state", 0, 0, 1, 1, "Linear", 0.5, 1], ["Lfo3Wave", "WAVE", 2, "state", 0, 0, 4, 1, "Linear", 3, 1],
+    ["Lfo3Sync", "SYNC", 2, "state", 0, 0, 1, 1, "Linear", 0.5, 1], ["Lfo3Wave", "WAVE", 2, "switch", 0, 0, 4, 1, "Linear", 3, 1],
     ["Lfo4Rate", "RATE", 3, "knob", 0, 0, 1, 0.0, "Linear", 0.5, 0.001], ["Lfo4Fade", "FADE", 3, "knob", 1, 0, 3000, 0, "Time", 500, 1],
-    ["Lfo4Sync", "SYNC", 3, "state", 0, 0, 1, 1, "Linear", 0.5, 1], ["Lfo4Wave", "WAVE", 3, "state", 0, 0, 4, 0, "Linear", 3, 1],
+    ["Lfo4Sync", "SYNC", 3, "state", 0, 0, 1, 1, "Linear", 0.5, 1], ["Lfo4Wave", "WAVE", 3, "switch", 0, 0, 4, 0, "Linear", 3, 1],
     ["Env2A", "ATTACK", 4, "knob", 0, 0, 3000, 5, "Time", 150, 1], ["Env2D", "DECAY", 4, "knob", 1, 5, 10000, 600, "Time", 800, 1],
     ["Env2S", "SUSTAIN", 4, "knob", 2, -100, 0, -100, "Decibel", -20, 0.5], ["Env2R", "RELEASE", 4, "knob", 3, 5, 10000, 400, "Time", 800, 1],
     ["Env3A", "ATTACK", 5, "knob", 0, 0, 3000, 300, "Time", 150, 1], ["Env3D", "DECAY", 5, "knob", 1, 5, 10000, 1000, "Time", 800, 1],
@@ -4368,6 +4403,7 @@ inline function applyModParam(id, v)
             local lm = MOD_MODS[i];
             local ix = LFO_IDX[i];
             local sync = MV[pre + "Sync"] > 0.5;
+            if (id == pre + "Sync") MOD_COMP[pre + "Rate"].set("stepSize", v > 0.5 ? 1.0 / 18.0 : 0.001);
             if (id == pre + "Wave") lm.setAttribute(ix[2], Math.round(v) + 1);
             else if (id == pre + "Fade") lm.setAttribute(ix[3], v);
             else
@@ -4400,16 +4436,26 @@ const var ModPage = Content.addPanel("ModPage", LAYOUT.page[0], LAYOUT.page[1]);
 Content.setPropertiesFromJSON("ModPage", {"width": 720, "height": 532, "allowCallbacks": "Clicks, Hover & Dragging", "visible": false});
 ModPage.data.hover = "";
 
+// docs/28b SOURCE EDIT 3U rects (ModPage-local) by source kind and column; WAVE is a K3 pointer
+const var MOD_POS = {"lfo": [[186, 152, 76, 84], [272, 166, 56, 58]],
+                     "env": [[186, 166, 56, 58], [248, 166, 56, 58], [310, 166, 56, 58], [372, 166, 56, 58]]};
+const var WAVE_POS = [340, 156, 64, 72];
 for (ms = 0; ms < MOD_PARAMS.length; ms++)
 {
     var mp = MOD_PARAMS[ms];
+    var mpos = mp[3] == "switch" ? WAVE_POS : (mp[3] == "knob" ? MOD_POS[MOD_KIND[mp[2]]][mp[4]] : [0, 0, 1, 1]);
     var mk2 = Content.addKnob(mp[0], 0, 0);
     Content.setPropertiesFromJSON(mp[0], {"mode": mp[8]});
-    Content.setPropertiesFromJSON(mp[0], {"parentComponent": "ModPage", "x": 214 + mp[4] * 60, "y": 76,
-        "width": 56, "height": 58, "text": mp[1], "min": mp[5], "max": mp[6], "stepSize": mp[10],
+    Content.setPropertiesFromJSON(mp[0], {"parentComponent": "ModPage", "x": mpos[0], "y": mpos[1],
+        "width": mpos[2], "height": mpos[3], "text": mp[1], "min": mp[5], "max": mp[6], "stepSize": mp[10],
         "middlePosition": mp[9], "defaultValue": mp[7], "saveInPreset": true, "isPluginParameter": false, "visible": false});
     mk2.setValue(mp[7]);
     mk2.setLocalLookAndFeel(knobLaf);
+    if (mp[3] == "switch")
+    {
+        mk2.set("dragDirection", "Vertical");
+        mk2.set("mouseSensitivity", (mp[6] - mp[5]) * 36 / 250.0);
+    }
     mk2.setControlCallback(onModParam);
     MOD_COMP[mp[0]] = mk2;
     MV[mp[0]] = mp[7];
@@ -4421,7 +4467,7 @@ inline function showModEditor(src)
     for (i = 0; i < MOD_PARAMS.length; i++)
     {
         local mp = MOD_PARAMS[i];
-        MOD_COMP[mp[0]].showControl(mp[2] == src && mp[3] == "knob");
+        MOD_COMP[mp[0]].showControl(mp[2] == src && (mp[3] == "knob" || mp[3] == "switch"));
     }
 }
 
@@ -4432,25 +4478,165 @@ inline function stepModState(id, dir, count)
     applyModParam(id, v);
 }
 
-// geometry: sources list | source editor | connections
-const var MP_SRC_Y = 30;
-const var MP_ROW = 40;
-const var MP_CONN_Y = 30;
-const var MP_CROW = 34;
-const var MP_ROUTE = [[214, 300], [294, 300], [374, 300], [214, 332], [294, 332], [374, 332]];   // chip x, y (w 74, h 26)
+// docs/28b MOD = 8U rack: SOURCE SELECT 2U (meter bridge + keys), SOURCE EDIT 3U, MATRIX 3U (14 strips)
+const var MOD_UNITS = [["SOURCE SELECT", 0, 133, 0], ["SOURCE EDIT", 133, 333, 1], ["MATRIX", 333, 532, 0]];
+const var MOD_KEY_LEG = ["LFO 1", "LFO 2", "LFO 3", "LFO 4", "ENV 2", "ENV 3", "VEL", "KEY", "RAND", "M.WHL", "A.TCH"];
+const var MODE_LEG = ["S", "U", "B"];
+const var LENS_BLUE = 0xFF5A9BD6;
+// 10 x 6 px waveform glyphs (y down, 0..1) in LFO_WAVES order
+const var WAVE_GLYPH = [[[0, 0.5], [0.125, 0.15], [0.25, 0], [0.375, 0.15], [0.5, 0.5], [0.625, 0.85], [0.75, 1], [0.875, 0.85], [1, 0.5]],
+                        [[0, 0.5], [0.25, 0], [0.75, 1], [1, 0.5]],
+                        [[0, 0], [1, 1], [1, 0]],
+                        [[0, 1], [0, 0], [0.5, 0], [0.5, 1], [1, 1], [1, 0]],
+                        [[0, 0.3], [0.25, 0.3], [0.25, 0.9], [0.5, 0.9], [0.5, 0.1], [0.75, 0.1], [0.75, 0.6], [1, 0.6]],
+                        [[0, 0.8], [0.2, 0.2], [0.4, 0.6], [0.55, 0.1], [0.8, 0.9], [1, 0.4]],
+                        [[0, 1], [0.25, 1], [0.25, 0.66], [0.5, 0.66], [0.5, 0.33], [0.75, 0.33], [0.75, 0], [1, 0]]];
+ModPage.loadImage("{PROJECT_FOLDER}vm_collet_s_2x.png", "clS");
+ModPage.loadImage("{PROJECT_FOLDER}vm_ptr_l_2x.png", "ptrL");
 
-inline function modCard(g, x, w, title)
+inline function drawLitKey(g, r, text, on, hot, lens)
 {
-    g.setColour(T.s1);
-    g.fillRoundedRectangle([x, 0, w, 532], 8.0);
-    g.setColour(T.line);
-    g.drawRoundedRectangle([x + 0.5, 0.5, w - 1, 531], 8.0, 1.0);
-    g.setColour(T.tape);
-    g.fillRoundedRectangle([x, 0, w, 20], 6.0);
-    g.fillRect([x, 10, w, 10]);
-    g.setColour(T.onTape);
-    g.setFontWithSpacing(T.BOLD, 9, 0.18);
-    g.drawAlignedText(title, [x + 12, 0, w - 24, 20], "left");
+    // B2 illuminated legend key (docs/28b recipe), vector
+    local x = r[0];
+    local y = r[1];
+    local w = r[2];
+    local h = r[3];
+    local dn = on ? 1 : 0;
+    g.setColour(0xFF0B0B0C);
+    g.fillRoundedRectangle(r, 3.0);
+    g.setColour(0x22FFFFFF);
+    g.drawLine(x + 1, x + w - 2, y + 0.5, y + 0.5, 1.0);
+    g.setColour(0x80000000);
+    g.drawLine(x + 1, x + w - 1, y + h - 0.5, y + h - 0.5, 1.0);
+    if (on)
+    {
+        g.setColour(Colours.withAlpha(lens, 0.25));
+        g.fillRoundedRectangle([x - 4, y - 4, w + 8, h + 8], 6.0);
+        g.setGradientFill([Colours.mix(lens, 0xFFFFFFFF, 0.35), x + w / 2, y + h * 0.4, lens, x + 2, y + 2, true]);
+    }
+    else g.setGradientFill([0xFF46423D, 0, y + 2, 0xFF2E2B28, 0, y + h - 2, false]);
+    g.fillRoundedRectangle([x + 2, y + 2 + dn, w - 4, h - 4], 2.0);
+    g.setColour(0x26FFFFFF);
+    g.fillRect([x + 3, y + 3 + dn, w - 6, 1]);
+    g.setColour(on ? T.cardInk : T.txt);
+    g.setFontWithSpacing(T.BOLD, 9, 0.06);
+    g.drawAlignedText(text, [x, y + dn, w, h], "centred");
+    if (hot)
+    {
+        g.setColour(Colours.withAlpha(T.txt, 0.4));
+        g.drawRoundedRectangle([x - 1.5, y - 1.5, w + 3, h + 3], 3.5, 1.0);
+    }
+}
+
+inline function drawLadder(g, x, y, w, h, lvl, col)
+{
+    // 10-segment LED ladder in a black window; top two segments amber
+    local i = 0;
+    local sh = h / 10.0;
+    g.setColour(0xFF0B0B0C);
+    g.fillRoundedRectangle([x - 2, y - 2, w + 4, h + 4], 2.0);
+    for (i = 0; i < 10; i++)
+    {
+        local lit = lvl * 10.0 > i + 0.5;
+        local sc = i >= 8 ? T.lampAmber : col;
+        g.setColour(lit ? sc : Colours.withAlpha(sc, 0.12));
+        g.fillRect([x, y + h - (i + 1) * sh + 1, w, sh - 1.5]);
+    }
+}
+
+inline function drawMiniLed(g, r, text, font, fs)
+{
+    g.setColour(T.lcdBg);
+    g.fillRoundedRectangle(r, 2.0);
+    g.setColour(T.lcdBezel);
+    g.drawRoundedRectangle([r[0] + 0.5, r[1] + 0.5, r[2] - 1, r[3] - 1], 2.0, 1.0);
+    g.setColour(T.lcdText);
+    g.setFont(font, fs);
+    g.drawAlignedText(text, [r[0] + 2, r[1], r[2] - 4, r[3]], "centred");
+}
+
+inline function drawGlyph(g, wv, x, y, w, h)
+{
+    local pts = WAVE_GLYPH[wv];
+    local k = 0;
+    for (k = 1; k < pts.length; k++)
+        g.drawLine(x + pts[k - 1][0] * w, x + pts[k][0] * w, y + pts[k - 1][1] * h, y + pts[k][1] * h, 1.2);
+}
+
+inline function drawWaveLegends(g, id, cx, cy, rr, n, sel)
+{
+    local st = SWITCH_STEP[id];
+    local i = 0;
+    for (i = 0; i < n; i++)
+    {
+        local deg = Math.round((-0.5 * (n - 1) * st + i * st + 150.0) / 5.0) * 5.0 - 150.0;
+        local t = deg / 57.29578;
+        local ax = cx + rr * Math.sin(t);
+        local ay = cy - rr * Math.cos(t);
+        local gx = Math.abs(deg) < 15 ? ax - 6 : (deg < 0 ? ax - 14 : ax + 2);
+        g.setColour(Colours.withAlpha(T.txt, 0.7));
+        g.fillEllipse([cx + (rr - 7) * Math.sin(t) - 1.2, cy - (rr - 7) * Math.cos(t) - 1.2, 2.4, 2.4]);
+        g.setColour(i == sel ? T.accentInk : T.dim);
+        drawGlyph(g, i, gx, ay - 3.5, 12, 7);
+    }
+}
+
+inline function drawTrim(g, cx, cy, frac, bip, col, hot)
+{
+    // CT painted trim (docs/28b): collet from the S strip at 30 px, cap in the source colour,
+    // black line, arc from 7 o'clock (unipolar) or 12 o'clock (bipolar pitch)
+    local ang = -2.618 + 5.236 * frac;
+    local a0 = bip ? 0.0 : -2.618;
+    local deg = ang * 57.29578;
+    local fi = Math.round(Math.wrap(deg, 10.0) / 10.0 * 16.0) % 16;
+    ARC.clear();
+    ARC.addArc([cx - 16, cy - 16, 32, 32], Math.min(a0, ang), Math.max(a0, ang) + 0.001);
+    g.setColour(Colours.withAlpha(col, 0.9));
+    g.drawPath(ARC, false, 2.0);
+    if (ModPage.isImageLoaded("clS")) g.drawImage("clS", [cx - 15, cy - 15, 30, 30], 0, fi * 80);
+    else
+    {
+        g.setColour(T.cap);
+        g.fillEllipse([cx - 12, cy - 12, 24, 24]);
+    }
+    g.setGradientFill([Colours.mix(col, 0xFFFFFFFF, 0.25), cx - 4, cy - 5, col, cx + 9, cy + 9, true]);
+    g.fillEllipse([cx - 9, cy - 9, 18, 18]);
+    g.setColour(0xFF1A1A1A);
+    g.drawLine(cx + 2.0 * Math.sin(ang), cx + 8.6 * Math.sin(ang), cy - 2.0 * Math.cos(ang), cy - 8.6 * Math.cos(ang), 1.5);
+    if (hot)
+    {
+        g.setColour(Colours.withAlpha(T.accentHi, 0.4));
+        g.drawEllipse([cx - 14, cy - 14, 28, 28], 1.2);
+    }
+}
+
+inline function drawPs(g, cx, cy, mi, hot)
+{
+    // PS painted mini pointer (3 positions at 40 deg: S U B), from the K3 strip at 22 px
+    local i = 0;
+    g.setFontWithSpacing(T.BOLD, 8, 0.0);
+    for (i = 0; i < 3; i++)
+    {
+        local t = (-40.0 + 40.0 * i) / 57.29578;
+        local ax = cx + 16.0 * Math.sin(t);
+        local ay = cy - 16.0 * Math.cos(t);
+        g.setColour(i == mi ? T.accentInk : T.dim);
+        if (i == 1) g.drawAlignedText(MODE_LEG[i], [ax - 6, ay - 5, 12, 10], "centred");
+        else if (i == 0) g.drawAlignedText(MODE_LEG[i], [ax - 14, ay - 5, 12, 10], "right");
+        else g.drawAlignedText(MODE_LEG[i], [ax + 2, ay - 5, 12, 10], "left");
+    }
+    local fr = Math.round((-40.0 + 40.0 * Math.max(0, mi) + 150.0) / 5.0);
+    if (ModPage.isImageLoaded("ptrL")) g.drawImage("ptrL", [cx - 11, cy - 11, 22, 22], 0, fr * 96);
+    if (hot)
+    {
+        g.setColour(Colours.withAlpha(T.accentHi, 0.4));
+        g.drawEllipse([cx - 8, cy - 8, 16, 16], 1.2);
+    }
+}
+
+inline function connFrac(c)
+{
+    return c.Target == "A Pitch" ? (c.Intensity + 12.0) / 24.0 : c.Intensity;
 }
 
 ModPage.setPaintRoutine(function(g)
@@ -4458,171 +4644,176 @@ ModPage.setPaintRoutine(function(g)
     var i = 0;
     var hv = this.data.hover;
     var sel = S.modSrc;
-    modCard(g, 0, 200, "SOURCES");
-    modCard(g, 206, 260, "EDIT  /  " + MOD_SOURCES[sel]);
-    modCard(g, 472, 248, "CONNECTIONS  " + CONNS.length);
+    for (i = 0; i < 3; i++) drawPlate(g, MOD_UNITS[i][1], MOD_UNITS[i][2], MOD_UNITS[i][3]);
+    drawHandle(g, 2, 157, 307);
+    drawHandle(g, 704, 157, 307);
+    drawHandle(g, 2, 357, 507);
+    drawHandle(g, 704, 357, 507);
 
-    // sources with live meters
+    // SOURCE SELECT 2U: route count, live ladder, select key per source
     for (i = 0; i < MOD_SOURCES.length; i++)
     {
-        var ry = MP_SRC_Y + i * MP_ROW;
-        var on = (i == sel);
-        g.setColour(on ? Colours.withAlpha(MOD_COL[i], 0.14) : (hv == "src" + i ? T.s3 : T.s2));
-        g.fillRoundedRectangle([8, ry, 184, MP_ROW - 6], 5.0);
-        g.setColour(MOD_COL[i]);
-        g.fillRoundedRectangle([8, ry + 6, 4, MP_ROW - 18], 2.0);
-        g.setColour(T.txt);
-        g.setFont(T.BOLD, 12);
-        g.drawAlignedText(MOD_SOURCES[i], [20, ry, 100, MP_ROW - 6], "left");
-        var lvl = clamp01(Math.abs(MOD_MODS[i].getCurrentLevel()));
-        g.setColour(T.line);
-        g.fillRoundedRectangle([118, ry + 14, 50, 6], 3.0);
-        g.setColour(MOD_COL[i]);
-        g.fillRoundedRectangle([118, ry + 14, 50 * lvl, 6], 3.0);
-        if (SRC_COUNT[i] > 0)
-        {
-            g.setColour(MOD_COL[i]);
-            g.fillEllipse([174, ry + 9, 14, 14]);
-            g.setColour(T.onAccent);
-            g.setFont(T.BOLD, 9);
-            g.drawAlignedText("" + SRC_COUNT[i], [174, ry + 9, 14, 14], "centred");
-        }
+        var x0 = 26 + 61 * i;
+        drawMiniLed(g, [x0 + 4, 12, 14, 20], SRC_COUNT[i] > 0 ? "" + SRC_COUNT[i] : "", T.DIGITS, 11);
+        drawLadder(g, x0 + 24, 12, 14, 62, clamp01(Math.abs(MOD_MODS[i].getCurrentLevel())), MOD_COL[i]);
+        drawLitKey(g, [x0 + 3, 84, 54, 26], MOD_KEY_LEG[i], i == sel, hv == "src" + i, MOD_COL[i]);
     }
+    g.setColour(T.txt);
+    g.setFontWithSpacing(T.SUB, 11, 0.12);
+    g.drawAlignedText("SOURCE SELECT", [26, 116, 200, 12], "left");
 
-    // editor: knobs are components; steppers, toggles and readouts are drawn
+    // SOURCE EDIT 3U
     var kind = MOD_KIND[sel];
-    g.setColour(T.faint);
-    g.setFont(T.FONT, 10);
-    g.drawFittedText(MOD_HELP[sel], [218, 28, 236, 40], "topLeft", 3, 1.0);
+    g.setColour(T.txt);
+    g.setFontWithSpacing(T.SUB, 11, 0.12);
+    g.drawAlignedText("SOURCE EDIT  /  " + MOD_KEY_LEG[sel], [24, 139, 300, 12], "left");
+    drawScribble(g, [24, 156, 150, 92], MOD_HELP[sel] + " Right-click CUTOFF, RESO, SEMI, LEVEL, BODY or GRIT to pick a source.");
     if (kind == "lfo")
     {
         var pre = "Lfo" + (sel + 1);
-        g.setColour(T.accentInk);
-        g.setFont(T.BOLD, 11);
-        g.drawAlignedText(lfoRateText(sel), [214, 138, 56, 14], "centred");
-        drawStepper(g, [338, 82, 120, 24], LFO_WAVES[Math.round(MV[pre + "Wave"])], hv == "wave");
         var syn = MV[pre + "Sync"] > 0.5;
-        g.setColour(syn ? Colours.withAlpha(T.accent, 0.16) : (hv == "sync" ? T.s3 : T.s2));
-        g.fillRoundedRectangle([338, 112, 120, 24], 4.0);
-        g.setColour(syn ? T.accent : T.line);
-        g.drawRoundedRectangle([338.5, 112.5, 119, 23], 4.0, 1.0);
-        g.setColour(syn ? T.accentInk : T.dim);
-        g.setFontWithSpacing(T.BOLD, 9, 0.12);
-        g.drawAlignedText(syn ? "TEMPO SYNC  ON" : "TEMPO SYNC  OFF", [338, 112, 120, 24], "centred");
+        if (syn) drawDetents(g, 224, 204, 19, []);
+        else drawScale(g, 224, 204, 1, "none");
+        drawScale(g, 300, 201, 3, "none");
+        g.setColour(T.txt);
+        g.setFontWithSpacing(T.BOLD, 9, 0.08);
+        g.drawAlignedText("WAVE", [340, 147, 64, 9], "centred");
+        g.drawAlignedText("SYNC", [426, 174, 40, 9], "centred");
+        drawWaveLegends(g, pre + "Wave", 372, 200, 36, Math.round(MOD_COMP[pre + "Wave"].get("max")) + 1, Math.round(MV[pre + "Wave"]));
+        drawLitSq(g, [432, 186, 28, 28], syn, hv == "sync", LENS_BLUE);
+        var hz = 0.05 * Math.pow(400.0, MV[pre + "Rate"]);
+        if (syn) drawMiniLed(g, [186, 244, 76, 22], Engine.getTempoName(Math.round(MV[pre + "Rate"] * 18)), T.ALPHA, 12);
+        else drawMiniLed(g, [186, 244, 76, 22], Engine.doubleToString(hz, hz < 10 ? 2 : 1), T.DIGITS, 13);
+        g.setColour(T.dim);
+        g.setFontWithSpacing(T.BOLD, 8, 0.1);
+        g.drawAlignedText(syn ? "BAR" : "HZ", [264, 250, 22, 9], "left");
     }
-    else if (kind != "env")
+    else if (kind == "env")
     {
-        g.setColour(T.mute);
-        g.setFont(T.FONT, 10);
-        g.drawAlignedText("No settings: route it below.", [218, 90, 236, 16], "left");
+        for (i = 0; i < 4; i++) drawScale(g, MOD_POS.env[i][0] + 28, MOD_POS.env[i][1] + 35, 3, "none");
+    }
+    else
+    {
+        g.setColour(0x40000000);
+        g.fillRoundedRectangle([186, 188, 260, 26], 3.0);
+        g.setColour(0x14FFFFFF);
+        g.drawRoundedRectangle([186.5, 188.5, 259, 25], 3.0, 1.0);
+        g.setColour(T.dim);
+        g.setFontWithSpacing(T.BOLD, 9, 0.14);
+        g.drawAlignedText("NO SETTINGS  /  ROUTE IT BELOW", [186, 188, 260, 26], "centred");
     }
 
-    // live trace of the selected source
-    g.setColour(T.well);
-    g.fillRoundedRectangle([214, 166, 244, 104], 4.0);
-    g.setColour(MOD_COL[sel]);
+    // live trace of the selected source on a small phosphor scope
+    drawCrt(g, [470, 141, 228, 90]);
+    var tc = Colours.mix(PHOSPHOR, MOD_COL[sel], 0.3);
+    var ps = 0;
     var hx = 0;
-    for (hx = 1; hx < 64; hx++)
+    for (ps = 0; ps < 2; ps++)
     {
-        var ia = (S.histPos + hx - 1) % 64;
-        var ib = (S.histPos + hx) % 64;
-        g.drawLine(216 + (hx - 1) * 3.8, 216 + hx * 3.8, 266 - MOD_HIST[ia] * 96, 266 - MOD_HIST[ib] * 96, 1.6);
+        g.setColour(ps == 0 ? Colours.withAlpha(tc, 0.22) : tc);
+        for (hx = 1; hx < 64; hx++)
+        {
+            var ia = (S.histPos + hx - 1) % 64;
+            var ib = (S.histPos + hx) % 64;
+            g.drawLine(472 + (hx - 1) * 3.55, 472 + hx * 3.55, 227 - MOD_HIST[ia] * 80, 227 - MOD_HIST[ib] * 80, ps == 0 ? 4.0 : 1.5);
+        }
     }
-
-    // one-click routing chips
-    g.setColour(T.faint);
-    g.setFontWithSpacing(T.BOLD, 8, 0.16);
-    g.drawAlignedText("ROUTE " + MOD_SOURCES[sel] + " TO", [214, 282, 240, 14], "left");
+    g.setColour(T.txt);
+    g.setFontWithSpacing(T.BOLD, 9, 0.12);
+    g.drawAlignedText("ROUTE " + MOD_KEY_LEG[sel] + " TO", [470, 236, 228, 9], "left");
     for (i = 0; i < 6; i++)
     {
-        var cr = MP_ROUTE[i];
         var tg = MOD_TGT[i];
         var linked = connIndex(MOD_SOURCES[sel], tg) >= 0;
-        var ok = Matrix.canConnect(MOD_SOURCES[sel], tg) || linked;
-        g.setColour(linked ? Colours.withAlpha(MOD_COL[sel], 0.18) : (hv == "route" + i ? T.s3 : T.s2));
-        g.fillRoundedRectangle([cr[0], cr[1], 74, 26], 4.0);
-        g.setColour(linked ? MOD_COL[sel] : (ok ? T.lineHi : T.line));
-        g.drawRoundedRectangle([cr[0] + 0.5, cr[1] + 0.5, 73, 25], 4.0, 1.0);
-        g.setColour(ok ? (linked ? T.txt : T.dim) : T.mute);
-        g.setFontWithSpacing(T.BOLD, 9, 0.1);
-        g.drawAlignedText(MOD_TGT_LABEL[i], [cr[0], cr[1], 74, 26], "centred");
+        var can = Matrix.canConnect(MOD_SOURCES[sel], tg) || linked;
+        if (!can) g.setOpacity(0.45);
+        drawLitKey(g, [470 + 77 * (i % 3), 248 + 30 * Math.floor(i / 3), 72, 24], MOD_TGT_LABEL[i], linked, hv == "route" + i && can, MOD_COL[sel]);
+        if (!can) g.setOpacity(1.0);
     }
-    g.setColour(T.faint);
-    g.setFont(T.FONT, 10);
-    g.drawFittedText("Or right-click CUTOFF, RESO, SEMI, LEVEL (SHAPE page), BODY or GRIT (PLAY page) and pick a source.", [214, 372, 244, 44], "topLeft", 3, 1.0);
 
-    // connections: source > target, depth bar (drag), mode, invert, remove
-    if (CONNS.length == 0)
+    // MATRIX 3U: one vertical strip per connection, vent slots where there is none
+    g.setColour(T.txt);
+    g.setFontWithSpacing(T.SUB, 11, 0.12);
+    g.drawAlignedText("MATRIX", [24, 514, 60, 14], "left");
+    drawMiniLed(g, [84, 514, 26, 14], "" + CONNS.length, T.DIGITS, 10);
+    for (i = 0; i < 14; i++)
     {
-        g.setColour(T.mute);
-        g.setFont(T.FONT, 11);
-        g.drawFittedText("No connections yet. Pick a source on the left, then a target chip.", [484, 34, 224, 48], "topLeft", 3, 1.0);
-    }
-    for (i = 0; i < Math.min(CONNS.length, 14); i++)
-    {
-        var c = CONNS[i];
-        var cy = MP_CONN_Y + i * MP_CROW;
-        var sc = MOD_SOURCES.indexOf(c.Source);
-        var tix = MOD_TGT.indexOf(c.Target);
-        var pitch = (c.Target == "A Pitch");
-        var frac = pitch ? (c.Intensity + 12.0) / 24.0 : c.Intensity;
-        g.setColour(hv == "conn" + i ? T.s3 : T.s2);
-        g.fillRoundedRectangle([478, cy, 236, MP_CROW - 4], 4.0);
-        g.setColour(sc >= 0 ? MOD_COL[sc] : T.accent);
-        g.fillRoundedRectangle([478, cy + 5, 3, MP_CROW - 14], 1.5);
-        g.setColour(T.txt);
-        g.setFont(T.BOLD, 10);
-        g.drawAlignedText(c.Source + "  >  " + (tix >= 0 ? MOD_TGT_LABEL[tix] : c.Target), [486, cy + 1, 140, 14], "left");
-        g.setColour(T.line);
-        g.fillRoundedRectangle([486, cy + 19, 140, 5], 2.5);
-        g.setColour(sc >= 0 ? MOD_COL[sc] : T.accent);
-        g.fillRoundedRectangle([486, cy + 19, 140 * clamp01(frac), 5], 2.5);
-        g.setColour(T.dim);
-        g.setFont(T.FONT, 9);
-        g.drawAlignedText(pitch ? (Math.abs(c.Intensity) < 1.0 ? Math.round(c.Intensity * 100) + " ct" : Engine.doubleToString(c.Intensity, 2) + " st") : Math.round(c.Intensity * 100) + "%", [580, cy + 1, 46, 14], "right");
-        var mi = MOD_MODES.indexOf(c.Mode);
-        g.setFont(T.BOLD, 8);
-        g.drawAlignedText(mi >= 0 ? MOD_MODE_SHORT[mi] : "" + c.Mode, [630, cy, 34, MP_CROW - 4], "centred");
-        g.setColour(c.Inverted ? T.accentInk : T.mute);
-        g.drawAlignedText("INV", [664, cy, 26, MP_CROW - 4], "centred");
-        g.setColour(hv == "del" + i ? T.clip : T.mute);
-        g.drawAlignedText("X", [690, cy, 20, MP_CROW - 4], "centred");
+        var sx = 24 + 48 * i;
+        if (i > 0)
+        {
+            g.setColour(0x40000000);
+            g.fillRect([sx, 342, 1, 164]);
+        }
+        if (i >= CONNS.length)
+        {
+            var v = 0;
+            for (v = 0; v < 3; v++)
+            {
+                g.setColour(0xFF0A0A0B);
+                g.fillRoundedRectangle([sx + 9, 396 + v * 22, 30, 5], 2.5);
+                g.setColour(0x12FFFFFF);
+                g.fillRect([sx + 11, 401 + v * 22, 26, 1]);
+            }
+        }
+        else
+        {
+            var c = CONNS[i];
+            var sc = MOD_SOURCES.indexOf(c.Source);
+            var tix = MOD_TGT.indexOf(c.Target);
+            var pitch = c.Target == "A Pitch";
+            var col = sc >= 0 ? MOD_COL[sc] : T.accent;
+            g.setColour(col);
+            g.fillRect([sx + 3, 340, 42, 2]);
+            g.setGradientFill([T.cardHi, 0, 344, T.card, 0, 368, false]);
+            g.fillRect([sx + 3, 344, 42, 24]);
+            g.setColour(T.cardInk);
+            g.setFont(T.TYPEB, 9);
+            g.drawAlignedText(sc >= 0 ? MOD_DESIG[sc] : "?", [sx + 3, 345, 42, 11], "centred");
+            g.setFont(T.TYPE, 9);
+            g.drawAlignedText(tix >= 0 ? MOD_TGT_LABEL[tix] : c.Target, [sx + 3, 356, 42, 11], "centred");
+            drawTrim(g, sx + 24, 392, clamp01(connFrac(c)), pitch, col, hv == "trim" + i || S.connDrag == i);
+            g.setColour(hv == "trim" + i || S.connDrag == i ? T.accentInk : T.dim);
+            g.setFont(T.FONT, 9);
+            g.drawAlignedText(pitch ? (Math.abs(c.Intensity) < 1.0 ? Math.round(c.Intensity * 100) + " CT" : Engine.doubleToString(c.Intensity, 2) + " ST") : Math.round(c.Intensity * 100) + "%", [sx, 409, 48, 9], "centred");
+            drawPs(g, sx + 24, 440, MOD_MODES.indexOf(c.Mode), hv == "mode" + i);
+            drawLitKey(g, [sx + 8, 460, 32, 16], "INV", c.Inverted, hv == "inv" + i, T.accent);
+            drawPush(g, sx + 17, 484, 14, hv == "del" + i, true);
+            g.setColour(T.faint);
+            g.setFontWithSpacing(T.BOLD, 8, 0.1);
+            g.drawAlignedText("DEL", [sx, 500, 48, 9], "centred");
+        }
     }
 });
 
 inline function modHit(x, y)
 {
     local i = 0;
-    if (x < 200 && y >= MP_SRC_Y && y < MP_SRC_Y + MOD_SOURCES.length * MP_ROW)
-        return "src" + Math.floor((y - MP_SRC_Y) / MP_ROW);
+    if (y >= 12 && y < 110 && x >= 26 && x < 26 + 61 * MOD_SOURCES.length)
+        return "src" + Math.round(Math.floor((x - 26) / 61));
     for (i = 0; i < 6; i++)
     {
-        local cr = MP_ROUTE[i];
-        if (x >= cr[0] && x < cr[0] + 74 && y >= cr[1] && y < cr[1] + 26) return "route" + i;
+        local rx = 470 + 77 * (i % 3);
+        local ry = 248 + 30 * Math.floor(i / 3);
+        if (x >= rx && x < rx + 72 && y >= ry && y < ry + 24) return "route" + i;
     }
-    if (MOD_KIND[S.modSrc] == "lfo")
+    if (MOD_KIND[S.modSrc] == "lfo" && x >= 430 && x < 462 && y >= 184 && y < 216) return "sync";
+    if (x >= 24 && x < 24 + 48 * 14 && y >= 376 && y < 500)
     {
-        if (x >= 338 && x < 458 && y >= 82 && y < 106) return "wave";
-        if (x >= 338 && x < 458 && y >= 112 && y < 136) return "sync";
-    }
-    if (x >= 478 && x < 714 && y >= MP_CONN_Y)
-    {
-        local r = Math.floor((y - MP_CONN_Y) / MP_CROW);
+        local r = Math.round(Math.floor((x - 24) / 48));
         if (r < Math.min(CONNS.length, 14))
         {
-            if (x >= 690) return "del" + r;
-            if (x >= 664) return "inv" + r;
-            if (x >= 630) return "mode" + r;
-            return "conn" + r;
+            if (y < 408) return "trim" + r;
+            if (y >= 424 && y < 456) return "mode" + r;
+            if (y >= 460 && y < 476) return "inv" + r;
+            if (y >= 482) return "del" + r;
         }
     }
     return "";
 }
 
-inline function setConnDepth(r, x)
+inline function setConnFrac(r, frac)
 {
     local c = CONNS[r];
-    local frac = clamp01((x - 486) / 140.0);
     local val = c.Target == "A Pitch" ? Math.round((frac * 24.0 - 12.0) * 100) / 100.0 : frac;   // 0.01 st: wow, drift, vibrato
     c.Intensity = val;
     Matrix.updateIntensity(c.Source, c.Target, val);
@@ -4638,7 +4829,17 @@ ModPage.setMouseCallback(function(event)
     var h = modHit(event.x, event.y);
     if (event.drag && S.connDrag >= 0 && S.connDrag < CONNS.length)
     {
-        setConnDepth(S.connDrag, event.x);
+        // docs/28b: relative vertical drag, shift = fine; pitch has a magnetic centre (0 st)
+        var nf = clamp01(S.connFrac0 - event.dragY * (event.shiftDown ? 0.2 : 1.0) / 200.0);
+        if (CONNS[S.connDrag].Target == "A Pitch" && Math.abs(nf - 0.5) < 0.02) nf = 0.5;
+        setConnFrac(S.connDrag, nf);
+        this.repaint();
+        return;
+    }
+    if (event.doubleClick && h.indexOf("trim") == 0)
+    {
+        var dr = parseInt(h.substring(4, 6));
+        setConnFrac(dr, CONNS[dr].Target == "A Pitch" ? 0.5 : 0.0);
         this.repaint();
         return;
     }
@@ -4652,8 +4853,6 @@ ModPage.setMouseCallback(function(event)
         }
         else if (h.indexOf("route") == 0)
             toggleRoute(MOD_SOURCES[sel], MOD_TGT[parseInt(h.substring(5, 6))]);
-        else if (h == "wave")
-            stepModState("Lfo" + (sel + 1) + "Wave", event.x < 398 ? -1 : 1, LFO_WAVES.length);
         else if (h == "sync")
             stepModState("Lfo" + (sel + 1) + "Sync", 1, 2);
         else if (h.indexOf("del") == 0)
@@ -4671,15 +4870,21 @@ ModPage.setMouseCallback(function(event)
         }
         else if (h.indexOf("mode") == 0)
         {
-            var mc = CONNS[parseInt(h.substring(4, 6))];
-            var nm = MOD_MODES[(MOD_MODES.indexOf(mc.Mode) + 1) % 3];
-            mc.Mode = nm;
-            Matrix.updateValueMode(mc.Source, mc.Target, nm);
+            // left half steps back, right half forward, with end stops (a real 3-position switch)
+            var mr = parseInt(h.substring(4, 6));
+            var mc = CONNS[mr];
+            var mcur = Math.max(0, MOD_MODES.indexOf(mc.Mode));
+            var mnew = Math.range(mcur + (event.x < 24 + 48 * mr + 24 ? -1 : 1), 0, 2);
+            if (mnew != mcur)
+            {
+                mc.Mode = MOD_MODES[mnew];
+                Matrix.updateValueMode(mc.Source, mc.Target, mc.Mode);
+            }
         }
-        else if (h.indexOf("conn") == 0)
+        else if (h.indexOf("trim") == 0)
         {
             S.connDrag = parseInt(h.substring(4, 6));
-            setConnDepth(S.connDrag, event.x);
+            S.connFrac0 = clamp01(connFrac(CONNS[S.connDrag]));
         }
         this.repaint();
     }
@@ -5196,6 +5401,9 @@ inline function selfTest()
         if (sde.kind != "state" && (sde.x < 0 || sde.y < 0 || sde.x + sde.w > SP_W || sde.y + sde.h > SP_H)) { ok = false; Console.print("RF selftest SHAPE rect " + sde.id); }
     }
     if (DEEP_COMP.FTypeKnob.get("visible") != true || DEEP_COMP.SubOctKnob.get("dragDirection") != "Vertical" || !isDefined(SWITCH_STEP.FTypeKnob)) { ok = false; Console.print("RF selftest SHAPE switches"); }
+    // MOD rack (docs/28b): select keys, ROUTE keys, WAVE as a K3 pointer, rate steps on the tempo grid when synced
+    if (modHit(30, 90) != "src0" || modHit(26 + 61 * 10 + 5, 90) != "src10" || modHit(550, 250) != "route1" || modHit(630, 285) != "route5") { ok = false; Console.print("RF selftest MOD hits " + modHit(30, 90) + "/" + modHit(26 + 61 * 10 + 5, 90) + "/" + modHit(550, 250) + "/" + modHit(630, 285)); }
+    if (MOD_COMP.Lfo2Wave.get("width") != 64 || MOD_COMP.Lfo2Wave.get("dragDirection") != "Vertical" || MOD_COMP.Lfo1Rate.get("width") != 76) { ok = false; Console.print("RF selftest MOD rects"); }
     // REGGAETON category: LIBRARY pill right after ALL, group matching, kit view
     if (PILLS[1][0] != "REGGAETON" || PILLS[1][1] != -2 || !isReggaeton(["latin-trap"]) || isReggaeton(["house"])) { ok = false; Console.print("RF selftest reggaeton pill"); }
     S.cat = -2;

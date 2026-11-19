@@ -700,6 +700,22 @@ def build_pointer_strip(out, frame_px=96, logical=48, frames=61):
     print("VM strip written", out)
 
 
+def build_k4(out, frame_px, logical, radius_px):
+    """K4 stepped attenuator (docs/28b): smooth black skirted knob with a spun aluminium centre
+    cap. Rotation-symmetric under the fixed key light, so ONE frame; the index line is vector
+    (0.55R to R) and the plate paints a tick at every detent."""
+    sc = strip_scene(frame_px, logical)
+    r = radius_px * PX
+    phen = bsdf("VM_K4", srgb("#0C0D0D"), rough=0.26, coat=0.5, coat_rough=0.12)
+    cyl("K4Flange", 0, 0, r, 0.003, 0.0, phen, verts=128, bevel=0.0005)
+    cyl("K4Body", 0, 0, r * 0.84, 0.010, 0.003, phen, verts=128, dome=0.0004, bevel=0.0007)
+    cyl("K4Cap", 0, 0, r * 0.50, 0.0012, 0.013, spun_alu(), verts=128, dome=0.0005, bevel=0.0003)
+    os.makedirs(out, exist_ok=True)
+    sc.render.filepath = os.path.join(out, "0000.png")
+    bpy.ops.render.render(write_still=True)
+    print("VM strip written", out)
+
+
 STRIPS = {
     "knob_l":   ("fluted", 144, 72, 28),      # serves XL (72) and L (56)
     "knob_s":   ("fluted", 72, 36, 14),       # S (36)
@@ -718,6 +734,9 @@ if __name__ == "__main__":
         build_rockers(os.path.join(out_dir, "rocker"))
     elif what == "push_red":
         build_push(os.path.join(out_dir, "push_red"))
+    elif what in ("k4_l", "k4_s"):
+        fpx, logical, rad = (144, 72, 28) if what == "k4_l" else (80, 40, 16)
+        build_k4(os.path.join(out_dir, what), fpx, logical, rad)
     elif what == "ptr_l":
         build_pointer_strip(os.path.join(out_dir, "ptr_l"))
     elif what in STRIPS:

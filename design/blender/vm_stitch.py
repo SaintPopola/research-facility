@@ -41,14 +41,14 @@ def rect_fade(im, px=3):
 
 
 SPRITES = {"rocker": 8, "push_red": 2}        # non-periodic sprite sheets: frame count
-POINTERS = {"ptr_l": 61}                      # baked-angle strips: -150..+150 at 5 deg, no seam
+POINTERS = {"ptr_l": 61, "k4_l": 1, "k4_s": 1}  # baked-angle strips (-150..+150 at 5 deg) and K4 singles: no seam
 
 
 def stitch(frames_dir, asset, n=16):
     src = Path(frames_dir) / asset
     if asset in POINTERS:
         n = POINTERS[asset]
-        fr = [edge_fade(Image.open(src / f"{k:04d}.png").convert("RGBA"), 0.90, 0.98) for k in range(n)]
+        fr = [edge_fade(Image.open(src / f"{k:04d}.png").convert("RGBA"), *((0.90, 0.98) if n > 1 else (0.84, 0.93))) for k in range(n)]
         fr.append(fr[0])                        # not periodic: nothing to compare
     elif asset in SPRITES:
         n = SPRITES[asset]
