@@ -36,7 +36,8 @@ const var SMP_CH = 15;
 const var SMP_SLOT0 = 40;           // 24 slots, 40-63: Root stays in 0..127 for shifts -18..+17
 const var SMP_PAGE = 24;            // results per sample map
 const var SMP_ROWS = 12;            // rows visible in the RESULTS card
-const var SMP_ROW_H = 26;
+const var SMP_ROW_H = 24;            // docs/28b SAMPLE LIBRARY 5U: 12 rows at 40..328
+const var SMP_ROW_Y0 = 40;
 const var SMP_PACK = 8192;          // sort key = score * SMP_PACK + item index; scores stay < 200000 so keys fit int32
 const var SMP_CAT = ["STARTER", "MELODY", "VOCAL", "808", "BASS", "DRUMS", "FX"];
 const var SMP_CAT_INK = [0xFFB0205A, 0xFF2F5BC4, 0xFF8A3DB0, 0xFF4E3BA8, 0xFF00665A, 0xFFA23D1B, 0xFF59616B];
@@ -773,6 +774,7 @@ inline function smpSetSongKey(root, md)
     SM.songRoot = root;
     SM.songMode = md;
     SongKey.setValue(root < 0 ? "" : SMP_KEYS[root] + "|" + (md == 1 ? "min" : "maj"));
+    if (root >= 0) SMP_KC.SongKeySel.setValue(root);
     smpKeysChanged();
 }
 
@@ -785,6 +787,7 @@ inline function onSongKey(component, value)
     {
         SM.songRoot = SMP_KEYS.indexOf(parts[0]);
         SM.songMode = parts[1] == "maj" ? 0 : 1;
+        if (SM.songRoot >= 0) SMP_KC.SongKeySel.setValue(SM.songRoot);
     }
     SM.mapDirty = true;
 }
@@ -793,6 +796,7 @@ SongKey.setControlCallback(onSongKey);
 inline function onSampleSpeed(component, value)
 {
     SM.speed = Math.range(parseInt("" + value), 0, 3);
+    SMP_KC.SmpSpeedSel.setValue(SM.speed);
     SM.mapDirty = true;
 }
 SampleSpeed.setControlCallback(onSampleSpeed);
@@ -1194,23 +1198,27 @@ inline function onSmpSearch(component, value)
 }
 SmpSearch.setControlCallback(onSmpSearch);
 
-// ---------------------------------------------------------------- RESULTS (720 x 372)
+// ---------------------------------------------------------------- RESULTS: SAMPLE LIBRARY 5U (720 x 333)
 const var SmpResults = Content.addPanel("SmpResults", LAYOUT.smpRes[0], LAYOUT.smpRes[1]);
-Content.setPropertiesFromJSON("SmpResults", {"width": 720, "height": 372, "allowCallbacks": "Clicks, Hover & Dragging", "visible": false});
+Content.setPropertiesFromJSON("SmpResults", {"width": 720, "height": 333, "allowCallbacks": "Clicks, Hover & Dragging", "visible": false});
 
 SmpResults.setPaintRoutine(function(g)
 {
     var k = 0;
-    g.setColour(T.s1);
-    g.fillRoundedRectangle([0, 0, 720, 372], 8.0);
-    g.setColour(T.line);
-    g.drawRoundedRectangle([0.5, 0.5, 719, 371], 6.0, 1.0);
-    var title = SM.like >= 0 ? "LIKE  " + SM.items[SM.like].n.toUpperCase() : "RESULTS";
-    var rng = SM.res.length == 0 ? "" : (SM.top + 1) + "-" + Math.min(SM.res.length, SM.top + SMP_ROWS) + " of " + smpFmtInt(SM.res.length);
-    smpTape(g, 720, title, rng + "      ");
-    g.setColour(T.onTapeDim);
-    g.fillPath(ARROW_L, [690, 5, 6, 10]);
-    g.fillPath(ARROW_R, [704, 5, 6, 10]);
+    drawPlate(g, 0, 333, 0);
+    var title = SM.like >= 0 ? "LIKE  " + SM.items[SM.like].n.toUpperCase() : "SAMPLE LIBRARY";
+    var rng = SM.res.length == 0 ? "" : (SM.top + 1) + "-" + Math.min(SM.res.length, SM.top + SMP_ROWS) + " OF " + smpFmtInt(SM.res.length);
+    g.setColour(T.txt);
+    g.setFontWithSpacing(T.SUB, 11, 0.12);
+    g.drawAlignedText(title, [12, 3, 420, 14], "left");
+    g.setColour(T.dim);
+    g.setFontWithSpacing(T.BOLD, 9, 0.08);
+    g.drawAlignedText(rng, [380, 3, 296, 14], "right");
+    drawLitKey(g, [684, 2, 16, 16], "", false, SM.hoverA == "pgL", T.txt);
+    drawLitKey(g, [702, 2, 16, 16], "", false, SM.hoverA == "pgR", T.txt);
+    g.setColour(T.txt);
+    g.fillPath(ARROW_L, [689, 6, 5, 8]);
+    g.fillPath(ARROW_R, [708, 6, 5, 8]);
 
     if (!SM.loaded)
     {
@@ -1220,7 +1228,14 @@ SmpResults.setPaintRoutine(function(g)
         g.setColour(T.dim);
         g.setFont(T.FONT, 11);
         g.drawAlignedText(SM.status, [0, 148, 720, 20], "centred");
-        if (SM.missing && !SM.busy) smpPill(g, [300, 180, 120, 28], "BUILD INDEX", true, SM.hoverA == "build");
+        if (SM.missing && !SM.busy)
+        {
+            if (this.isImageLoaded("push")) g.drawImage("push", [344, 176, 32, 32], 0, SM.hoverA == "build" ? 48 : 0);
+            else drawPush(g, 344, 176, 32, SM.hoverA == "build", true);
+            g.setColour(T.txt);
+            g.setFontWithSpacing(T.BOLD, 9, 0.12);
+            g.drawAlignedText("BUILD INDEX", [300, 212, 120, 10], "centred");
+        }
         return;
     }
 
@@ -1238,7 +1253,7 @@ SmpResults.setPaintRoutine(function(g)
         if (r >= SM.res.length) break;
         var ix = SM.res[r];
         var it = SM.items[ix];
-        var y = 44 + k * SMP_ROW_H;
+        var y = SMP_ROW_Y0 + k * SMP_ROW_H;
         var sel = r == SM.sel;
         if (sel)
         {
@@ -1257,12 +1272,12 @@ SmpResults.setPaintRoutine(function(g)
         if (SM.playIt == ix) led = now < SM.startAt ? T.warn : T.glow;
         if (SM.want == r) led = T.warn;
         g.setColour(T.glass);
-        g.fillEllipse([12, y + 8, 10, 10]);
+        g.fillEllipse([12, y + 7, 10, 10]);
         g.setColour(led);
-        g.fillEllipse([14, y + 10, 6, 6]);
+        g.fillEllipse([14, y + 9, 6, 6]);
         g.setColour(T.glass);
-        g.fillRoundedRectangle([32, y + 5, 88, 16], 3.0);
-        smpWave(g, [34, y + 6, 84, 14], it.w, Colours.withAlpha(T.glow, 0.85));
+        g.fillRoundedRectangle([32, y + 4, 88, 16], 3.0);
+        smpWave(g, [34, y + 5, 84, 14], it.w, Colours.withAlpha(T.glow, 0.85));
         g.setColour(T.txt);
         g.setFont(sel ? T.BOLD : T.FONT, 12);
         g.drawAlignedText(it.n, [128, y, 236, SMP_ROW_H], "left");
@@ -1295,7 +1310,7 @@ SmpResults.setPaintRoutine(function(g)
 
 SmpResults.setMouseCallback(function(event)
 {
-    var row = event.y >= 44 ? Math.floor((event.y - 44) / SMP_ROW_H) : -1;
+    var row = event.y >= SMP_ROW_Y0 ? Math.floor((event.y - SMP_ROW_Y0) / SMP_ROW_H) : -1;
     var r = (row >= 0 && row < SMP_ROWS) ? Math.round(SM.top + row) : -1;
     if (r >= SM.res.length) r = -1;
     if (event.mouseUp)
@@ -1305,7 +1320,7 @@ SmpResults.setMouseCallback(function(event)
     }
     if (!SM.loaded)
     {
-        var hb = (event.x >= 300 && event.x < 420 && event.y >= 180 && event.y < 208) ? "build" : "";
+        var hb = (event.x >= 340 && event.x < 380 && event.y >= 172 && event.y < 212) ? "build" : "";
         if (event.clicked && hb == "build") smpRescan();
         if (hb != SM.hoverA) { SM.hoverA = hb; this.repaint(); }
         return;
@@ -1313,7 +1328,7 @@ SmpResults.setMouseCallback(function(event)
     // DRAG: the original file into the host (the file is already on disk)
     if (event.drag && !SM.dragging)
     {
-        var drow = event.mouseDownY >= 44 ? Math.floor((event.mouseDownY - 44) / SMP_ROW_H) : -1;
+        var drow = event.mouseDownY >= SMP_ROW_Y0 ? Math.floor((event.mouseDownY - SMP_ROW_Y0) / SMP_ROW_H) : -1;
         var dr = Math.round(SM.top + drow);
         if (drow >= 0 && drow < SMP_ROWS && dr < SM.res.length && (Math.abs(event.dragX) > 4 || Math.abs(event.dragY) > 4))
         {
@@ -1322,6 +1337,8 @@ SmpResults.setMouseCallback(function(event)
         }
         return;
     }
+    var pg = (event.y < 20 && event.x >= 684) ? (event.x < 700 ? "pgL" : "pgR") : "";
+    if (pg != SM.hoverA && (pg != "" || SM.hoverA == "pgL" || SM.hoverA == "pgR")) { SM.hoverA = pg; this.repaint(); }
     if (event.clicked && event.y < 20 && event.x >= 684)
     {
         SM.top = event.x < 700 ? Math.max(0, SM.top - SMP_ROWS) : (SM.top + SMP_ROWS < SM.res.length ? SM.top + SMP_ROWS : SM.top);
@@ -1341,29 +1358,73 @@ SmpResults.setMouseCallback(function(event)
     }
 });
 
-// ---------------------------------------------------------------- AUDITION (720 x 148)
+// ---------------------------------------------------------------- AUDITION 3U (720 x 199, docs/28b)
 const var SmpAudition = Content.addPanel("SmpAudition", LAYOUT.smpAud[0], LAYOUT.smpAud[1]);
-Content.setPropertiesFromJSON("SmpAudition", {"width": 720, "height": 148, "allowCallbacks": "Clicks, Hover & Dragging", "visible": false});
+Content.setPropertiesFromJSON("SmpAudition", {"width": 720, "height": 199, "allowCallbacks": "Clicks, Hover & Dragging", "visible": false});
+SmpAudition.loadImage("{PROJECT_FOLDER}vm_push_red_2x.png", "push");
+SmpResults.loadImage("{PROJECT_FOLDER}vm_push_red_2x.png", "push");
+
+// audition controls are real knobs now (docs/28b): K3 pointers for SPEED / OCT / SONG KEY,
+// K4 stepped knobs for PITCH (-6..+6 st) and LEVEL (-24..+12 dB). Session state stays in
+// SM and the hidden SampleSpeed / SongKey labels, so these are not saved twice.
+const var SMP_KNOBS = [["SmpSpeedSel", 42, 112, 56, 58, 0, 3, 0, "Playback speed: AUTO follows the host, or half, normal, double", 3 * 36 / 250.0],
+                       ["SmpPitchKnob", 116, 112, 56, 58, -6, 6, 0, "Transpose the audition in semitones", 12 * 24 / 250.0],
+                       ["SmpOctSel", 192, 112, 56, 58, 0, 2, 1, "Octave: -1, 0 or +1", 2 * 36 / 250.0],
+                       ["SmpLevelKnob", 264, 104, 76, 84, -24, 12, 0, "Audition level in dB", 36 * 12 / 250.0],
+                       ["SongKeySel", 372, 108, 64, 72, 0, 11, 0, "Song key root (KEY ON makes it active)", 11 * 36 / 250.0]];
+const var SMP_KC = {};
+var smk = 0;
+for (smk = 0; smk < SMP_KNOBS.length; smk++)
+{
+    var sk = SMP_KNOBS[smk];
+    var skc = Content.addKnob(sk[0], sk[1], sk[2]);
+    Content.setPropertiesFromJSON(sk[0], {"parentComponent": "SmpAudition", "x": sk[1], "y": sk[2], "width": sk[3], "height": sk[4],
+        "min": sk[5], "max": sk[6], "stepSize": 1, "defaultValue": sk[7], "text": "", "tooltip": sk[8],
+        "saveInPreset": false, "isPluginParameter": false, "mouseSensitivity": sk[9]});
+    if (sk[0] != "SmpPitchKnob" && sk[0] != "SmpLevelKnob") skc.set("dragDirection", "Vertical");
+    skc.setValue(sk[7]);
+    skc.setLocalLookAndFeel(knobLaf);
+    SMP_KC[sk[0]] = skc;
+}
+inline function onSmpKnob(component, value)
+{
+    local id = component.getId();
+    local v = Math.round(value);
+    if (id == "SmpSpeedSel") { SM.speed = v; SampleSpeed.setValue("" + v); }
+    else if (id == "SmpPitchKnob") SM.semi = v;
+    else if (id == "SmpOctSel") SM.oct = v - 1;
+    else if (id == "SmpLevelKnob") SM.level = v;
+    if (id == "SongKeySel")
+    {
+        if (SM.songRoot >= 0) smpSetSongKey(v, SM.songMode);
+        SmpRail.repaint();
+    }
+    else smpKeysChanged();
+    SmpAudition.repaint();
+}
+for (smk = 0; smk < SMP_KNOBS.length; smk++) SMP_KC[SMP_KNOBS[smk][0]].setControlCallback(onSmpKnob);
 
 inline function smpAudHit(x, y)
 {
-    if (y >= 92 && y < 114)
+    if (y >= 100 && y < 122)
     {
-        if (x >= 12 && x < 172) return "sp" + Math.round(Math.floor((x - 12) / 40));
-        if (x >= 180 && x < 228) return "pitch-";
-        if (x >= 228 && x < 276) return "pitch+";
-        if (x >= 284 && x < 316) return "oct-";
-        if (x >= 316 && x < 348) return "oct+";
-        if (x >= 444 && x < 484) return "lvl-";
-        if (x >= 484 && x < 524) return "lvl+";
+        if (x >= 532 && x < 612) return "playkeys";
+        if (x >= 618 && x < 698) return "similar";
     }
-    if (y >= 120 && y < 142)
+    if (y >= 128 && y < 150)
     {
-        if (x >= 12 && x < 108) return "playkeys";
-        if (x >= 116 && x < 200) return "similar";
-        if (x >= 208 && x < 292) return "fixkey";
+        if (x >= 532 && x < 584) return "fixkey";
+        if (x >= 590 && x < 642) return "back";
+        if (x >= 648 && x < 698) return "stop";
     }
-    if (x >= 444 && x < 708 && y >= 116 && y < 144) return "drag";
+    if (y >= 118 && y < 140)
+    {
+        if (x >= 452 && x < 482) return "maj";
+        if (x >= 484 && x < 514) return "min";
+    }
+    if (x >= 467 && x < 499 && y >= 150 && y < 182) return "keyon";
+    if (x >= 532 && x < 660 && y >= 158 && y < 192) return "drag";
+    if (x >= 666 && x < 698 && y >= 158 && y < 190) return "hide";
     return "";
 }
 
@@ -1373,75 +1434,126 @@ SmpAudition.setPaintRoutine(function(g)
     var it = ix >= 0 ? SM.items[ix] : 0;
     var hv = SM.hoverA;
     var now = Engine.getUptime();
-    g.setColour(T.s1);
-    g.fillRoundedRectangle([0, 0, 720, 148], 8.0);
-    g.setColour(T.line);
-    g.drawRoundedRectangle([0.5, 0.5, 719, 147], 6.0, 1.0);
-    smpTape(g, 720, "NOW PLAYING", ix >= 0 ? it.n.toUpperCase() : "PICK A SOUND");
-    var playing = SM.playIt >= 0 && SM.playIt == ix;
-    g.setColour(playing ? (now < SM.startAt ? T.warn : T.glow) : T.frameHi);
-    g.fillEllipse([104, 7, 6, 6]);
+    drawPlate(g, 0, 199, 1);
+    drawHandle(g, 2, 24, 174);
+    drawHandle(g, 704, 24, 174);
 
-    g.setColour(T.glass);
-    g.fillRoundedRectangle([12, 28, 420, 56], 5.0);
+    // top band: NOW PLAYING lamp, phosphor waveform, source / plays-as LCDs
+    var playing = SM.playIt >= 0 && SM.playIt == ix;
+    g.setColour(T.txt);
+    g.setFontWithSpacing(T.BOLD, 9, 0.12);
+    g.drawAlignedText("NOW PLAYING", [24, 4, 78, 10], "left");
+    drawLamp(g, 104, 5, 8, playing, now < SM.startAt ? T.lampAmber : T.lampRed, now < SM.startAt ? T.lampAmberGlow : T.lampRedGlow);
+    g.setColour(T.txt);
+    g.setFont(T.TYPEB, 11);
+    g.drawAlignedText(ix >= 0 ? it.n.toUpperCase() : "PICK A SOUND", [118, 2, 310, 14], "left");
+    drawCrt(g, [24, 22, 404, 60]);
     if (ix < 0)
     {
-        g.setColour(T.glassDim);
+        g.setColour(Colours.withAlpha(PHOSPHOR, 0.55));
         g.setFont(T.FONT, 11);
-        g.drawAlignedText("Click a sound, or press Up / Down", [12, 28, 420, 56], "centred");
-        return;
+        g.drawAlignedText("Click a sound, or press Up / Down", [24, 22, 404, 60], "centred");
     }
-    smpWave(g, [16, 32, 412, 48], it.w, Colours.withAlpha(T.glow, 0.75));
-    var b = 0;
-    if (it.f == 1 && it.bars > 1)
+    else
     {
-        g.setColour(T.glassLine);
-        for (b = 1; b < it.bars; b++) g.fillRect([16 + 412 * b / it.bars, 30, 1, 52]);
+        smpWave(g, [28, 26, 396, 52], it.w, Colours.withAlpha(PHOSPHOR, 0.85));
+        var b = 0;
+        if (it.f == 1 && it.bars > 1)
+        {
+            g.setColour(Colours.withAlpha(PHOSPHOR, 0.18));
+            for (b = 1; b < it.bars; b++) g.fillRect([28 + 396 * b / it.bars, 24, 1, 56]);
+        }
+        if (playing && now >= SM.startAt)
+        {
+            var len = it.f == 1 ? it.nq * smpFeel(it) * 60.0 / smpHost() : smpHitLen(it);
+            var ph = len > 0 ? ((now - SM.startAt) % len) / len : 0;
+            if (it.f == 0) ph = Math.min(1.0, (now - SM.startAt) / Math.max(0.05, smpHitLen(it)));
+            g.setColour(T.glowCore);
+            g.fillRect([28 + 396 * ph, 24, 2, 56]);
+        }
+        smpLcd(g, [444, 22, 124, 26], ((it.f == 1 && it.bpm > 0) ? it.bpm + "  " : "") + (it.key >= 0 ? smpKeyText(it.key, it.mode) : "NO KEY"));
+        smpLcd(g, [576, 22, 122, 26], smpMatchText(it) == "" ? "AS IS" : smpMatchText(it));
+        g.setColour(T.dim);
+        g.setFontWithSpacing(T.BOLD, 8, 0.14);
+        g.drawAlignedText("SOURCE", [444, 50, 124, 10], "centred");
+        g.drawAlignedText("PLAYS AS", [576, 50, 122, 10], "centred");
+        g.setColour(T.faint);
+        g.drawAlignedText(SM.packs[it.pk].n.toUpperCase() + "   /   " + SM.srcLabels[SM.srcIx[it.s]].toUpperCase(), [444, 64, 254, 12], "centred");
     }
-    if (playing && now >= SM.startAt)
-    {
-        var len = it.f == 1 ? it.nq * smpFeel(it) * 60.0 / smpHost() : smpHitLen(it);
-        var ph = len > 0 ? ((now - SM.startAt) % len) / len : 0;
-        if (it.f == 0) ph = Math.min(1.0, (now - SM.startAt) / Math.max(0.05, smpHitLen(it)));
-        g.setColour(T.glowCore);
-        g.fillRect([16 + 412 * ph, 30, 2, 52]);
-    }
-    smpLcd(g, [444, 28, 128, 26], ((it.f == 1 && it.bpm > 0) ? it.bpm + "  " : "") + (it.key >= 0 ? smpKeyText(it.key, it.mode) : "NO KEY"));
-    smpLcd(g, [580, 28, 128, 26], smpMatchText(it) == "" ? "AS IS" : smpMatchText(it));
-    g.setColour(T.faint);
-    g.setFontWithSpacing(T.FONT, 8, 0.14);
-    g.drawAlignedText("SOURCE", [444, 56, 128, 12], "centred");
-    g.drawAlignedText("PLAYS AS", [580, 56, 128, 12], "centred");
-    g.drawAlignedText(SM.packs[it.pk].n.toUpperCase() + "   /   " + SM.srcLabels[SM.srcIx[it.s]].toUpperCase(), [444, 70, 264, 14], "centred");
 
-    var sp = 0;
-    for (sp = 0; sp < 4; sp++)
-        smpPill(g, [12 + sp * 40, 92, 38, 22], SMP_SPEED_TXT[sp], SM.speed == sp, hv == "sp" + sp);
-    drawStepper(g, [180, 92, 96, 22], "PITCH " + (SM.semi > 0 ? "+" : "") + SM.semi, hv == "pitch-" || hv == "pitch+");
-    drawStepper(g, [284, 92, 64, 22], (SM.oct > 0 ? "+" : "") + SM.oct, hv == "oct-" || hv == "oct+");
-    drawStepper(g, [444, 92, 80, 22], (SM.level > 0 ? "+" : "") + SM.level + " dB", hv == "lvl-" || hv == "lvl+");
+    // TRANSPORT: SPEED, PITCH, OCT, LEVEL
+    g.setColour(T.txt);
+    g.setFontWithSpacing(T.BOLD, 9, 0.08);
+    g.drawAlignedText("SPEED", [42, 100, 56, 9], "centred");
+    g.drawAlignedText("PITCH", [116, 100, 56, 9], "centred");
+    g.drawAlignedText("OCT", [192, 100, 56, 9], "centred");
+    g.drawAlignedText("LEVEL", [264, 92, 76, 9], "centred");
+    drawSwitchLegends(g, "SmpSpeedSel", 70, 148, 25, SMP_SPEED_TXT, SM.speed);
+    drawDetents(g, 144, 147, 13, [[0, "-6"], [6, ""], [12, "+6"]]);
+    drawSwitchLegends(g, "SmpOctSel", 220, 148, 26, ["-1", "0", "+1"], SM.oct + 1);
+    drawDetentsR(g, 302, 156, 13, [[0, "-24"], [4, "-12"], [6, "-6"], [8, "0"], [10, "+6"], [12, "+12"]], 25.0, 28.0, 36.0);
+    g.setColour(0x66000000);
+    g.fillRect([352, 94, 1, 98]);
+    g.setColour(0x1AFFFFFF);
+    g.fillRect([353, 94, 1, 98]);
 
-    smpPill(g, [12, 120, 96, 22], SM.playKeys == ix ? "ON KEYS" : "PLAY KEYS", SM.playKeys == ix, hv == "playkeys");
-    smpPill(g, [116, 120, 84, 22], "SIMILAR", SM.like == ix, hv == "similar");
-    smpPill(g, [208, 120, 84, 22], "FIX KEY", false, hv == "fixkey");
+    // SONG KEY: root pointer, MAJ / MIN, KEY ON (off = no song key)
+    g.setColour(T.txt);
+    g.setFontWithSpacing(T.BOLD, 9, 0.08);
+    g.drawAlignedText("SONG KEY", [372, 96, 64, 9], "centred");
+    g.drawAlignedText("SCALE", [452, 106, 62, 9], "centred");
+    g.drawAlignedText("KEY ON", [446, 184, 74, 9], "centred");
+    drawSwitchLegends(g, "SongKeySel", 404, 152, 36, SMP_KEYS, SM.songRoot);
+    drawLitKey(g, [452, 118, 30, 22], "MAJ", SM.songMode == 0, hv == "maj", T.accent);
+    drawLitKey(g, [484, 118, 30, 22], "MIN", SM.songMode == 1, hv == "min", T.accent);
+    drawLitSq(g, [469, 152, 28, 28], SM.songRoot >= 0, hv == "keyon", T.accent);
+    g.setColour(0x66000000);
+    g.fillRect([522, 94, 1, 98]);
+    g.setColour(0x1AFFFFFF);
+    g.fillRect([523, 94, 1, 98]);
 
-    // DRAG chip: the original file; it says what the host must do to match
-    g.setColour(hv == "drag" ? T.capHi : T.cap);
-    g.fillRoundedRectangle([444, 116, 264, 28], 6.0);
+    // ACTIONS
+    if (ix < 0) g.setOpacity(0.45);
+    drawLitKey(g, [532, 100, 80, 22], SM.playKeys == ix && ix >= 0 ? "ON KEYS" : "PLAY KEYS", SM.playKeys == ix && ix >= 0, hv == "playkeys", 0xFF5FD07A);
+    drawLitKey(g, [618, 100, 80, 22], "SIMILAR", SM.like == ix && ix >= 0, hv == "similar", T.accent);
+    drawLitKey(g, [532, 128, 52, 22], "FIX KEY", false, hv == "fixkey", T.txt);
+    if (ix < 0) g.setOpacity(1.0);
+    drawLitKey(g, [590, 128, 52, 22], "BACK", false, hv == "back", T.txt);
+    drawLitKey(g, [648, 128, 50, 22], "STOP", SM.playSlot >= 0, hv == "stop", 0xFFE0452E);
+
+    // DRAG ORIGINAL plate: the original file; it says what the host must do to match
+    if (ix < 0) g.setOpacity(0.45);
+    g.setColour(0x66000000);
+    g.fillRoundedRectangle([533, 160, 128, 34], 4.0);
+    g.setGradientFill([0xFF3A3632, 0, 158, 0xFF24211F, 0, 192, false]);
+    g.fillRoundedRectangle([532, 158, 128, 34], 4.0);
+    g.setColour(hv == "drag" ? Colours.withAlpha(T.txt, 0.5) : 0x26FFFFFF);
+    g.drawRoundedRectangle([532.5, 158.5, 127, 33], 4.0, 1.0);
     g.setColour(T.onTapeDim);
     var gd = 0;
     for (gd = 0; gd < 3; gd++)
     {
-        g.fillEllipse([456, 122 + gd * 6, 3, 3]);
-        g.fillEllipse([462, 122 + gd * 6, 3, 3]);
+        g.fillEllipse([540, 165 + gd * 7, 3, 3]);
+        g.fillEllipse([546, 165 + gd * 7, 3, 3]);
     }
-    var sh = smpShift(it);
-    var dtxt = "DRAG ORIGINAL";
-    if (it.f == 1) dtxt = dtxt + "   warp on";
-    if (sh != 0) dtxt = dtxt + "   transpose " + (sh > 0 ? "+" : "") + sh;
-    g.setColour(T.onTape);
+    var dsub = "AS IS";
+    if (ix >= 0)
+    {
+        var sh = smpShift(it);
+        dsub = (it.f == 1 ? "WARP ON" : "NO WARP") + (sh != 0 ? "  /  " + (sh > 0 ? "+" : "") + sh + " ST" : "");
+    }
+    g.setColour(T.txt);
     g.setFontWithSpacing(T.BOLD, 9, 0.1);
-    g.drawAlignedText(dtxt, [474, 116, 230, 28], "left");
+    g.drawAlignedText("DRAG ORIGINAL", [556, 160, 102, 15], "left");
+    g.setColour(T.faint);
+    g.setFontWithSpacing(T.BOLD, 8, 0.08);
+    g.drawAlignedText(dsub, [556, 175, 102, 13], "left");
+
+    // HIDE: red key under a flip guard ring (was Shift + Backspace only)
+    g.setColour(Colours.withAlpha(T.alu, 0.5));
+    g.drawEllipse([663, 155, 38, 38], 1.5);
+    drawLitKey(g, [668, 160, 28, 28], "HIDE", false, hv == "hide", 0xFFE0452E);
+    if (ix < 0) g.setOpacity(1.0);
 });
 
 SmpAudition.setMouseCallback(function(event)
@@ -1459,23 +1571,29 @@ SmpAudition.setMouseCallback(function(event)
         this.startExternalFileDrag(SM.items[ix].p, false, function() { SM.dragging = false; });
         return;
     }
-    if (event.clicked && ix >= 0)
+    if (event.clicked)
     {
-        if (h.indexOf("sp") == 0)
+        if (h == "back") smpBack();
+        else if (h == "stop") smpStopAudition();
+        else if (h == "maj" || h == "min")
         {
-            SM.speed = parseInt(h.substring(2, 3));
-            SampleSpeed.setValue("" + SM.speed);
-            smpKeysChanged();
+            var md = h == "maj" ? 0 : 1;
+            if (SM.songRoot >= 0) smpSetSongKey(SM.songRoot, md);
+            else SM.songMode = md;
+            SmpRail.repaint();
         }
-        else if (h == "pitch-") { SM.semi = Math.max(-6, SM.semi - 1); smpKeysChanged(); }
-        else if (h == "pitch+") { SM.semi = Math.min(6, SM.semi + 1); smpKeysChanged(); }
-        else if (h == "oct-") { SM.oct = Math.max(-1, SM.oct - 1); smpKeysChanged(); }
-        else if (h == "oct+") { SM.oct = Math.min(1, SM.oct + 1); smpKeysChanged(); }
-        else if (h == "lvl-") { SM.level = Math.max(-24, SM.level - 1); smpKeysChanged(); }
-        else if (h == "lvl+") { SM.level = Math.min(12, SM.level + 1); smpKeysChanged(); }
-        else if (h == "playkeys") smpSetPlayKeys(SM.playKeys == ix ? -1 : ix);
-        else if (h == "similar") smpSimilar(ix);
-        else if (h == "fixkey") { SM.grid = "fix"; SM.fixMode = SM.items[ix].mode; SmpRail.repaint(); }
+        else if (h == "keyon")
+        {
+            smpSetSongKey(SM.songRoot >= 0 ? -1 : Math.round(SMP_KC.SongKeySel.getValue()), SM.songMode);
+            SmpRail.repaint();
+        }
+        else if (ix >= 0)
+        {
+            if (h == "playkeys") smpSetPlayKeys(SM.playKeys == ix ? -1 : ix);
+            else if (h == "similar") smpSimilar(ix);
+            else if (h == "fixkey") { SM.grid = "fix"; SM.fixMode = SM.items[ix].mode; SmpRail.repaint(); }
+            else if (h == "hide") smpHide(ix);
+        }
         this.repaint();
     }
     if (h != SM.hoverA)

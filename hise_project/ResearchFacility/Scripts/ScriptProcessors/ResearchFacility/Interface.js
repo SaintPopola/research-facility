@@ -41,7 +41,7 @@ const var LAYOUT = {
     "page":     [352, 72],
     "smpSearch":[76, 107],
     "smpRes":   [352, 72],
-    "smpAud":   [352, 452],
+    "smpAud":   [352, 405],
     "out":      [1090, 72, 70, 532],
     "outMeter": [1090, 76, 70, 420],
     "silk":     [36, 606, 1128, 26],
@@ -2622,10 +2622,11 @@ knobLaf.loadImage("{PROJECT_FOLDER}vm_ptr_l_2x.png", "ptrL");     // 96 px frame
 knobLaf.loadImage("{PROJECT_FOLDER}vm_k4_l_2x.png", "k4L");       // one 144 px frame: K4 DL 56 (rotation-symmetric)
 knobLaf.loadImage("{PROJECT_FOLDER}vm_k4_s_2x.png", "k4S");       // one 80 px frame:  K4 DM 40
 // K4 stepped attenuators (docs/28b): smooth skirt + spun cap, vector line 0.55R..R, plate ticks every detent
-const var K4_IDS = ["ASemiKnob", "BendKnob"];
+const var K4_IDS = ["ASemiKnob", "BendKnob", "SmpPitchKnob", "SmpLevelKnob"];
 // K3 pointer selectors (docs/28b): detent step in degrees, positions centred on 12 o'clock.
 // The plate paints legends and detent dots at the frame angle, so pointer and engraving agree.
-const var SWITCH_STEP = {"FTypeKnob": 40, "SubOctKnob": 30, "Lfo1Wave": 30, "Lfo2Wave": 30, "Lfo3Wave": 30, "Lfo4Wave": 30};
+const var SWITCH_STEP = {"FTypeKnob": 40, "SubOctKnob": 30, "Lfo1Wave": 30, "Lfo2Wave": 30, "Lfo3Wave": 30, "Lfo4Wave": 30,
+                         "SmpSpeedSel": 40, "SmpOctSel": 30, "SongKeySel": 25};
 // docs/28 + 28b knobs. Vector until the Blender strips land (Phase 4, behind isImageLoaded).
 // K1 fluted (PLAY macros, ATTACK, RELEASE): black skirt, spun aluminium cap, index line.
 // K2 collet (every rack-page knob): black body, flat coloured cap by function, printed line.
@@ -3948,7 +3949,7 @@ inline function drawCrt(g, r)
     g.drawRoundedRectangle([r[0] + 0.5, r[1] + 0.5, r[2] - 1, r[3] - 1], 4.0, 1.0);
 }
 
-inline function drawDetents(g, cx, cy, n, legs)
+inline function drawDetentsR(g, cx, cy, n, legs, r0, r1, rl)
 {
     // K4 plate: a tick at every detent over 300 deg, long ticks + legends at [index, text] pairs
     local i = 0;
@@ -3958,17 +3959,22 @@ inline function drawDetents(g, cx, cy, n, legs)
     for (i = 0; i < n; i++)
     {
         an = -2.618 + 5.236 * i / (n - 1);
-        g.drawLine(cx + 18.5 * Math.sin(an), cx + 21.0 * Math.sin(an), cy - 18.5 * Math.cos(an), cy - 21.0 * Math.cos(an), 1.0);
+        g.drawLine(cx + r0 * Math.sin(an), cx + r1 * Math.sin(an), cy - r0 * Math.cos(an), cy - r1 * Math.cos(an), 1.0);
     }
     g.setFont(T.FONT, 9);
     for (j = 0; j < legs.length; j++)
     {
         an = -2.618 + 5.236 * legs[j][0] / (n - 1);
         g.setColour(T.txt);
-        g.drawLine(cx + 17.0 * Math.sin(an), cx + 22.5 * Math.sin(an), cy - 17.0 * Math.cos(an), cy - 22.5 * Math.cos(an), 1.4);
+        g.drawLine(cx + (r0 - 1.5) * Math.sin(an), cx + (r1 + 1.5) * Math.sin(an), cy - (r0 - 1.5) * Math.cos(an), cy - (r1 + 1.5) * Math.cos(an), 1.4);
         g.setColour(T.dim);
-        if (legs[j][1] != "") g.drawAlignedText(legs[j][1], [cx + 25.0 * Math.sin(an) - 12, cy - 25.0 * Math.cos(an) - 5, 24, 10], "centred");
+        if (legs[j][1] != "") g.drawAlignedText(legs[j][1], [cx + rl * Math.sin(an) - 12, cy - rl * Math.cos(an) - 5, 24, 10], "centred");
     }
+}
+
+inline function drawDetents(g, cx, cy, n, legs)
+{
+    drawDetentsR(g, cx, cy, n, legs, 18.5, 21.0, 25.0);
 }
 
 inline function drawSwitchLegends(g, id, cx, cy, rr, labels, sel)
@@ -5459,6 +5465,14 @@ inline function selfTest()
     if (!SmpRail.get("visible") || Browser.get("visible") || Visualiser.get("visible")) { ok = false; Console.print("RF selftest SAMPLES panels"); }
     if (ModeKey.getValue() != "samples") ok = false;
     if (smpRailHit(50, 160) != "f0" || smpRailHit(200, 160) != "f2") { ok = false; Console.print("RF selftest FORM pill ids " + smpRailHit(50, 160)); }   // doc 23 B4
+    // AUDITION 3U (docs/28b): on-screen BACK / STOP / HIDE, SPEED pointer writes the session label
+    if (smpAudHit(600, 135) != "back" || smpAudHit(660, 135) != "stop" || smpAudHit(680, 170) != "hide" || smpAudHit(470, 125) != "maj") { ok = false; Console.print("RF selftest AUDITION hits"); }
+    local spWas = SM.speed;
+    SMP_KC.SmpSpeedSel.setValue(2);
+    onSmpKnob(SMP_KC.SmpSpeedSel, 2);
+    if (SampleSpeed.getValue() != "2" || SM.speed != 2) { ok = false; Console.print("RF selftest SPEED pointer " + SampleSpeed.getValue()); }
+    SMP_KC.SmpSpeedSel.setValue(spWas);
+    onSmpKnob(SMP_KC.SmpSpeedSel, spWas);
     if (FX_Air.isBypassed() == false) { ok = false; Console.print("RF selftest Air EQ colours SAMPLES"); }                                           // doc 23 B8
     if (smpShift({"key": 1, "mode": 1}) != 0) ok = false;          // no song key: no shift
     SM.songRoot = 5; SM.songMode = 1;                               // F minor
