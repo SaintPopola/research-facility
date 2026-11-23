@@ -1133,7 +1133,12 @@ def render_preset(p) -> list[dict]:
             sl, sr_ = render_voice(p, soften(p["gen"], p["gp"]), note, nz,
                                    np.random.default_rng(seed_for(p["id"], note) ^ 0x50F7))
             sv = p["gp"].get("soft_level", SOFT_LEVEL)
-            raw.append((note, 1, sl * g * sv, sr_ * g * sv))
+            # level-match the soft take to its own hard take before soft_level (docs/30 A):
+            # a separately seeded soft render's loudness is random per zone, so the shared gain
+            # left 3-13 dB jumps between neighbouring soft zones (paper_mute_upright 12.6 dB at
+            # 68->72) and let a loud soft take set the whole preset's gain
+            m = rms / max(loud400(sl, sr_), 1e-9)
+            raw.append((note, 1, sl * g * m * sv, sr_ * g * m * sv))
             raw.append((note, 2, hard_l * g, hard_r * g))
         else:
             raw.append((note, 0, hard_l * g, hard_r * g))
