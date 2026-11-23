@@ -354,9 +354,12 @@ def gen_felt_piano(note, n, p, rng):
         e = np.exp(-6.907755 * t / max(t60k, 0.05))
         # two-stage decay: fast prompt sound then slow aftersound
         e = 0.65 * e + 0.35 * np.exp(-6.907755 * t / max(t60k * 3.0, 0.1))
+        # one hammer strikes all three unison strings: one phase per partial, shared (docs/30 B).
+        # A random phase per string made loud400 vary 7.6-7.8 dB across seeds at one key.
+        ph0 = rng.uniform(0, 2 * np.pi)
         for d, pn in zip(detunes, pans):
             fd = fk * 2.0 ** (d / 1200.0)
-            s = a * e * np.sin(2 * np.pi * fd * t + rng.uniform(0, 2 * np.pi))
+            s = a * e * np.sin(2 * np.pi * fd * t + ph0)
             gl, gr = math.cos((pn + 1) * 0.25 * math.pi), math.sin((pn + 1) * 0.25 * math.pi)
             l += s * gl
             r += s * gr
