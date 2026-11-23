@@ -121,8 +121,8 @@ def _pulse_blep(freq, pw, phase0):
 @nb.njit(cache=True)
 def _karplus(excite, period, loop_gain, damp):
     """Karplus-Strong with linear-interp fractional delay.
-    period: loop delay in samples (already compensated for the 0.5 sample
-    averaging delay). damp 0..1: 0 = plain 2-tap average, 1 = brighter."""
+    period: loop delay in samples, already compensated for the loop filter's own
+    (0.5 - 0.5 x damp) sample delay. damp 0..1: 0 = plain 2-tap average, 1 = brighter."""
     n = excite.shape[0]
     size = 1
     while size < int(period) + 8:
@@ -514,9 +514,12 @@ def gen_karplus(note, n, p, rng):
     nb2[pos:] -= nb_[:-pos]
     ex[:burst_len] = nb2 * np.hanning(burst_len * 2)[burst_len:] if p.get("soft", True) else nb2
     t60 = p.get("t60", 2.5) * (1.3 - 0.8 * reg)
-    period = SR / f0 - 0.5
+    # the loop filter delays (0.5 - 0.5 x damp) samples, not 0.5: the old fixed 0.5 shortened
+    # the loop and every karplus preset drifted sharp up top (+19 c at key 96, damp 0.5; docs/30 C)
+    damp = p.get("damp", 0.15)
+    period = SR / f0 - (0.5 - 0.5 * damp)
     loop_gain = 10.0 ** (-3.0 * (period / SR) / max(t60, 0.05))
-    y = _karplus(ex, period, loop_gain, p.get("damp", 0.15))
+    y = _karplus(ex, period, loop_gain, damp)
     # DC / rumble guard that tracks the note (docs/30): a fixed 40 Hz high-pass took the
     # fundamental of every bass zone (wood_bass_pluck sat 10-18 dB under its 3rd-6th harmonics)
     y = hp(y, max(15.0, min(40.0, 0.5 * f0)))
