@@ -238,7 +238,7 @@ PRESETS = [
       V(atk=3, rel=120, reso=0.7, vel=0.4, lfo=0.1, subdec=200, subsus=-40),
       (24, 60, 6), 2.0, True, "Round sine-plus-harmonic sub that follows the roots. Afrobeats, cumbia, bedroom pop.", vl=2),
     P("wood_bass_pluck", "Wood Bass Pluck", "bass", ["upright", "pizzicato", "fingered", "organic"],
-      "karplus", dict(t60=2.0, bright=1200, damp=0.55, body=0.8, pos=0.2, lp=2500),
+      "karplus", dict(t60=2.0, bright=1200, damp=0.55, body=0.2, pos=0.2, lp=2500, excite="halfsine", ex_ms=8.0),
       [2500, 0.10, 0.0, 0.0, 0.10, 0.0, 0.15, 0.0],
       V(atk=1, rel=200, reso=0.8, vel=0.65, lfo=0.1, dly="1/8", subsus=-40),
       (28, 60, 3), 2.5, False, "Woody plucked low string: a thump, then a soft decay. Upright or fingered bass.", vl=2),

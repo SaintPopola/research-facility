@@ -517,7 +517,9 @@ def gen_karplus(note, n, p, rng):
     period = SR / f0 - 0.5
     loop_gain = 10.0 ** (-3.0 * (period / SR) / max(t60, 0.05))
     y = _karplus(ex, period, loop_gain, p.get("damp", 0.15))
-    y = hp(y, 40.0)
+    # DC / rumble guard that tracks the note (docs/30): a fixed 40 Hz high-pass took the
+    # fundamental of every bass zone (wood_bass_pluck sat 10-18 dB under its 3rd-6th harmonics)
+    y = hp(y, max(15.0, min(40.0, 0.5 * f0)))
     body = p.get("body", 0.0)
     if body > 0:                                     # nylon guitar body resonance
         y = y + body * svf(y, 110.0, 2.0, 1) + 0.6 * body * svf(y, 210.0, 2.5, 1)
