@@ -517,3 +517,31 @@ INTENSITY
 PLUGIN SPLIT
 - Making Hook Lab its own plugin needs a new PluginCode.
 - Distributing it needs HISE GPL compliance or a commercial licence.
+
+## 5. Measured results (2026-11-19, Pro upgrade test)
+
+Built in ~/Desktop/Sweet Melody Vocal/hooklab (contract: Sweet Melody Vocal/docs/API.md). Measured on an M4 24 GB with Premiere Pro open. Nothing was ear-tested; LER = lyric error rate from Parakeet (lower is better), E = expressiveness score.
+
+| Hook | Pro preset | Old rnb + close |
+|---|---|---|
+| SOUL NIGHT, female, spec caption | LER 45.5 %, E 0.925, line 4 never heard | LER 31.8 %, E 0.748 |
+| SOUL NIGHT, caption_hygiene on | LER 22.7 %, E 0.766, line 4 heard | |
+| MIDNIGHT HALF-TIME, male, INTENSE | LER 8 % after auto FIX (22 % first pass), E 0.38 | LER 4 %, E 0.73 |
+| AFRO-SOUL SWAY, Spanish, lang_words | LER 34.8 %, E 0.774 | LER 100 % (no words heard) |
+| Boom bap / Dancehall / BR phonk / Indie pop | LER 2.8 % / 30.8 % / 50 % / 0 % | |
+
+- Conform: 140 BPM A minor to 128 BPM D minor measured 128.24 BPM, D minor, bar-1 error 3.7-6.6 ms. Live bridge file path 100 BPM G minor measured 99.87 BPM, G minor.
+- Delivery proxy matched the genre: boom bap 5.45 onsets/s (rap), indie pop 1.55/s over 7 st (sung), dancehall chant-like.
+- FIX LINE: 5 of 24 auto passes accepted, 110-160 s each; repaint is not bit-reproducible per seed.
+- INTENSE arc: no seed sang whisper-to-power (last-line lift -1.6 to +0.14 LU vs +4 LU target). Round 2 adds a post-side arc.
+- Memory: the 10 GB cold gate blocks renders while Premiere is open (5-8 GB free); pro jobs take 5-6 min, plain jobs about 1.5 min.
+- Stems that use Ableton Core Library breaths are flagged stem_export_ok=false (Ableton licence 5(3)(b)).
+
+Open decisions: caption_hygiene as the SOUL NIGHT default (better intelligibility, less ornament), and the house voice anchor (off until the user decides on the no-reference-audio rule).
+
+## 6. Round 2 (2026-11-19/20)
+
+- INTENSE arc is now post-side (hl/arc.py): pass 1 whisper treatment (-3 to -4 LU, air, low cut, thinner stack), last pass power treatment (+1 LU, parallel saturation, presence, one extra 5th layer), 1-beat crossfades, linked true-peak guard, tier loudness kept. Offline on the MIDNIGHT INTENSE stems the last-line lift went from -0.57 LU to +3.94 LU (target +4), bus -18.0 LUFS before and after, every stem at or under -6.07 dBTP. Switch: arc.ARC_POST_ON, spec key arc_post.
+- FIX LINE: an E guard rejects a repaint that drops expressiveness by more than 0.15 (the measured MIDNIGHT case 0.643 to 0.38 would now be rejected). RETAKE is deferred until FIX decides, so doubles come from the final take. Short lines (under 4 scored words) are only repainted when more than 1 word is wrong.
+- Fair scoring for caribbean_afro and brazil: a genre leniency list (riddim, gyal, dem, wine, mandem, bruk, tchau, ate, chao echo) and a length-weighted character score; a lenient match must keep the typed word's first sound. Adversarial and fuzz tests prove clearly wrong lyrics still fail. BR PHONK replay: LER 0.50, fair score 0.143.
+- Not yet run: the server-level FIX/LOCK and conform API tests (held while the user edits in Premiere), and an ear test.
