@@ -262,6 +262,24 @@ def voice_lane(p, l, r, n_loop, rng):
     return L[-n_loop:], R[-n_loop:]
 
 
+def speak_lag(p, gp, note, hold_s, atk, rel, seed):
+    """Seconds from a note's start to the 50% rise of its first peak (RMS over 6 ms, the peak
+    searched over min(max(hold, 30 ms), 150 ms)): the audit's onset measure (docs/30 d). Flutes,
+    tape strings, harmoniums, voices and moog_core bass spoke 12-88 ms after the grid."""
+    win = min(max(hold_s, 0.03), 0.15)
+    n = int((win + 0.05) * SR)
+    l, r = bank.render_voice(p, gp, note, n, np.random.default_rng(seed))
+    m = (l + r) * 0.5 * note_env(n, int(hold_s * SR), atk, rel)
+    w = int(0.006 * SR)
+    c = np.concatenate([[0.0], np.cumsum(m * m)])
+    e = np.sqrt(np.maximum(0.0, (c[w:] - c[:-w]) / w))
+    e = np.concatenate([np.zeros(w // 2), e])[: int(win * SR)]
+    pk = float(e.max()) if e.size else 0.0
+    if pk < 1e-6:
+        return 0.0
+    return float(np.argmax(e >= 0.5 * pk)) / SR
+
+
 def render_loop(kit, lane, take):
     pid = kit["lanes"][lane]
     p = dict(next(x for x in bank.PRESETS if x["id"] == pid))
@@ -274,13 +292,21 @@ def render_loop(kit, lane, take):
     gen_atk = float(p["gp"].get("attack", 0.0) or 0.0)
     # slow swells start early so they bloom on the beat (doc 23 pattern 7)
     pre = 0.6 * (gen_atk + atk) if lane == "AIR" and gen_atk + atk >= 0.25 else 0.0
+    # every lane: start early by its own measured speaking lag, so the attack lands on the grid
+    # (docs/30 d). Measured on the take's first note, hard or soft as it will be played.
+    evs = kit_events(kit, lane, take)
+    if evs:
+        e0 = evs[0]
+        g0 = bank.soften(p["gen"], p["gp"]) if e0[3] < 80 else p["gp"]
+        lag = speak_lag(p, g0, e0[2], e0[1] * spb, atk, rel, bank.seed_for(f"{kit['id']}:{lane}:{take}:lag", int(e0[2])))
+        pre = max(pre, min(lag, 0.15))
     max_note = 8.5 + pre
     n_wraps = 1 + int(math.ceil(max_note * SR / n_loop))
     n_buf = n_loop * n_wraps
     buf_l = np.zeros(n_buf)
     buf_r = np.zeros(n_buf)
     soft_gp = bank.soften(p["gen"], p["gp"])
-    for i, (start, length, note, vel) in enumerate(kit_events(kit, lane, take)):
+    for i, (start, length, note, vel) in enumerate(evs):
         # every event its own voice (doc 23 pattern 6: 39% replayed one identical sample)
         rng = np.random.default_rng(bank.seed_for(f"{kit['id']}:{lane}:{take}:{i}", int(note)))
         hold_s = length * spb
