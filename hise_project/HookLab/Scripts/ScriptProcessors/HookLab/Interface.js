@@ -61,7 +61,7 @@ const var S = {
     "projSrc": "none", "projBpm": 0.0, "projKey": "", "projMode": "", "projKeySet": false, "posted": -1.0,
     "conformId": "", "confState": "", "confText": "", "confFor": "",
     "gateText": "", "memGb": -1, "genresFromServer": false, "scoreText": "",
-    "act": "", "actBody": {}, "needStems": false, "needConform": false, "needGenres": false, "postedKey": ""
+    "act": "", "actBody": {}, "postBody": {}, "needStems": false, "needConform": false, "needGenres": false, "postedKey": ""
 };
 const var KEYS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 const var BARS = [4, 8, 12, 16];
@@ -88,7 +88,12 @@ reg GENRES = [
 
 // K3 pointer selectors: id -> [labels, values sent]. "-" = leave the key out (preset / auto).
 const var PTR = {
-    "KeyKnob": [KEYS, KEYS], "ScaleKnob": [["MAJ", "MIN"], ["major", "minor"]], "BarsKnob": [["4", "8", "12", "16"], [4, 8, 12, 16]],
+    // KEY / SCALE / BARS: position 0 PRESET leaves the key out, so the genre preset fills it (a 16-bar
+    // MIDNIGHT HALF-TIME was crammed into 8 bars when 8 was always sent); the server's 10 scales
+    "KeyKnob": [["PRESET", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"], ["-", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]],
+    "ScaleKnob": [["PRESET", "MAJ", "MIN", "HARM MIN", "DORIAN", "PHRYG", "PHR DOM", "MIXO", "MAJ PENT", "MIN PENT", "BLUES"],
+                  ["-", "major", "minor", "harmonic_minor", "dorian", "phrygian", "phrygian_dominant", "mixolydian", "major_pentatonic", "minor_pentatonic", "blues"]],
+    "BarsKnob": [["PRESET", "4", "8", "12", "16"], ["-", 4, 8, 12, 16]],
     "LangKnob": [["AUTO", "ES", "EN", "PT"], ["-", "es", "en", "pt"]], "VoiceKnob": [["PRESET", "MALE", "FEMALE"], ["-", "male", "female"]],
     "DblKnob": [["0", "2", "4"], [0, 2, 4]],
     "HarmKnob": [["OFF", "3RD", "5TH", "6TH", "OCT", "OCT LO", "3RD+OCT"], ["off", "3rd", "5th", "6th", "oct", "oct_lo", ["3rd", "oct"]]],
@@ -389,9 +394,9 @@ Content.setPropertiesFromJSON("Lyrics", {"parentComponent": "Core", "width": 304
     "tooltip": "One sung line per row (8 at most). [Chorus] rows set the section, (words) become answers, one UPPERCASE word is the climax. Start a row with [en], [es] or [pt] to set its language."});
 const var VoiceKnob = addKnob("VoiceKnob", "VOICE", 328, 120, 0, 2, 0, 1, "Core");
 const var LangKnob = addKnob("LangKnob", "LANG", 328, 184, 0, 3, 0, 1, "Core");
-const var KeyKnob = addKnob("KeyKnob", "KEY", 528, 50, 0, 11, 9, 1, "Core");
-const var ScaleKnob = addKnob("ScaleKnob", "SCALE", 590, 50, 0, 1, 1, 1, "Core");
-const var BarsKnob = addKnob("BarsKnob", "BARS", 652, 50, 0, 3, 1, 1, "Core");
+const var KeyKnob = addKnob("KeyKnob", "KEY", 528, 50, 0, 12, 0, 1, "Core");        // 0 = PRESET
+const var ScaleKnob = addKnob("ScaleKnob", "SCALE", 590, 50, 0, 10, 0, 1, "Core");
+const var BarsKnob = addKnob("BarsKnob", "BARS", 652, 50, 0, 4, 0, 1, "Core");
 const var FamilyKnob = addKnob("FamilyKnob", "FAMILY", 400, 140, 0, 5, 0, 1, "Core");      // REGGAETON first
 const var GenreKnob = addKnob("GenreKnob", "GENRE", 462, 140, 0, 7, 0, 1, "Core");
 const var SeedsKnob = addKnob("SeedsKnob", "TAKES", 676, 140, 1, 8, 4, 1, "Core");
@@ -491,12 +496,28 @@ inline function engineText()
 }
 
 // the BPM the job sends: the DAW project (SYNC LIVE), else the host, else the genre's own
-inline function jobBpm()
+// the project's tempo when SYNC LIVE or MATCH DAW asks for it, else -1 (the preset's own BPM)
+inline function syncedBpm()
 {
     local hb = Engine.getHostBpm();
-    if (S.syncLive && S.projSrc != "none" && S.projBpm > 0) return S.projBpm;
-    if (S.syncLive && Engine.isPlugin() && hb > 0) return hb;
-    return curGenre()[2];
+    if (!(S.syncLive || S.match)) return -1;
+    if (S.projSrc != "none" && S.projBpm > 0) return S.projBpm;
+    if (Engine.isPlugin() && hb > 0) return hb;
+    return -1;
+}
+
+inline function jobBpm()
+{
+    local b = syncedBpm();
+    return b > 0 ? b : curGenre()[2];
+}
+
+inline function keyText()
+{
+    local k = PTR.KeyKnob[0][Math.round(KeyKnob.getValue())];
+    local sc = PTR.ScaleKnob[0][Math.round(ScaleKnob.getValue())];
+    local b = PTR.BarsKnob[0][Math.round(BarsKnob.getValue())];
+    return (k == "PRESET" ? "PRESET KEY" : k) + " " + (sc == "PRESET" ? "" : sc) + "  " + (b == "PRESET" ? "PRESET BARS" : b + " BARS");
 }
 
 inline function projText()
@@ -559,7 +580,7 @@ Core.setPaintRoutine(function(g)
     drawLamp(g, 466, 95, 12, S.projSrc == "live_bridge", T.lampAmber, T.lampAmberGlow);
     g.setColour(T.txt);
     g.drawAlignedText(projText(), [482, 93, 60, 16], "left");
-    drawLed(g, [528, 116, 208, 22], KEYS[Math.round(KeyKnob.getValue())] + " " + (Math.round(ScaleKnob.getValue()) == 1 ? "MINOR" : "MAJOR") + "  " + BARS[Math.round(BarsKnob.getValue())] + " BARS", T.ALPHA, 10);
+    drawLed(g, [528, 116, 208, 22], keyText(), T.ALPHA, 10);
 
     // genre family -> genre, INTENSE, MATCH DAW
     drawLed(g, [400, 210, 336, 24], curFamily().label + " / " + gn[1], T.ALPHA, 9);
@@ -1001,14 +1022,18 @@ inline function buildJob()
     if (fam.id != "rnb_soul") seeds = Math.min(4, seeds);        // 1-8 only on the R&B / SOUL presets
     local job = {
         "lines": lyricLines(),
-        "key": KEYS[Math.round(KeyKnob.getValue())],
-        "scale": Math.round(ScaleKnob.getValue()) == 1 ? "minor" : "major",
-        "bpm": jobBpm(),
-        "bars": BARS[Math.round(BarsKnob.getValue())],
         "family": fam.id,
         "genre": gn[0],
         "n_seeds": seeds
     };
+    // only what the user set (or the DAW sync) goes out: the genre preset fills the rest
+    local kv = PTR.KeyKnob[1][Math.round(KeyKnob.getValue())];
+    local sv = PTR.ScaleKnob[1][Math.round(ScaleKnob.getValue())];
+    local bv = PTR.BarsKnob[1][Math.round(BarsKnob.getValue())];
+    if (("" + kv) != "-") job.key = kv;
+    if (("" + sv) != "-") job.scale = sv;
+    if (("" + bv) != "-") job.bars = bv;
+    if (syncedBpm() > 0) job.bpm = syncedBpm();
     local i = 0;
     local v = 0;
     local voice = PTR.VoiceKnob[1][Math.round(VoiceKnob.getValue())];
@@ -1394,7 +1419,7 @@ inline function projectPostDue()
 
 inline function projectKeyText()
 {
-    return KEYS[Math.round(KeyKnob.getValue())] + " " + (Math.round(ScaleKnob.getValue()) == 1 ? "minor" : "major");
+    return PTR.KeyKnob[1][Math.round(KeyKnob.getValue())] + " " + PTR.ScaleKnob[1][Math.round(ScaleKnob.getValue())];
 }
 
 inline function postProject()
@@ -1403,8 +1428,11 @@ inline function postProject()
     S.posted = bpm;
     S.postedKey = projectKeyText();
     fly("post");
-    Server.callWithPOST("/project/", JSON.stringify({"bpm": bpm, "key": KEYS[Math.round(KeyKnob.getValue())],
-        "mode": Math.round(ScaleKnob.getValue()) == 1 ? "minor" : "major", "label": "hook lab plugin"}), function(status, response) { land(); });
+    S.postBody = {"bpm": bpm, "label": "hook lab plugin"};
+    local pk = PTR.KeyKnob[1][Math.round(KeyKnob.getValue())];
+    local pm = PTR.ScaleKnob[1][Math.round(ScaleKnob.getValue())];
+    if (pk != "-" && (pm == "major" || pm == "minor")) { S.postBody.key = pk; S.postBody.mode = pm; }
+    Server.callWithPOST("/project/", JSON.stringify(S.postBody), function(status, response) { land(); });
 }
 
 // MATCH DAW: stretch and transpose every stem to the project, never blocking (wait: false)
@@ -1503,8 +1531,8 @@ inline function pollProject()
         if (S.syncLive && ks)
         {
             var ki = KEYS.indexOf(S.projKey.toUpperCase());
-            if (ki >= 0 && Math.round(KeyKnob.getValue()) != ki) { KeyKnob.setValue(ki); chg = true; }
-            var mi = S.projMode == "minor" ? 1 : 0;
+            if (ki >= 0 && Math.round(KeyKnob.getValue()) != ki + 1) { KeyKnob.setValue(ki + 1); chg = true; }
+            var mi = S.projMode == "minor" ? 2 : 1;
             if (Math.round(ScaleKnob.getValue()) != mi) { ScaleKnob.setValue(mi); chg = true; }
         }
         if (chg) Core.repaint();
@@ -1607,7 +1635,16 @@ inline function selfTest()
     Lyrics.set("text", "[Chorus]\nDime si tu me quieres (dime)\n[en] say it one more time");
     local j = buildJob();
     if (j.lines.length != 3 || j.lines[2].lang != "en" || j.lines[0] != "[Chorus]") { ok = false; Console.print("HL selftest lyric lines"); }
-    if (j.key != "A" || j.scale != "minor" || j.bars != 8 || j.n_seeds != 4 || j.family != "reggaeton" || j.genre != "reggaeton") { ok = false; Console.print("HL selftest job defaults"); }
+    if (isDefined(j.key) || isDefined(j.scale) || isDefined(j.bars) || isDefined(j.bpm) || isDefined(j.engine) || j.n_seeds != 4 || j.family != "reggaeton" || j.genre != "reggaeton") { ok = false; Console.print("HL selftest job defaults leave key / scale / bars / bpm to the preset"); }
+    KeyKnob.setValue(10);
+    ScaleKnob.setValue(3);
+    BarsKnob.setValue(4);
+    j = buildJob();
+    if (j.key != "A" || j.scale != "harmonic_minor" || j.bars != 16) { ok = false; Console.print("HL selftest user key / scale / bars"); }
+    KeyKnob.setValue(0);
+    ScaleKnob.setValue(0);
+    BarsKnob.setValue(0);
+    j = buildJob();
     if (isDefined(j.stack) || isDefined(j.fx) || isDefined(j.chain) || isDefined(j.voice) || j.out_tier != "ref" || j.tighten_ms != 0 || isDefined(j.dcw)) { ok = false; Console.print("HL selftest presets keep their values"); }
     RMC.stack.setValue(1);
     RMC.mix.setValue(1);
