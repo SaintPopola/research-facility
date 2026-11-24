@@ -60,7 +60,8 @@ const var S = {
     "syncLive": true, "intense": false, "match": true,
     "projSrc": "none", "projBpm": 0.0, "projKey": "", "projMode": "", "projKeySet": false, "posted": -1.0,
     "conformId": "", "confState": "", "confText": "", "confFor": "",
-    "gateText": "", "memGb": -1, "genresFromServer": false, "scoreText": ""
+    "gateText": "", "memGb": -1, "genresFromServer": false, "scoreText": "",
+    "act": "", "actBody": {}, "needStems": false, "needConform": false, "needGenres": false, "postedKey": ""
 };
 const var KEYS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 const var BARS = [4, 8, 12, 16];
@@ -661,7 +662,7 @@ Core.setMouseCallback(function(event)
         else if (h == "start") startServer();
         else if (h == "sync") { S.syncLive = !S.syncLive; this.repaint(); }
         else if (h == "intense") { S.intense = !S.intense; this.repaint(); }
-        else if (h == "match") { S.match = !S.match; S.conf = {}; S.confText = ""; if (S.match) conformAll(); this.repaint(); }
+        else if (h == "match") { S.match = !S.match; S.conf = {}; S.confText = ""; S.needConform = S.match; this.repaint(); }
         else if (h == "render" && S.online)
         {
             if (jobBusy()) cancelJob();
@@ -1078,6 +1079,33 @@ inline function startedJob(status, response, kind)
     Qa.repaint();
 }
 
+// ---- request gate (2026-11-24 Live crashes): HISE 4.1.0's server queue was unlocked, and this
+// script piled 3-5 calls a second onto it, some started from inside callbacks. Now ONE request is
+// on the queue at a time: fly() before every call, land() first thing in every callback (status 0
+// on a timeout still calls back), a 15 s stale guard, polls on a 2 s cycle, user actions in a
+// one-slot queue sent before any poll, and no call is ever started from inside a callback.
+const var FLIGHT = {"tag": "", "at": 0};
+inline function gateFree()
+{
+    return FLIGHT.tag == "" || S.tick - FLIGHT.at > 30;      // HISE gives up after 10 s
+}
+inline function fly(tag)
+{
+    FLIGHT.tag = tag;
+    FLIGHT.at = S.tick;
+}
+inline function land()
+{
+    FLIGHT.tag = "";
+}
+Server.setTimeoutMessageString("{\"error\": \"no answer from Hook Lab (timeout)\"}");
+
+inline function queueAct(a, body)
+{
+    S.act = a;
+    S.actBody = body;
+}
+
 inline function submitRender()
 {
     local job = buildJob();
@@ -1090,52 +1118,81 @@ inline function submitRender()
     S.msg = "";
     S.pct = 0;
     S.preset = curGenre()[0];
-    sendProject();
+    queueAct("render", job);
     Core.repaint();
-    Server.callWithPOST("/render/", JSON.stringify(job), function(status, response) { startedJob(status, response, "render"); });
 }
 
 inline function fixLine(n)
 {
     S.lcd = "SENDING";
-    Server.callWithPOST("/fix_line/", JSON.stringify({"job": S.stemJob, "line": n, "passes": 2}), function(status, response) { startedJob(status, response, "fix"); });
+    queueAct("fix", {"job": S.stemJob, "line": n, "passes": 2});
 }
 
 inline function lockJob(counter)
 {
     S.lcd = "SENDING";
-    Server.callWithPOST("/lock/", JSON.stringify({"job": S.stemJob, "counter": counter}), function(status, response) { startedJob(status, response, "lock"); });
+    queueAct("lock", {"job": S.stemJob, "counter": counter});
 }
 
 inline function cancelJob()
 {
     if (S.job == "") return;
-    Server.callWithPOST("/cancel/" + S.job, "{}", function(status, response)
-    {
-        if (status == 200 && isDefined(response.message)) S.msg = "" + response.message;
-        Core.repaint();
-    });
+    queueAct("cancel", {});
 }
 
 inline function scoreJob()
 {
     S.scoreText = "Writing the guide score ...";
     Qa.repaint();
-    Server.callWithPOST("/score/", JSON.stringify({"job": S.stemJob}), function(status, response)
-    {
-        if (status == 200 && isDefined(response.musicxml)) S.scoreText = "SCORE " + response.musicxml + " (+ .ustx)";
-        else S.scoreText = "SCORE failed: " + (isDefined(response.error) ? response.error : status);
-        Qa.repaint();
-    });
+    queueAct("score", {"job": S.stemJob});
 }
 
 inline function releaseEngine()
 {
-    Server.callWithPOST("/engine/release", "{}", function(status, response)
+    queueAct("release", {});
+}
+
+// the queued user action, sent by the clock when the gate is free
+inline function doAct()
+{
+    local a = S.act;
+    S.act = "";
+    fly(a);
+    if (a == "render")
+        Server.callWithPOST("/render/", JSON.stringify(S.actBody), function(status, response) { land(); startedJob(status, response, "render"); });
+    else if (a == "fix")
+        Server.callWithPOST("/fix_line/", JSON.stringify(S.actBody), function(status, response) { land(); startedJob(status, response, "fix"); });
+    else if (a == "lock")
+        Server.callWithPOST("/lock/", JSON.stringify(S.actBody), function(status, response) { land(); startedJob(status, response, "lock"); });
+    else if (a == "cancel")
     {
-        S.msg = status == 200 ? "Engine released: its memory is back." : (isDefined(response.error) ? "" + response.error : "release refused (" + status + ")");
-        Core.repaint();
-    });
+        Server.callWithPOST("/cancel/" + S.job, "{}", function(status, response)
+        {
+            land();
+            if (status == 200 && isDefined(response.message)) S.msg = "" + response.message;
+            Core.repaint();
+        });
+    }
+    else if (a == "score")
+    {
+        Server.callWithPOST("/score/", JSON.stringify(S.actBody), function(status, response)
+        {
+            land();
+            if (status == 200 && isDefined(response.musicxml)) S.scoreText = "SCORE " + response.musicxml + " (+ .ustx)";
+            else S.scoreText = "SCORE failed: " + (isDefined(response) && isDefined(response.error) ? response.error : status);
+            Qa.repaint();
+        });
+    }
+    else if (a == "release")
+    {
+        Server.callWithPOST("/engine/release", "{}", function(status, response)
+        {
+            land();
+            S.msg = status == 200 ? "Engine released: its memory is back." : (isDefined(response) && isDefined(response.error) ? "" + response.error : "release refused (" + status + ")");
+            Core.repaint();
+        });
+    }
+    else land();
 }
 
 inline function applyQa(q)
@@ -1246,14 +1303,17 @@ inline function takePath(i)
 
 inline function fetchStems()
 {
+    S.needStems = false;
     if (S.job == "") return;
+    fly("stems");
     Server.callWithGET("/stems/" + S.job, {}, function(status, response)
     {
+        land();
         if (status != 200) return;
         if (response.ready == true)
         {
             applyStems(response);
-            if (S.match) conformAll();
+            S.needConform = S.match;
         }
         else if (isDefined(response.fix_accepted) && response.fix_accepted == false)
         {
@@ -1323,28 +1383,44 @@ inline function startServer()
     Core.repaint();
 }
 
-// host tempo (and the plugin's key) to /project/ so conform has a target without the Live bridge
-inline function sendProject()
+// host tempo (and the plugin's key) to /project/ so conform has a target without the Live bridge:
+// only when the tempo or the key really changed
+inline function projectPostDue()
 {
     local bpm = Engine.getHostBpm();
-    if (!S.online || !Engine.isPlugin() || bpm <= 0 || S.projSrc == "live_bridge") return;
-    if (Math.abs(bpm - S.posted) < 0.01) return;
+    if (!S.online || !Engine.isPlugin() || bpm <= 0 || S.projSrc == "live_bridge") return false;
+    return Math.abs(bpm - S.posted) >= 0.01 || projectKeyText() != S.postedKey;
+}
+
+inline function projectKeyText()
+{
+    return KEYS[Math.round(KeyKnob.getValue())] + " " + (Math.round(ScaleKnob.getValue()) == 1 ? "minor" : "major");
+}
+
+inline function postProject()
+{
+    local bpm = Engine.getHostBpm();
     S.posted = bpm;
+    S.postedKey = projectKeyText();
+    fly("post");
     Server.callWithPOST("/project/", JSON.stringify({"bpm": bpm, "key": KEYS[Math.round(KeyKnob.getValue())],
-        "mode": Math.round(ScaleKnob.getValue()) == 1 ? "minor" : "major", "label": "hook lab plugin"}), function(status, response) {});
+        "mode": Math.round(ScaleKnob.getValue()) == 1 ? "minor" : "major", "label": "hook lab plugin"}), function(status, response) { land(); });
 }
 
 // MATCH DAW: stretch and transpose every stem to the project, never blocking (wait: false)
 inline function conformAll()
 {
+    S.needConform = false;
     if (S.stemJob == "" || S.conformId != "") return;
     if (S.projSrc == "none" || S.projBpm <= 0) { S.confText = "MATCH DAW: no project tempo yet (Live bridge or host)"; Core.repaint(); return; }
     S.confText = "MATCHING TO " + Math.round(S.projBpm) + " BPM" + (S.projKeySet ? " " + S.projKey + " " + S.projMode : "") + " ...";
     S.confFor = S.stemJob;
+    fly("conform");
     Server.callWithPOST("/conform/", JSON.stringify({"job": S.stemJob, "stem": "all", "target": "project", "wait": false}), function(status, response)
     {
+        land();
         if (status == 200 && isDefined(response.id)) S.conformId = "" + response.id;
-        else S.confText = "MATCH failed: " + (isDefined(response.error) ? response.error : status);
+        else S.confText = "MATCH failed: " + (isDefined(response) && isDefined(response.error) ? response.error : status);
         Core.repaint();
     });
 }
@@ -1381,89 +1457,116 @@ inline function applyStatus(s)
     if (isDefined(s.qa) && !(isDefined(s.qa.fix_accepted) && s.qa.fix_accepted == false)) applyQa(s.qa);
     if (isDefined(s.timings) && isDefined(s.timings.engine_load_s)) S.timing = "ENGINE LOAD " + Math.round(s.timings.engine_load_s) + " S";
     if (isDefined(s.started) && isDefined(s.finished)) S.timing = S.timing + "  JOB " + Math.round(s.finished - s.started) + " S";
-    if (S.jstate == "done" && S.stemsFor != S.job) fetchStems();
+    if (S.jstate == "done" && S.stemsFor != S.job) S.needStems = true;     // fetched by the clock
 }
 
+inline function pollHealth()
+{
+    fly("health");
+    Server.callWithGET("/health", {}, function(status, h)
+    {
+        land();
+        var on = status == 200 && isDefined(h.ok) && h.ok == true;
+        var warm = on && isDefined(h.engine) && isDefined(h.engine.warm) && h.engine.warm == true;
+        if (on && isDefined(h.memory) && isDefined(h.gate))
+            S.gateText = "MEMORY " + Engine.doubleToString(h.memory.available_gb, 1) + " GB free. The gate waits for " + h.gate.cold_gb + " GB to load the engine (" + h.gate.wait_s + " s at most); close heavy apps if a job sits in MEM WAIT.";
+        if (on != S.online || warm != S.warm)
+        {
+            var first = on && !S.online;
+            S.online = on;
+            S.warm = warm;
+            if (on) S.starting = false;
+            if (!on && !jobBusy()) S.lcd = "OFFLINE";
+            if (on && (S.lcd == "OFFLINE" || S.lcd == "READY")) S.lcd = "READY";
+            if (first) S.needGenres = true;
+            Core.repaint();
+        }
+    });
+}
+
+inline function pollProject()
+{
+    fly("project");
+    Server.callWithGET("/project/", {}, function(status, p)
+    {
+        land();
+        if (status != 200) return;
+        var src = isDefined(p.source) ? "" + p.source : "none";
+        var ks = isDefined(p.key_set) && p.key_set == true;
+        var bpm = isDefined(p.bpm) ? p.bpm : 0;
+        var chg = src != S.projSrc || bpm != S.projBpm || ks != S.projKeySet;
+        S.projSrc = src;
+        S.projBpm = bpm;
+        S.projKeySet = ks;
+        S.projKey = isDefined(p.key) ? "" + p.key : "";
+        S.projMode = isDefined(p.mode) ? "" + p.mode : "";
+        if (S.syncLive && ks)
+        {
+            var ki = KEYS.indexOf(S.projKey.toUpperCase());
+            if (ki >= 0 && Math.round(KeyKnob.getValue()) != ki) { KeyKnob.setValue(ki); chg = true; }
+            var mi = S.projMode == "minor" ? 1 : 0;
+            if (Math.round(ScaleKnob.getValue()) != mi) { ScaleKnob.setValue(mi); chg = true; }
+        }
+        if (chg) Core.repaint();
+    });
+}
+
+inline function pollStatus()
+{
+    fly("status");
+    Server.callWithGET("/status/" + S.job, {}, function(status, s)
+    {
+        land();
+        if (status != 200) return;
+        applyStatus(s);
+        Core.repaint();
+        if (S.expanded) Qa.repaint();
+    });
+}
+
+inline function pollConform()
+{
+    fly("conformpoll");
+    Server.callWithGET("/conform/" + S.conformId, {}, function(status, c)
+    {
+        land();
+        if (status == 200 && isDefined(c.state) && c.state == "running") return;
+        S.conformId = "";
+        if (status == 200 && isDefined(c.state) && c.state == "done" && S.confFor == S.stemJob) applyConform(c);
+        else S.confText = "MATCH failed: " + (isDefined(c) && isDefined(c.error) ? c.error : status);
+        Core.repaint();
+    });
+}
+
+// one request per tick at most, and only when none is in flight. Order: the user's action, the
+// follow-ups callbacks asked for, then a 2 s cycle: health, status, project (or a post), status
 const var Clock = Engine.createTimerObject();
 Clock.setTimerCallback(function()
 {
     S.tick = S.tick + 1;
     if (S.starting || engineText() == "MEM WAIT") Core.repaint();     // blink the engine lamp
     if (S.starting && S.tick - S.startAt > 60) { S.starting = false; S.msg = "Hook Lab did not answer in 30 s. Is Hook Lab.app in Sweet Melody Vocal?"; Core.repaint(); }
-    if (S.tick % 2 == 0)
-    {
-        Server.callWithGET("/health", {}, function(status, h)
-        {
-            var on = status == 200 && isDefined(h.ok) && h.ok == true;
-            var warm = on && isDefined(h.engine) && isDefined(h.engine.warm) && h.engine.warm == true;
-            if (on && isDefined(h.memory) && isDefined(h.gate))
-                S.gateText = "MEMORY " + Engine.doubleToString(h.memory.available_gb, 1) + " GB free. The gate waits for " + h.gate.cold_gb + " GB to load the engine (" + h.gate.wait_s + " s at most); close heavy apps if a job sits in MEM WAIT.";
-            if (on != S.online || warm != S.warm)
-            {
-                var first = on && !S.online;
-                S.online = on;
-                S.warm = warm;
-                if (on) S.starting = false;
-                if (!on && !jobBusy()) S.lcd = "OFFLINE";
-                if (on && (S.lcd == "OFFLINE" || S.lcd == "READY")) S.lcd = "READY";
-                if (first) loadGenres();
-                Core.repaint();
-            }
-        });
-        if (S.online)
-        {
-            Server.callWithGET("/project/", {}, function(status, p)
-            {
-                if (status != 200) return;
-                var src = isDefined(p.source) ? "" + p.source : "none";
-                var ks = isDefined(p.key_set) && p.key_set == true;
-                var bpm = isDefined(p.bpm) ? p.bpm : 0;
-                var chg = src != S.projSrc || bpm != S.projBpm || ks != S.projKeySet;
-                S.projSrc = src;
-                S.projBpm = bpm;
-                S.projKeySet = ks;
-                S.projKey = isDefined(p.key) ? "" + p.key : "";
-                S.projMode = isDefined(p.mode) ? "" + p.mode : "";
-                if (S.syncLive && ks)
-                {
-                    var ki = KEYS.indexOf(S.projKey.toUpperCase());
-                    if (ki >= 0 && Math.round(KeyKnob.getValue()) != ki) { KeyKnob.setValue(ki); chg = true; }
-                    var mi = S.projMode == "minor" ? 1 : 0;
-                    if (Math.round(ScaleKnob.getValue()) != mi) { ScaleKnob.setValue(mi); chg = true; }
-                }
-                if (chg) Core.repaint();
-            });
-            sendProject();
-        }
-    }
-    if (S.online && jobBusy())
-    {
-        Server.callWithGET("/status/" + S.job, {}, function(status, s)
-        {
-            if (status != 200) return;
-            applyStatus(s);
-            Core.repaint();
-            if (S.expanded) Qa.repaint();
-        });
-    }
-    if (S.conformId != "")
-    {
-        Server.callWithGET("/conform/" + S.conformId, {}, function(status, c)
-        {
-            if (status == 200 && isDefined(c.state) && c.state == "running") return;
-            S.conformId = "";
-            if (status == 200 && isDefined(c.state) && c.state == "done" && S.confFor == S.stemJob) applyConform(c);
-            else S.confText = "MATCH failed: " + (isDefined(c.error) ? c.error : status);
-            Core.repaint();
-        });
-    }
+    if (!gateFree()) return;
+    var ph = S.tick % 4;
+    if (S.act != "" && S.online) doAct();
+    else if (S.needStems && S.online) fetchStems();
+    else if (S.needConform && S.online) conformAll();
+    else if (S.needGenres && S.online) loadGenres();
+    else if (ph == 0) pollHealth();
+    else if (!S.online) return;
+    else if (ph == 2) { if (projectPostDue()) postProject(); else pollProject(); }
+    else if (jobBusy()) pollStatus();
+    else if (S.conformId != "") pollConform();
 });
 Clock.startTimer(500);
 
 inline function loadGenres()
 {
+    S.needGenres = false;
+    fly("genres");
     Server.callWithGET("/genres/", {}, function(status, response)
     {
+        land();
         if (status != 200 || !isDefined(response.families)) return;
         var fams = [];
         var i = 0;
@@ -1483,7 +1586,7 @@ inline function loadGenres()
             S.genresFromServer = true;
             FamilyKnob.set("max", fams.length - 1);
             if (keep.length != 2 || !selectGenreById(keep[0], keep[1]))
-                {
+            {
                 var dft = response["default"];          // `default` is a keyword: no dot access
                 selectGenreById(isDefined(dft) ? "" + dft.family : fams[0].id, isDefined(dft) ? "" + dft.genre : "");
             }
@@ -1537,6 +1640,20 @@ inline function selfTest()
     applyStatus({"state": "running", "stage": "memory", "pct": 1, "lcd": "MEM WAIT 1%", "message": "waiting for memory: close heavy apps"});
     S.online = true;
     if (S.lcd != "MEM WAIT 1%" || engineText() != "MEM WAIT" || S.msg.indexOf("heavy apps") < 0) { ok = false; Console.print("HL selftest MEM WAIT"); }
+    // request gate: one call at a time, follow-ups queued, never sent from a callback
+    S.job = "gatejob";
+    S.stemsFor = "";
+    applyStatus({"state": "done", "lcd": "DONE"});
+    fly("status");
+    if (gateFree() || !S.needStems) { ok = false; Console.print("HL selftest gate fly / needStems"); }
+    land();
+    if (!gateFree()) { ok = false; Console.print("HL selftest gate land"); }
+    S.tick = S.tick + 100;
+    fly("health");
+    S.tick = S.tick + 31;
+    if (!gateFree()) { ok = false; Console.print("HL selftest gate stale guard"); }
+    land();
+    S.needStems = false;
     S.online = false;
     clearResults();
     S.job = "";

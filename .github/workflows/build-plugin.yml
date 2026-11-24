@@ -300,11 +300,15 @@ jobs:
           cd "$HL_DIR/Binaries"
           chmod +x batchCompileOSX
           sed -i '' 's/ | xcpretty//' batchCompileOSX
+          # a dSYM next to the (still stripped) plug-in, so a crash report symbolicates with atos
+          sed -i '' -E 's/(-jobs "[0-9]+")/\1 GCC_GENERATE_DEBUGGING_SYMBOLS=YES DEBUG_INFORMATION_FORMAT=dwarf-with-dsym/' batchCompileOSX
+          grep -q "dwarf-with-dsym" batchCompileOSX || echo "WARNING: dSYM flags not added to batchCompileOSX"
           if ! ./batchCompileOSX > xcodebuild.log 2>&1; then
             grep -E "error:|fatal error|Undefined symbols" -A 4 xcodebuild.log | head -80
             tail -20 xcodebuild.log
             exit 1
           fi
+          find "$HL_DIR/Binaries" -name "*.dSYM" -type d -maxdepth 6 | head -5
           AU="$(find "$HL_DIR/Binaries" -name 'Hook Lab.component' -type d | head -1)"
           ditto "$AU" "$HOME/Library/Audio/Plug-Ins/Components/Hook Lab.component"
           killall -9 AudioComponentRegistrar 2>/dev/null || true
@@ -321,6 +325,15 @@ jobs:
           path: |
             hise_project/HookLab/Binaries/**/*.vst3
             hise_project/HookLab/Binaries/**/*.component
+          if-no-files-found: warn
+
+      - name: Upload Hook Lab debug symbols (dSYM)
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: HookLab-macOS-dSYM
+          path: hise_project/HookLab/Binaries/**/*.dSYM
           if-no-files-found: warn
 
   build_macos_standalone:
