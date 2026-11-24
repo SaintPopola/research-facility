@@ -16,7 +16,7 @@
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="2" FileName="{PROJECT_FOLDER}SIG_low_tide_fm_pad_44.wav" Root="44" HiKey="45"
           LoKey="42" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
-          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="480000"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="576000"
           SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>

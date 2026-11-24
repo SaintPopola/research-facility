@@ -52,37 +52,37 @@
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="8" FileName="{PROJECT_FOLDER}SIG_half_speed_keys_60_v1.wav" Root="60" HiKey="62"
           LoKey="57" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
-          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="216000"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="347520"
           SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="9" FileName="{PROJECT_FOLDER}SIG_half_speed_keys_60_v2.wav" Root="60" HiKey="62"
           LoKey="57" LoVel="85" HiVel="127" RRGroup="1" Volume="0" Pan="0"
-          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="216000"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="347520"
           SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="10" FileName="{PROJECT_FOLDER}SIG_half_speed_keys_66_v1.wav" Root="66" HiKey="68"
           LoKey="63" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
-          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="216000"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="320160"
           SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="11" FileName="{PROJECT_FOLDER}SIG_half_speed_keys_66_v2.wav" Root="66" HiKey="68"
           LoKey="63" LoVel="85" HiVel="127" RRGroup="1" Volume="0" Pan="0"
-          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="216000"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="320160"
           SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="12" FileName="{PROJECT_FOLDER}SIG_half_speed_keys_72_v1.wav" Root="72" HiKey="74"
           LoKey="69" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
-          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="216000"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="290880"
           SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="13" FileName="{PROJECT_FOLDER}SIG_half_speed_keys_72_v2.wav" Root="72" HiKey="74"
           LoKey="69" LoVel="85" HiVel="127" RRGroup="1" Volume="0" Pan="0"
-          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="216000"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="290880"
           SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
