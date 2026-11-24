@@ -213,9 +213,11 @@ def dc_block(x, hz=5.0):
     return lfilter([1.0, -1.0], [1.0, -rr], x)
 
 
-def wow(n, depth_cents=6.0, rate=0.55, flutter_cents=1.5, rng=None):
-    """Tape wow + flutter multiplier."""
-    t = tvec(n)
+def wow(n, depth_cents=6.0, rate=0.55, flutter_cents=1.5, rng=None, t0=0.0):
+    """Tape wow + flutter multiplier. t0: where this note starts on the tape (seconds). In a loop
+    every note read the same wow from its own start, so short notes all sat at one offset
+    (organ -10..-12 c, flute +7..+10 c); with t0 they read one running wow (docs/30 j)."""
+    t = tvec(n) + t0
     ph = rng.uniform(0, 2 * np.pi) if rng is not None else 0.0
     c = depth_cents * np.sin(2 * np.pi * rate * t + ph) + \
         flutter_cents * np.sin(2 * np.pi * 7.3 * t + 1.3 * ph)
@@ -314,7 +316,7 @@ def gen_tine_ep(note, n, p, rng):
     idx = bark * (0.35 + 0.65 * np.exp(-t / (0.08 + 0.10 * (1 - reg))))
     # np.ones, not the scalar 1.0: cumsum of a scalar is ONE sample, which froze the phase and turned
     # every no-wow tine preset into a pitchless FM thump (fundamental measured at -79 dB)
-    mult = wow(n, p.get("wow", 0.0), rate=p.get("wow_rate", 0.55), rng=wrng(p, rng)) if p.get("wow", 0.0) > 0 else np.ones(n)
+    mult = wow(n, p.get("wow", 0.0), rate=p.get("wow_rate", 0.55), rng=wrng(p, rng), t0=p.get("_wt0", 0.0)) if p.get("wow", 0.0) > 0 else np.ones(n)
     ph = np.cumsum(f0 * mult) / SR
     mod = np.sin(2 * np.pi * ph * 1.0 + 0.3)
     car = np.sin(2 * np.pi * ph + idx * mod)
@@ -383,7 +385,7 @@ def gen_felt_piano(note, n, p, rng):
         r = lp24(r, p["lp"] * (0.7 + 0.6 * reg))
     if p.get("wow", 0) > 0:
         # apply wow by resampling read positions
-        m = wow(n, p["wow"], rate=p.get("wow_rate", 0.55), rng=wrng(p, rng))
+        m = wow(n, p["wow"], rate=p.get("wow_rate", 0.55), rng=wrng(p, rng), t0=p.get("_wt0", 0.0))
         pos = np.cumsum(m) - m[0]
         pos = np.clip(pos, 0, n - 1)
         l = np.interp(pos, np.arange(n), l)
@@ -397,7 +399,7 @@ def gen_reed_ep(note, n, p, rng):
     t = tvec(n)
     reg = np.clip((note - 36) / 60.0, 0, 1)
     amp = env_exp(n, p.get("t60", 3.0) * (1.2 - 0.6 * reg), a=0.002)
-    m = wow(n, p.get("wow", 0.0), rng=wrng(p, rng)) if p.get("wow", 0) > 0 else np.ones(n)
+    m = wow(n, p.get("wow", 0.0), rng=wrng(p, rng), t0=p.get("_wt0", 0.0)) if p.get("wow", 0) > 0 else np.ones(n)
     fr = f0 * m
     x = 0.6 * np.sin(2 * np.pi * np.cumsum(fr) / SR) + 0.45 * pulse(fr, 0.42)
     bite = 1.0 + 2.5 * np.exp(-t / 0.06)
@@ -412,7 +414,7 @@ def gen_organ(note, n, p, rng):
     """Soft drawbar organ: sine harmonics 16'-8'-4'-2 2/3', key click, wow."""
     f0 = mtof(note)
     t = tvec(n)
-    m = wow(n, p.get("wow", 4.0), rng=wrng(p, rng))
+    m = wow(n, p.get("wow", 4.0), rng=wrng(p, rng), t0=p.get("_wt0", 0.0))
     ph = np.cumsum(f0 * m) / SR
     bars = p.get("bars", [(0.5, 0.6), (1.0, 1.0), (2.0, 0.5), (3.0, 0.3), (4.0, 0.18)])
     x = np.zeros(n)
@@ -627,7 +629,7 @@ def gen_modal(note, n, p, rng):
         l = lp24(l, p["lp"] * (0.7 + 0.6 * reg))
         r = lp24(r, p["lp"] * (0.7 + 0.6 * reg))
     if p.get("wow", 0) > 0:
-        m = wow(n, p["wow"], rng=wrng(p, rng))
+        m = wow(n, p["wow"], rng=wrng(p, rng), t0=p.get("_wt0", 0.0))
         pos = np.clip(np.cumsum(m) - m[0], 0, n - 1)
         l = np.interp(pos, np.arange(n), l)
         r = np.interp(pos, np.arange(n), r)
@@ -1462,7 +1464,7 @@ def gen_divide_down(note, n, p, rng):
     two-formant vowel. Velocity-insensitive by design."""
     f0 = mtof(note)
     t = tvec(n)
-    m = wow(n, p.get("wow", 0.0), rng=wrng(p, rng)) if p.get("wow", 0) else np.ones(n)
+    m = wow(n, p.get("wow", 0.0), rng=wrng(p, rng), t0=p.get("_wt0", 0.0)) if p.get("wow", 0) else np.ones(n)
     master = np.cumsum(f0 * m) / SR                 # cycles of the 8' pitch
     x = np.zeros(n)
     for feet, lvl in p.get("footages", [[8, 1.0]]):

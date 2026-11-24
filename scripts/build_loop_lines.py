@@ -315,7 +315,8 @@ def render_loop(kit, lane, take):
         hold_s = length * spb
         dur = min(hold_s + rel + 0.15, 8.5)
         n = int(dur * SR)
-        gp = soft_gp if vel < 80 else p["gp"]          # quiet notes are darker, not only quieter
+        gp = dict(soft_gp if vel < 80 else p["gp"])    # quiet notes are darker, not only quieter
+        gp["_wt0"] = start * spb                        # one running tape wow across the loop (docs/30 j)
         detune = float(rng.normal(0.0, 0.03))           # about 3 cents
         l, r = bank.render_voice(p, gp, note + detune, n, rng)
         env = note_env(n, int(hold_s * SR), atk, rel)
