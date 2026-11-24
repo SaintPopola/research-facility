@@ -10,19 +10,19 @@
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="1" FileName="{PROJECT_FOLDER}SIG_lg_basement_drop_39.wav" Root="39" HiKey="40"
           LoKey="38" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
-          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="576000"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="312000"
           SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="2" FileName="{PROJECT_FOLDER}SIG_lg_basement_drop_42.wav" Root="42" HiKey="43"
           LoKey="41" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
-          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="576000"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="312000"
           SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="3" FileName="{PROJECT_FOLDER}SIG_lg_basement_drop_45.wav" Root="45" HiKey="46"
           LoKey="44" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
-          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="576000"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="312000"
           SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
@@ -46,25 +46,25 @@
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="7" FileName="{PROJECT_FOLDER}SIG_lg_basement_drop_57.wav" Root="57" HiKey="58"
           LoKey="56" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
-          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="576000"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="312000"
           SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="8" FileName="{PROJECT_FOLDER}SIG_lg_basement_drop_60.wav" Root="60" HiKey="61"
           LoKey="59" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
-          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="576000"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="312000"
           SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="9" FileName="{PROJECT_FOLDER}SIG_lg_basement_drop_63.wav" Root="63" HiKey="64"
           LoKey="62" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
-          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="576000"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="312000"
           SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="10" FileName="{PROJECT_FOLDER}SIG_lg_basement_drop_66.wav" Root="66" HiKey="67"
           LoKey="65" LoVel="0" HiVel="127" RRGroup="1" Volume="0" Pan="0"
-          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="312000"
+          Normalized="0" Pitch="0" SampleStart="0" SampleEnd="492000"
           SampleStartMod="0" LoopStart="0" LoopEnd="0" LoopXFade="0" LoopEnabled="0"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>

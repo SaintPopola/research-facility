@@ -5,7 +5,7 @@
   <sample ID="0" FileName="{PROJECT_FOLDER}SIG_three_wire_mono_36_v1.wav" Root="36" HiKey="37"
           LoKey="0" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="168000"
-          SampleStartMod="0" LoopStart="48000" LoopEnd="165144" LoopXFade="16800" LoopEnabled="1"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="165142" LoopXFade="16800" LoopEnabled="1"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="1" FileName="{PROJECT_FOLDER}SIG_three_wire_mono_36_v2.wav" Root="36" HiKey="37"
@@ -17,7 +17,7 @@
   <sample ID="2" FileName="{PROJECT_FOLDER}SIG_three_wire_mono_39_v1.wav" Root="39" HiKey="40"
           LoKey="38" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="168000"
-          SampleStartMod="0" LoopStart="48000" LoopEnd="156953" LoopXFade="16800" LoopEnabled="1"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="155720" LoopXFade="16800" LoopEnabled="1"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="3" FileName="{PROJECT_FOLDER}SIG_three_wire_mono_39_v2.wav" Root="39" HiKey="40"
@@ -29,7 +29,7 @@
   <sample ID="4" FileName="{PROJECT_FOLDER}SIG_three_wire_mono_42_v1.wav" Root="42" HiKey="43"
           LoKey="41" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="168000"
-          SampleStartMod="0" LoopStart="48000" LoopEnd="160358" LoopXFade="16800" LoopEnabled="1"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="160359" LoopXFade="16800" LoopEnabled="1"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="5" FileName="{PROJECT_FOLDER}SIG_three_wire_mono_42_v2.wav" Root="42" HiKey="43"
@@ -53,7 +53,7 @@
   <sample ID="8" FileName="{PROJECT_FOLDER}SIG_three_wire_mono_48_v1.wav" Root="48" HiKey="49"
           LoKey="47" LoVel="0" HiVel="84" RRGroup="1" Volume="0" Pan="0"
           Normalized="0" Pitch="0" SampleStart="0" SampleEnd="168000"
-          SampleStartMod="0" LoopStart="48000" LoopEnd="158763" LoopXFade="16800" LoopEnabled="1"
+          SampleStartMod="0" LoopStart="48000" LoopEnd="158762" LoopXFade="16800" LoopEnabled="1"
           LowerVelocityXFade="0" UpperVelocityXFade="0" SampleState="0"
           NormalizedPeak="-1" Duplicate="0"/>
   <sample ID="9" FileName="{PROJECT_FOLDER}SIG_three_wire_mono_48_v2.wav" Root="48" HiKey="49"
