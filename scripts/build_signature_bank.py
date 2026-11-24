@@ -1015,6 +1015,18 @@ def decay_end(l, r, floor_db=-60.0):
 
 
 ONESHOT_CAP_S = 12.0
+HELD_SLOPE_DBPS = -1.0      # a tail falling slower than this is a held tone (docs/30 i)
+
+
+def decay_slope(l, r, i0, i1):
+    """dB per second of the 100 ms RMS envelope between samples i0 and i1 (least squares)."""
+    e = (l[i0:i1].astype(np.float64) ** 2 + r[i0:i1].astype(np.float64) ** 2) * 0.5
+    blk = int(0.1 * SR)
+    nb_ = len(e) // blk
+    if nb_ < 3:
+        return 0.0
+    db = 10.0 * np.log10(e[: nb_ * blk].reshape(nb_, blk).mean(axis=1) + 1e-20)
+    return float(np.polyfit(np.arange(nb_) * 0.1, db, 1)[0])
 
 
 def zone_render(p, gp, note, n_base, rng_seed):
@@ -1022,8 +1034,9 @@ def zone_render(p, gp, note, n_base, rng_seed):
     If the tail is above -40 dB, render up to max(2 x dur, 1.3 x t60) (cap 12 s) and keep it
     only if the sound really decays there (a held tone stays at dur); end at -60 dB."""
     l, r = render_voice(p, gp, note, n_base, np.random.default_rng(rng_seed))
-    # flagships render to the floor (docs/27 bar 7): extend while the tail is above -54 dB
-    thr = -54.0 if "flagship" in p["tags"] else -40.0
+    # flagships render to the floor (docs/27 bar 7): extend while the tail is above -54 dB; the rest
+    # above -50 dB (docs/30 i: at -40, felt pianos ending at -42..-53 dB were never extended)
+    thr = -54.0 if "flagship" in p["tags"] else -50.0
     # generators that size their own takes (flagship_dsp.F_DUR) already end at the floor
     if p["loop"] or p["gen"] in fdsp.F_DUR or tail_db(l, r) < thr:
         return l, r
@@ -1032,8 +1045,25 @@ def zone_render(p, gp, note, n_base, rng_seed):
     if n_cap <= n_base:
         return l, r
     l2, r2 = render_voice(p, gp, note, n_cap, np.random.default_rng(rng_seed))
-    if tail_db(l2, r2) > tail_db(l, r) - 12.0:        # not decaying: a held tone, keep the original
+    # held or decaying, by the slope of the long render's tail (docs/30 i): the old test (the long
+    # tail at least 12 dB under the short one) read a 2-4 dB/s felt aftersound as a held tone and
+    # cut six pianos while still above -50 dBFS
+    slope = decay_slope(l2, r2, n_base // 2, n_cap - int(0.05 * SR))
+    if slope > HELD_SLOPE_DBPS:
         return l, r
+    # a slow decay still above the floor: render to where its slope says it reaches -60 dB, again
+    # while it is still above (a two-stage decay slows down), up to 12 s
+    n_cur = n_cap
+    for _ in range(3):
+        td = tail_db(l2, r2)
+        if td <= -54.0 or n_cur >= int(ONESHOT_CAP_S * SR):
+            break
+        sl = min(decay_slope(l2, r2, n_cur // 2, n_cur - int(0.05 * SR)), -0.5)
+        n3 = int(min(ONESHOT_CAP_S, n_cur / SR + (td + 60.0) / -sl) * SR)
+        if n3 <= n_cur:
+            break
+        n_cur = n3
+        l2, r2 = render_voice(p, gp, note, n_cur, np.random.default_rng(rng_seed))
     end = max(n_base // 2, decay_end(l2, r2))
     return l2[:end], r2[:end]
 
