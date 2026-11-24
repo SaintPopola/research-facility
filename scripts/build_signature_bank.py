@@ -924,6 +924,23 @@ STAGES = {"decim": _st_decim, "bbd": dsp.bbd_stage, "ensemble": dsp.ensemble_sta
 DEFAULT_STAGES = ["decim", "bbd", "ensemble", "tape", "vnd", "reverse"]   # chorus before tape; width last
 
 
+BASS_MONO_HZ = 150.0
+
+
+def bass_mono(l, r, hz=BASS_MONO_HZ):
+    """Mono below hz (the docs/27 bass-mono rule, bank-wide; docs/30 k): the side signal loses
+    its low band through a zero-phase 2nd-order low-pass subtracted from it, so the mid and
+    everything above hz are untouched. Two-voice stacks panned wide with random start phases
+    cancelled in mono (night_pluck_arp -5.7 dB fold, varispeed_saint_chop low-band corr -0.96)."""
+    if len(l) < 64 or float(np.max(np.abs(l - r))) < 1e-9:
+        return l, r
+    from scipy.signal import butter, sosfiltfilt
+    m = (l + r) * 0.5
+    s = (l - r) * 0.5
+    s = s - sosfiltfilt(butter(2, hz / (SR / 2.0), output="sos"), s)
+    return m + s, m - s
+
+
 def render_voice(p, gp, note, n, rng):
     """One zone/layer. gp['slow'] < 1 renders a slowed-tape take that stays in
     tune: render higher and shorter, then stretch back (pitch, envelopes and
@@ -963,6 +980,7 @@ def render_voice(p, gp, note, n, rng):
             l, r = STAGES[stage](l, r, gp, rng)
     l = post_eq(np.nan_to_num(l), gp)
     r = post_eq(np.nan_to_num(r), gp)
+    l, r = bass_mono(l, r)
     # doc 25 B7: subtracting the mean stepped sample 0 to -mean (5-24% of peak on 16 presets);
     # a 5 Hz DC blocker from zero state removes the offset with no onset step
     return dsp.dc_block(l), dsp.dc_block(r)
