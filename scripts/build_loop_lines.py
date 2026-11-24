@@ -22,6 +22,7 @@ import re
 import sys
 from pathlib import Path
 
+import numba as nb
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -163,7 +164,9 @@ def kit_events(kit, lane, take):
 
 # lane loudness in K-weighted, gated LUFS (ITU-R BS.1770): sparse lanes are measured on the
 # notes, not on the silence between them, so they are no longer pushed into the soft knee
-LANE_LUFS = {"KEYS": -12.5, "BASS": -13.5, "PLUCK": -14.0, "AIR": -16.0}   # by ear later; old loops sat near -13 dBFS RMS
+# docs/30 g: 3 dB under the first targets: four lanes summed clipped the plug-in output in 15 kits
+# (worst +2.9 dBFS)
+LANE_LUFS = {"KEYS": -15.5, "BASS": -16.5, "PLUCK": -17.0, "AIR": -19.0}
 _K1 = ([1.53512485958697, -2.69169618940638, 1.19839281085285], [1.0, -1.69065929318241, 0.73248077421585])
 _K2 = ([1.0, -2.0, 1.0], [1.0, -1.99004745483398, 0.99007225036621])
 
@@ -327,9 +330,7 @@ def render_loop(kit, lane, take):
     loop_l, loop_r = voice_lane(p, loop_l, loop_r, n_loop, vrng)
     # HISE's time-stretch output is x0.5 (doc 15), hence the hot targets
     gain = 10 ** ((LANE_LUFS[lane] - lufs(loop_l, loop_r)) / 20.0)
-    pk = max(float(np.abs(loop_l).max()), float(np.abs(loop_r).max()), 1e-9)
-    gain = min(gain, 1.25 / pk)                   # peaks at most ~2 dB into the knee: sparse plucks stay clean
-    out_l, out_r = soft_knee(loop_l * gain), soft_knee(loop_r * gain)
+    out_l, out_r = loop_limit(loop_l * gain, loop_r * gain)
     # a floor of soft hiss: the loop never drops to digital silence
     frng = np.random.default_rng(bank.seed_for(f"{kit['id']}:{lane}:{take}:floor", 0))
     fl = 10 ** (FLOOR_DBFS / 20.0)
@@ -337,6 +338,35 @@ def render_loop(kit, lane, take):
         hiss = dsp.svf(frng.standard_normal(n_loop), 5000.0, 0.6, 0)
         ch += hiss / (float(np.std(hiss)) + 1e-12) * fl
     return out_l, out_r
+
+
+@nb.njit(cache=True)
+def _release(need, coef):
+    """Instant attack, exponential release toward the needed gain."""
+    g = np.empty_like(need)
+    cur = 1.0
+    for i in range(need.shape[0]):
+        x = need[i]
+        cur = x if x < cur else x + (cur - x) * coef
+        g[i] = cur
+    return g
+
+
+def loop_limit(l, r, ceil=0.89, look_ms=1.5, rel_ms=60.0):
+    """Peak limiter for a loop (docs/30 g): the gain each sample needs to stay under ceil (stereo
+    peak), held over +/-look_ms (look-ahead, so the gain is already down when the peak arrives)
+    and released over rel_ms. Run over three copies so the seam is in steady state; the middle
+    copy is returned. Replaces the old min(gain, 1.25 / peak) cap, which left peaky takes up to
+    5.9 dB under their loudness target."""
+    from scipy.ndimage import minimum_filter1d
+    n = len(l)
+    L = np.concatenate([l, l, l])
+    R = np.concatenate([r, r, r])
+    need = np.minimum(1.0, ceil / np.maximum(np.maximum(np.abs(L), np.abs(R)), 1e-12))
+    la = max(1, int(look_ms * 1e-3 * SR))
+    need = minimum_filter1d(need, size=2 * la + 1)
+    g = _release(need, math.exp(-1.0 / (rel_ms * 1e-3 * SR)))[n: 2 * n]
+    return l * g, r * g
 
 
 def soft_knee(x, knee=0.5, ceil=0.95):
