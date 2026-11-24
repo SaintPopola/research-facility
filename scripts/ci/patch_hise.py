@@ -204,6 +204,19 @@ SS_NEW = b"""	// """ + SS_MARK + b""": one integer sample count everywhere, floa
 """
 
 
+# --- HISE: the Server request queue is touched by two threads with no lock --------------
+# GlobalServer::addPendingCallback (Server.callWithGET / callWithPOST, run on the scripting
+# thread: script callbacks are dispatched there by WeakCallbackHolder::call) adds to
+# pendingCallbacks while the Server Thread runs `while (auto job = pendingCallbacks
+# .removeAndReturn(0))`. It is a plain ReferenceCountedArray (DummyCriticalSection); queueLock
+# only guards downloads. A reallocation during the remove left stale pointers: Hook Lab crashed
+# Live with SIGSEGV at 0x0 on "Server Thread" and with heap corruption (nanov2 guard) on
+# 2026-11-24. The array now carries its own CriticalSection, so add / removeAndReturn / insert lock.
+GS_MARK = b"Sweet Melody patch: locked server queue"
+GS_OLD = b"""		ReferenceCountedArray<PendingCallback> pendingCallbacks;"""
+GS_NEW = b"""		ReferenceCountedArray<PendingCallback, CriticalSection> pendingCallbacks; // """ + GS_MARK
+
+
 def patch(path: Path, pairs) -> None:
     data = path.read_bytes()
     for old, new, label in pairs:
@@ -215,6 +228,7 @@ def patch(path: Path, pairs) -> None:
 
 
 TARGETS = ["hi_streaming/hi_streaming/StreamingSamplerVoice.cpp",
+           "hi_scripting/scripting/api/GlobalServer.h",
            "hi_core/hi_components/floating_layout/FloatingTile.cpp",
            "hi_core/hi_components/keyboard/CustomKeyboard.h",
            "hi_core/hi_components/keyboard/CustomKeyboard.cpp",
@@ -257,6 +271,11 @@ def main() -> int:
     if pristine or SS_MARK not in ss.read_bytes():
         patch(ss, [(SS_OLD, SS_NEW, "skipTimestretchSilenceAtStart")])
         print("patch_hise: stretch start fixed in", ss.name)
+
+    gs = root / "hi_scripting" / "scripting" / "api" / "GlobalServer.h"
+    if pristine or GS_MARK not in gs.read_bytes():
+        patch(gs, [(GS_OLD, GS_NEW, "pendingCallbacks lock")])
+        print("patch_hise: server queue locked in", gs.name)
 
     kh = root / "hi_core" / "hi_components" / "keyboard" / "CustomKeyboard.h"
     kc = root / "hi_core" / "hi_components" / "keyboard" / "CustomKeyboard.cpp"
