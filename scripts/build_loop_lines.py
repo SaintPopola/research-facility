@@ -262,6 +262,12 @@ def voice_lane(p, l, r, n_loop, rng):
         tn = float(np.clip((math.log(tone) - 4.38) / 5.52, 0.0, 1.0))
         L, R = dsp.juce_reverb(L, R, 0.45 + space * 0.5, 0.75 + (0.25 - 0.75) * tn, space * 0.55, dry=0.9,
                                width=min(1.0, 0.4 + width * 0.6))
+    # 22 Hz 2nd-order high-pass per lane (docs/30 l): GRIT and pulse lanes carried DC at -28..-33
+    # dBFS. Run over the repeated loops, so the kept copy is in steady state at the seam.
+    from scipy.signal import butter, sosfilt
+    hp22 = butter(2, 22.0 / (SR / 2.0), btype="highpass", output="sos")
+    L = sosfilt(hp22, L)
+    R = sosfilt(hp22, R)
     return L[-n_loop:], R[-n_loop:]
 
 
