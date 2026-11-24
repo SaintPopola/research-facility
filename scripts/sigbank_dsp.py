@@ -192,6 +192,13 @@ def drift(n, rng, cents=3.0, rate=0.25):
     return 2.0 ** (c / 1200.0)
 
 
+def sub_fade(f):
+    """Gain for an oscillator or mode at f Hz: 1 above 30 Hz, fading to 0 at 20 Hz, as moog_core
+    does (docs/30 G): a sub-octave on the root-24/27 zones landed at 16-19 Hz, and the per-zone
+    gain counted that subsonic energy, turning the audible note down."""
+    return float(np.clip((f - 20.0) / 10.0, 0.0, 1.0))
+
+
 def wrng(p, rng):
     """Random source for wow / tape speed (doc 25 B9 wow_lock): one phase per PRESET, so the
     notes of a chord drift together like one tape instead of apart."""
@@ -458,7 +465,7 @@ def gen_supersaw(note, n, p, rng):
     l /= math.sqrt(v)
     r /= math.sqrt(v)
     if p.get("sub", 0) > 0:
-        s = np.sin(2 * np.pi * f0 * 0.5 * t) * p["sub"]
+        s = np.sin(2 * np.pi * f0 * 0.5 * t) * p["sub"] * sub_fade(f0 * 0.5)
         l += s
         r += s
     if p.get("noise", 0) > 0:
@@ -553,6 +560,9 @@ def gen_modal(note, n, p, rng):
     for ratio, amp, t60s in modes:
         f = f0 * ratio
         if f > SR * 0.45:
+            continue
+        amp = amp * sub_fade(f)              # a 0.5 mode on a low root sits at 16-19 Hz (docs/30 G)
+        if amp <= 0.0:
             continue
         if pm is not None:
             # one sine per mode, panned at equal power (mono-safe, doc 25 B8)
@@ -1145,7 +1155,7 @@ def gen_ladder(note, n, p, rng):
         L /= math.sqrt(voices) * 0.7071
         R /= math.sqrt(voices) * 0.7071
         if p.get("sub", 0) > 0:
-            sub = _pulse_blep(f0 * 0.5 / os_ * np.ones(no), 0.5, 0.0) * p["sub"]
+            sub = _pulse_blep(f0 * 0.5 / os_ * np.ones(no), 0.5, 0.0) * p["sub"] * sub_fade(f0 * 0.5)
             L += sub
             R += sub
         if p.get("noise", 0) > 0:
