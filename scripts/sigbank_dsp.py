@@ -730,11 +730,17 @@ def gen_voice(note, n, p, rng):
     cyc = p.get("_loop") if p.get("vowel_cycle", len(vowels) > 1 and vowels[0] == vowels[-1]) else None
     l = np.zeros(n)
     r = np.zeros(n)
+    # each singer's pitch offset, drawn first and centred: the ensemble average now sits on the
+    # note (docs/30 D: uncentred scatter put whole zones -11..+16 c (strip_choir), -18..+11 c (cave_chant))
+    if singers == 1:
+        dets = np.zeros(1)
+    elif pscat > 0:
+        dets = rng.normal(0.0, pscat, singers)
+    else:
+        dets = rng.uniform(-p.get("spread_c", 12), p.get("spread_c", 12), singers)
+    dets = dets - float(np.mean(dets))
     for s in range(singers):
-        if pscat > 0:
-            det = rng.normal(0.0, pscat)
-        else:
-            det = 0.0 if singers == 1 else rng.uniform(-p.get("spread_c", 12), p.get("spread_c", 12))
+        det = float(dets[s])
         vib_on = np.clip((t - p.get("vib_delay", 0.35)) / 0.6, 0, 1)
         vib = p.get("vib_c", 18.0) * vib_on * np.sin(2 * np.pi * rng.uniform(4.8, 5.6) * t + rng.uniform(0, 6.28))
         jit = drift(n, rng, p.get("jitter_c", 4.0), rng.uniform(1.5, 3.0))
