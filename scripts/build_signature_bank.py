@@ -928,16 +928,16 @@ BASS_MONO_HZ = 150.0
 
 
 def bass_mono(l, r, hz=BASS_MONO_HZ):
-    """Mono below hz (the docs/27 bass-mono rule, bank-wide; docs/30 k): the side signal loses
-    its low band through a zero-phase 2nd-order low-pass subtracted from it, so the mid and
-    everything above hz are untouched. Two-voice stacks panned wide with random start phases
-    cancelled in mono (night_pluck_arp -5.7 dB fold, varispeed_saint_chop low-band corr -0.96)."""
+    """Mono below hz (the docs/27 bass-mono rule, bank-wide; docs/30 k): a causal 2nd-order
+    high-pass on the side signal only, so the mid (the mono sum) is untouched. Two-voice stacks
+    panned wide with random start phases cancelled in mono (night_pluck_arp -5.7 dB fold,
+    varispeed_saint_chop low-band corr -0.96). Causal on purpose: a zero-phase filter smeared the
+    side's low band to before the onset (first sample up to 0.07 FS, render QA)."""
     if len(l) < 64 or float(np.max(np.abs(l - r))) < 1e-9:
         return l, r
-    from scipy.signal import butter, sosfiltfilt
+    from scipy.signal import butter, sosfilt
     m = (l + r) * 0.5
-    s = (l - r) * 0.5
-    s = s - sosfiltfilt(butter(2, hz / (SR / 2.0), output="sos"), s)
+    s = sosfilt(butter(2, hz / (SR / 2.0), btype="highpass", output="sos"), (l - r) * 0.5)
     return m + s, m - s
 
 
