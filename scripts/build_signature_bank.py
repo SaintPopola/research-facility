@@ -1242,6 +1242,14 @@ def render_preset_multi(p) -> list[dict]:
                 l, r = zone_render(p, gpr, note, n_note, seed)
                 takes.append((li, rk, l, r))
         nz = min(len(t[2]) for t in takes)
+        if rrs > 1:
+            # each round robin level-matched to RR 1 of its own layer (docs/30 m): with one shared
+            # gain, glasgow_forks RR 2 sat a median 2.0 dB over RR 1 and repeated notes alternated
+            # loud and soft. The speed spread that keeps the RRs distinct stays.
+            ref = {li: loud400(l, r) for li, rk, l, r in takes if rk == 0}
+            takes = [(li, rk, l, r) if rk == 0 else
+                     (li, rk, l * (ref[li] / max(loud400(l, r), 1e-9)), r * (ref[li] / max(loud400(l, r), 1e-9)))
+                     for li, rk, l, r in takes]
         sc = p["gp"].get("layer_db_scale")
         if sc is not None and layers > 1:
             # keep each layer's timbre, shrink its level step to the top layer (dB x sc): a
