@@ -2915,7 +2915,7 @@ Content.setPropertiesFromJSON("ToneKnob", {"min": 80, "max": 20000, "mode": "Fre
 for (mk = 1; mk < 8; mk++)
 {
     Content.setPropertiesFromJSON(MACRO_IDS[mk], {"min": 0.0, "max": 1.0, "mode": "NormalizedPercentage",
-        "stepSize": 0.01, "defaultValue": 0.0});
+        "stepSize": 0.001, "defaultValue": 0.0});       // DAW audit 8: 1% stairs on automated macros
 }
 for (mk = 0; mk < 8; mk++)
 {
