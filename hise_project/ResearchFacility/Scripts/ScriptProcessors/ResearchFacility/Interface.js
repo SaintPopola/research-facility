@@ -225,7 +225,7 @@ const var S = {
     "lastNote": -1, "lastVel": 0, "quiet": 0, "tick": 0,
     "lvlL": 0.0, "lvlR": 0.0, "voices": 0, "cpu": 0.0,
     "strumNote": -1, "orbPhase": 0.0, "orbFrame": 0,
-    "mode": 0, "kit": 0, "loopQ": -1, "shift": 0, "playShift": 0,
+    "mode": 0, "kit": 0, "loopQ": -1, "loopQBase": -1, "shift": 0, "playShift": 0,
     "page": 0, "trim": 0.0, "vfIdle": true, "kitTop": 0, "lastLpCut": 0, "fullPreload": false, "latch": false, "latchSeen": 0, "lfx": [20000, 0.08, 0.0, 5, 60], "uiReady": false, "undo": 0, "snapA": 0, "snapB": 0, "ab": "A", "noSnap": false, "macVel": 110, "shiftKeep": 0,
     "cutConn": 0, "modSrc": 0, "histPos": 0, "connDrag": -1, "connFrac0": 0.0,
     "focusTries": 0, "lastPaint": 0.0, "dragSrc": -1, "dragging": false
@@ -689,6 +689,12 @@ inline function applyFeel()
     local q = base;
     if (r > 1.45) q = base * 2;
     if (r < 0.7) q = base / 2;
+    // DAW audit 6: the half / double feel changes only while the host is stopped. A switch calls
+    // setTimestretchOptions, which kills every loop voice (held loops went silent mid-song), and
+    // a wall-clock switch lands at a different song position in an offline bounce. The sample-
+    // rate factor below still always applies.
+    if (Globals.hostRun == true && S.loopQBase > 0) q = S.loopQBase;
+    S.loopQBase = q;
     // the loops are 48 kHz files; at another device rate HISE 4.1.0 applies the rate ratio
     // only as pitch, so tell the stretcher the length the loop really plays at this rate
     local sr = Engine.getSampleRate();
@@ -5105,6 +5111,7 @@ inline function loadKit(i)
     if (LoopSampler.getCurrentSampleMapId() != kit.map)
         LoopSampler.loadSampleMap(kit.map);
     S.loopQ = -1;
+    S.loopQBase = -1;
     applyFeel();
     refreshAll();
 }
@@ -5255,6 +5262,7 @@ inline function setMode(m)
     if (m == 1)
     {
         S.loopQ = -1;
+    S.loopQBase = -1;
         applyFeel();
     }
     SearchField.showControl(m == 0);   // in LOOPS it lay over the kit header + arrows and stole the note keys
