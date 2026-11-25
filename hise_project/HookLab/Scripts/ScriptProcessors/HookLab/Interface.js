@@ -61,7 +61,7 @@ const var S = {
     "projSrc": "none", "projBpm": 0.0, "projKey": "", "projMode": "", "projKeySet": false, "posted": -1.0,
     "conformId": "", "confState": "", "confText": "", "confFor": "",
     "gateText": "", "memGb": -1, "genresFromServer": false, "scoreText": "",
-    "act": "", "actBody": {}, "postBody": {}, "needStems": false, "needConform": false, "needGenres": false, "postedKey": ""
+    "act": "", "actBody": {}, "postBody": {}, "confTarget": {}, "needStems": false, "needConform": false, "needGenres": false, "postedKey": ""
 };
 const var KEYS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 const var BARS = [4, 8, 12, 16];
@@ -1443,8 +1443,15 @@ inline function conformAll()
     if (S.projSrc == "none" || S.projBpm <= 0) { S.confText = "MATCH DAW: no project tempo yet (Live bridge or host)"; Core.repaint(); return; }
     S.confText = "MATCHING TO " + Math.round(S.projBpm) + " BPM" + (S.projKeySet ? " " + S.projKey + " " + S.projMode : "") + " ...";
     S.confFor = S.stemJob;
+    // DAW audit 11: an explicit target from THIS instance. "project" is the app's last /project/ post,
+    // which survives an app restart, so a second instance or yesterday's Set could set it.
+    S.confTarget = {"bpm": (Engine.isPlugin() && Engine.getHostBpm() > 0) ? Engine.getHostBpm() : S.projBpm};
+    local ck = PTR.KeyKnob[1][Math.round(KeyKnob.getValue())];
+    local cm = PTR.ScaleKnob[1][Math.round(ScaleKnob.getValue())];
+    if (ck != "-" && (cm == "major" || cm == "minor")) { S.confTarget.key = ck; S.confTarget.mode = cm; }
+    else if (S.projKeySet) { S.confTarget.key = S.projKey; S.confTarget.mode = S.projMode; }
     fly("conform");
-    Server.callWithPOST("/conform/", JSON.stringify({"job": S.stemJob, "stem": "all", "target": "project", "wait": false}), function(status, response)
+    Server.callWithPOST("/conform/", JSON.stringify({"job": S.stemJob, "stem": "all", "target": S.confTarget, "wait": false}), function(status, response)
     {
         land();
         if (status == 200 && isDefined(response.id)) S.conformId = "" + response.id;
