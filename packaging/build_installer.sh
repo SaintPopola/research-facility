@@ -69,11 +69,13 @@ mkdir -p "$STAGE_PLUG/Library/Audio/Plug-Ins/VST3" \
 # pkgbuild emits a ._AppleDouble entry per file. This yields a clean payload.
 ditto --noextattr --norsrc "$VST3" "$STAGE_PLUG/Library/Audio/Plug-Ins/VST3/Sweet Melody.vst3"
 ditto --noextattr --norsrc "$AU"   "$STAGE_PLUG/Library/Audio/Plug-Ins/Components/Sweet Melody.component"
-# ship the real sample audio (raw wavs for v1; drop-in .ch1 monolith later)
-for f in "$SAMPLES_SRC"/*.wav "$SAMPLES_SRC"/*.ch1; do
-  [ -e "$f" ] || continue
-  ditto --noextattr --norsrc "$f" "$STAGE_SAMP/$SYS_SAMPLES_REL/$(basename "$f")"
-done
+# ship the real sample audio (raw wavs for v1; drop-in .ch1 monolith later).
+# APFS clones (cp -c, clonefile): the staged tree shares the bank's blocks, so a 10 GB bank
+# costs no extra disk (CI ran out of space staging a full copy, run 45526205413). A plain copy
+# is the fallback where cloning is not supported. find + xargs: 9000+ files overflow a glob.
+find "$SAMPLES_SRC" -maxdepth 1 \( -name '*.wav' -o -name '*.ch1' \) -print0 \
+  | xargs -0 -J % cp -c % "$STAGE_SAMP/$SYS_SAMPLES_REL/"
+xattr -cr "$STAGE_SAMP" 2>/dev/null || true     # no AppleDouble entries in the payload
 find "$STAGE_PLUG" "$STAGE_SAMP" \( -name '._*' -o -name '.DS_Store' \) -delete 2>/dev/null || true
 
 # --- optional: codesign the plugin bundles ------------------------------------
@@ -117,6 +119,8 @@ productbuild --distribution "$HERE/Distribution.xml" \
   --resources "$HERE" \
   ${SIGN_ARGS[@]+"${SIGN_ARGS[@]}"} \
   "$PKG_OUT"
+# the component pkgs (another full copy of the samples) are inside the product archive now
+rm -rf "$STAGE_PLUG" "$STAGE_SAMP" "$BUILD"/RF-*.pkg
 
 # --- optional: notarize + staple ----------------------------------------------
 if [ -n "${RF_NOTARY_PROFILE:-}" ] && [ -n "$INSTALLER_ID" ]; then
