@@ -7,11 +7,14 @@ if (!isDefined(Globals.hlPlay)) Globals.hlPlay = false;
 reg lastEpoch = 0;
 reg playingId = -1;
 Synth.startTimer(0.02);
+// host MIDI never plays the preview (DAW audit 10): only this script's own artificial note does
 function onNoteOn()
 {
+    if (!Message.isArtificial()) Message.ignoreEvent(true);
 }
 function onNoteOff()
 {
+    if (!Message.isArtificial()) Message.ignoreEvent(true);
 }
 function onController()
 {
