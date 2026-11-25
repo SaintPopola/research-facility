@@ -7214,6 +7214,539 @@
    ]
   },
   {
+   "id": "chrome_dembow_stab",
+   "name": "Chrome Dembow Stab",
+   "cat": "chords",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "chords",
+    "supersaw",
+    "stab",
+    "y2k",
+    "trance",
+    "bright",
+    "pump"
+   ],
+   "map": "SIG_chrome_dembow_stab",
+   "m": [
+    16000,
+    0.1,
+    0.25,
+    0.7,
+    0.35,
+    0.18,
+    0.08,
+    0.4
+   ],
+   "atk": 2,
+   "rel": 260,
+   "reso": 0.7,
+   "vel": 0.45,
+   "lfo": 0.2,
+   "dly": "1/8D",
+   "subdec": 400,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "Seven bright saws with a centre-heavy 18 cent spread, wide open: every hit flares for about a tenth of a second, then settles to a steady body. Stab it on the dembow and let PUMP duck it under the kick. Built to sit where the chord synth of a modern neoperreo drop sits.",
+   "d": {
+    "DriftKnob": 1.5
+   }
+  },
+  {
+   "id": "callejon_twin_saw",
+   "name": "Callejon Twin Saw",
+   "cat": "chords",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "chords",
+    "saw",
+    "2000s",
+    "workstation",
+    "chorus",
+    "stab"
+   ],
+   "map": "SIG_callejon_twin_saw",
+   "m": [
+    9000,
+    0.15,
+    0.3,
+    0.6,
+    0.3,
+    0.2,
+    0.12,
+    0.3
+   ],
+   "atk": 2,
+   "rel": 220,
+   "reso": 0.9,
+   "vel": 0.5,
+   "lfo": 0.25,
+   "dly": "1/8D",
+   "subdec": 400,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "Three saws close together through a gentle low-pass and a slow bucket-brigade chorus, a little driven: the thinner, chunkier chord of 2000s workstation reggaeton. Short stabs stay tight; held chords shimmer slowly.",
+   "d": {
+    "DriftKnob": 3.0
+   }
+  },
+  {
+   "id": "smoke_hoover_chords",
+   "name": "Smoke Hoover Chords",
+   "cat": "chords",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "chords",
+    "hoover",
+    "rave",
+    "dark",
+    "pwm",
+    "pitch-scoop"
+   ],
+   "map": "SIG_smoke_hoover_chords",
+   "m": [
+    12000,
+    0.2,
+    0.35,
+    0.65,
+    0.35,
+    0.15,
+    0.2,
+    0.3
+   ],
+   "atk": 1,
+   "rel": 300,
+   "reso": 0.8,
+   "vel": 0.3,
+   "lfo": 0.15,
+   "dly": "1/4D",
+   "subdec": 400,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "A dark rave chord: pulse-width saws against a detuned saw, each note scooping up into pitch from below (harder hits scoop further), through a fast swirling chorus. Hold it for menace under a verse, stab it for the old-school hoover hit.",
+   "d": {
+    "DriftKnob": 2.0
+   }
+  },
+  {
+   "id": "hammer_rave_stab",
+   "name": "Hammer Rave Stab",
+   "cat": "chords",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "chords",
+    "hard-trance",
+    "stab",
+    "driven",
+    "filter-snap",
+    "rave"
+   ],
+   "map": "SIG_hammer_rave_stab",
+   "m": [
+    14000,
+    0.1,
+    0.2,
+    0.75,
+    0.3,
+    0.2,
+    0.15,
+    0.45
+   ],
+   "atk": 1,
+   "rel": 180,
+   "reso": 1.0,
+   "vel": 0.55,
+   "lfo": 0.25,
+   "dly": "1/8D",
+   "subdec": 400,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "Saw and pulse stack, wide and driven, with a hard filter snap that closes in 90 ms: the hard-trance hit. Strike it on the dembow off-beats; harder hits snap brighter.",
+   "d": {
+    "DriftKnob": 1.0
+   }
+  },
+  {
+   "id": "gate_room_supersaw",
+   "name": "Gate Room Supersaw",
+   "cat": "pads",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "pad",
+    "supersaw",
+    "trance-gate",
+    "y2k",
+    "lush",
+    "chords"
+   ],
+   "map": "SIG_gate_room_supersaw",
+   "m": [
+    12000,
+    0.0,
+    0.35,
+    0.85,
+    0.5,
+    0.25,
+    0.0,
+    0.5
+   ],
+   "atk": 6,
+   "rel": 70,
+   "reso": 0.7,
+   "vel": 0.35,
+   "lfo": 0.15,
+   "dly": "1/4D",
+   "subdec": 400,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "A wide trance supersaw that speaks in 6 ms and lets go in 70 ms, so it gates cleanly: play the chord in 16ths for the trance gate, hold it for a bright Y2K pad.",
+   "d": {
+    "DriftKnob": 1.5
+   }
+  },
+  {
+   "id": "airlock_pluck_chords",
+   "name": "Airlock Pluck Chords",
+   "cat": "chords",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "chords",
+    "pluck",
+    "trance",
+    "airy",
+    "neo-trance"
+   ],
+   "map": "SIG_airlock_pluck_chords",
+   "m": [
+    14000,
+    0.0,
+    0.2,
+    0.75,
+    0.45,
+    0.3,
+    0.0,
+    0.25
+   ],
+   "atk": 1,
+   "rel": 300,
+   "reso": 0.9,
+   "vel": 0.5,
+   "lfo": 0.2,
+   "dly": "1/8D",
+   "subdec": 400,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "Five saws through a filter that bursts open and falls in about a tenth of a second, with a breath of air on top: airy trance pluck chords for the 16th-note offbeats.",
+   "d": {
+    "DriftKnob": 1.5
+   }
+  },
+  {
+   "id": "glass_halo_bells",
+   "name": "Glass Halo Bells",
+   "cat": "chords",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "chords",
+    "bell",
+    "glass",
+    "fm",
+    "hyperpop",
+    "shiny"
+   ],
+   "map": "SIG_glass_halo_bells",
+   "m": [
+    14000,
+    0.0,
+    0.25,
+    0.75,
+    0.45,
+    0.3,
+    0.0,
+    0.25
+   ],
+   "atk": 1,
+   "rel": 900,
+   "reso": 0.7,
+   "vel": 0.6,
+   "lfo": 0.2,
+   "dly": "1/4D",
+   "subdec": 400,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "Glassy FM bell chords with a bright metallic strike that melts into a soft, slightly beating tone: the shiny internet-pop chord for intros and breakdowns."
+  },
+  {
+   "id": "velvet_witch_pad",
+   "name": "Velvet Witch Pad",
+   "cat": "pads",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "pad",
+    "dark",
+    "witch-house",
+    "analog",
+    "tape",
+    "chords"
+   ],
+   "map": "SIG_velvet_witch_pad",
+   "m": [
+    5000,
+    0.15,
+    0.45,
+    0.8,
+    0.6,
+    0.25,
+    0.1,
+    0.15
+   ],
+   "atk": 250,
+   "rel": 1600,
+   "reso": 0.9,
+   "vel": 0.3,
+   "lfo": 0.12,
+   "dly": "1/4D",
+   "subdec": 400,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "Three saws through a warm, slowly wandering ladder filter on a wobbly tape: a dark, smoky pad for the moody side of perreo. Swells in over a third of a second.",
+   "d": {
+    "DriftKnob": 4.0
+   }
+  },
+  {
+   "id": "neon_slide_808",
+   "name": "Neon Slide 808",
+   "cat": "bass",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "808",
+    "bass",
+    "distorted",
+    "dembow",
+    "slide"
+   ],
+   "map": "SIG_neon_slide_808",
+   "m": [
+    14000,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.12,
+    0.0
+   ],
+   "atk": 0,
+   "rel": 180,
+   "reso": 0.7,
+   "vel": 0.45,
+   "lfo": 0.1,
+   "dly": "1/8D",
+   "subdec": 200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "A long 808 driven hard enough that its upper harmonics carry the note on small speakers: it drops a few semitones into pitch on every hit and rings for two beats. Bend range is set to an octave for slides.",
+   "d": {
+    "BendKnob": 12,
+    "DriftKnob": 0
+   }
+  },
+  {
+   "id": "bounce_saw_bass",
+   "name": "Bounce Saw Bass",
+   "cat": "bass",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "bass",
+    "synth-bass",
+    "pluck",
+    "2000s",
+    "dembow"
+   ],
+   "map": "SIG_bounce_saw_bass",
+   "m": [
+    8000,
+    0.1,
+    0.0,
+    0.0,
+    0.05,
+    0.0,
+    0.15,
+    0.1
+   ],
+   "atk": 1,
+   "rel": 120,
+   "reso": 0.8,
+   "vel": 0.5,
+   "lfo": 0.1,
+   "dly": "1/8D",
+   "subdec": 200,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "Saw plus sub through a snappy ladder filter: a round, plucky synth bass that bounces on the dembow when the 808 is too long.",
+   "d": {
+    "DriftKnob": 0.5
+   }
+  },
+  {
+   "id": "halo_trance_lead",
+   "name": "Halo Trance Lead",
+   "cat": "leads",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "lead",
+    "supersaw",
+    "trance",
+    "y2k",
+    "vibrato"
+   ],
+   "map": "SIG_halo_trance_lead",
+   "m": [
+    11000,
+    0.1,
+    0.3,
+    0.55,
+    0.4,
+    0.35,
+    0.1,
+    0.0
+   ],
+   "atk": 4,
+   "rel": 320,
+   "reso": 0.9,
+   "vel": 0.45,
+   "lfo": 0.2,
+   "dly": "1/8D",
+   "subdec": 400,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "A singing trance lead: five saws, bright but not harsh, with vibrato that arrives after a third of a second. For hooks over the drop, doubled an octave up for the anthem moment.",
+   "d": {
+    "DriftKnob": 1.0,
+    "BendKnob": 2
+   }
+  },
+  {
+   "id": "y2k_shimmer_arp",
+   "name": "Y2K Shimmer Arp",
+   "cat": "plucks",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "arp",
+    "pluck",
+    "y2k",
+    "trance",
+    "16ths"
+   ],
+   "map": "SIG_y2k_shimmer_arp",
+   "m": [
+    15000,
+    0.0,
+    0.2,
+    0.8,
+    0.3,
+    0.45,
+    0.05,
+    0.2
+   ],
+   "atk": 0,
+   "rel": 160,
+   "reso": 0.9,
+   "vel": 0.55,
+   "lfo": 0.2,
+   "dly": "1/8D",
+   "subdec": 400,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "A short, glittering saw blip with a fast filter flick: made for 1/16 arpeggios with the dotted-eighth echo, the classic Y2K trance sparkle.",
+   "d": {
+    "DriftKnob": 1.0
+   }
+  },
+  {
+   "id": "ay_vowel_chop",
+   "name": "Ay Vowel Chop",
+   "cat": "vox",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "vocal-chop",
+    "vox",
+    "chop",
+    "formant",
+    "hyperpop"
+   ],
+   "map": "SIG_ay_vowel_chop",
+   "m": [
+    10000,
+    0.0,
+    0.15,
+    0.55,
+    0.4,
+    0.35,
+    0.1,
+    0.3
+   ],
+   "atk": 1,
+   "rel": 200,
+   "reso": 0.8,
+   "vel": 0.55,
+   "lfo": 0.2,
+   "dly": "1/8D",
+   "subdec": 400,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "A synthetic sung 'ay' sped up like tape, bright and short: play it as a melodic vocal chop between the vocal lines."
+  },
+  {
+   "id": "pixel_pop_pluck",
+   "name": "Pixel Pop Pluck",
+   "cat": "plucks",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "pluck",
+    "fm",
+    "hyperpop",
+    "metallic",
+    "rubber"
+   ],
+   "map": "SIG_pixel_pop_pluck",
+   "m": [
+    16000,
+    0.0,
+    0.2,
+    0.7,
+    0.3,
+    0.35,
+    0.1,
+    0.2
+   ],
+   "atk": 0,
+   "rel": 180,
+   "reso": 0.7,
+   "vel": 0.6,
+   "lfo": 0.2,
+   "dly": "1/8D",
+   "subdec": 400,
+   "subsus": -60,
+   "trim": 0.0,
+   "desc": "A rubbery, metallic FM pluck that snaps bright and dies fast: the hyperpop counter-melody over a dembow."
+  },
+  {
    "id": "lab_carve",
    "name": "Carve",
    "cat": "archive",
