@@ -19,6 +19,12 @@ Synth.setFixNoteOnAfterNoteOff(true);   // a stop can arrive before its delayed 
 Globals.smpSnap = 0;      // set by the Interface: 16 = next bar, 4 = next beat, 0 = no quantize
 Globals.smpDelay = 0.0;   // seconds the last audition was delayed (read by the Interface playhead)
 Globals.smpEvt = 0;       // counts quantized auditions
+Globals.smpPending = 0;   // auditions the Interface just sent (DAW audit 4): only those own channel 15
+
+// host notes on channel 15 (a controller, a track, MPE) are not auditions: they move to channel 1
+// and play the sound; their note-offs follow by event id
+const var HOST15 = [];
+for (hi = 0; hi < 1024; hi++) HOST15.push(0);
 
 reg gIdx = -1;
 reg gUp = 0.0;
@@ -50,6 +56,13 @@ RouterClock.setOnTransportChange(true, onRouterRun);
 function onNoteOn()
 {
     if (Message.getChannel() != 15) return;
+    if (Globals.smpPending <= 0)
+    {
+        HOST15[Message.getEventId() % 1024] = 1;
+        Message.setChannel(1);
+        return;
+    }
+    Globals.smpPending = Globals.smpPending - 1;
     Globals.smpDelay = 0.0;
     if (isRun == 1 && gIdx >= 0 && Globals.smpSnap > 0 && Engine.getHostBpm() > 0)
     {
@@ -69,6 +82,11 @@ function onNoteOn()
 
 function onNoteOff()
 {
+    if (Message.getChannel() == 15 && HOST15[Message.getEventId() % 1024] == 1)
+    {
+        HOST15[Message.getEventId() % 1024] = 0;
+        Message.setChannel(1);
+    }
 }
 
 function onController()
