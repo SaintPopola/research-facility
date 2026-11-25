@@ -647,7 +647,11 @@ Core.setPaintRoutine(function(g)
             g.drawAlignedText("NOT FOR STEM EXPORT", [sr[0] + 68, sr[1], 44, sr[3]], "left");
         }
         drawKey(g, [sr[0] + 114, sr[1] + 3, 52, 18], S.playing == TILES[k][0] ? "STOP" : "PLAY", hv == "play" + k, ok);
-        drawKey(g, [sr[0] + 172, sr[1] + 3, 96, 18], isMatched(TILES[k][0]) ? "DRAG (MATCHED)" : "DRAG TO DAW", hv == "drag" + k, ok);
+        // DAW audit 5: Live lays several dropped files end to end on one track; holding CMD while
+        // dropping puts each file on its own track (DOUBLES L / R, HARMS hi / lo / oct)
+        var nfiles = tilePaths(TILES[k][0]).length;
+        var dlabel = nfiles > 1 ? "CMD+DROP " + nfiles + " FILES" : (isMatched(TILES[k][0]) ? "DRAG (MATCHED)" : "DRAG TO DAW");
+        drawKey(g, [sr[0] + 172, sr[1] + 3, 96, 18], dlabel, hv == "drag" + k, ok);
         drawKey(g, [sr[0] + 274, sr[1] + 3, 76, 18], "SAVE", hv == "save" + k, ok);
     }
 });
