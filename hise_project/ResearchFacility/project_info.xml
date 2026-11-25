@@ -2,7 +2,7 @@
 
 <ProjectSettings>
   <Name value="Sweet Melody" type="TEXT" description="Project Name"/>
-  <Version value="0.2.0" type="TEXT" description="Project version"/>
+  <Version value="0.3.0" type="TEXT" description="Project version"/>
   <Description value="Sweet Melody: melody-ready signature sounds by Research Facility." type="TEXT" description="Project description"/>
   <BundleIdentifier value="com.researchfacility.plugin" type="TEXT" description="Bundle Identifier"/>
   <PluginCode value="Rfac" type="TEXT" description="a 4 character ID code"/>

@@ -2,7 +2,7 @@
 
 <ProjectSettings>
   <Name value="Hook Lab" type="TEXT" description="Project Name"/>
-  <Version value="0.1.0" type="TEXT" description="Project version"/>
+  <Version value="0.3.1" type="TEXT" description="Project version"/>
   <Description value="Hook Lab: type a hook, hear it sung, drag it into your session. By Research Facility." type="TEXT" description="Project description"/>
   <BundleIdentifier value="com.researchfacility.hooklab" type="TEXT" description="Bundle Identifier"/>
   <PluginCode value="Hklb" type="TEXT" description="a 4 character ID code"/>
@@ -23,7 +23,7 @@
   <SupportMonoFX value="No"/>
   <EnableMidiInputFX value="No"/>
   <VST3Support value="Yes"/>
-  <VST3Category value="Instrument"/>
+  <VST3Category value="Synth"/>
   <UseRawFrontend value="No"/>
   <ExpansionType value="Disabled"/>
   <EncryptionKey value="research-facility-hooklab-v0"/>
