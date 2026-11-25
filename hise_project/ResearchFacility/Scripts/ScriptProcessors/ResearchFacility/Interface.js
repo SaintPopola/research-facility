@@ -855,8 +855,8 @@ inline function drawCapPill(g, r, text, on, hot)
 
 inline function layoutBrowser()
 {
-    local labels = ["ALL", "REGGAETON"];
-    local idx = [-1, -2];
+    local labels = ["ALL", "REGGAETON", "NEOPERREO"];
+    local idx = [-1, -2, -3];
     local i = 0;
     for (i = 0; i < FACTORY_CAT_LABELS.length; i++)
     {
@@ -927,6 +927,10 @@ inline function buildList()
         else if (S.cat == -2)
         {
             if (!isReggaeton(p.tags)) continue;
+        }
+        else if (S.cat == -3)
+        {
+            if (!isNeoperreo(p.tags)) continue;
         }
         else if (p.cat == "archive" && !searching && !S.fav && S.vibe == "")
         {
@@ -1418,14 +1422,26 @@ inline function isReggaeton(tags)
         if (tags.indexOf(REG_TAGS[t]) >= 0) return true;
     return false;
 }
+// NEOPERREO is its own category too (user, 2026-11-24), right after REGGAETON; its presets and
+// kits carry the "neoperreo" tag and stay inside REGGAETON as well
+inline function isNeoperreo(tags)
+{
+    return tags.indexOf("neoperreo") >= 0;
+}
 const var KIT_VIEW = [];                 // indices into LOOP_KITS shown in the kit drawer
-S.kitReg = false;
+S.kitFilt = "";                          // "" all kits, "reg" REGGAETON, "neo" NEOPERREO
+inline function kitPasses(tags)
+{
+    if (S.kitFilt == "reg") return isReggaeton(tags);
+    if (S.kitFilt == "neo") return isNeoperreo(tags);
+    return true;
+}
 inline function buildKitView()
 {
     local i = 0;
     KIT_VIEW.clear();
     for (i = 0; i < LOOP_KITS.length; i++)
-        if (!S.kitReg || isReggaeton(LOOP_KITS[i].tags)) KIT_VIEW.push(i);
+        if (kitPasses(LOOP_KITS[i].tags)) KIT_VIEW.push(i);
     if (KIT_VIEW.length == 0) for (i = 0; i < LOOP_KITS.length; i++) KIT_VIEW.push(i);
 }
 buildKitView();
@@ -1450,12 +1466,11 @@ Browser.setPaintRoutine(function(g)
 
     if (S.mode == 1)
     {
-        g.setColour(T.dim);
-        g.setFontWithSpacing(T.FONT, 9, 0.18);
-        g.drawAlignedText("LOOP KITS", [16, 14, 120, 14], "left");
         var kvis = kitVis();
         S.kitTop = Math.round(Math.range(S.kitTop, 0, Math.max(0, KIT_VIEW.length - kvis)));   // Math.range returns a double: "1.0-7.0"
-        drawCapPill(g, [96, 10, 80, 20], "REGGAETON", S.kitReg, S.hoverItem == "kreg");
+        // genre filters (the silk band under the drawer already names it LOOP KITS)
+        drawCapPill(g, [14, 10, 78, 20], "REGGAETON", S.kitFilt == "reg", S.hoverItem == "kreg");
+        drawCapPill(g, [96, 10, 80, 20], "NEOPERREO", S.kitFilt == "neo", S.hoverItem == "kneo");
         if (KIT_VIEW.length > kvis)
         {
             g.setColour(T.dim);
@@ -1702,11 +1717,13 @@ Browser.setMouseCallback(function(event)
     if (S.mode == 1)
     {
         var kv = kitVis();
-        var onReg = event.y >= 10 && event.y < 30 && event.x >= 96 && event.x < 176;
-        if (onReg != (S.hoverItem == "kreg")) { S.hoverItem = onReg ? "kreg" : ""; this.repaint(); }
-        if (event.clicked && onReg)
+        var onTop = event.y >= 10 && event.y < 30;
+        var kh = onTop && event.x >= 14 && event.x < 92 ? "kreg" : (onTop && event.x >= 96 && event.x < 176 ? "kneo" : "");
+        if (kh != S.hoverItem && (kh != "" || S.hoverItem == "kreg" || S.hoverItem == "kneo")) { S.hoverItem = kh; this.repaint(); }
+        if (event.clicked && kh != "")
         {
-            S.kitReg = !S.kitReg;
+            var want = kh == "kreg" ? "reg" : "neo";
+            S.kitFilt = S.kitFilt == want ? "" : want;
             buildKitView();
             S.kitTop = 0;
             this.repaint();
@@ -5412,6 +5429,23 @@ inline function selfTest()
     if (MOD_COMP.Lfo2Wave.get("width") != 64 || MOD_COMP.Lfo2Wave.get("dragDirection") != "Vertical" || MOD_COMP.Lfo1Rate.get("width") != 76) { ok = false; Console.print("RF selftest MOD rects"); }
     // REGGAETON category: LIBRARY pill right after ALL, group matching, kit view
     if (PILLS[1][0] != "REGGAETON" || PILLS[1][1] != -2 || !isReggaeton(["latin-trap"]) || isReggaeton(["house"])) { ok = false; Console.print("RF selftest reggaeton pill"); }
+    // NEOPERREO: its own pill right after REGGAETON; its presets and kits also stay in REGGAETON
+    if (PILLS[2][0] != "NEOPERREO" || PILLS[2][1] != -3 || !isNeoperreo(["neoperreo"]) || isNeoperreo(["reggaeton"]) || !isReggaeton(["neoperreo"])) { ok = false; Console.print("RF selftest neoperreo pill"); }
+    S.cat = -3;
+    buildList();
+    local neoN = S.list.length;
+    S.cat = -1;
+    buildList();
+    if (neoN < 14) { ok = false; Console.print("RF selftest neoperreo filter " + neoN); }
+    S.kitFilt = "neo";
+    buildKitView();
+    local neoK = KIT_VIEW.length;
+    S.kitFilt = "reg";
+    buildKitView();
+    local regK = KIT_VIEW.length;
+    S.kitFilt = "";
+    buildKitView();
+    if (neoK < 24 || regK < neoK || neoK >= LOOP_KITS.length) { ok = false; Console.print("RF selftest neoperreo kits " + neoK + "/" + regK); }
     S.cat = -2;
     buildList();
     local regN = S.list.length;
