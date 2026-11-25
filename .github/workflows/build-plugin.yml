@@ -283,9 +283,24 @@ jobs:
           if-no-files-found: warn
           retention-days: 2
 
-      - name: Build Hook Lab (VST3 + AU, second plugin)
-        # a new project: its build never blocks the Sweet Melody artifacts uploaded above
+      - name: Free disk for Hook Lab (Sweet Melody artifacts are uploaded)
+        # run 45470885275: Hook Lab's lipo hit "No space left on device" once the dSYM build kept
+        # DWARF in its objects; by now the bank, the installer and the Sweet Melody build tree are
+        # all uploaded and nothing below reads them
+        if: always()
         continue-on-error: true
+        run: |
+          df -h "$GITHUB_WORKSPACE" | tail -1
+          rm -rf dist build/installer          # the .pkg and its staging (a second copy of the samples)
+          find hise_project/ResearchFacility/Samples -maxdepth 1 -name '*.wav' -delete 2>/dev/null || true
+          find hise_project/ResearchFacility/Samples -maxdepth 1 -name '*.meta.json' -delete 2>/dev/null || true
+          rm -rf hise_project/ResearchFacility/Binaries/Builds/MacOSX/build
+          rm -rf "$HOME/Library/Developer/Xcode/DerivedData"
+          df -h "$GITHUB_WORKSPACE" | tail -1
+
+      - name: Build Hook Lab (VST3 + AU, second plugin)
+        # fails the job loudly (run 45470885275 went green with no Hook Lab artifact); every
+        # Sweet Melody artifact is uploaded above, so nothing of Sweet Melody is lost
         run: |
           set -e
           HISE_BIN="$GITHUB_WORKSPACE/hise-app/HISE.app/Contents/MacOS/HISE"
