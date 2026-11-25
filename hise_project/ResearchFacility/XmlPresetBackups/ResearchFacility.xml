@@ -202,7 +202,12 @@
                SampleMapID="SIG_drowned_tines">
       <ChildProcessors>
         <Processor Type="MidiProcessorChain" ID="Midi Processor" Bypassed="0">
-          <ChildProcessors/>
+          <ChildProcessors>
+            <Processor Type="ScriptProcessor" ID="SoundInA" Bypassed="0">
+              <ChildProcessors/>
+              <Content/>
+            </Processor>
+          </ChildProcessors>
         </Processor>
         <Processor Type="ModulatorChain" ID="GainModulation" Bypassed="0" Intensity="1">
           <ChildProcessors>
@@ -309,7 +314,12 @@
                CoarseFreqRatio="1" FineFreqRatio="0" SaturationAmount="0.1">
       <ChildProcessors>
         <Processor Type="MidiProcessorChain" ID="Midi Processor" Bypassed="0">
-          <ChildProcessors/>
+          <ChildProcessors>
+            <Processor Type="ScriptProcessor" ID="SoundInSub" Bypassed="0">
+              <ChildProcessors/>
+              <Content/>
+            </Processor>
+          </ChildProcessors>
         </Processor>
         <Processor Type="ModulatorChain" ID="GainModulation" Bypassed="0" Intensity="1">
           <ChildProcessors>

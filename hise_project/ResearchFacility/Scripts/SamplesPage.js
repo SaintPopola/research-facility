@@ -692,6 +692,8 @@ inline function smpSetPlayKeys(ix)
         SM.playKeys = -1;
         SM.playLo = -1;
         SM.playHi = -1;
+        Globals.playLo = -1;
+        Globals.playHi = -1;
         PlayItem.setValue("");
         refreshKeyTints();
         SmpAudition.repaint();
@@ -738,6 +740,8 @@ inline function smpSetPlayKeys(ix)
         SM.playHi = z.HiKey;
     }
     SM.playForm = it.f;
+    Globals.playLo = SM.playLo;             // the SOUND leaves this range to PLAY KEYS (SoundInA / SoundInSub)
+    Globals.playHi = SM.playHi;
     SmpPlay.loadSampleMapFromJSON([z]);
     SM.playKeys = ix;
     PlayItem.setValue(it.id);
@@ -1711,6 +1715,7 @@ inline function smpEnter()
     SmpLoopsSynth.setBypassed(false);
     SmpHitsSynth.setBypassed(false);
     SmpPlaySynth.setBypassed(false);
+    Globals.smpMode = true;
     smpRawFx(true);
     smpShow(true);
     if (!SM.loaded) smpLoadIndex();
@@ -1727,6 +1732,7 @@ inline function smpLeave()
     SmpLoopsSynth.setBypassed(true);
     SmpHitsSynth.setBypassed(true);
     SmpPlaySynth.setBypassed(true);
+    Globals.smpMode = false;
     smpRawFx(false);
     smpShow(false);
 }

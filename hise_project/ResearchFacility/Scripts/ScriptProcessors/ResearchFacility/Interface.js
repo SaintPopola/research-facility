@@ -5221,8 +5221,10 @@ inline function setMode(m)
     ModeKey.setValue(m == 1 ? "loops" : (m == 2 ? "samples" : "inst"));
     allPreviewOff();
     Engine.allNotesOff();
-    VoiceA.setBypassed(m != 0);
-    SubSyn.setBypassed(m != 0);
+    // the SOUND stays live on every page (DAW audit 1): SoundInA / SoundInSub give the loop zone,
+    // PLAY KEYS and auditions to their engines, so recorded MIDI never plays silent
+    VoiceA.setBypassed(false);
+    SubSyn.setBypassed(false);
     LoopsSynth.setBypassed(m != 1);
     paintLoopKeys(m == 1);         // also repaints the piano, so the loop labels appear or go
     FX_Air.setBypassed(m != 0);    // LOOPS and SAMPLES play clean
@@ -5489,12 +5491,15 @@ inline function selfTest()
     }
     if (SearchField.get("visible")) { ok = false; Console.print("RF selftest search visible in LOOPS"); }
     if (!Globals.loopMode) { ok = false; Console.print("RF selftest loopMode not handed to KeyShift"); }
+    if (VoiceA.isBypassed() || SubSyn.isBypassed()) { ok = false; Console.print("RF selftest SOUND bypassed in LOOPS (recorded MIDI would play silent)"); }
+    if (!isDefined(Synth.getMidiProcessor("SoundInA")) || !isDefined(Synth.getMidiProcessor("SoundInSub"))) { ok = false; Console.print("RF selftest SoundIn filters missing"); }
     setLatch(true);
     if (!Globals.loopLatch) ok = false;
     setLatch(false);
     setMode(2);                                   // SAMPLES (docs/21)
     if (SmpLoops.getTimestretchOptions().Mode != "TempoSynced") { ok = false; Console.print("RF selftest Sample Loops not TempoSynced"); }
-    if (SmpLoopsSynth.isBypassed() || !VoiceA.isBypassed() || !LoopsSynth.isBypassed()) { ok = false; Console.print("RF selftest SAMPLES bypass states"); }
+    // DAW audit 1: the SOUND stays live in SAMPLES (SoundInA gives PLAY KEYS and auditions away)
+    if (SmpLoopsSynth.isBypassed() || VoiceA.isBypassed() || SubSyn.isBypassed() || !LoopsSynth.isBypassed() || Globals.smpMode != true) { ok = false; Console.print("RF selftest SAMPLES bypass states"); }
     if (!FX_Reverb.isBypassed()) { ok = false; Console.print("RF selftest SAMPLES not RAW"); }
     if (!SmpRail.get("visible") || Browser.get("visible") || Visualiser.get("visible")) { ok = false; Console.print("RF selftest SAMPLES panels"); }
     if (ModeKey.getValue() != "samples") ok = false;
