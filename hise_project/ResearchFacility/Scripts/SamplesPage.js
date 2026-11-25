@@ -59,7 +59,7 @@ const var SM = {
     "want": -1, "wantSince": 0.0, "loopNq": -1.0, "playNq": -1.0, "playSlot": -1, "playIt": -1, "playLoop": false,
     "lastEvt": -1, "startAt": 0.0, "offAt": -1.0, "playedAt": 0.0,
     "fav": {}, "plays": {}, "hidden": {}, "over": {}, "hist": [], "saveAt": -1.0,
-    "playKeys": -1, "playForm": -1, "playLo": -1, "playHi": -1, "pendingPlayId": "",
+    "playKeys": -1, "playForm": -1, "playLo": -1, "playHi": -1, "pendingPlayId": "", "playMissing": "",
     "grid": "", "fixMode": -1, "hiddenCount": 0, "dragging": false, "hoverR": "", "hoverA": "", "hoverRow": -1, "tick": 0,
     "reindexDone": false, "reindexCode": 0
 };
@@ -306,7 +306,11 @@ inline function smpLoadIndex()
     if (keepKeys != "")
     {
         if (isDefined(SM.idx[keepKeys])) smpSetPlayKeys(SM.idx[keepKeys]);
-        else smpSetPlayKeys(-1);              // that sound left the library
+        else
+        {
+            smpSetPlayKeys(-1);              // that sound left the library
+            SM.playMissing = keepKeys;
+        }
     }
 }
 
@@ -701,6 +705,8 @@ inline function smpSetPlayKeys(ix)
         return;
     }
     local it = SM.items[ix];
+    // DAW audit 7: say so when the file is gone (moved, another Mac) instead of playing silence
+    SM.playMissing = FileSystem.fromAbsolutePath(it.p).isFile() ? "" : it.n;
     local z = {"FileName": it.p, "LoVel": 0, "HiVel": 127, "RRGroup": 1};
     if (it.f == 1)
     {
@@ -745,15 +751,27 @@ inline function smpSetPlayKeys(ix)
     Globals.playHi = SM.playHi;
     SmpPlay.loadSampleMapFromJSON([z]);
     SM.playKeys = ix;
-    PlayItem.setValue(it.id);
+    PlayItem.setValue(it.id + "|" + SM.semi + "|" + SM.oct + "|" + SM.level);   // replays the same after reopen
     refreshKeyTints();
     SmpAudition.repaint();
 }
 
 inline function onPlayItem(component, value)
 {
-    local v = "" + value;
+    // "id|semi|oct|level" (DAW audit 7: the pitch and level PLAY KEYS used were not saved); old
+    // Sets hold the id alone
+    local parts = ("" + value).split("|");
+    local v = parts[0];
     if (v == "" || v == "0") return;
+    if (parts.length == 4)
+    {
+        SM.semi = Math.range(parseInt(parts[1]), -6, 6);
+        SM.oct = Math.range(parseInt(parts[2]), -1, 1);
+        SM.level = Math.range(parseInt(parts[3]), -24, 12);
+        SMP_KC.SmpPitchKnob.setValue(SM.semi);
+        SMP_KC.SmpOctSel.setValue(SM.oct + 1);
+        SMP_KC.SmpLevelKnob.setValue(SM.level);
+    }
     if (SM.loaded && isDefined(SM.idx[v])) smpSetPlayKeys(SM.idx[v]);
     else SM.pendingPlayId = v;
 }
@@ -1452,6 +1470,12 @@ SmpAudition.setPaintRoutine(function(g)
     g.setColour(T.txt);
     g.setFont(T.TYPEB, 11);
     g.drawAlignedText(ix >= 0 ? it.n.toUpperCase() : "PICK A SOUND", [118, 2, 310, 14], "left");
+    if (SM.playMissing != "")
+    {
+        g.setColour(T.clip);
+        g.setFontWithSpacing(T.BOLD, 8, 0.08);
+        g.drawAlignedText("PLAY KEYS FILE MISSING: " + SM.playMissing.toUpperCase(), [444, 4, 254, 12], "right");
+    }
     drawCrt(g, [24, 22, 404, 60]);
     if (ix < 0)
     {
