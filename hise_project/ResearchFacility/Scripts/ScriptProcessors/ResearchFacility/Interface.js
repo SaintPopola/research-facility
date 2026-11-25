@@ -668,6 +668,17 @@ inline function applyVoicing(p)
 // 4/8/16 so the stretch ratio stays inside HISE's 0.0625-2.0 range; changing
 // the options kills voices, so it only happens when the feel actually changes.
 // ============================================================================
+// DAW audit 3: applyFeel used to run only from the Visualiser timer or the async tempo callback,
+// both suspended while no editor is open in an exported plug-in; a 44.1 / 88.2 / 96 kHz Set
+// reopened with the window closed played its loops 9% (or 2x) off tempo. This TimerObject (a
+// plain juce::Timer, not suspended) keeps the stretch in step with the real sample rate.
+const var FeelClock = Engine.createTimerObject();
+FeelClock.setTimerCallback(function()
+{
+    if (S.mode == 1) applyFeel();
+});
+FeelClock.startTimer(250);
+
 inline function applyFeel()
 {
     local kit = LOOP_KITS[S.kit];
