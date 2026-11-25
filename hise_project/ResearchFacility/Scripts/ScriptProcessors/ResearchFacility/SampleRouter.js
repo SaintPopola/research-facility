@@ -42,6 +42,7 @@ RouterClock.setOnGridChange(true, onRouterGrid);
 inline function onRouterRun(playing)
 {
     isRun = playing ? 1 : 0;
+    Globals.hostRun = playing;      // KeyShift: LATCH only while the host is stopped (DAW audit 2)
     if (!playing) gIdx = -1;
 }
 RouterClock.setOnTransportChange(true, onRouterRun);

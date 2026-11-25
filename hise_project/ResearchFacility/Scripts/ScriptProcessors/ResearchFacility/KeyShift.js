@@ -23,6 +23,7 @@ Globals.latchMask = 0;         // bit (note - 60) set while that lane loop is la
 Globals.latchOnNote = -1;      // last latched press (the deferred Interface never receives artificial events,
 Globals.latchOnVel = 0;        // ScriptProcessorModules.cpp DeferredExecutioner skips them), so its
 Globals.latchOnCount = 0;      // note readout and particles read these instead
+if (!isDefined(Globals.hostRun)) Globals.hostRun = false;
 
 // LOOPS latch (needs this non-deferred script: the Interface defers its MIDI callbacks).
 // A latched press becomes an artificial note whose key-up is dropped; HISE re-inserts an
@@ -35,9 +36,19 @@ for (si = 0; si < 16; si++) LBIT.push(Math.pow(2, si));
 reg latchEpoch = 0;
 reg lzNote = 0;
 
+// DAW audit 2: LATCH is for playing by hand. It applies to the on-screen keyboard and Mac keys
+// (channel 16) and to host notes only while the transport is stopped (Globals.hostRun, from
+// SampleRouter's transport handler), so recorded MIDI always plays back as a plain gate, the
+// same on every pass and in a bounce.
 inline function inLoopZone(n)
 {
-    return Globals.loopMode && Globals.loopLatch && n >= 60 && n <= 75;
+    return Globals.loopMode && Globals.loopLatch && n >= 60 && n <= 75
+        && (Message.getChannel() == 16 || Globals.hostRun != true);
+}
+
+inline function latchZone(n)
+{
+    return Globals.loopMode && n >= 60 && n <= 75;
 }
 
 const var SHIFT_OF = [];
@@ -103,7 +114,7 @@ function onNoteOff()
         Message.setNoteNumber(Message.getNoteNumber() + ksOff);
     }
     lzNote = Message.getNoteNumber();
-    if (inLoopZone(lzNote))
+    if (latchZone(lzNote))
     {
         if (LATCH_STOP[lzNote] == 1)
         {

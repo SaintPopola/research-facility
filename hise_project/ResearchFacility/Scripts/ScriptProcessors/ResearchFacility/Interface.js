@@ -5200,12 +5200,23 @@ inline function setLatch(on)
 {
     S.latch = on;
     Globals.loopLatch = on;
+    if (("" + LatchKey.getValue()) != (on ? "1" : "0")) LatchKey.setValue(on ? "1" : "0");   // saved with the Set
     Engine.allNotesOff();                            // switching latch off must not leave loops running
     Globals.latchEpoch = Globals.latchEpoch + 1;
     Globals.latchMask = 0;
     clearLoopHeld();
     Browser.repaint();
 }
+
+// LATCH is saved with the Set (DAW audit 2): a Set recorded with LATCH on reopens with it on
+const var LatchKey = Content.addLabel("LatchKey", 0, 0);
+Content.setPropertiesFromJSON("LatchKey", {"saveInPreset": true, "visible": false, "width": 1, "height": 1, "editable": false, "text": "0"});
+inline function onLatchKey(component, value)
+{
+    local on = ("" + value) == "1";
+    if (on != S.latch) setLatch(on);
+}
+LatchKey.setControlCallback(onLatchKey);
 
 inline function setMode(m)
 {
@@ -5494,7 +5505,7 @@ inline function selfTest()
     if (VoiceA.isBypassed() || SubSyn.isBypassed()) { ok = false; Console.print("RF selftest SOUND bypassed in LOOPS (recorded MIDI would play silent)"); }
     if (!isDefined(Synth.getMidiProcessor("SoundInA")) || !isDefined(Synth.getMidiProcessor("SoundInSub"))) { ok = false; Console.print("RF selftest SoundIn filters missing"); }
     setLatch(true);
-    if (!Globals.loopLatch) ok = false;
+    if (!Globals.loopLatch || LatchKey.getValue() != "1") { ok = false; Console.print("RF selftest LATCH not saved"); }
     setLatch(false);
     setMode(2);                                   // SAMPLES (docs/21)
     if (SmpLoops.getTimestretchOptions().Mode != "TempoSynced") { ok = false; Console.print("RF selftest Sample Loops not TempoSynced"); }
