@@ -1721,6 +1721,7 @@ inline function smpEnter()
 inline function smpLeave()
 {
     smpStopAudition();
+    Globals.smpSnap = 0;           // DAW audit 4: one audition no longer bar-delays host notes on channel 15 for the session
     SmpClock.stopTimer();
     if (SM.saveAt > 0) smpSaveUser();
     SmpLoopsSynth.setBypassed(true);

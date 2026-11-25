@@ -55,7 +55,8 @@ function onNoteOn()
         ksOff = 0;
         // Mac keys always send velocity 127 (JUCE MidiKeyboardComponent default);
         // mouse clicks take velocity from click height, so they play the key clicked
-        if (ksNote >= 60 && ksNote <= 76 && Message.getVelocity() == 127)
+        // only while MAC KEYS is on (DAW audit 4): a host track or controller on channel 16 plays as sent
+        if (Globals.macKeys == true && ksNote >= 60 && ksNote <= 76 && Message.getVelocity() == 127)
         {
             ksOff = Globals.keyShift * 12;
             Message.setVelocity(Globals.macVel);    // JUCE sends 127 for every Mac key (doc 23 B9)
