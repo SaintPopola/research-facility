@@ -1801,6 +1801,7 @@ Browser.setMouseCallback(function(event)
         else if (c0 == "r")
         {
             loadPreset(S.list[S.scroll + num]);
+            notifyHostParams();
         }
         else if (c0 == "f")
         {
@@ -3352,6 +3353,17 @@ inline function takeSnap()
     return sn;
 }
 
+// DAW audit 9: ScriptComponent.setValue never tells the host; changed() does. Called after a user
+// action rewrites the 10 host parameters (sound pick, prev / next, RESET, VARIATION, UNDO,
+// COMPARE), never from a session restore, so opening a Set does not mark it modified.
+inline function notifyHostParams()
+{
+    local i = 0;
+    for (i = 0; i < 8; i++) MACROS[i].changed();
+    AttackKnob.changed();
+    ReleaseKnob.changed();
+}
+
 inline function restoreSnap(sn)
 {
     local i = 0;
@@ -3389,6 +3401,7 @@ inline function restoreSnap(sn)
     updateVoiceFilter();
     syncProxies();
     refreshAll();
+    notifyHostParams();
 }
 
 // before anything that rewrites the sound: preset load, VARIATION, RESET
@@ -3444,6 +3457,7 @@ inline function resetMacros()
     ReleaseKnob.setValue(p.rel);
     applyRelease(p.rel);
     MacroCard.repaint();
+    notifyHostParams();
 }
 
 inline function variation()
@@ -3460,6 +3474,7 @@ inline function variation()
         k.setValue(v);
         applyMacro(i, v);
     }
+    notifyHostParams();
 }
 
 MacroCard.setMouseCallback(function(event)
@@ -5327,6 +5342,7 @@ inline function stepPreset(dir)
         if (n >= FACTORY_BANK.length) n = 0;
         loadPreset(n);
     }
+    notifyHostParams();
 }
 
 inline function toggleFav(idx)
