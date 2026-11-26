@@ -682,6 +682,9 @@ FeelClock.startTimer(250);
 inline function applyFeel()
 {
     local kit = LOOP_KITS[S.kit];
+    // Engine.getHostBpm() is never empty: without a host HISE reports 120 (MainController::getBpm),
+    // which is also the tempo the stretcher follows, so the feel is chosen against that. The guard
+    // only catches a host tempo outside 40-300.
     local host = Engine.getHostBpm();
     if (host < 40.0 || host > 300.0) host = kit.bpm;
     local r = host / kit.bpm;
@@ -832,8 +835,8 @@ inline function previewCurrent()
     local tpl = PREV_TPL[p.cat];
     local root = PREV_ROOT[p.cat];
     if (tpl == undefined) return;
-    local bpm = Engine.getHostBpm();
-    if (bpm < 40.0 || bpm > 250.0) bpm = 92.0;      // reggaeton / R&B pocket when no host tempo
+    local bpm = Engine.getHostBpm();                // 120 without a host (HISE's own default)
+    if (bpm < 40.0 || bpm > 250.0) bpm = 120.0;     // a host tempo outside 40-250 previews at 120
     local spb = 60.0 / bpm;
     local now = Engine.getUptime() + 0.02;
     local i = 0;
@@ -3118,8 +3121,8 @@ inline function updateStage()           // once per tick, after updateFeatures /
     local lk = VD.lk;
     local trip = STG.trip;
     local kickNow = (F.tK == F.t);
-    local bpm = Engine.getHostBpm();
-    if (bpm < 40.0 || bpm > 240.0) bpm = 120.0;
+    local bpm = Engine.getHostBpm();                // 120 without a host (HISE's own default)
+    if (bpm < 40.0 || bpm > 240.0) bpm = 120.0;     // and for a host tempo outside 40-240
     if (S.quiet <= 60) STG.beat = STG.beat + F.dt * bpm / 60.0;
     STG.barS = 240.0 / bpm;
     STG.full = trip >= 0.5 && Settings.getZoomLevel() < 1.5;

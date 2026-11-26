@@ -74,8 +74,8 @@ inline function smpRate()
 
 inline function smpHost()
 {
-    local b = Engine.getHostBpm();
-    if (b < 40.0 || b > 300.0) b = 120.0;
+    local b = Engine.getHostBpm();                  // 120 without a host (HISE's own default)
+    if (b < 40.0 || b > 300.0) b = 120.0;           // and for a host tempo outside 40-300
     return b;
 }
 
