@@ -1,0 +1,1289 @@
+{
+ "pack": "Neoperreo II",
+ "presets": [
+  {
+   "id": "nerve_arp_pluck",
+   "name": "Nerve Arp Pluck",
+   "cat": "plucks",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "arp",
+    "pluck",
+    "nasal",
+    "resonant",
+    "8ths",
+    "pump"
+   ],
+   "gen": "ladder",
+   "gp": {
+    "osc": "saw",
+    "voices": 1,
+    "cutoff": 1650,
+    "keytrack": 0.5,
+    "res": 0.3,
+    "drive": 1.2,
+    "fenv": 1500,
+    "fenv_t": 0.06,
+    "slope": 12,
+    "attack": 0.003,
+    "decay": 0.12,
+    "sustain": 0.5,
+    "wander": {
+     "pitch_c": 1.0,
+     "cutoff_oct": 0.0
+    },
+    "post_hp": 500,
+    "vnd": {
+     "amt": 0.5,
+     "len_ms": 25,
+     "density": 1000,
+     "decay_db": 30,
+     "hp": 300
+    },
+    "soft_mul": {
+     "fenv": 0.5,
+     "drive": 0.7,
+     "cutoff": 0.8
+    }
+   },
+   "m": [
+    9000,
+    0.0,
+    0.15,
+    0.55,
+    0.25,
+    0.12,
+    0.05,
+    0.55
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 220,
+    "reso": 0.9,
+    "vel": 0.5,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subdec": 400,
+    "subsus": -60,
+    "trim": 0.0
+   },
+   "z": [
+    48,
+    96,
+    3
+   ],
+   "dur": 2.5,
+   "loop": true,
+   "desc": "One saw through a gentle 12 dB resonant filter with the low end cut away: a thin, nasal, hollow pluck that flares on every note and settles on a held body. The 8th-note arp sound of dark neoperreo; tuned for arps from about C4 up, under a heavy pump.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 1.0
+   }
+  },
+  {
+   "id": "nerve_arp_bright",
+   "name": "Nerve Arp Bright",
+   "cat": "plucks",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "arp",
+    "pluck",
+    "bright",
+    "nasal"
+   ],
+   "gen": "ladder",
+   "gp": {
+    "osc": "saw",
+    "voices": 1,
+    "cutoff": 2400,
+    "keytrack": 0.5,
+    "res": 0.25,
+    "drive": 1.2,
+    "fenv": 2500,
+    "fenv_t": 0.06,
+    "slope": 12,
+    "attack": 0.003,
+    "decay": 0.12,
+    "sustain": 0.5,
+    "wander": {
+     "pitch_c": 1.0,
+     "cutoff_oct": 0.0
+    },
+    "post_hp": 450,
+    "vnd": {
+     "amt": 0.5,
+     "len_ms": 25,
+     "density": 1000,
+     "decay_db": 30,
+     "hp": 300
+    },
+    "soft_mul": {
+     "fenv": 0.5,
+     "drive": 0.7,
+     "cutoff": 0.8
+    }
+   },
+   "m": [
+    14000,
+    0.0,
+    0.15,
+    0.55,
+    0.25,
+    0.12,
+    0.05,
+    0.55
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 220,
+    "reso": 0.9,
+    "vel": 0.5,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subdec": 400,
+    "subsus": -60,
+    "trim": 0.0
+   },
+   "z": [
+    48,
+    96,
+    3
+   ],
+   "dur": 2.5,
+   "loop": true,
+   "desc": "The arp pluck with the filter further open: more bite and fizz on top, for when the arp has to cut through a busy drop.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 1.0
+   }
+  },
+  {
+   "id": "nerve_arp_dark",
+   "name": "Nerve Arp Dark",
+   "cat": "plucks",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "arp",
+    "pluck",
+    "dark",
+    "muted"
+   ],
+   "gen": "ladder",
+   "gp": {
+    "osc": "saw",
+    "voices": 1,
+    "cutoff": 1000,
+    "keytrack": 0.5,
+    "res": 0.3,
+    "drive": 1.2,
+    "fenv": 800,
+    "fenv_t": 0.06,
+    "slope": 12,
+    "attack": 0.003,
+    "decay": 0.12,
+    "sustain": 0.5,
+    "wander": {
+     "pitch_c": 1.0,
+     "cutoff_oct": 0.0
+    },
+    "post_hp": 300,
+    "vnd": {
+     "amt": 0.5,
+     "len_ms": 25,
+     "density": 1000,
+     "decay_db": 30,
+     "hp": 300
+    },
+    "soft_mul": {
+     "fenv": 0.5,
+     "drive": 0.7,
+     "cutoff": 0.8
+    }
+   },
+   "m": [
+    6000,
+    0.05,
+    0.15,
+    0.5,
+    0.3,
+    0.15,
+    0.0,
+    0.45
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 250,
+    "reso": 0.9,
+    "vel": 0.5,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subdec": 400,
+    "subsus": -60,
+    "trim": 0.0
+   },
+   "z": [
+    48,
+    96,
+    3
+   ],
+   "dur": 2.5,
+   "loop": true,
+   "desc": "The arp pluck closed down: round and muffled, a smoky arp for intros and verses that leaves room for the vocal.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 1.0
+   }
+  },
+  {
+   "id": "nerve_arp_wide",
+   "name": "Nerve Arp Wide",
+   "cat": "plucks",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "arp",
+    "pluck",
+    "wide",
+    "unison"
+   ],
+   "gen": "ladder",
+   "gp": {
+    "osc": "saw",
+    "voices": 3,
+    "cutoff": 1650,
+    "keytrack": 0.5,
+    "res": 0.3,
+    "drive": 1.2,
+    "fenv": 1500,
+    "fenv_t": 0.06,
+    "slope": 12,
+    "attack": 0.003,
+    "decay": 0.12,
+    "sustain": 0.5,
+    "wander": {
+     "pitch_c": 1.0,
+     "cutoff_oct": 0.0
+    },
+    "post_hp": 500,
+    "vnd": {
+     "amt": 0.9,
+     "len_ms": 25,
+     "density": 1000,
+     "decay_db": 30,
+     "hp": 300
+    },
+    "soft_mul": {
+     "fenv": 0.5,
+     "drive": 0.7,
+     "cutoff": 0.8
+    },
+    "detune_c": 8.0,
+    "spread": 1.0
+   },
+   "m": [
+    9000,
+    0.0,
+    0.2,
+    0.25,
+    0.3,
+    0.12,
+    0.0,
+    0.55
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 240,
+    "reso": 0.9,
+    "vel": 0.5,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subdec": 400,
+    "subsus": -60,
+    "trim": 0.0
+   },
+   "z": [
+    48,
+    96,
+    3
+   ],
+   "dur": 2.5,
+   "loop": true,
+   "desc": "Three slightly detuned saws spread hard left and right through the same nasal pluck filter: the arp opened up to fill the sides of a drop.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 1.5
+   }
+  },
+  {
+   "id": "nerve_arp_short",
+   "name": "Nerve Arp Short",
+   "cat": "plucks",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "arp",
+    "pluck",
+    "staccato",
+    "16ths"
+   ],
+   "gen": "ladder",
+   "gp": {
+    "osc": "saw",
+    "voices": 1,
+    "cutoff": 1650,
+    "keytrack": 0.5,
+    "res": 0.3,
+    "drive": 1.2,
+    "fenv": 1500,
+    "fenv_t": 0.05,
+    "slope": 12,
+    "attack": 0.003,
+    "decay": 0.15,
+    "sustain": 0.0,
+    "wander": {
+     "pitch_c": 1.0,
+     "cutoff_oct": 0.0
+    },
+    "post_hp": 500,
+    "vnd": {
+     "amt": 0.5,
+     "len_ms": 25,
+     "density": 1000,
+     "decay_db": 30,
+     "hp": 300
+    },
+    "soft_mul": {
+     "fenv": 0.5,
+     "drive": 0.7,
+     "cutoff": 0.8
+    }
+   },
+   "m": [
+    9000,
+    0.0,
+    0.15,
+    0.55,
+    0.25,
+    0.25,
+    0.05,
+    0.4
+   ],
+   "v": {
+    "atk": 0,
+    "rel": 160,
+    "reso": 0.9,
+    "vel": 0.55,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subdec": 400,
+    "subsus": -60,
+    "trim": 0.0
+   },
+   "z": [
+    48,
+    96,
+    3
+   ],
+   "dur": 1.4,
+   "loop": false,
+   "desc": "A tight version of the arp pluck that dies in about a fifth of a second: for fast 16th arps and stutters.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 1.0
+   }
+  },
+  {
+   "id": "nerve_arp_held",
+   "name": "Nerve Arp Held",
+   "cat": "plucks",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "arp",
+    "sustained",
+    "nasal",
+    "lead",
+    "full-range"
+   ],
+   "gen": "ladder",
+   "gp": {
+    "osc": "saw",
+    "voices": 1,
+    "cutoff": 1650,
+    "keytrack": 0.5,
+    "res": 0.3,
+    "drive": 1.2,
+    "fenv": 1000,
+    "fenv_t": 0.2,
+    "slope": 12,
+    "attack": 0.003,
+    "decay": 0.5,
+    "sustain": 0.75,
+    "wander": {
+     "pitch_c": 1.0,
+     "cutoff_oct": 0.0
+    },
+    "post_hp": 180,
+    "vnd": {
+     "amt": 0.5,
+     "len_ms": 25,
+     "density": 1000,
+     "decay_db": 30,
+     "hp": 300
+    },
+    "soft_mul": {
+     "fenv": 0.5,
+     "drive": 0.7,
+     "cutoff": 0.8
+    }
+   },
+   "m": [
+    9000,
+    0.05,
+    0.2,
+    0.55,
+    0.35,
+    0.15,
+    0.05,
+    0.35
+   ],
+   "v": {
+    "atk": 3,
+    "rel": 350,
+    "reso": 0.9,
+    "vel": 0.45,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subdec": 400,
+    "subsus": -60,
+    "trim": 0.0
+   },
+   "z": [
+    36,
+    96,
+    3
+   ],
+   "dur": 3.0,
+   "loop": true,
+   "desc": "The arp tone held out with its full low end: the same nasal colour with a slow filter fall and a long sustain, for landing notes, melodies and low arps.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 1.0
+   }
+  },
+  {
+   "id": "nerve_arp_squelch",
+   "name": "Nerve Arp Squelch",
+   "cat": "plucks",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "arp",
+    "acid",
+    "resonant",
+    "driven"
+   ],
+   "gen": "ladder",
+   "gp": {
+    "osc": "saw",
+    "voices": 1,
+    "cutoff": 900,
+    "keytrack": 0.5,
+    "res": 0.85,
+    "drive": 2.4,
+    "fenv": 4200,
+    "fenv_t": 0.07,
+    "slope": 24,
+    "attack": 0.003,
+    "decay": 0.12,
+    "sustain": 0.5,
+    "wander": {
+     "pitch_c": 1.0,
+     "cutoff_oct": 0.0
+    },
+    "post_hp": 250,
+    "vnd": {
+     "amt": 0.5,
+     "len_ms": 25,
+     "density": 1000,
+     "decay_db": 30,
+     "hp": 300
+    },
+    "soft_mul": {
+     "fenv": 0.5,
+     "drive": 0.7,
+     "cutoff": 0.8
+    }
+   },
+   "m": [
+    12000,
+    0.05,
+    0.2,
+    0.55,
+    0.25,
+    0.15,
+    0.1,
+    0.45
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 220,
+    "reso": 1.0,
+    "vel": 0.6,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subdec": 400,
+    "subsus": -60,
+    "trim": 0.0
+   },
+   "z": [
+    36,
+    96,
+    3
+   ],
+   "dur": 2.5,
+   "loop": true,
+   "desc": "The arp with a 24 dB filter, the resonance pushed to the edge and driven: a rubbery, squelchy pluck that bites harder the harder you play.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 1.0
+   }
+  },
+  {
+   "id": "mirror_wide_lead",
+   "name": "Mirror Wide Lead",
+   "cat": "leads",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "lead",
+    "supersaw",
+    "super-wide",
+    "sustained"
+   ],
+   "gen": "supersaw",
+   "gp": {
+    "voices": 7,
+    "detune_c": 24.0,
+    "spread": 1.0,
+    "drift_c": 2.0,
+    "lp": 14000,
+    "keytrack": 0.3,
+    "reso": 0.05,
+    "hp": 250,
+    "attack": 0.05,
+    "decay": 0.8,
+    "sustain": 0.9,
+    "vnd": {
+     "amt": 1.15,
+     "len_ms": 30,
+     "density": 1200,
+     "decay_db": 24,
+     "hp": 600
+    }
+   },
+   "m": [
+    14000,
+    0.05,
+    0.3,
+    0.25,
+    0.35,
+    0.15,
+    0.0,
+    0.3
+   ],
+   "v": {
+    "atk": 40,
+    "rel": 450,
+    "reso": 0.8,
+    "vel": 0.4,
+    "lfo": 0.2,
+    "dly": "1/4D",
+    "subdec": 400,
+    "subsus": -60,
+    "trim": 0.0
+   },
+   "z": [
+    48,
+    96,
+    3
+   ],
+   "dur": 3.5,
+   "loop": true,
+   "desc": "Seven saws spread past the speakers: the side signal is as loud as the middle, so the lead sits all around the vocal instead of on top of it. For long notes over a drop.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 1.5
+   }
+  },
+  {
+   "id": "mirror_wide_pad",
+   "name": "Mirror Wide Pad",
+   "cat": "pads",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "pad",
+    "supersaw",
+    "super-wide",
+    "dark"
+   ],
+   "gen": "supersaw",
+   "gp": {
+    "voices": 7,
+    "detune_c": 28.0,
+    "spread": 1.0,
+    "drift_c": 2.0,
+    "lp": 5000,
+    "keytrack": 0.3,
+    "reso": 0.05,
+    "hp": 250,
+    "attack": 0.5,
+    "decay": 2.0,
+    "sustain": 1.0,
+    "vnd": {
+     "amt": 1.15,
+     "len_ms": 30,
+     "density": 1200,
+     "decay_db": 24,
+     "hp": 600
+    }
+   },
+   "m": [
+    7000,
+    0.1,
+    0.4,
+    0.25,
+    0.55,
+    0.2,
+    0.0,
+    0.3
+   ],
+   "v": {
+    "atk": 350,
+    "rel": 1500,
+    "reso": 0.8,
+    "vel": 0.3,
+    "lfo": 0.2,
+    "dly": "1/4D",
+    "subdec": 400,
+    "subsus": -60,
+    "trim": 0.0
+   },
+   "z": [
+    36,
+    84,
+    4
+   ],
+   "dur": 4.5,
+   "loop": true,
+   "desc": "The wide saw stack as a slow, darker pad: swells in over half a second and surrounds the mix for breaks and intros.",
+   "vl": 1,
+   "d": {
+    "DriftKnob": 2.0
+   }
+  },
+  {
+   "id": "mirror_wide_stab",
+   "name": "Mirror Wide Stab",
+   "cat": "chords",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "chords",
+    "stab",
+    "supersaw",
+    "super-wide"
+   ],
+   "gen": "supersaw",
+   "gp": {
+    "voices": 7,
+    "detune_c": 24.0,
+    "spread": 1.0,
+    "drift_c": 2.0,
+    "lp": 11000,
+    "keytrack": 0.3,
+    "reso": 0.05,
+    "hp": 250,
+    "attack": 0.003,
+    "decay": 0.16,
+    "sustain": 0.3,
+    "vnd": {
+     "amt": 1.15,
+     "len_ms": 30,
+     "density": 1200,
+     "decay_db": 24,
+     "hp": 600
+    }
+   },
+   "m": [
+    14000,
+    0.05,
+    0.2,
+    0.25,
+    0.3,
+    0.15,
+    0.0,
+    0.5
+   ],
+   "v": {
+    "atk": 1,
+    "rel": 200,
+    "reso": 0.8,
+    "vel": 0.5,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subdec": 400,
+    "subsus": -60,
+    "trim": 0.0
+   },
+   "z": [
+    36,
+    96,
+    3
+   ],
+   "dur": 2.5,
+   "loop": true,
+   "desc": "The super-wide saw stack cut short: chord stabs that hit from the sides and duck hard under the kick.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 1.5
+   }
+  },
+  {
+   "id": "mirror_lead_center",
+   "name": "Mirror Lead Center",
+   "cat": "leads",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "lead",
+    "supersaw",
+    "mono-safe"
+   ],
+   "gen": "supersaw",
+   "gp": {
+    "voices": 7,
+    "detune_c": 24.0,
+    "spread": 0.5,
+    "drift_c": 2.0,
+    "lp": 14000,
+    "keytrack": 0.3,
+    "reso": 0.05,
+    "hp": 250,
+    "attack": 0.05,
+    "decay": 0.8,
+    "sustain": 0.9
+   },
+   "m": [
+    14000,
+    0.05,
+    0.3,
+    0.45,
+    0.35,
+    0.15,
+    0.05,
+    0.3
+   ],
+   "v": {
+    "atk": 40,
+    "rel": 450,
+    "reso": 0.8,
+    "vel": 0.4,
+    "lfo": 0.2,
+    "dly": "1/4D",
+    "subdec": 400,
+    "subsus": -60,
+    "trim": 0.0
+   },
+   "z": [
+    48,
+    96,
+    3
+   ],
+   "dur": 3.5,
+   "loop": true,
+   "desc": "The same saw lead kept near the centre: for club systems and phones that sum to mono.",
+   "vl": 2,
+   "d": {
+    "DriftKnob": 1.5
+   }
+  },
+  {
+   "id": "abyss_808",
+   "name": "Abyss 808",
+   "cat": "bass",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "808",
+    "bass",
+    "distorted",
+    "deep",
+    "dembow"
+   ],
+   "gen": "808",
+   "gp": {
+    "drop_st": 5.0,
+    "drop_t": 0.04,
+    "t60": 3.0,
+    "click": 0.15,
+    "drive": 14.0,
+    "lp": 4000,
+    "post_hp": 24,
+    "post_shelf": [
+     120,
+     6.0
+    ],
+    "soft_mul": {
+     "drive": 0.6,
+     "click": 0.5
+    }
+   },
+   "m": [
+    14000,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.18,
+    0.0
+   ],
+   "v": {
+    "atk": 0,
+    "rel": 200,
+    "reso": 0.7,
+    "vel": 0.45,
+    "lfo": 0.1,
+    "dly": "1/8D",
+    "subdec": 200,
+    "subsus": -60,
+    "trim": 0.0
+   },
+   "z": [
+    21,
+    57,
+    3
+   ],
+   "dur": 3.2,
+   "loop": false,
+   "desc": "A deep 808 for the lowest notes (B0 to F1) driven so hard that its upper harmonics are as loud as its fundamental: it growls on small speakers and still shakes the floor. Bend range set to an octave.",
+   "vl": 2,
+   "d": {
+    "BendKnob": 12,
+    "DriftKnob": 0
+   }
+  },
+  {
+   "id": "abyss_808_clean",
+   "name": "Abyss 808 Clean",
+   "cat": "bass",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "808",
+    "bass",
+    "deep",
+    "sub",
+    "long"
+   ],
+   "gen": "808",
+   "gp": {
+    "drop_st": 4.0,
+    "drop_t": 0.04,
+    "t60": 3.5,
+    "click": 0.1,
+    "drive": 2.2,
+    "lp": 3000,
+    "post_hp": 24,
+    "soft_mul": {
+     "drive": 0.7,
+     "click": 0.5
+    }
+   },
+   "m": [
+    12000,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.05,
+    0.0
+   ],
+   "v": {
+    "atk": 0,
+    "rel": 220,
+    "reso": 0.7,
+    "vel": 0.45,
+    "lfo": 0.1,
+    "dly": "1/8D",
+    "subdec": 200,
+    "subsus": -60,
+    "trim": 0.0
+   },
+   "z": [
+    21,
+    57,
+    3
+   ],
+   "dur": 3.5,
+   "loop": false,
+   "desc": "The same deep 808 nearly clean: a long, round sub for verses, or under a busy arp.",
+   "vl": 2,
+   "d": {
+    "BendKnob": 12,
+    "DriftKnob": 0
+   }
+  },
+  {
+   "id": "boom_kick_808",
+   "name": "Boom Kick 808",
+   "cat": "bass",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "808",
+    "kick",
+    "boom",
+    "punchy",
+    "dembow"
+   ],
+   "gen": "808",
+   "gp": {
+    "drop_st": 15.0,
+    "drop_t": 0.04,
+    "t60": 0.9,
+    "click": 0.35,
+    "drive": 4.0,
+    "lp": 6000,
+    "post_hp": 26,
+    "soft_mul": {
+     "drive": 0.6,
+     "click": 0.5
+    }
+   },
+   "m": [
+    16000,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.1,
+    0.0
+   ],
+   "v": {
+    "atk": 0,
+    "rel": 140,
+    "reso": 0.7,
+    "vel": 0.5,
+    "lfo": 0.1,
+    "dly": "1/8D",
+    "subdec": 200,
+    "subsus": -60,
+    "trim": 0.0
+   },
+   "z": [
+    24,
+    60,
+    3
+   ],
+   "dur": 1.5,
+   "loop": false,
+   "desc": "A tuned kick-808: a hard click that falls more than an octave onto its note in about 130 ms and rings a beat. Play it on the beat in key, as the kick and the bass at once.",
+   "vl": 2,
+   "d": {
+    "BendKnob": 12,
+    "DriftKnob": 0
+   }
+  },
+  {
+   "id": "bridge_buzz_bass",
+   "name": "Bridge Buzz Bass",
+   "cat": "bass",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "bass",
+    "reese",
+    "distorted",
+    "wide",
+    "sustained"
+   ],
+   "gen": "reese",
+   "gp": {
+    "detune_c": 16.0,
+    "lp": 4500,
+    "reso": 0.25,
+    "sub": 0.5,
+    "drive": 4.5,
+    "attack": 0.01,
+    "decay": 0.6,
+    "sustain": 0.9,
+    "vnd": {
+     "amt": 1.1,
+     "len_ms": 30,
+     "density": 1000,
+     "decay_db": 26,
+     "hp": 180
+    }
+   },
+   "m": [
+    12000,
+    0.15,
+    0.2,
+    0.2,
+    0.2,
+    0.0,
+    0.0,
+    0.1
+   ],
+   "v": {
+    "atk": 5,
+    "rel": 300,
+    "reso": 0.8,
+    "vel": 0.4,
+    "lfo": 0.15,
+    "dly": "1/4D",
+    "subdec": 400,
+    "subsus": -60,
+    "trim": 0.0
+   },
+   "z": [
+    24,
+    60,
+    3
+   ],
+   "dur": 3.5,
+   "loop": true,
+   "desc": "Two detuned saws and a sub, driven into a buzzing, harmonic-rich bass that stays mono in the low end and spreads wide above it: long notes for bridges and breakdowns.",
+   "vl": 1,
+   "d": {
+    "DriftKnob": 2.0
+   }
+  },
+  {
+   "id": "bridge_grit_bass",
+   "name": "Bridge Grit Bass",
+   "cat": "bass",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "bass",
+    "reese",
+    "dark",
+    "gritty"
+   ],
+   "gen": "reese",
+   "gp": {
+    "detune_c": 10.0,
+    "lp": 700,
+    "reso": 0.3,
+    "sub": 0.7,
+    "drive": 2.2,
+    "attack": 0.006,
+    "decay": 0.4,
+    "sustain": 0.85
+   },
+   "m": [
+    6000,
+    0.2,
+    0.15,
+    0.3,
+    0.1,
+    0.0,
+    0.3,
+    0.15
+   ],
+   "v": {
+    "atk": 3,
+    "rel": 220,
+    "reso": 0.8,
+    "vel": 0.45,
+    "lfo": 0.15,
+    "dly": "1/4D",
+    "subdec": 400,
+    "subsus": -60,
+    "trim": 0.0
+   },
+   "z": [
+    24,
+    60,
+    3
+   ],
+   "dur": 3.0,
+   "loop": true,
+   "desc": "The bridge bass darker and narrower: a growling, slowly beating sub-and-saw line under verses.",
+   "vl": 1,
+   "d": {
+    "DriftKnob": 1.5
+   }
+  },
+  {
+   "id": "edge_riser",
+   "name": "Edge Riser",
+   "cat": "leads",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "fx",
+    "riser",
+    "siren",
+    "build"
+   ],
+   "gen": "cs_dual",
+   "gp": {
+    "vel_stage": 2,
+    "vel_oct": [
+     -0.6,
+     -0.3,
+     0.0
+    ],
+    "vel_db": [
+     -6.0,
+     -3.0,
+     0.0
+    ],
+    "sweep_c": [
+     -1200.0,
+     -1200.0,
+     -1200.0
+    ],
+    "sweep_tau": [
+     0.5,
+     0.5,
+     0.5
+    ],
+    "line1": [
+     0.6,
+     0.4
+    ],
+    "pwm_depth": 0.25,
+    "f_pwm": 1.4,
+    "line2_c": 18.0,
+    "line2_level": 0.8,
+    "hp": [
+     200.0,
+     0.8
+    ],
+    "lp": [
+     900.0,
+     1.4
+    ],
+    "contour": [
+     0.0,
+     1.0,
+     1.6,
+     4.0
+    ],
+    "contour_oct": 3.0,
+    "keytrack": [
+     0.5,
+     0.7
+    ],
+    "sine": 0.0,
+    "vca": [
+     0.6,
+     3.0,
+     1.0
+    ],
+    "bbd": {
+     "mode": "I+II",
+     "mix": 0.5
+    }
+   },
+   "m": [
+    14000,
+    0.0,
+    0.3,
+    0.8,
+    0.5,
+    0.3,
+    0.1,
+    0.0
+   ],
+   "v": {
+    "atk": 300,
+    "rel": 800,
+    "reso": 0.8,
+    "vel": 0.2,
+    "lfo": 0.2,
+    "dly": "1/8D",
+    "subdec": 400,
+    "subsus": -60,
+    "trim": 0.0
+   },
+   "z": [
+    48,
+    84,
+    6
+   ],
+   "dur": 4.0,
+   "loop": false,
+   "desc": "A build-up tone: it starts an octave under the note, climbs onto it over about a second and a half while the filter opens and the level swells. Hold one note for the last bar before a drop.",
+   "vl": 1
+  },
+  {
+   "id": "abyss_dive",
+   "name": "Abyss Dive",
+   "cat": "bass",
+   "tags": [
+    "neoperreo",
+    "reggaeton",
+    "fx",
+    "808",
+    "dive",
+    "drop"
+   ],
+   "gen": "808",
+   "gp": {
+    "drop_st": 30.0,
+    "drop_t": 0.45,
+    "t60": 3.0,
+    "click": 0.0,
+    "drive": 3.0,
+    "lp": 5000,
+    "post_hp": 24
+   },
+   "m": [
+    14000,
+    0.0,
+    0.0,
+    0.0,
+    0.15,
+    0.0,
+    0.1,
+    0.0
+   ],
+   "v": {
+    "atk": 0,
+    "rel": 300,
+    "reso": 0.7,
+    "vel": 0.3,
+    "lfo": 0.1,
+    "dly": "1/8D",
+    "subdec": 200,
+    "subsus": -60,
+    "trim": 0.0
+   },
+   "z": [
+    24,
+    48,
+    6
+   ],
+   "dur": 3.5,
+   "loop": false,
+   "desc": "An 808 that dives two and a half octaves onto its note over about a second and a half: the falling boom into a drop or a break.",
+   "vl": 1,
+   "d": {
+    "BendKnob": 12,
+    "DriftKnob": 0
+   }
+  }
+ ]
+}
