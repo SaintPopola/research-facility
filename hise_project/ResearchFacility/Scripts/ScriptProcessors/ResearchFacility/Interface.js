@@ -3733,7 +3733,7 @@ const var CUT_LEG = [[20, "20"], [100, "100"], [500, "500"], [1500, "1.5K"], [50
 const var CUT_SKEW = Math.log(0.5) / Math.log((1500.0 - 20.0) / (20000.0 - 20.0));   // HISE middlePosition skew, k 0.2663
 const var MOD_DESIG = ["LFO1", "LFO2", "LFO3", "LFO4", "ENV2", "ENV3", "VEL", "KEY", "RAND", "MW", "AT"];
 const var SP_HELP = ["Main layer level and feel, plus the sine sub underneath it.",
-                     "A filter on every note. Wide open SVF LP = off. ENV AMT closes it after each hit, like a pluck.",
+                     "A filter on every note. Any LP type wide open is off while ENV AMT, KEYTRK, VEL>CUT and CUTOFF mods are all 0.",
                      "The main layer's volume shape. Curves turn straight ramps into swells or snaps.",
                      "Mod wheel = vibrato while VIA WHEEL is lit. BEND sets the pitch wheel range."];
 const var SP_HIT = {"via": [500, 423, 28, 28]};          // B1 amber lit latching key (docs/28b PITCH 1U)
@@ -4725,7 +4725,7 @@ ModPage.setPaintRoutine(function(g)
     g.setColour(T.txt);
     g.setFontWithSpacing(T.SUB, 11, 0.12);
     g.drawAlignedText("SOURCE EDIT  /  " + MOD_KEY_LEG[sel], [24, 139, 300, 12], "left");
-    drawScribble(g, [24, 156, 150, 92], MOD_HELP[sel] + " Right-click CUTOFF, RESO, SEMI, LEVEL, BODY or GRIT to pick a source.");
+    drawScribble(g, [24, 156, 150, 92], MOD_HELP[sel] + " Right-click CUTOFF, RESO, SEMI, A LEVEL, BODY or GRIT to pick a source.");
     if (kind == "lfo")
     {
         var pre = "Lfo" + (sel + 1);
