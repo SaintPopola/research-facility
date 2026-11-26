@@ -4,7 +4,7 @@ Six lanes, each checked by an adversarial verifier that opened the sources. Wher
 
 ## Moog as the flagship
 
-Lane: Moog as the Sweet Melody flagship. I read docs 12, 13, 23, 24 and 25 first. I also read the current gen_ladder, divide_down and polyBLEP code in /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py (read only). This lane goes past doc 24 in five ways.
+Lane: Moog as the Sweet Melody flagship. I read docs 12, 13, 23, 24 and 25 first. I also read the current gen_ladder, divide_down and polyBLEP code in ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py (read only). This lane goes past doc 24 in five ways.
 
 (1) Circuit and instrument facts per model, from SOS reviews, the Moog System 55 functional descriptions and owner's-manual excerpts. Covered: Model D original vs reissue measured differences, Voyager and Old School, Model 15/55 modules, Memorymoog, Polymoog 203a/280a, Taurus I, Micromoog, Multimoog, Prodigy, Rogue, Source, Opus 3, Sub 37, Grandmother, Matriarch, Moog One.
 
@@ -30,7 +30,7 @@ I give a common 'moog_core' render chain:
 - Exponential (octave) contours with decay-equals-release.
 - Loop-periodic 1/f drift, static per-key error, oscillator bleed and per-seed round robins.
 
-There are 15 flagship render specs: Model D basses and leads, a self-oscillation whistle, Voyager/Matriarch twin ladders, Polymoog vox and strings, two Taurus pedals, Model 15 FM bells, a regeneration bowl, a Model 55 drone choir, Tomita-style singing ladder phrases, a Memorymoog wash, a Phaedra warm-up sequence, and one flagged personal-only calibration twin. Every number not in a source is marked inferred. Scratch prototypes: /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/moog_lane/proto/dangelo_check.py, dangelo_check2.py and modeld_fb.py.
+There are 15 flagship render specs: Model D basses and leads, a self-oscillation whistle, Voyager/Matriarch twin ladders, Polymoog vox and strings, two Taurus pedals, Model 15 FM bells, a regeneration bowl, a Model 55 drone choir, Tomita-style singing ladder phrases, a Memorymoog wash, a Phaedra warm-up sequence, and one flagged personal-only calibration twin. Every number not in a source is marked inferred. Scratch prototypes: <scratchpad>/moog_lane/proto/dangelo_check.py, dangelo_check2.py and modeld_fb.py.
 
 ### Findings
 
@@ -87,7 +87,7 @@ Extreme-quality recipe: Add waves to moog_core:
 
 Per oscillator and per round-robin seed, offset pulse widths by a uniform +-0.01 (unit variance). Calibrate s and the widths PERSONALLY against Omnisphere's 'Minimoog Raw Saw-Triangle' and 'Minimoog Raw Pulse Narrow' soundsources. Measure their harmonic magnitudes and keep the fitted numbers in a private, non-repo file.
 
-Sources: https://manualmachine.com/moogmusic/minimoog/6489531-operation-manual, https://www.soundonsound.com/reviews/moog-minimoog-model-d, https://forum.moogmusic.com/viewtopic.php?p=17310, https://www.soundonsound.com/reviews/moog-grandmother, /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py
+Sources: https://manualmachine.com/moogmusic/minimoog/6489531-operation-manual, https://www.soundonsound.com/reviews/moog-minimoog-model-d, https://forum.moogmusic.com/viewtopic.php?p=17310, https://www.soundonsound.com/reviews/moog-grandmother, ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py
 
 #### Model D mixer overload and the external-input feedback loop, prototype-tested (verified)
 
@@ -114,7 +114,7 @@ Parameters:
 
 Hard test: no runaway, peak below 0 dBFS after normalisation, and the centroid rising monotonically with ext_fb.
 
-Sources: https://cdn.inmusicbrands.com/Moog/Model%20D/Minimoog_Model_D_Manual.pdf, https://www.soundonsound.com/reviews/moog-minimoog-model-d, https://www.soundonsound.com/reviews/moog-sub-37, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/moog_lane/proto/modeld_fb.py
+Sources: https://cdn.inmusicbrands.com/Moog/Model%20D/Minimoog_Model_D_Manual.pdf, https://www.soundonsound.com/reviews/moog-minimoog-model-d, https://www.soundonsound.com/reviews/moog-sub-37, <scratchpad>/moog_lane/proto/modeld_fb.py
 
 #### Model D ladder behaviour at low cutoff and keyboard control (verified)
 
@@ -171,7 +171,7 @@ Extreme-quality recipe: Live, in HISE (repo doc 13 path, not verified here): a M
 
 Offline: also render 'legato phrase' loop takes (two-note trills baked at 4x with a continuous contour) for the loop kits, so the low-note legato feel exists even before live mono ships.
 
-Sources: https://en.wikipedia.org/wiki/Minimoog, https://www.soundonsound.com/reviews/moog-voyager-old-school, https://www.soundonsound.com/reviews/moog-minimoog-model-d, /Users/noxvitae/Desktop/ResearchFacility/docs/23_full_audit.md
+Sources: https://en.wikipedia.org/wiki/Minimoog, https://www.soundonsound.com/reviews/moog-voyager-old-school, https://www.soundonsound.com/reviews/moog-minimoog-model-d, ~/Desktop/ResearchFacility/docs/23_full_audit.md
 
 #### Model D tuning, warm-up and why its oscillators never quite lock (verified)
 
@@ -361,7 +361,7 @@ Extreme-quality recipe: poly_divide (extension of gen_divide_down):
 - resonators: 3 bands, one shared type.
 - vcf: a static D'Angelo ladder, no per-note envelope. A per-note envelope is wrong for this machine.
 
-Sources: https://www.soundonsound.com/node/4922327, https://en.wikipedia.org/wiki/Polymoog, /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py
+Sources: https://www.soundonsound.com/node/4922327, https://en.wikipedia.org/wiki/Polymoog, ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py
 
 #### Polymoog Keyboard 280a presets and how the Vox Humana gets its swirl (verified)
 
@@ -576,7 +576,7 @@ Extreme-quality recipe: Acceptance test for every Moog flagship filter: with fc 
 
 Apply the 'bass loss' deliberately; do not compensate it, except in an optional 'gain_comp' 2 mode for pads.
 
-Sources: https://www.timstinchcombe.co.uk/synth/Moog_ladder_tf.pdf, https://ccrma.stanford.edu/~stilti/papers/moogvcf.pdf, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/moog_lane/proto/dangelo_check.py
+Sources: https://www.timstinchcombe.co.uk/synth/Moog_ladder_tf.pdf, https://ccrma.stanford.edu/~stilti/papers/moogvcf.pdf, <scratchpad>/moog_lane/proto/dangelo_check.py
 
 #### Thermal behaviour: where analog tuning and cutoff drift physically come from (verified)
 
@@ -649,11 +649,11 @@ Extreme-quality recipe: Port moog_ladder_nonlinear.m into sigbank_dsp as _dangel
 - For self-oscillating patches, pre-warp cutoff by the measured table c(knorm) = {1.01: 8.7, 1.02: 17, 1.05: 40.8, 1.10: 78, 1.20: 142} cents, interpolated in log k, then verify each zone by FFT (target +-3 c).
 - Tap stages 1 to 4 for 6/12/18/24 dB modes.
 
-Sources: https://dangelo.audio/taslp-ladder-part2, https://dangelo.audio/assets/code/moog_ladder_nonlinear.m, https://aaltodoc.aalto.fi/items/08b88f1e-4cc4-4dee-a53f-8aa63c5c5da4, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/moog_lane/proto/dangelo_check.py, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/moog_lane/proto/dangelo_check2.py
+Sources: https://dangelo.audio/taslp-ladder-part2, https://dangelo.audio/assets/code/moog_ladder_nonlinear.m, https://aaltodoc.aalto.fi/items/08b88f1e-4cc4-4dee-a53f-8aa63c5c5da4, <scratchpad>/moog_lane/proto/dangelo_check.py, <scratchpad>/moog_lane/proto/dangelo_check2.py
 
 #### The repo's current gen_ladder: what is already right and what still blocks Moog-grade output (verified)
 
-Read-only code check of /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py, lines 1025-1160.
+Read-only code check of ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py, lines 1025-1160.
 
 Already in place:
 - A Huovilainen-style tanh-per-stage ladder with a half-sample feedback average.
@@ -681,7 +681,7 @@ Extreme-quality recipe: Do not patch gen_ladder in place; existing presets must 
 - 1/f loop-periodic drift;
 - downsampling with scipy.signal.resample_poly(x, 1, os, window=('kaiser', 10.0)). The scipy 1.17.1 signature was checked locally; beta 10 is my choice for a stronger stopband (inferred).
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py, /Users/noxvitae/Desktop/ResearchFacility/docs/24_sound_research.md, /Users/noxvitae/Desktop/ResearchFacility/docs/25_mystic_sound_plan.md
+Sources: ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py, ~/Desktop/ResearchFacility/docs/24_sound_research.md, ~/Desktop/ResearchFacility/docs/25_mystic_sound_plan.md
 
 #### Zavalishin TPT/ZDF ladder, feedback shaping and nonlinear solvers (verified)
 
@@ -732,7 +732,7 @@ At 1x (sketch renders), switch to the 4th-order B-spline polyBLEP.
 
 For triangles and shark tooth (slope discontinuities), use polyBLAMP: integrated BLEP residual times the slope change (method lineage per Esqueda et al. DAFx-16, not fetched here). Verify: a 4186 Hz saw rendered at 4x and downsampled must show no alias component above -100 dB relative to H1 below 16 kHz.
 
-Sources: https://doi.org/10.1121/1.3651227, https://www.musica.ed.ac.uk/wp-content/uploads/Manual_Upload/Valimaki-Virtual-analog.pdf, /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py
+Sources: https://doi.org/10.1121/1.3651227, https://www.musica.ed.ac.uk/wp-content/uploads/Manual_Upload/Valimaki-Virtual-analog.pdf, ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py
 
 #### Hard sync without aliasing: minBLEP (inferred)
 
@@ -780,7 +780,7 @@ Extreme-quality recipe: drift_c(t), per oscillator, made periodic over the loop 
 
 For loops, force every periodic component's frequency to m/L.
 
-Sources: https://synth-diy.org/pipermail/synth-diy/2013-June/143632.html, https://synth-diy.org/pipermail/synth-diy/2012-November/141774.html, https://synth-diy.org/pipermail/synth-diy/2012-November/141769.html, /Users/noxvitae/Desktop/ResearchFacility/docs/24_sound_research.md
+Sources: https://synth-diy.org/pipermail/synth-diy/2013-June/143632.html, https://synth-diy.org/pipermail/synth-diy/2012-November/141774.html, https://synth-diy.org/pipermail/synth-diy/2012-November/141769.html, ~/Desktop/ResearchFacility/docs/24_sound_research.md
 
 #### Open ladder and oscillator code and their licences (2026 state, with a correction to doc 24) (verified)
 
@@ -806,7 +806,7 @@ Cross-check models in a private test script, never shipped:
 
 Keep a THIRD_PARTY_NOTICES entry if any code text is copied. Writing from the paper equations avoids notices entirely.
 
-Sources: https://github.com/ddiakopoulos/MoogLadders, https://github.com/csound/csound, https://github.com/VCVRack/Fundamental, https://github.com/surge-synthesizer/sst-filters/blob/main/include/sst/filters/VintageLadders.h, https://github.com/oyama/ladder-filter-testbench, https://github.com/Chowdhury-DSP/chowdsp_utils, https://github.com/mtytel/vital, https://github.com/TheWaveWarden/odin2, /Users/noxvitae/Desktop/ResearchFacility/LICENSE
+Sources: https://github.com/ddiakopoulos/MoogLadders, https://github.com/csound/csound, https://github.com/VCVRack/Fundamental, https://github.com/surge-synthesizer/sst-filters/blob/main/include/sst/filters/VintageLadders.h, https://github.com/oyama/ladder-filter-testbench, https://github.com/Chowdhury-DSP/chowdsp_utils, https://github.com/mtytel/vital, https://github.com/TheWaveWarden/odin2, ~/Desktop/ResearchFacility/LICENSE
 
 #### PERSONAL-ONLY Moog references installed on this Mac and what their licences allow (verified)
 
@@ -851,7 +851,7 @@ Extreme-quality recipe: For a looped Moog sample:
 
 Test: the seam level step must be under 0.1 dB and loop-point correlation above 0.999.
 
-Sources: https://www.soundonsound.com/reviews/moog-sub-37, https://www.soundonsound.com/reviews/moog-one, /Users/noxvitae/Desktop/ResearchFacility/docs/23_full_audit.md, /Users/noxvitae/Desktop/ResearchFacility/docs/25_mystic_sound_plan.md
+Sources: https://www.soundonsound.com/reviews/moog-sub-37, https://www.soundonsound.com/reviews/moog-one, ~/Desktop/ResearchFacility/docs/23_full_audit.md, ~/Desktop/ResearchFacility/docs/25_mystic_sound_plan.md
 
 #### Common Moog render chain ('moog_core' v1) for every flagship (inferred)
 
@@ -881,7 +881,7 @@ Sample map:
 
 Tests: passband droop, self-oscillation pitch +-3 c, linear match to the Levien reference, alias floor -100 dB, loop seam under 0.1 dB.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py, /Users/noxvitae/Desktop/ResearchFacility/docs/24_sound_research.md, https://dangelo.audio/assets/code/moog_ladder_nonlinear.m, https://doi.org/10.1121/1.3651227
+Sources: ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py, ~/Desktop/ResearchFacility/docs/24_sound_research.md, https://dangelo.audio/assets/code/moog_ladder_nonlinear.m, https://doi.org/10.1121/1.3651227
 
 ### Flagship candidates
 
@@ -1174,7 +1174,7 @@ Spectrasonics' FAQ permits private custom samples but bars distribution, and its
 - **CONFIRMED**: D'Angelo-Valimaki 2014 Octave script: MIT header (Copyright 2014 Stefano D'Angelo); signature (fs, N, x, fc, k, fccomp, knorm, gaincomp); VT 26e-3; g = tan(pi fc/fs)/alpha(N,k); knorm multiplies k by sec(pi/N)^N; gaincomp none/DC/slope; input tanh plus tanh per stage; site footer all rights reserved. Fetched https://dangelo.audio/assets/code/moog_ladder_nonlinear.m and the landing page. The header is verbatim MIT, and the structure matches. The landing page links the PDF, errata (errata_gladder2.pdf) and the script; the footer reads 'All rights reserved'.
 - **CONFIRMED**: Scratch D'Angelo port results: passband = 1/(1+k) within 0.01 dB (-6.02/-9.54/-12.03/-13.62 dB); self-osc pitch -8.7 c at 1.01, -14 to -18 c at 1.02 across 110-3520 Hz, -40.8 c at 1.05, -78 c at 1.10, -142 c at 1.20; H3 -52 dB at 0.05 V and -16 dB at 0.3 V; 10 s at 192 kHz in 0.09 s. Re-ran dangelo_check.py and dangelo_check2.py (numba 0.67.0 is installed). Output: -13.7/-17.4/-17.3/-17.7 c at knorm 1.02; +0.0/-8.7/-40.8/-78.1/-141.8 c; H3 -51.8 and -15.7 dB, H5 -23.8 dB; passband values as stated; 0.09 s.
 - **CONFIRMED**: modeld_fb.py feedback-loop prototype: stable for ext_fb 0-2.5; centroid 391/414/442/491/582/851 Hz; RMS -34.2 to -38.6 dBV. Re-ran it and got identical numbers (max 0.041 down to 0.030, no runaway).
-- **REFUTED**: Doc 24 correction: 'ddiakopoulos/MoogLadders is now Unlicense at top level, not GPL-3 as doc 24 says'. MoogLadders' top-level licence is Unlicense (GitHub API: Unlicense; README per-model table as listed). However, doc 24 line 619 reads 'The repo LICENSE is GPL-3, so all of these are usable in the offline renderer'. That refers to the Sweet Melody repo, whose /Users/noxvitae/Desktop/ResearchFacility/LICENSE is GPL v3, not to MoogLadders. The 'correction' misreads doc 24. Correction: Keep the MoogLadders licence facts (Unlicense top level; Huovilainen LGPLv3, Improved ISC, RKSimulation BSD, Simplified custom and not closed-source friendly). Drop the claim that doc 24 was wrong.
+- **REFUTED**: Doc 24 correction: 'ddiakopoulos/MoogLadders is now Unlicense at top level, not GPL-3 as doc 24 says'. MoogLadders' top-level licence is Unlicense (GitHub API: Unlicense; README per-model table as listed). However, doc 24 line 619 reads 'The repo LICENSE is GPL-3, so all of these are usable in the offline renderer'. That refers to the Sweet Melody repo, whose ~/Desktop/ResearchFacility/LICENSE is GPL v3, not to MoogLadders. The 'correction' misreads doc 24. Correction: Keep the MoogLadders licence facts (Unlicense top level; Huovilainen LGPLv3, Improved ISC, RKSimulation BSD, Simplified custom and not closed-source friendly). Drop the claim that doc 24 was wrong.
 - **CONFIRMED**: Other licences: csound LGPL-2.1; VCV Fundamental GPL-3; sst-filters GPL-3 with VintageLadders adapting MoogLadders RK (Puckette bob~ BSD) and Huovilainen; oyama testbench MIT bundling a D'Angelo port (MIT), mystran2012 permissive notice and Pd bob~ BSD; odin2 GPL-3; vital GPL-3; string-machine BSL-1.0. GitHub licence API and the raw LICENSE files check out. VCV Fundamental source is GPL-3.0-or-later, but its visual design is CC BY-NC-ND and the logo and name are restricted. The Odin 2 font is OFL. The VintageLadders.h header cites MoogLadders RKSimulationModel.h, Huovilainen and the 2015 Miller Puckette copyright.
 - **CONFIRMED**: Valimaki, Pekonen and Nam JASA 2012 Table VIII alias-free sawtooth limits (LUT K=4 358 Hz, K=32 2036, PolyBLEP NI=2 2135, Lagrange NI=3 3236, B-spline NI=3 4591, LUT K=64 4595, Lagrange NI=4 5134, B-spline NI=4 7845 Hz). Extracted the text of the KAIST-hosted copy (https://mac.kaist.ac.kr/pubs/ValimakiPeknenNam-jasa2012.pdf). Every Table VIII value matches.
 - **UNCERTAIN**: Hard sync via minBLEP: Brandt ICMC 2001 introduced it; VCV Rack dsp/minblep.hpp attributes it; patent US7589272 cited as a source. Brandt's paper (https://www.cs.cmu.edu/~eli/papers/icmc01-hardsync.pdf) is confirmed, and so is the VCV header citing it, so the lane's 'inferred' can be upgraded. But US7589272 is a KORG patent ('Bandlimited digital synthesis of analog waveforms', filed 2005-01-03). It treats minBLEP as prior art and claims summing an odd-symmetric, essentially zero-DC alias-reducing pulse around discontinuities, including hard sync. Google Patents lists it Active with anticipated expiration 2028-07-04. The lane cites it with no status note. Correction: Cite Brandt as primary. Flag US7589272 as a possibly active KORG patent (status per Google Patents, not legal advice). It is low risk for a personal offline renderer, but should be reviewed before any sale. Do not present the patent as a minBLEP reference.
@@ -1195,7 +1195,7 @@ Spectrasonics' FAQ permits private custom samples but bars distribution, and its
 
 ## Rare pianos and electric keys
 
-Rare pianos and electric keys lane, written to go deeper than docs 24 and 25. The repo was only read; nothing in it was touched. Scratch work is in /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/keys_flag/ (calc.py plus extracted paper texts).
+Rare pianos and electric keys lane, written to go deeper than docs 24 and 25. The repo was only read; nothing in it was touched. Scratch work is in <scratchpad>/keys_flag/ (calc.py plus extracted paper texts).
 
 Core result: one shared offline engine, 'modal_core', can carry every struck or plucked flagship. It follows Bank, Zambon and Fontana (IEEE TASLP 2010, read in full) and the Pianoteq patent US7915515B2. Each mode is a 2-pole resonator. A coupled hammer contact solve runs only for the few ms of contact. After that the modes are written in closed form as phase-coherent decaying sinusoids. The engine adds Weinreich unison coupling for two-stage decay, longitudinal phantom partials at 16 to 20 x f0, a bridge-force output (F_b proportional to the sum of k y_k), and a soundboard built from parallel second-order sections.
 
@@ -1238,7 +1238,7 @@ Extreme-quality recipe: Add modal_core(note, vel, P) to sigbank_dsp at SR 48 kHz
 8. Pedal-down sets: R = 8 region matrix into secondary resonator banks.
 The same core serves tines, reeds, rods and forks by swapping the mode shapes phi_k(x) and the output law.
 
-Sources: https://home.mit.bme.hu/~bank/publist/taslp10.pdf, https://home.mit.bme.hu/~bank/publist/taslp-piano/index.html, https://hal-univ-pau.archives-ouvertes.fr/hal-01894219, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/keys_flag/bank_taslp10.txt
+Sources: https://home.mit.bme.hu/~bank/publist/taslp10.pdf, https://home.mit.bme.hu/~bank/publist/taslp-piano/index.html, https://hal-univ-pau.archives-ouvertes.fr/hal-01894219, <scratchpad>/keys_flag/bank_taslp10.txt
 
 #### Steinway D C#5 anchor parameter set and what 'historic' changes do (Chaigne, Chabassier, Duruflé, Vienna Talk 2015) (verified)
 
@@ -1261,7 +1261,7 @@ Extreme-quality recipe: Use the C#5 row as the calibration anchor for modal_core
 - STRIKE x_H/L.
 The 'Salon 1840' and 'Imperial Halo' flagships are presets of these knobs.
 
-Sources: https://viennatalk2015.mdw.ac.at/proceedings/ViennaTalk2015_submission_19.pdf, https://juliettechabassier.perso.math.cnrs.fr/public/focus/2023/piano/, https://hal.inria.fr/hal-00688679, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/keys_flag/calc.py
+Sources: https://viennatalk2015.mdw.ac.at/proceedings/ViennaTalk2015_submission_19.pdf, https://juliettechabassier.perso.math.cnrs.fr/public/focus/2023/piano/, https://hal.inria.fr/hal-00688679, <scratchpad>/keys_flag/calc.py
 
 #### Current code state: gen_electric_grand and gen_tine_ep fall short of the physics they cite (verified)
 
@@ -1282,7 +1282,7 @@ Extreme-quality recipe: Replace the electric_grand internals with modal_core:
 - unison eig coupling.
 Replace gen_tine_ep with tine_v2 (Suitcase flagship). Keep the old generators under _legacy names so existing presets render identically until each is re-voiced.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py, https://home.mit.bme.hu/~bank/publist/taslp10.pdf, https://viennatalk2015.mdw.ac.at/proceedings/ViennaTalk2015_submission_19.pdf
+Sources: ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py, https://home.mit.bme.hu/~bank/publist/taslp10.pdf, https://viennatalk2015.mdw.ac.at/proceedings/ViennaTalk2015_submission_19.pdf
 
 #### Hammer and tip contact laws for felt, neoprene and rubber (Stulov, Hall/Askenfelt, Hunt-Crossley) (verified)
 
@@ -1335,7 +1335,7 @@ Extreme-quality recipe: tine_v2 pickup stage:
 - Then a passive load: second-order low-pass with a resonance whose frequency and Q are fitted per instrument (no published value found).
 Render mono and dry.
 
-Sources: https://dafx.de/paper-archive/2017/papers/DAFx17_paper_79.pdf, https://www.mat.ucsb.edu/Masters/GregShearMasters2011_12_5.pdf, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/keys_flag/pfeifle17.txt
+Sources: https://dafx.de/paper-archive/2017/papers/DAFx17_paper_79.pdf, https://www.mat.ucsb.edu/Masters/GregShearMasters2011_12_5.pdf, <scratchpad>/keys_flag/pfeifle17.txt
 
 #### Rhodes tine eras: Raymac, Torrington, Singer, and why early Mark I pianos are more bell-like (inferred)
 
@@ -1473,7 +1473,7 @@ Extreme-quality recipe: clav_v2:
 - Release-trigger samples: -3 semitone glide over 25 ms with T60 0.08 s (inferred).
 - Range F1 to E6 (MIDI 29 to 88), vl 5, RR 3, SA-hybrid.
 
-Sources: https://asp-eurasipjournals.springeropen.com/articles/10.1186/1687-6180-2013-103, https://till.com/articles/Clavinet/, https://clavinet.com/d6man.php, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/clav.txt
+Sources: https://asp-eurasipjournals.springeropen.com/articles/10.1186/1687-6180-2013-103, https://till.com/articles/Clavinet/, https://clavinet.com/d6man.php, <scratchpad>/wf_mystic/clav.txt
 
 #### Yamaha CP-70/CP-80: short strings, piezo per string, no soundboard (verified)
 
@@ -1871,7 +1871,7 @@ Extreme-quality recipe: Automated QA per render, and a release blocker if any te
 - No end-of-sample level above -60 dB.
 - Loop seam mismatch below 0.5 dB.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/docs/13_personal_quality_bar.md, /Users/noxvitae/Desktop/ResearchFacility/docs/23_full_audit.md, /Users/noxvitae/Desktop/ResearchFacility/docs/24_sound_research.md
+Sources: ~/Desktop/ResearchFacility/docs/13_personal_quality_bar.md, ~/Desktop/ResearchFacility/docs/23_full_audit.md, ~/Desktop/ResearchFacility/docs/24_sound_research.md
 
 ### Flagship candidates
 
@@ -2141,7 +2141,7 @@ Rights are the critical gate. The local Analog Lab V preset database shows playa
 
 Limits: the shared WebSearch budget ran out near the end. The Lockhart wavefolder equations, the MK50240 datasheet table, the CS-80 service manual and a Kaitlyn Aurelia Smith / Easel source were not read. No Fred again.. synth source was verified. Several gear facts rest on Wikipedia, SOS or fan sites and are marked secondary. No repo files were touched.
 
-Scratch files: /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_rare/lpg_check.py (LPG tables), /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_rare/ens_check.py (Solina matrix mono test), /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_rare/juno_check.py (Juno chorus width and pitch test), /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_rare/pdf/ (text extracts of the DAFx-13 LPG, DAFx-08 VCS3, DAFx-18 BBD, Brandt ICMC-01 and PPG 2.2 manual papers), and /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_rare/arturia_db_copy.db3 (a read-only copy of the local preset database).
+Scratch files: <scratchpad>/wf_rare/lpg_check.py (LPG tables), <scratchpad>/wf_rare/ens_check.py (Solina matrix mono test), <scratchpad>/wf_rare/juno_check.py (Juno chorus width and pitch test), <scratchpad>/wf_rare/pdf/ (text extracts of the DAFx-13 LPG, DAFx-08 VCS3, DAFx-18 BBD, Brandt ICMC-01 and PPG 2.2 manual papers), and <scratchpad>/wf_rare/arturia_db_copy.db3 (a read-only copy of the local preset database).
 
 ### Findings
 
@@ -2151,7 +2151,7 @@ Gordon Reid's SOS review of the Deckard's Dream compares the clone against a rea
 
 Extreme-quality recipe: New gen cs_dual_v2 (numba, 48 kHz, polyBLEP oscillators, filters at 2x). Per line: osc = a*saw + b*pulse(pw(t)). pw(t) = 0.5 + d*sin(2*pi*f_pwm*t + phi_section), where phi_section is identical for all notes of one round-robin. Run HP12 svf then LP12 svf with Q capped at 3 (no self-oscillation). The filter contour is a piecewise exponential IL -> AL over A, then AL -> 0 over D, then release R, applied in octaves: fc(t) = fc0 * 2^(depth_oct * c(t)) * KT(note). KT uses two slopes: kt_lo below C4 and kt_hi above it. Sine from the same phase accumulator is added AFTER the filters, before the VCA. Line II carries the detune (0..100 c). Clamp A to 1 s, D to 7 s and R to 12 s for authenticity. Slalom: the pitch offset starts at -s_c cents and decays to 0 with tau 40-120 ms, and s_c grows with the velocity layer. Pressure layer for MPE Press: brilliance +1 oct, level +3 dB, vibrato rate raised and depth added. Render 3 velocity layers x 1 pressure layer x 3 RR (RR = section PWM phase 0/120/240 deg plus per-note detune seed) every 2 semitones, 8 s, looped at a whole number of PWM periods. Depths and amounts are design values; the structure is verified.
 
-Sources: https://www.soundonsound.com/reviews/black-corporation-deckards-dream, https://archive.org/stream/CS80V_2.0_owners_manual/CS80V_2.0_owners_manual_djvu.txt, https://www.soundonsound.com/reviews/arturia-cs80v, /Users/noxvitae/Desktop/ResearchFacility/docs/24_sound_research.md
+Sources: https://www.soundonsound.com/reviews/black-corporation-deckards-dream, https://archive.org/stream/CS80V_2.0_owners_manual/CS80V_2.0_owners_manual_djvu.txt, https://www.soundonsound.com/reviews/arturia-cs80v, ~/Desktop/ResearchFacility/docs/24_sound_research.md
 
 #### Blade Runner palette: the 'mystic chimes' are acoustic tuned percussion plus FM, not the CS-80 alone (verified)
 
@@ -2183,7 +2183,7 @@ jpcima/rc-effect-playground issue #2 (analysis of recorded Juno-60 samples, plus
 
 Extreme-quality recipe: bbd stage presets. 'I': tri 0.513 Hz, delay 1.54..5.15 ms. 'II': tri 0.83 Hz, same span (span unverified). 'I+II': sine 9.75 Hz, 3.22..3.56 ms. Both lines run from one LFO in antiphase (dA = mid + half*l, dB = mid - half*l). Out: L = 0.830*dry + A, R = 0.830*dry + B (0.830 = 10^(-1.62/20)). Clock = 256/(2*delay): 24.9-83 kHz for mode I. Use Holters-Parker filters (next finding). No compander. Loop the printed sample at an integer multiple of the LFO period (1.949 s for I, 1.205 s for II) so the seam never jumps.
 
-Sources: https://github.com/jpcima/rc-effect-playground/issues/2, https://groupdiy.com/threads/juno-60-chorus-lfo-frequency-too-fast.53861, https://www.allfordj.ru/upload/iblock/a19/wmxxexutu0d00gcp3g30kemcjy0zqd4r/rukovodstvo_polzovatelya_tc_electronic_june_60_v2.pdf, https://colinraffel.com/publications/dafx2010practical.pdf, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_rare/juno_check.py
+Sources: https://github.com/jpcima/rc-effect-playground/issues/2, https://groupdiy.com/threads/juno-60-chorus-lfo-frequency-too-fast.53861, https://www.allfordj.ru/upload/iblock/a19/wmxxexutu0d00gcp3g30kemcjy0zqd4r/rukovodstvo_polzovatelya_tc_electronic_june_60_v2.pdf, https://colinraffel.com/publications/dafx2010practical.pdf, <scratchpad>/wf_rare/juno_check.py
 
 #### Holters and Parker (DAFx-18): exact Juno-60 BBD input/output filter poles and residues, 256 stages, minimum clock about 26 kHz, +2.3 dB BBD gain (verified)
 
@@ -2199,7 +2199,7 @@ jpcima/string-machine (BSL-1.0), read in source. LFO3PhaseDual.dsp: Rate 1 = 6.0
 
 Extreme-quality recipe: ensemble stage 'solina_v2': 3 x bbd_hp lines (N 185, clock = 185/(2*delay)), delay_k = 5 ms + 1 ms*(0.5*sin(2*pi*6t + 2*pi*k/3) + 0.5*sin(2*pi*0.6t + 2*pi*k/3)), with the 9562/9562/5751 Hz pre-filters. Mono-safe output: split at 250 Hz. Below it, keep the dry mono signal. Above it, L = l1 + l2 - l3 and R = l1 - l2 - l3 (authentic swirl). Selftest: corr(L,R) at 100 Hz > 0.6, and the mono sum within 3 dB of L from 40 Hz to 16 kHz. Loop at 5 s, which holds 3 cycles of 0.6 Hz and 30 of 6 Hz.
 
-Sources: https://github.com/jpcima/string-machine/blob/master/sources/dsp/LFO3PhaseDual.dsp, https://github.com/jpcima/string-machine/blob/master/sources/dsp/Delay3PhaseDigital.dsp, https://github.com/jpcima/string-machine/blob/master/sources/dsp/Delay3Phase.cpp, https://raw.githubusercontent.com/jpcima/string-machine/master/sources/dsp/Delay3PhaseStereo.cpp, https://electricdruid.net/adventures-in-top-octave-generation/, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_rare/ens_check.py
+Sources: https://github.com/jpcima/string-machine/blob/master/sources/dsp/LFO3PhaseDual.dsp, https://github.com/jpcima/string-machine/blob/master/sources/dsp/Delay3PhaseDigital.dsp, https://github.com/jpcima/string-machine/blob/master/sources/dsp/Delay3Phase.cpp, https://raw.githubusercontent.com/jpcima/string-machine/master/sources/dsp/Delay3PhaseStereo.cpp, https://electricdruid.net/adventures-in-top-octave-generation/, <scratchpad>/wf_rare/ens_check.py
 
 #### Divide-down tuning signature: integer top-octave divisors give a fixed per-pitch-class error repeated in every octave; duty cycle sets the timbre (inferred)
 
@@ -2271,7 +2271,7 @@ Read in full. The filter is a differential pair loaded by a diode-capacitor ladd
 
 Extreme-quality recipe: Stage vcs3_vcf: integrate the 4-state ODE with trapezoidal rule plus Newton (2-3 iterations) at 192 kHz (4x of 48 kHz). Above the paper's 176.4 kHz. Map I0 to cutoff with a measured table built from the model's own response, not by assumption. Resonance gain 0..9 (no self-oscillation beyond about 10). Feed it a ring-modulated pair and a 1/f 'joystick' (two slow wander curves to I0 and ring mix). Decimate with a 255-tap half-band FIR (>100 dB stopband).
 
-Sources: https://dafx.de/paper-archive/2008/papers/dafx08_06.pdf, https://search.isc.ac/inventory/49/1470423.htm, https://dafx.de/paper-archive/details/DQU38FcvCOwVI6FsNo-IUw, https://en.wikipedia.org/wiki/On_the_Run_(instrumental), https://www.soundonsound.com/music-business/all-about-ems-part-2, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_rare/pdf/vcs3.txt
+Sources: https://dafx.de/paper-archive/2008/papers/dafx08_06.pdf, https://search.isc.ac/inventory/49/1470423.htm, https://dafx.de/paper-archive/details/DQU38FcvCOwVI6FsNo-IUw, https://en.wikipedia.org/wiki/On_the_Run_(instrumental), https://www.soundonsound.com/music-business/all-about-ems-part-2, <scratchpad>/wf_rare/pdf/vcs3.txt
 
 #### Buchla lowpass gate: exact circuit model and vactrol law (Parker and D'Angelo, DAFx-13), with cutoff-vs-resistance tables I computed (verified)
 
@@ -2279,7 +2279,7 @@ Read in full. Audio path (292-derived): H(s) = 1/(a1 + a2*s + a3*s^2), with a1 =
 
 Extreme-quality recipe: Stage lpg(x, cv): cv -> If (pulse from the pulser: If peak 25-40 mA, design) -> vactrol one-pole on If, tau 12 ms up / 250 ms down, scaled by (1 - 0.5*If/If_max) (design for 'faster at high values') -> Rf = 3.464/If^1.4 + 1136.212 -> per-sample coefficients of H(s) via the paper's topology-preserving discretisation, or bilinear on a 2x grid with recomputed coefficients. Modes: 'both' (Ra 5M, C3 0) for the plucked Easel 'bong'; 'lp' (C3 4.7 nF) for resonant gates. Render at 96 kHz. SuperCollider's LPG class (based on this paper) can serve as a cross-check.
 
-Sources: https://dafx.de/paper-archive/2013/papers/44.dafx2013_submission_56.pdf, https://dafx.de/paper-archive/details/uqLQLFI9j52bBmv10UKKMg, https://doc.sccode.org/Classes/LPG.html, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_rare/lpg_check.py
+Sources: https://dafx.de/paper-archive/2013/papers/44.dafx2013_submission_56.pdf, https://dafx.de/paper-archive/details/uqLQLFI9j52bBmv10UKKMg, https://doc.sccode.org/Classes/LPG.html, <scratchpad>/wf_rare/lpg_check.py
 
 #### CORRECTION: the Buchla Music Easel (208) timbre is triangle-core cross-modulation, not the 259's five-cell folder (verified)
 
@@ -2335,7 +2335,7 @@ Mike Beecher, E&MM June 1983 (Part 2). Voices come from 8-voice cards, up to 32 
 
 Extreme-quality recipe: Gen partial24: for each of 1-4 partials, a wavetable from 24 harmonic amplitudes (own designs), read with phase = carrier_phase + I(t)*sin(mod_phase). I(t) = HE(t)*I_max with HE 0..1000 mapped linearly to 0..I_max (I_max 3-6, design). Bells: ratio 1.4 or 3.5, HE fast attack and 3 s decay. Decay scaling t60(note) = t60_ref*2^((ref - note)/12). Partial 'chorus' as a duplicate at +3 c or +12 st. Optional 'clock ring': render the low octave with a 12 kHz LP vs open (the two-cutoff behaviour). Mono-safe: partials pan only above 150 Hz.
 
-Sources: https://www.muzines.co.uk/articles/synclavier-ii/6038, /Users/noxvitae/Desktop/ResearchFacility/docs/19_legends_bank.md
+Sources: https://www.muzines.co.uk/articles/synclavier-ii/6038, ~/Desktop/ResearchFacility/docs/19_legends_bank.md
 
 #### PPG Wave 2.2, from the original manual: 8-bit, 128-word waves, 30 tables x 64 waves plus 64 'upper' waves, 24 dB LP per voice (verified)
 
@@ -2343,7 +2343,7 @@ PPG Wave 2.2 Bedienungsanleitung (German, Hermann Seib's archive), read in text.
 
 Extreme-quality recipe: Gen wave8: own 64-wave tables (design them additively, for example a harmonic 'window' sweeping 1->32; never copy PPG ROM data). Quantise each wave to 8 bits and 128 points. Read with truncated (non-interpolated) phase on a 16x grid at f*128 steps, then decimate. This keeps the 8-bit step grain and the image structure while staying band-limited at 48 kHz. Wave index wi(t) = floor(env(t)*63), stepped. Then the 4-pole OTA LP24 (mono_ota filter) with an envelope. Velocity can push the start wave; key tracking can shift wi up the keyboard (as on the PPG).
 
-Sources: https://www.hermannseib.com/documents/wave22getxt.pdf, https://en.wikipedia.org/wiki/PPG_Wave, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_rare/pdf/ppg.txt
+Sources: https://www.hermannseib.com/documents/wave22getxt.pdf, https://en.wikipedia.org/wiki/PPG_Wave, <scratchpad>/wf_rare/pdf/ppg.txt
 
 #### Ensoniq Mirage: 8-bit at 10-33 kHz into an analog CEM3328 4-pole per voice (gritty yet warm) (inferred)
 
@@ -2383,7 +2383,7 @@ Read in text. A minimum-phase band-limited step (minBLEP) is inserted at each di
 
 Extreme-quality recipe: Precompute minBLEP (Omega 64, Nz 16, Blackman, rceps). On each master reset at fractional position tau, add (new - old) * minBLEP_residual(tau) to the slave output; do the same for saw and pulse edges. Sync sweep: the slave ratio follows env 1.0 -> 4.5 over 0.6 s (design). Verify that the alias floor of a 2 kHz master with slave ratio 3.7 is below -90 dB in a 48 kHz render.
 
-Sources: https://www.cs.cmu.edu/~eli/papers/icmc01-hardsync.pdf, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_rare/pdf/brandt.txt
+Sources: https://www.cs.cmu.edu/~eli/papers/icmc01-hardsync.pdf, <scratchpad>/wf_rare/pdf/brandt.txt
 
 #### Rights gate: installed Arturia, Spectrasonics, Korg and UA plugins are PERSONAL-ONLY references and must never be printed into Sweet Melody (verified)
 
@@ -2415,7 +2415,7 @@ Synthesis of this lane plus docs 23/24. Analog character lives in four things: (
 
 Extreme-quality recipe: Chain. Internal float64 at 48 kHz. Oscillators: polyBLEP, or minBLEP for sync. Filters: 2x (ladder, OTA) or 4x (diode, fold, LPG). Decimators: 255-tap half-band, >100 dB stopband. Printed ensemble from bbd_hp. Optional world/tape stage. Loop: length = LCM of the LFO periods (choose LFO rates as rational multiples, for example PWM 0.2565 Hz = Juno-I/2), with a 1.5-2 s equal-power crossfade. Export 24-bit with TPDF dither. Selftests per preset: corr(L,R) at 100 Hz > 0.6; mono within 3 dB of L from 40 Hz to 16 kHz; alias floor < -90 dB on a static 2 kHz render; no DC above -60 dB; loop-seam RMS step < 0.5 dB. Builder changes: vl up to 4, rr up to 5 (per-RR seeds), z step 1 for per-key presets.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/docs/24_sound_research.md, /Users/noxvitae/Desktop/ResearchFacility/docs/23_full_audit.md, /Users/noxvitae/Desktop/ResearchFacility/scripts/build_signature_bank.py, https://dafx.de/paper-archive/2018/papers/DAFx2018_paper_12.pdf
+Sources: ~/Desktop/ResearchFacility/docs/24_sound_research.md, ~/Desktop/ResearchFacility/docs/23_full_audit.md, ~/Desktop/ResearchFacility/scripts/build_signature_bank.py, https://dafx.de/paper-archive/2018/papers/DAFx2018_paper_12.pdf
 
 #### CS-80 and Prophet-10 class unison and detune: why 'out of tune' sounds mystic, and how much (inferred)
 
@@ -2423,7 +2423,7 @@ Verified anchors. SOS: the CS-80 Synth II detunes up to about a semitone against
 
 Extreme-quality recipe: Use three detune scales on purpose. (a) Static line II offset 4-9 c (CS dual). (b) Per-card offsets of +/-3 c (Prophet). (c) Ensemble modulation pitch of about +/-6-10 c (Juno I/II, computed). Avoid stacking all three above about 15 c RMS unless the preset is a 'warped' variant. Measure each render's pitch-spread histogram with a YIN pass and store it in the preset metadata.
 
-Sources: https://www.soundonsound.com/reviews/black-corporation-deckards-dream, https://www.soundonsound.com/reviews/sequential-prophet-5-prophet-10, https://electricdruid.net/adventures-in-top-octave-generation/, /Users/noxvitae/Desktop/ResearchFacility/docs/24_sound_research.md
+Sources: https://www.soundonsound.com/reviews/black-corporation-deckards-dream, https://www.soundonsound.com/reviews/sequential-prophet-5-prophet-10, https://electricdruid.net/adventures-in-top-octave-generation/, ~/Desktop/ResearchFacility/docs/24_sound_research.md
 
 ### Flagship candidates
 
@@ -2488,7 +2488,7 @@ Sources: https://www.soundonsound.com/reviews/black-corporation-deckards-dream, 
 - **CONFIRMED**: Elka Synthex: 8 voices, 2 DCOs per voice, multimode filter, chorus, digital ring modulator, 4-track sequencer, single/split/double; Jarre laser harp (weak citation), Stevie Wonder 'Skeletons' (SOS 1999). https://en.wikipedia.org/wiki/Elka_Synthex states each item, with the Jarre claim sourced to an archived YouTube video.
 - **CONFIRMED**: Korg PS-3100 (SOS, Lowther, Feb 2001): one oscillator per note, no sub, switchable Ensemble, amplitude modulator for pseudo ring-mod and tremolo, per-key filter and envelope. https://www.soundonsound.com/reviews/korg-ps3100 contains each quote verbatim.
 - **CONFIRMED**: Playlist artists: BoC record wind/strings/guitars/synths into samplers, 'stacks of destructive hardware', resample to 'unrecognisable new sounds' (NYT via FACT); Kevin Parker on the Pro One 'crying in outer space' (Synth History via MusicTech). https://factmag.com/2013/06/12/boards-of-canada-reveal-studio-processes-behind-tomorrows-harvest-hint-at-collection-of-early-material quotes the NYT email interview; https://www.musictech.com/news/music/tame-impala-sequential-pro-one-is-his-favourite-synth/ quotes 'It sounded like crying in outer space' from Synth History.
-- **CONFIRMED**: Builder limitation: 'the builder currently allows only vl 1 or 2'. /Users/noxvitae/Desktop/ResearchFacility/scripts/build_signature_bank.py line 72-73 (read only): def P(..., vl=1, ...) with docstring 'vl = velocity layers (1 or 2)'.
+- **CONFIRMED**: Builder limitation: 'the builder currently allows only vl 1 or 2'. ~/Desktop/ResearchFacility/scripts/build_signature_bank.py line 72-73 (read only): def P(..., vl=1, ...) with docstring 'vl = velocity layers (1 or 2)'.
 
 ## What extreme quality means
 
@@ -2525,7 +2525,7 @@ Lane: what extreme quality means, how top libraries reach it, and the bar Sweet 
 - Some installers on this Mac have file names that suggest unofficial copies: an Omnisphere disk image named "Patched and R2R Keygen" and a mounted volume named "Output.Arcade...Regged". Every vendor permission, including the Spectrasonics private-sampling FAQ, applies only to licensed owners, so treat those products as by-ear references only.
 - Not verified: Heavyocity specs (site rate-limited), the Diva manual's exact accuracy wording, and the AES17 text.
 
-Working files (scratch, not repo): /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/interp_test2.py, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/budget2.py, and the HISE 4.1.0 source copies in /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/hise410/.
+Working files (scratch, not repo): <scratchpad>/interp_test2.py, <scratchpad>/budget2.py, and the HISE 4.1.0 source copies in <scratchpad>/hise410/.
 
 ### Findings
 
@@ -2730,7 +2730,7 @@ Extreme-quality recipe: For flagships:
 - For any sound that will be bent, keep its spectrum below about 16 kHz.
 - Re-check with the alias sweep (see the alias finding).
 
-Sources: https://github.com/christophhart/HISE/blob/4.1.0/hi_streaming/hi_streaming/StreamingSamplerVoice.cpp, http://yehar.com/blog/wp-content/uploads/2009/08/deip.pdf, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/interp_test2.py
+Sources: https://github.com/christophhart/HISE/blob/4.1.0/hi_streaming/hi_streaming/StreamingSamplerVoice.cpp, http://yehar.com/blog/wp-content/uploads/2009/08/deip.pdf, <scratchpad>/interp_test2.py
 
 #### Sweet Melody's current sampling depth, measured (verified)
 
@@ -2743,7 +2743,7 @@ Samples folder: 5.7 GB, 4,950 WAV files. 3,489 are 48k/24-bit, 1,408 are 48k/16-
 
 Extreme-quality recipe: Leave the existing bank as the light tier. Build flagships to the per-family depth bar (step 1 semitone, 6 to 12 velocity layers, 3 to 4 RR, tails to -90 dB). Re-render the 1,461 16-bit files at 24-bit.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/scripts/build_signature_bank.py, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/Samples/
+Sources: ~/Desktop/ResearchFacility/scripts/build_signature_bank.py, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/Samples/
 
 #### HISE 4.1.0 round robin is one sampler-wide counter, not per key (verified)
 
@@ -2844,7 +2844,7 @@ N uncorrelated noise copies sum to +10·log10(N) dB: +9.0 dB at 8 voices, +10 dB
 
 Extreme-quality recipe: Sample content holds only the instrument and its own mechanics, which are physically per note. Hiss, room tone, crackle and the tape bed play from one looped bed sampler per instrument, at constant level, ducked by the number of held notes only if the design needs it.
 
-Sources: https://www.musictech.com/reviews/spectrasonics-keyscape-review/, https://www.native-instruments.com/en/products/komplete/keys/noire/, /Users/noxvitae/Desktop/ResearchFacility/docs/24_sound_research.md
+Sources: https://www.musictech.com/reviews/spectrasonics-keyscape-review/, https://www.native-instruments.com/en/products/komplete/keys/noire/, ~/Desktop/ResearchFacility/docs/24_sound_research.md
 
 #### Sample rate: 48 kHz storage, oversampled rendering (verified)
 
@@ -2852,7 +2852,7 @@ Live 12.1.10 on this Mac logs 48,000 Hz with a 512-sample output buffer (2026-11
 
 Extreme-quality recipe: Store everything at 48 kHz, so the ratio is exactly 1.0 at the root. Render nonlinear stages (ladder, folding, drive, hammer contact) at 8x (384 kHz) and decimate with scipy.signal.resample_poly. Do not store 96 kHz files for a 48 kHz session: HISE would play them at a 2:1 ratio with no anti-alias filter.
 
-Sources: /Users/noxvitae/Library/Preferences/Ableton/Live 12.1.10/Log.txt, https://qmro.qmul.ac.uk/xmlui/handle/123456789/13493, https://github.com/christophhart/HISE/blob/4.1.0/hi_streaming/hi_streaming/StreamingSamplerVoice.cpp
+Sources: ~/Library/Preferences/Ableton/Live 12.1.10/Log.txt, https://qmro.qmul.ac.uk/xmlui/handle/123456789/13493, https://github.com/christophhart/HISE/blob/4.1.0/hi_streaming/hi_streaming/StreamingSamplerVoice.cpp
 
 #### True peak and loudness for headroom and A/B tests (verified)
 
@@ -2876,7 +2876,7 @@ Extreme-quality recipe: For every flagship generator:
 - (b) Render a 4-octave exponential pitch glide through the full offline chain. In a spectrogram, no component may move against the glide above -90 dB.
 - (c) In HISE, play the stored sample with a ±200 cent bend. Pass: at or below -55 dB for bent presets; otherwise flag the preset as no-bend.
 
-Sources: https://aes2.org/publications/elibrary-page/?id=10211, /Users/noxvitae/Desktop/ResearchFacility/docs/23_full_audit.md
+Sources: https://aes2.org/publications/elibrary-page/?id=10211, ~/Desktop/ResearchFacility/docs/23_full_audit.md
 
 #### Loop strategy: exactly periodic loops and how HISE crossfades (inferred)
 
@@ -2913,7 +2913,7 @@ Velocity, keyboard and RR:
 
 Aliasing: see the alias finding.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/docs/23_full_audit.md, https://www.itu.int/rec/R-REC-BS.1770-5-202311-I, https://hajim.rochester.edu/ece/sites/zduan/teaching/ece472/reading/Lipshitz_1992.pdf
+Sources: ~/Desktop/ResearchFacility/docs/23_full_audit.md, https://www.itu.int/rec/R-REC-BS.1770-5-202311-I, https://hajim.rochester.edu/ece/sites/zduan/teaching/ece472/reading/Lipshitz_1992.pdf
 
 #### Per-family sampling depth bar for Sweet Melody (inferred)
 
@@ -2941,7 +2941,7 @@ Full-spec flagship totals (computed): F1 1.97 GB, F2 10.16, F3 10.19 (two mics),
 
 Extreme-quality recipe: Flagship tier budget: 30 GB or less on the internal disk. Get there by keeping one celesta mic as standard and loading one Monochord preparation at a time; installing everything would drop the internal disk to about 50 GiB free. Preload stays under 1 GiB with lazy-load purge. Personal-only expansions, if ever made, go on the Extreme SSD via a sample-folder redirect, and the SSD must then be mounted to play them.
 
-Sources: /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/budget2.py, https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_sampler/sampler/ModulatorSampler.cpp
+Sources: <scratchpad>/budget2.py, https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_sampler/sampler/ModulatorSampler.cpp
 
 #### Route status of the installed 'personal sources' (licence and presence) (verified)
 
@@ -2956,7 +2956,7 @@ Installer names: the Downloads folder holds 'Spectrasonics - Omnisphere v3.0.0d 
 
 Extreme-quality recipe: PERSONAL-ONLY resampling is not a viable flagship route now: the Keyscape library is missing, the Arturia EULA forbids it, other EULAs are unread, and licence status is unclear. Use these products only as by-ear A/B references. Build flagships from models and self-captured IRs, which are sale-safe. Nothing third-party enters the public repo.
 
-Sources: https://www.manualslib.fr/manual/9675/Arturia-Solina-V.html?page=48, https://www.manualslib.fr/manual/187505/Arturia-B-3-V.html?page=45, https://support.spectrasonics.net/manual/Keyscape/11/en/topic/sample-faq, https://support.spectrasonics.net/manual/Omnisphere/legal/index.html, /Users/Shared/Library/Application Support/STEAM/, /Users/noxvitae/Downloads/
+Sources: https://www.manualslib.fr/manual/9675/Arturia-Solina-V.html?page=48, https://www.manualslib.fr/manual/187505/Arturia-B-3-V.html?page=45, https://support.spectrasonics.net/manual/Keyscape/11/en/topic/sample-faq, https://support.spectrasonics.net/manual/Omnisphere/legal/index.html, /Users/Shared/Library/Application Support/STEAM/, ~/Downloads/
 
 #### Polymoog facts for the Vox Humana flagship (verified)
 
@@ -2964,7 +2964,7 @@ Vintage Synth Explorer (secondary): the 203a has a 71-key velocity-sensitive Pra
 
 Extreme-quality recipe: Model a divide-down bank with exact 2:1 octaves and a drift trajectory shared within each pitch class, a per-key ladder, and a fixed resonant band set. Velocity sets brightness, because the original keyboard was velocity-sensitive. Verify preset voicing against the 280a owner's manual before naming the preset 'Vox Humana' in the UI.
 
-Sources: https://www.vintagesynth.com/moog/polymoog-203a, https://synthfool.com/docs/Moog/, /Users/noxvitae/Desktop/ResearchFacility/docs/24_sound_research.md
+Sources: https://www.vintagesynth.com/moog/polymoog-203a, https://synthfool.com/docs/Moog/, ~/Desktop/ResearchFacility/docs/24_sound_research.md
 
 ### Flagship candidates
 
@@ -3130,7 +3130,7 @@ QA: period-null residual at or below -80 dB; mono fold-down at or above -3 dB in
 - **CONFIRMED**: ITU-R BS.1770-5 approved 2023-11-22, in force; Farina AES 108 preprint 5093 (2000); Lipshitz/Wannamaker/Vanderkooy JAES 40(5) 1992. ITU page: approved 2023-11-22, 'In force (Main)' (https://www.itu.int/rec/R-REC-BS.1770-5-202311-I). Farina: AES 108th, Paris, Feb 2000, paper 5093. Lipshitz et al.: JAES 40(5):355-375, May 1992. The AES e-library pages returned 403; confirmed through search and secondary records.
 - **CONFIRMED**: Computed numbers: 16-bit SNR 98.1 dB (93.3 TPDF), 24-bit 146.3 (141.5 TPDF); +10log10(N) noise summing; 12/16 p=0.038, 13/16 p=0.011. 6.02N+1.76: 98.09 and 146.24 dB. TPDF adds 2x LSB^2/12, so noise is 3x, or -4.77 dB, giving 93.3 and 141.5. 10log10(8,10,16) = 9.03, 10.0, 12.04. One-sided binomial: 2517/65536 = 0.0384 and 697/65536 = 0.0106.
 - **CONFIRMED**: Kontakt DFD preload default 60 KB, SSD 'often get away' with 6 KB; NCW 'up to 50 percent'; Factory library 43 GB to 23.26 GB. Spitfire support: 'By default, this value is set to 60KB', 'as low as 6KB'. KVR K4 news: 'reduces sample size by up to 50 percent'. NI support: 43 GB uncompressed, 23.26 GB NCW. URLs as cited by the lane.
-- **CONFIRMED**: Sweet Melody current depth: 104 zone tuples (90 step 6, 8 step 4, 5 step 3, 1 step 12), dur min 1.0/median 3.0/max 8.5 s, vl=2 on 43, 48 looped; Samples 5.7 GB, 4,950 WAV (3,489 48k/24, 1,408 48k/16, 53 44.1k/16). Read-only parse of /Users/noxvitae/Desktop/ResearchFacility/scripts/build_signature_bank.py and WAV fmt headers under hise_project/ResearchFacility/Samples gave identical counts. du = 5.7G.
+- **CONFIRMED**: Sweet Melody current depth: 104 zone tuples (90 step 6, 8 step 4, 5 step 3, 1 step 12), dur min 1.0/median 3.0/max 8.5 s, vl=2 on 43, 48 looped; Samples 5.7 GB, 4,950 WAV (3,489 48k/24, 1,408 48k/16, 53 44.1k/16). Read-only parse of ~/Desktop/ResearchFacility/scripts/build_signature_bank.py and WAV fmt headers under hise_project/ResearchFacility/Samples gave identical counts. du = 5.7G.
 - **CONFIRMED**: Local budget: Mac16,8 M4 Pro, 24 GiB, 90 GiB free; Live 12.1.10 at 48 kHz / 512 buffer; doc 13 recorded 32. sysctl hw.model Mac16,8, M4 Pro, hw.memsize 25769803776. df shows 90Gi available. Live Log.txt shows 'Buffer Size: 512 Samples' and 48000. docs/13 lines 600 and 712 say 32-sample buffer.
 - **CONFIRMED**: Keyscape plugin installed but no STEAM library; STEAM holds only Omnisphere 57 GB; installer names suggest unofficial copies. /Library/Audio/Plug-Ins/Components/Keyscape.component exists. /Users/Shared/Library/Application Support/STEAM contains only Omnisphere (du 57G). ~/Library/Application Support/Spectrasonics is empty. No 'keyscape' found to depth 4 on /Volumes/*. The DMG 'Spectrasonics - Omnisphere v3.0.0d (Patched and R2R Keygen) [GUISEPPE].dmg' exists, and /Volumes/Output.Arcade.v2.2.0.R18263.Regged.macOS-FLARE is mounted.
 - **CONFIRMED**: Arturia EULA forbids use 'for the creation of a sound library or as a sound library for any kind of synthesizer, virtual instrument'. The same clause appears in manualslib copies of the Arturia B-3 V, Solina V and Farfisa V manuals ('... sample library, sample-based Product or other musical instrument is strictly prohibited'). https://www.manualslib.fr/manual/187505/Arturia-B-3-V.html?page=45 ; https://www.manualslib.fr/manual/9675/Arturia-Solina-V.html?page=48
@@ -3172,17 +3172,17 @@ The web search budget ran out late in the run. Still unverified:
 - Ethereal Earth and Hypha content
 - the Serum EULA
 
-Probe script: /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/sm_rr_probe.py. Extracted EULA texts: /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/ni_eula.txt, ua_eula.txt and korg_eula.txt in the same scratchpad folder.
+Probe script: <scratchpad>/sm_rr_probe.py. Extracted EULA texts: <scratchpad>/ni_eula.txt, ua_eula.txt and korg_eula.txt in the same scratchpad folder.
 
 ### Findings
 
 #### PRECONDITION: personal routes need a genuine licence; installer names on disk indicate patched or keygen releases (verified)
 
-On disk: '/Users/noxvitae/Downloads/Spectrasonics - Omnisphere v3.0.0d U2B/Spectrasonics - Omnisphere v3.0.0d (Patched and R2R Keygen) [GUISEPPE].dmg', '/Users/noxvitae/Downloads/KORG - EP-1 v1.1.4 U2B/EP-1_1_1_4.dmg', and a mounted volume '/Volumes/Output.Arcade.v2.2.0.R18263.Regged.macOS-FLARE'. These names indicate patched, keygen or 'regged' releases. I cannot tell from disk whether the installed copies are licensed (installed Omnisphere is 2.8.5c, not the 3.0.0d installer). Every permission found for private sampling is conditional on a licence. Spectrasonics: 'Every licensed user is free to use sounds from their Spectrasonics Virtual Instruments in any way'. UA EULA v11 Section 2(a): the licence is conditioned on acquisition from UA or an 'Authorized UA Reseller' and on compliance with obligations 'intended to prevent the Licensed Software from being pirated, hacked or otherwise misused'. The KORG licence grants rights only to 'the original purchaser'. A copy not bought from the vendor or an authorised reseller has no personal resampling route at all.
+On disk: '~/Downloads/Spectrasonics - Omnisphere v3.0.0d U2B/Spectrasonics - Omnisphere v3.0.0d (Patched and R2R Keygen) [GUISEPPE].dmg', '~/Downloads/KORG - EP-1 v1.1.4 U2B/EP-1_1_1_4.dmg', and a mounted volume '/Volumes/Output.Arcade.v2.2.0.R18263.Regged.macOS-FLARE'. These names indicate patched, keygen or 'regged' releases. I cannot tell from disk whether the installed copies are licensed (installed Omnisphere is 2.8.5c, not the 3.0.0d installer). Every permission found for private sampling is conditional on a licence. Spectrasonics: 'Every licensed user is free to use sounds from their Spectrasonics Virtual Instruments in any way'. UA EULA v11 Section 2(a): the licence is conditioned on acquisition from UA or an 'Authorized UA Reseller' and on compliance with obligations 'intended to prevent the Licensed Software from being pirated, hacked or otherwise misused'. The KORG licence grants rights only to 'the original purchaser'. A copy not bought from the vendor or an authorised reseller has no personal resampling route at all.
 
 Extreme-quality recipe: Gate every resample_personal job on proof of licence: the product must appear in the vendor account (Spectrasonics user account, Native Access, Arturia Software Center, UA Connect, KORG ID, XLN Online Installer). Store the order ID in each PERSONAL_*.meta.json. Skip any product without it, and buy it before resampling if the sound is wanted.
 
-Sources: /Users/noxvitae/Downloads/Spectrasonics - Omnisphere v3.0.0d U2B, /Users/noxvitae/Downloads/KORG - EP-1 v1.1.4 U2B/EP-1_1_1_4.dmg, /Volumes/Output.Arcade.v2.2.0.R18263.Regged.macOS-FLARE, https://support.spectrasonics.net/manual/Keyscape/11/en/topic/sample-faq, https://cdn.shopify.com/s/files/1/0558/1724/0665/files/EULA_Ver_11_Combined_090326.pdf, /Applications/KORG/ARP 2600/Documentation/KorgSoftwareLicenseAgreement.rtf
+Sources: ~/Downloads/Spectrasonics - Omnisphere v3.0.0d U2B, ~/Downloads/KORG - EP-1 v1.1.4 U2B/EP-1_1_1_4.dmg, /Volumes/Output.Arcade.v2.2.0.R18263.Regged.macOS-FLARE, https://support.spectrasonics.net/manual/Keyscape/11/en/topic/sample-faq, https://cdn.shopify.com/s/files/1/0558/1724/0665/files/EULA_Ver_11_Combined_090326.pdf, /Applications/KORG/ARP 2600/Documentation/KorgSoftwareLicenseAgreement.rtf
 
 #### Keyscape: 36 rare keyboards, but the sound library is not installed on this Mac (verified)
 
@@ -3218,11 +3218,11 @@ Sources: /Users/Shared/Library/Application Support/STEAM/Omnisphere/Documentatio
 
 #### Omnisphere and Vital cannot be hosted by the repo's existing sampler venv (verified)
 
-lipo shows Omnisphere.vst3 2.8.5c and Vital.vst3 1.0.7 as x86_64 only. The existing /Users/noxvitae/Desktop/ResearchFacility/.venv-sampler has a universal2 python3, but pedalboard_native.cpython-312-darwin.so is arm64 only, so 'arch -x86_64' cannot load pedalboard from that venv. PyPI 0.9.26 publishes cp312 universal2 (4,795,871 bytes), x86_64 and arm64 wheels. Everything else listed is universal: Keyscape, Kontakt 7 and 8, Analog Lab V, Pigments, PolyMAX, ARP 2600, EP-1, Nexus, Serum, Surge XT, TAL-NoiseMaker, SKY Keys and Odin III.
+lipo shows Omnisphere.vst3 2.8.5c and Vital.vst3 1.0.7 as x86_64 only. The existing ~/Desktop/ResearchFacility/.venv-sampler has a universal2 python3, but pedalboard_native.cpython-312-darwin.so is arm64 only, so 'arch -x86_64' cannot load pedalboard from that venv. PyPI 0.9.26 publishes cp312 universal2 (4,795,871 bytes), x86_64 and arm64 wheels. Everything else listed is universal: Keyscape, Kontakt 7 and 8, Analog Lab V, Pigments, PolyMAX, ARP 2600, EP-1, Nexus, Serum, Surge XT, TAL-NoiseMaker, SKY Keys and Odin III.
 
 Extreme-quality recipe: A separate venv (user installs; I install nothing), e.g. .venv-sampler-x86, created by 'arch -x86_64 /Library/Frameworks/Python.framework/Versions/3.12/bin/python3 -m venv', with the universal2 or x86_64 pedalboard 0.9.26 wheel. Run every Omnisphere render under 'arch -x86_64'.
 
-Sources: /Library/Audio/Plug-Ins/VST3/Omnisphere.vst3, /Library/Audio/Plug-Ins/VST3/Vital.vst3, /Users/noxvitae/Desktop/ResearchFacility/.venv-sampler/lib/python3.12/site-packages/pedalboard_native.cpython-312-darwin.so, https://pypi.org/pypi/pedalboard/json
+Sources: /Library/Audio/Plug-Ins/VST3/Omnisphere.vst3, /Library/Audio/Plug-Ins/VST3/Vital.vst3, ~/Desktop/ResearchFacility/.venv-sampler/lib/python3.12/site-packages/pedalboard_native.cpython-312-darwin.so, https://pypi.org/pypi/pedalboard/json
 
 #### Analog Lab V on disk: Moog, Buchla, EMS and Fairlight engines; preset files present (verified)
 
@@ -3286,7 +3286,7 @@ UA End User License Agreement Version 11 (KSK 090326), Section 3(a). Customer sh
 
 Extreme-quality recipe: No scripted or Auto Sampler renders of PolyMAX, 610 or 1176. Live playing and bouncing your own performances is normal use. Ask UA in writing if a personal multisample is wanted. Also keep UA outputs out of any ML features (docs/08 AI search).
 
-Sources: https://cdn.shopify.com/s/files/1/0558/1724/0665/files/EULA_Ver_11_Combined_090326.pdf, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/ua_eula.txt
+Sources: https://cdn.shopify.com/s/files/1/0558/1724/0665/files/EULA_Ver_11_Combined_090326.pdf, <scratchpad>/ua_eula.txt
 
 #### Addictive Keys: four instruments on disk; XLN terms bar resale and distribution, not private use (verified)
 
@@ -3334,7 +3334,7 @@ Probe (scratchpad sm_rr_probe.py, run with .venv-sampler python -B, pedalboard 0
 
 Extreme-quality recipe: Probe every source before mapping. If takes differ (Surge), render N real round robins. If bit-identical (TAL), make RR by changing the source, never by copying: vary a free-running LFO's phase with different silent pre-roll lengths under reset=False, or a per-take micro-detune of 1 to 3 cents. Reject a map when consecutive RR takes correlate above 0.999.
 
-Sources: /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/sm_rr_probe.py, /Library/Audio/Plug-Ins/VST3/Surge XT.vst3, /Library/Audio/Plug-Ins/VST3/TAL-NoiseMaker.vst3
+Sources: <scratchpad>/sm_rr_probe.py, /Library/Audio/Plug-Ins/VST3/Surge XT.vst3, /Library/Audio/Plug-Ins/VST3/TAL-NoiseMaker.vst3
 
 #### pedalboard 0.9.26 instrument hosting: what the API guarantees (verified)
 
@@ -3350,7 +3350,7 @@ Sources: https://spotify.github.io/pedalboard/reference/pedalboard.html, https:/
 
 Extreme-quality recipe: The user adds scipy (for resample_poly decimation and loop correlation) to .venv-sampler; mido is optional because (bytes, seconds) tuples suffice. Keep personal renders out of the repo tree entirely, not just gitignored.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/.venv-sampler/lib/python3.12/site-packages, /Users/noxvitae/Desktop/ResearchFacility/.gitignore, /Users/noxvitae/Desktop/ResearchFacility/scripts/autosample/probe.py, /Users/noxvitae/Desktop/ResearchFacility/scripts/autosample/surge_state_probe.py
+Sources: ~/Desktop/ResearchFacility/.venv-sampler/lib/python3.12/site-packages, ~/Desktop/ResearchFacility/.gitignore, ~/Desktop/ResearchFacility/scripts/autosample/probe.py, ~/Desktop/ResearchFacility/scripts/autosample/surge_state_probe.py
 
 #### DawDreamer 0.9.0 as an alternative host: AU, VST2 and VST3 on macOS, with an embedded Faust compiler (verified)
 
@@ -3366,7 +3366,7 @@ Built on the verified host facts and the repo's HISE samplemap format. The build
 
 Extreme-quality recipe: 1) PROFILE pass per patch: (a) the determinism probe; (b) tail: render C2, C4 and C6 at velocity 127, hold 2 s, and find time to -80 dBFS after note-off; (c) velocity response: render C4 at velocities 1 to 127 in steps of 6, compute RMS and spectral centroid, and place layer boundaries where the centroid moves more than about 8%, capped at 5 layers for keys and 3 for synths; (d) latency from reported_latency_samples. 2) GRID: acoustic or electro-mechanical keys every 2 semitones; resonant-ladder synths every 2 semitones (repitching shifts a key-tracked resonance); non-resonant pads every 3. 3) RENDER at 96 kHz float32, then scipy resample_poly(x, 1, 2) to 48 kHz and write 24-bit WAV. 4) HOLD: decaying sources until -70 dBFS (capped at 15 s); sustaining sources 6 s, then correlation-searched loop (doc 25 B3) with a 200 to 400 ms crossfade. 5) RELEASE: a second render per root and layer with note-off at 1.5 s; crop from note-off minus 10 ms, apply a 5 ms fade-in, and map as a release group. 6) RR: 2 to 4 takes per the probe, written as RRGroup 1..N with RRGroupAmount=N. 7) NORMALISE per map, never per sample, so velocity dynamics survive; store peak dBFS and render settings in .meta.json. 8) QA: every take's L/R correlation is below 0.98 unless the source is mono by design, no take has DC above -60 dBFS, and the tail reaches the floor before the file ends.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/scripts/build_signature_bank.py, https://spotify.github.io/pedalboard/reference/pedalboard.html, https://www.soundonsound.com/techniques/logic-using-auto-sampler, https://github.com/sfzinstruments/SalamanderGrandPiano
+Sources: ~/Desktop/ResearchFacility/scripts/build_signature_bank.py, https://spotify.github.io/pedalboard/reference/pedalboard.html, https://www.soundonsound.com/techniques/logic-using-auto-sampler, https://github.com/sfzinstruments/SalamanderGrandPiano
 
 #### Release samples: SFZ and HISE trigger semantics to copy (inferred)
 
@@ -3470,7 +3470,7 @@ Secondary sources list the Polymoog Keyboard (280a) presets as vox humana, strin
 
 Extreme-quality recipe: Target sound for the flagship 'Parlour Ladder Piano': a divide-down tone with a per-key piano envelope, through the ladder and three resonators. That is the Moog-family idea of a piano, which no installed sample library offers.
 
-Sources: https://wikipedia.com/wiki/Moog_Apollo, https://www.vintagesynth.com/moog/polymoog-203a, https://www.manualslib.com/manual/999233/Moog-Polymoog.html?page=22, /Users/noxvitae/Desktop/ResearchFacility/docs/24_sound_research.md
+Sources: https://wikipedia.com/wiki/Moog_Apollo, https://www.vintagesynth.com/moog/polymoog-203a, https://www.manualslib.com/manual/999233/Moog-Polymoog.html?page=22, ~/Desktop/ResearchFacility/docs/24_sound_research.md
 
 #### Vital, Serum and TAL-NoiseMaker: own-patch renders only; hosting and licence notes (inferred)
 
@@ -3478,7 +3478,7 @@ Vital 1.0.7 is x86_64-only (lipo), so it needs the x86 venv; code is GPL-3 and f
 
 Extreme-quality recipe: For the public build, prefer Surge XT (explicit output grant) over Vital, Serum and TAL for any plugin-rendered synth voice. Use Serum and TAL renders only in SM_Personal until their terms are read.
 
-Sources: /Library/Audio/Plug-Ins/VST3/Vital.vst3, /Library/Audio/Plug-Ins/VST3/Serum.vst3, https://github.com/mtytel/vital, /Users/noxvitae/Desktop/ResearchFacility/docs/24_sound_research.md
+Sources: /Library/Audio/Plug-Ins/VST3/Vital.vst3, /Library/Audio/Plug-Ins/VST3/Serum.vst3, https://github.com/mtytel/vital, ~/Desktop/ResearchFacility/docs/24_sound_research.md
 
 #### Route ranking: quality, effort and licence risk (inferred)
 
@@ -3707,7 +3707,7 @@ Primary specs found:
 Local checks:
 - The Valhalla and FabFilter factory preset files are installed under /Library/Audio/Presets/Valhalla DSP, LLC, /Library/Application Support/Valhalla DSP, LLC and ~/Documents/FabFilter/Presets.
 - pedalboard and DawDreamer are not installed. Swift is available at /usr/bin/swiftc.
-- Working text extracts: /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/lane_mystic/pcm.txt (Lexicon manual) and /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/lane_mystic/lp.txt (Soundtoys manual).
+- Working text extracts: <scratchpad>/lane_mystic/pcm.txt (Lexicon manual) and <scratchpad>/lane_mystic/lp.txt (Soundtoys manual).
 - No repo file was touched and nothing was installed.
 
 Gaps:
@@ -4369,7 +4369,7 @@ Extreme-quality recipe: PERSONAL-ONLY 'Night Print' racks, chained in Live 12 an
 
 Save the renders outside ~/Desktop/ResearchFacility and log the chain per file.
 
-Sources: /Library/Audio/Presets/Valhalla DSP, LLC/ValhallaShimmer, /Users/noxvitae/Documents/FabFilter/Presets/Saturn 2/_04 Lo-fi, /Users/noxvitae/Documents/FabFilter/Presets/Timeless 3/_04 Reverb, /Library/Application Support/Valhalla DSP, LLC/ValhallaSupermassive/Presets/Factory
+Sources: /Library/Audio/Presets/Valhalla DSP, LLC/ValhallaShimmer, ~/Documents/FabFilter/Presets/Saturn 2/_04 Lo-fi, ~/Documents/FabFilter/Presets/Timeless 3/_04 Reverb, /Library/Application Support/Valhalla DSP, LLC/ValhallaSupermassive/Presets/Factory
 
 #### Ableton Live 12 'Render as Loop' wraps the effect tail into the start of the file (seamless loop prints) (verified)
 
@@ -4468,7 +4468,7 @@ Not found in any source this pass: a documented producer chain specific to Polym
 
 Extreme-quality recipe: Use the stages in this lane (Random Hall FDN, time-varying-matrix FDN, white chorus, EMT-curve plate, Type 4 spring, Micro Halo, Crystal Reverse, Half-Speed Reel, Twenty-Cent Reel, Parlour Halo, Single Mic Night, Broken Chorus Echo, medium speed) on top of doc 25's generators. Do not create parallel copies of doc 24 or doc 25 stages.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/docs/24_sound_research.md, /Users/noxvitae/Desktop/ResearchFacility/docs/25_mystic_sound_plan.md, /Users/noxvitae/Desktop/ResearchFacility/docs/19_legends_bank.md, /Users/noxvitae/Desktop/ResearchFacility/docs/13_personal_quality_bar.md
+Sources: ~/Desktop/ResearchFacility/docs/24_sound_research.md, ~/Desktop/ResearchFacility/docs/25_mystic_sound_plan.md, ~/Desktop/ResearchFacility/docs/19_legends_bank.md, ~/Desktop/ResearchFacility/docs/13_personal_quality_bar.md
 
 ### Flagship candidates
 

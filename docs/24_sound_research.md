@@ -12,7 +12,7 @@ PLUGIN AUDIT (measured, all reproducible from the scratch scripts):
 (3) Mono fold-down cancellation in gen_modal (line 516) and gen_glass_pad (line 723), caused by independent random L/R phases. The worst case is -15.5 dB on dusty_kalimba, and night_marimba, tropic_mallet, music_box_memory and night_celesta all lose 11.8 to 15 dB. Sharing one phase per mode brings the worst case to -0.3 dB.
 (4) Every sampler has RRGroupAmount=1, and Loops mode has no percussion lane. Both block the xx-style rim and click identity.
 
-IDEAS: 15 recipes, including new steelpan, pbass and IR-set generators, an 8-card Oberheim-style round-robin poly, the Microcube neck lead, the Ooh-into-sampler voice, Crystal Down Echo, a Hold/Freeze control, and 2 loop kits. The scratch prototypes are in /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/: xx_audit.py, xx_audit2.py, xx_h1.py, xx_fixproto.py, xx_pluckproto.py, xx_steelpan_proto.py and proto_steelpan_{55,67,79}_{soft,hard}.wav.
+IDEAS: 15 recipes, including new steelpan, pbass and IR-set generators, an 8-card Oberheim-style round-robin poly, the Microcube neck lead, the Ooh-into-sampler voice, Crystal Down Echo, a Hold/Freeze control, and 2 loop kits. The scratch prototypes are in <scratchpad>/wf_mystic/: xx_audit.py, xx_audit2.py, xx_h1.py, xx_fixproto.py, xx_pluckproto.py, xx_steelpan_proto.py and proto_steelpan_{55,67,79}_{soft,hard}.wav.
 
 LIMITS: the web-search budget, shared across agents, ran out. As a result, the Rolling Stone 'rare 1970s Oberheim for Gosh' claim rests on a search excerpt only (the page fetch was denied). The Hammerhead Rhythm Station, JX-3P/MS-20 specs, the Korg Delta architecture, the Ampeg and RE-301 specs, and the spring/plate paper contents are search-summary level and marked inferred. One Song Exploder HTML page was fetched to scratch with curl and deleted right away. Nothing in the repo was edited: the numba cache was redirected to scratch.
 
@@ -256,7 +256,7 @@ From HISE 4.1.0 source. SimpleReverbEffect is 'the Freeverb algorithm found in J
 
 How to recreate here: Add 'Space Convolution' (HISE Convolution) next to the Master Reverb. Each preset gets a new 'ir' recipe field (PLATE/SPRING/TANK/CORRIDOR/CUBE) and SPACE drives WetGain. Expose FreezeMode as a HOLD/FREEZE button for infinite-room pads. Raise LowPassFreq to 7000 for DD-3-style guitar echoes.
 
-Sources: https://raw.githubusercontent.com/christophhart/HISE/4.1.0/hi_core/hi_modules/effects/fx/SimpleReverb.h, https://raw.githubusercontent.com/christophhart/HISE/4.1.0/hi_core/hi_modules/effects/fx/Convolution.h, https://raw.githubusercontent.com/juce-framework/JUCE/master/modules/juce_audio_basics/utilities/juce_Reverb.h, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/ScriptProcessors/ResearchFacility/Interface.js, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/XmlPresetBackups/ResearchFacility.xml
+Sources: https://raw.githubusercontent.com/christophhart/HISE/4.1.0/hi_core/hi_modules/effects/fx/SimpleReverb.h, https://raw.githubusercontent.com/christophhart/HISE/4.1.0/hi_core/hi_modules/effects/fx/Convolution.h, https://raw.githubusercontent.com/juce-framework/JUCE/master/modules/juce_audio_basics/utilities/juce_Reverb.h, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/ScriptProcessors/ResearchFacility/Interface.js, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/XmlPresetBackups/ResearchFacility.xml
 
 #### AUDIT BUG: Karplus voices are sharp in the upper zones (verified)
 
@@ -264,7 +264,7 @@ scripts/sigbank_dsp.py line 486 sets 'period = SR / f0 - 0.5'. The loop filter (
 
 How to recreate here: Change it to period = SR/f0 - 0.5*(1.0 - damp). In a scratch prototype this gives 0.0 cents at damp 0.15, 0.4 and 0.7, at notes 76, 88 and 96. Re-render the karplus presets and the loop kits that use them.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/xx_audit2.py, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/xx_fixproto.py
+Sources: ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py, <scratchpad>/wf_mystic/xx_audit2.py, <scratchpad>/wf_mystic/xx_fixproto.py
 
 #### AUDIT BUG: Karplus 'fundamental lottery' (timbre jumps between zones and layers) (verified)
 
@@ -272,7 +272,7 @@ gen_karplus (lines 478-484) excites the loop with one period of random noise. Th
 
 How to recreate here: Deterministic excitation: a triangle displacement with apex at the pluck position beta (0.12 to 0.25), mean-removed, plus 5 to 8% noise for realism. In a scratch prototype over 68 zone and seed combinations, the worst fundamental went from -20 dB to 0 dB, with no zone below -12 dB. Add the gp keys 'excite':'pluck' and 'beta'.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/xx_h1.py, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/xx_pluckproto.py
+Sources: ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py, <scratchpad>/wf_mystic/xx_h1.py, <scratchpad>/wf_mystic/xx_pluckproto.py
 
 #### AUDIT BUG: mallets, bells and glass pads cancel in mono (verified)
 
@@ -280,7 +280,7 @@ gen_modal (line 516-517) and gen_glass_pad (line 723) give each mode an independ
 
 How to recreate here: Draw one phase per mode and use it on both sides, keeping the plus-or-minus beat_c detune so the stereo motion grows over time. A scratch prototype over 40 seeds went from a -12.0 dB worst case and 11.8 dB spread to -0.3 dB worst and 0.0 dB spread. Apply the same fix to glass_pad and to the metal partials in prepared (line 746, mono already). Then re-render.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/xx_audit2.py, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/xx_fixproto.py
+Sources: ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py, <scratchpad>/wf_mystic/xx_audit2.py, <scratchpad>/wf_mystic/xx_fixproto.py
 
 #### AUDIT GAP: no round-robins and no percussion lane (verified)
 
@@ -288,7 +288,7 @@ All 5 sampler modules in XmlPresetBackups/ResearchFacility.xml have RRGroupAmoun
 
 How to recreate here: Option A: add a 5th lane 'PERC' on notes 64-67. Doc 15 then needs a note-map change for Flip and the other controls, which currently sit at 64+. Option B: allow PLUCK-lane percussion presets with 4 to 8 RR variants each. In both cases, the sample-map writer should emit RRGroup per variant and set RRGroupAmount on the sampler.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/XmlPresetBackups/ResearchFacility.xml, /Users/noxvitae/Desktop/ResearchFacility/scripts/build_loop_lines.py, /Users/noxvitae/Desktop/ResearchFacility/docs/15_loops_mode_design.md, https://songexploder.net/wp-content/uploads/2026/05/Song-Exploder-The-xx-Transcript-Google-Docs.pdf
+Sources: ~/Desktop/ResearchFacility/hise_project/ResearchFacility/XmlPresetBackups/ResearchFacility.xml, ~/Desktop/ResearchFacility/scripts/build_loop_lines.py, ~/Desktop/ResearchFacility/docs/15_loops_mode_design.md, https://songexploder.net/wp-content/uploads/2026/05/Song-Exploder-The-xx-Transcript-Google-Docs.pdf
 
 ### Sound ideas from this lane
 
@@ -366,7 +366,7 @@ I then documented 13 machines at circuit level: Minimoog, Memorymoog, Polymoog, 
 
 Limits: the shared WebSearch budget ran out mid-run, so several gear facts rest on Wikipedia pages that cite Sound On Sound or E&MM, and are marked as secondary. The Polymoog Vox Humana mechanism and the VCS3 diode-filter DSP stay inferred. No repo files were changed.
 
-Scratch scripts are in /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/lane_moog/:
+Scratch scripts are in <scratchpad>/wf_mystic/lane_moog/:
 - hise_filters_sim.py, cutoff_check.py, tone_open.py, peak_check.py: HISE filter ports.
 - hise_chorus_sim.py, chain_sim.py: chorus port and full chain.
 - analyse_renders.py: render measurements.
@@ -380,7 +380,7 @@ The root FX chain's Master Filter (ResearchFacility.xml lines 38-39, Mode=8, nev
 
 How to recreate here: Switch the Master Filter to Mode 6 (StateVariableLP), or bypass it whenever TONE >= 19.5 kHz using the same idle logic as updateVoiceFilter. If you keep the MoogLP colour, map the knob through a measured table: knob = T(desired), built with lane_moog/cutoff_check.py. Every preset's TONE value was tuned against the shifted filter. To keep today's sound after the fix, multiply TONE by about 0.3, then open presets selectively. Add a selftest: render noise and assert the -3 dB point is within 10% of TONE.
 
-Sources: https://github.com/christophhart/HISE/blob/4.1.0/hi_dsp_library/dsp_basics/MultiChannelFilters.cpp, https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_modules/effects/fx/FilterHelpers.cpp, https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_modules/effects/fx/FilterHelpers.h, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/XmlPresetBackups/ResearchFacility.xml, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/ScriptProcessors/ResearchFacility/Interface.js, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/lane_moog/cutoff_check.py, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/lane_moog/tone_open.py
+Sources: https://github.com/christophhart/HISE/blob/4.1.0/hi_dsp_library/dsp_basics/MultiChannelFilters.cpp, https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_modules/effects/fx/FilterHelpers.cpp, https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_modules/effects/fx/FilterHelpers.h, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/XmlPresetBackups/ResearchFacility.xml, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/ScriptProcessors/ResearchFacility/Interface.js, <scratchpad>/wf_mystic/lane_moog/cutoff_check.py, <scratchpad>/wf_mystic/lane_moog/tone_open.py
 
 #### BUG: HISE 'Chorus' is a thru-zero flanger with a subtractive mix; LOOPS mode loses 24 dB and low WIDTH removes the bass (verified)
 
@@ -388,7 +388,7 @@ In Chorus.cpp at 4.1.0, lines 184-185 compute out = in*dry - delayed*wet, with w
 
 How to recreate here: Confirm in Live first. On Round Sub with Spectrum on the track, toggle the Chorus bypass and compare 40-60 Hz. In LOOPS mode, compare loop level with and without the Chorus. Then: call FX_Chorus.setBypassed(true) in applyLoopFx and whenever WIDTH < 0.5, otherwise keep Width >= 0.45. Long term, print a real BBD stereo chorus offline (see the BBD findings) or build a compiled stereo node.
 
-Sources: https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_modules/effects/fx/Chorus.cpp, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/ScriptProcessors/ResearchFacility/Interface.js, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/FactoryBank.js, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/lane_moog/hise_chorus_sim.py, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/lane_moog/chain_sim.py
+Sources: https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_modules/effects/fx/Chorus.cpp, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/ScriptProcessors/ResearchFacility/Interface.js, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/FactoryBank.js, <scratchpad>/wf_mystic/lane_moog/hise_chorus_sim.py, <scratchpad>/wf_mystic/lane_moog/chain_sim.py
 
 #### Neither HISE Chorus nor scriptnode jdsp.jchorus turns a mono render into stereo (correction to doc 13) (verified)
 
@@ -396,7 +396,7 @@ The HISE Chorus shares one LFO phase between L and R, so both channels get the s
 
 How to recreate here: Offline: print a two-line BBD chorus into the renders: one triangle LFO driving L and R delays in antiphase, with an additive mix (proto_va.bbd_chorus_stereo). On a mono 220 Hz sine it gives L/R correlation 0.77 and keeps 40 Hz (+2.9 dB rather than a cut). Live: two jdsp.jdelay_cubic nodes, one per channel, in a container.multi, each fed an inverted triangle LFO on delay time. This needs compiled networks, so use prints until CI compiles them.
 
-Sources: https://github.com/christophhart/HISE/blob/4.1.0/JUCE/modules/juce_dsp/widgets/juce_Chorus.h, https://github.com/christophhart/HISE/blob/4.1.0/hi_dsp_library/dsp_nodes/JuceNodes.h, https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_modules/effects/fx/Chorus.cpp, https://en.wikipedia.org/wiki/Roland_Juno-60, /Users/noxvitae/Desktop/ResearchFacility/docs/13_personal_quality_bar.md, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/lane_moog/analyse_renders.py
+Sources: https://github.com/christophhart/HISE/blob/4.1.0/JUCE/modules/juce_dsp/widgets/juce_Chorus.h, https://github.com/christophhart/HISE/blob/4.1.0/hi_dsp_library/dsp_nodes/JuceNodes.h, https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_modules/effects/fx/Chorus.cpp, https://en.wikipedia.org/wiki/Roland_Juno-60, ~/Desktop/ResearchFacility/docs/13_personal_quality_bar.md, <scratchpad>/wf_mystic/lane_moog/analyse_renders.py
 
 #### BUG: SHAPE filter 'LADDER LP' (mode 15) is dead above about 6.1 kHz, cannot self-oscillate and loses resonance above 3 kHz (verified)
 
@@ -404,7 +404,7 @@ LadderSubType::updateCoefficients sets cut = clamp(2*pi*f/fs, 0, 0.8) and res = 
 
 How to recreate here: Short term: clamp the displayed LADDER range to 6 kHz and trim the 3.4 dB level jump. Real fix: render nonlinear ladders offline (huov_ladder, below), and for live use a compiled third-party node (next finding).
 
-Sources: https://github.com/christophhart/HISE/blob/4.1.0/hi_dsp_library/dsp_basics/MultiChannelFilters.cpp, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/DeepParams.js, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/ScriptProcessors/ResearchFacility/Interface.js, https://dafx.de/paper-archive/2004/P_061.PDF, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/lane_moog/peak_check.py
+Sources: https://github.com/christophhart/HISE/blob/4.1.0/hi_dsp_library/dsp_basics/MultiChannelFilters.cpp, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/DeepParams.js, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/ScriptProcessors/ResearchFacility/Interface.js, https://dafx.de/paper-archive/2004/P_061.PDF, <scratchpad>/wf_mystic/lane_moog/peak_check.py
 
 #### HISE 4.1.0 has no nonlinear ladder for live use; JUCE's nonlinear LadderFilter is bundled but not exposed (verified)
 
@@ -420,7 +420,7 @@ The MidiController module (ControlModulator) is a monophonic TimeVariantModulato
 
 How to recreate here: Add an MPEModulator (Press) to Voice A's Voice Filter frequency chain and gain chain, and enable MPE for the plugin in Live 12 (Live-side routing is inferred). Keep the MidiController for channel pressure. Offline, render a 'touch' layer (+1 to +2 octaves of brilliance, +3 dB) and crossfade it with Press.
 
-Sources: https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_modules/modulators/mods/ControlModulator.cpp, https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_modules/modulators/mods/MPEModulators.h, https://www.soundonsound.com/reviews/arturia-cs80v, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/XmlPresetBackups/ResearchFacility.xml
+Sources: https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_modules/modulators/mods/ControlModulator.cpp, https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_modules/modulators/mods/MPEModulators.h, https://www.soundonsound.com/reviews/arturia-cs80v, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/XmlPresetBackups/ResearchFacility.xml
 
 #### Offline 'ladder' presets are cascaded linear SVFs: no Moog bass loss, no whistle, no saturation (verified)
 
@@ -428,7 +428,7 @@ sigbank_dsp.lp24 runs an SVF at Q 0.5412 into an SVF at Q 1.3066 + 3*reso (lines
 
 How to recreate here: Add a new sigbank_dsp stage, huov_ladder(x, fc, r, drive, os=2), in numba. Turn it on in supersaw and reese when gp contains 'ladder': {'r': 0.4, 'drive': 2.0, 'fenv_oct': 2.5, 'fenv_t': 0.25}; otherwise keep lp24. The prototype is proto_va.py; tested numbers are in the next finding.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py, https://ccrma.stanford.edu/~stilti/papers/moogvcf.pdf, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/lane_moog/peak_check.py, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/lane_moog/proto_va.py
+Sources: ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py, https://ccrma.stanford.edu/~stilti/papers/moogvcf.pdf, <scratchpad>/wf_mystic/lane_moog/peak_check.py, <scratchpad>/wf_mystic/lane_moog/proto_va.py
 
 #### Huovilainen nonlinear ladder (DAFx-04): exact algorithm and tested accuracy (verified)
 
@@ -436,7 +436,7 @@ Each stage is a differential pair, modelled with tanh. Eq. 13-17: ya += g*(tanh(
 
 How to recreate here: Use proto_va._huov and huov_ladder as written. Render velocity as drive (soft layer 0.8, hard layer 3.0) so playing harder changes the timbre the way an overdriven Moog input does. Sweep cutoff in octaves (see the exponential envelope finding).
 
-Sources: https://dafx.de/paper-archive/2004/P_061.PDF, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/lane_moog/proto_va.py
+Sources: https://dafx.de/paper-archive/2004/P_061.PDF, <scratchpad>/wf_mystic/lane_moog/proto_va.py
 
 #### Stilson and Smith (ICMC 1996): why digital Moog filters detune, and the root cause of the TONE bug (verified)
 
@@ -452,7 +452,7 @@ US 3,475,623 (Robert A. Moog; filed 1966, granted 28 Oct 1969) builds the RC fil
 
 How to recreate here: Add gp 'fenv_oct' and compute fc(t) = fc0 * 2^(fenv_oct * exp(-t/fenv_t)) * keytrack. Keep the old linear 'fenv' for existing presets so they stay bit-identical.
 
-Sources: https://patents.google.com/patent/US3475623, https://dafx.de/paper-archive/2004/P_061.PDF, /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py
+Sources: https://patents.google.com/patent/US3475623, https://dafx.de/paper-archive/2004/P_061.PDF, ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py
 
 #### Minimoog Model D: oscillators, Osc 3, filter and the external-input feedback overdrive (verified)
 
@@ -460,7 +460,7 @@ Per SOS: Osc 1/2 offer triangle, shark's tooth, ramp and three pulse widths. Osc
 
 How to recreate here: New gen 'mini3' made of three polyBLEP oscillators: saw; triangle (integrated square); shark tooth approximated as 0.5*tri + 0.5*saw (inferred); and Osc 3 as a reverse saw at -12 st, +3 to +7 cents. Mixer: u = tanh(mix_drive*(sum + ext_fb*y[n-1])), with ext_fb from 0 to 0.6, then huov_ladder with r up to 1.05. Add a static per-key tuning error of +-2 cents from a seeded table.
 
-Sources: https://www.soundonsound.com/reviews/moog-minimoog-model-d, https://manualmachine.com/moogmusic/minimoog/6489531-operation-manual, /Users/noxvitae/Desktop/ResearchFacility/docs/12b_playlist_tracks.md
+Sources: https://www.soundonsound.com/reviews/moog-minimoog-model-d, https://manualmachine.com/moogmusic/minimoog/6489531-operation-manual, ~/Desktop/ResearchFacility/docs/12b_playlist_tracks.md
 
 #### Memorymoog: three-VCO voices with a discrete ladder and 18-oscillator unison (verified)
 
@@ -492,7 +492,7 @@ Each of the 8 notes is two complete synth voices. Each voice has its own oscilla
 
 How to recreate here: Gen 'cs_dual', two layers per note. Each layer: oscillator (saw or pulse, PWM from a section-wide sine LFO with the same phase for every note), then svf HP 12 dB, then svf LP 12 dB driven by a piecewise-exponential IL > AL > A > D > R contour. Add a sine at f0 after the filters. Ring mod: y *= (1 - d(t)) + d(t)*sin(phase of f_rm(t)), with both d and f_rm following one AD envelope. Per-note detune of +-5 to 8 cents. Render touch layers for MPE Press.
 
-Sources: https://www.soundonsound.com/reviews/arturia-cs80v, https://en.wikipedia.org/wiki/Yamaha_CS-80, /Users/noxvitae/Desktop/ResearchFacility/docs/16_ultra_quality_delta.md
+Sources: https://www.soundonsound.com/reviews/arturia-cs80v, https://en.wikipedia.org/wiki/Yamaha_CS-80, ~/Desktop/ResearchFacility/docs/16_ultra_quality_delta.md
 
 #### Juno-60 / Juno-106: DCO plus sub, IR3109 ladder-style LP, non-resonant HPF, two-BBD chorus at 0.4 and 0.6 Hz (verified)
 
@@ -500,7 +500,7 @@ Juno-60: one DCO per voice plus a sub oscillator, with pulse, saw and square wav
 
 How to recreate here: Offline Juno chorus: two bbd_line taps with antiphase triangle LFOs, centre about 3.5 ms and depth about 1.6 ms (depth and centre inferred), Raffel nonlinearity, additive mix. Mode I = 0.4 Hz, II = 0.6 Hz, I+II = both LFOs summed (inferred). Voice: pulse with triangle PWM plus envelope PWM, a square sub at -12, huov_ladder at r 0.15-0.3 with keytrack 0.6, and a one-pole non-resonant HP.
 
-Sources: https://en.wikipedia.org/wiki/Roland_Juno-60, https://en.wikipedia.org/wiki/Roland_Juno-106, /Users/noxvitae/Desktop/ResearchFacility/docs/13_personal_quality_bar.md
+Sources: https://en.wikipedia.org/wiki/Roland_Juno-60, https://en.wikipedia.org/wiki/Roland_Juno-106, ~/Desktop/ResearchFacility/docs/13_personal_quality_bar.md
 
 #### Jupiter-8: cross-mod and sync on discrete VCOs, a 12/24 dB IR3109 filter, and 16-oscillator unison (verified)
 
@@ -516,7 +516,7 @@ Rev 1/2 use the Rossum-designed SSM 2040 filter; Rev 3 uses the Curtis CEM 3320.
 
 How to recreate here: Extend doc 14 R19's voice cards so each card carries a tuning offset, an envelope-time scale (about +-5%), a VCA gain offset (about +-0.5 dB) and a cutoff offset (about +-3%); all magnitudes are inferred. Render one round-robin per card seed. The SSM2040 vs CEM3320 curve difference is not modelled here (no curve source).
 
-Sources: https://www.soundonsound.com/reviews/sequential-prophet-5-prophet-10, /Users/noxvitae/Desktop/ResearchFacility/docs/14_ideas_backlog.md
+Sources: https://www.soundonsound.com/reviews/sequential-prophet-5-prophet-10, ~/Desktop/ResearchFacility/docs/14_ideas_backlog.md
 
 #### Oberheim OB-X vs OB-Xa: discrete with X-mod vs Curtis ICs with a 2/4-pole switch (verified)
 
@@ -524,7 +524,7 @@ The OB-X used discrete oscillators and filters, with cross-mod (VCO2 frequency-m
 
 How to recreate here: For the 12 dB 'OB' pad colour, use the existing svf (mode 0, Q 0.8-1.2) with a tanh pre-drive of 1.2-1.5 and keytrack 0.5. For brass, add a pitch envelope on osc 2 (+3 to +12 st decaying over 60-120 ms; inferred) into the 2-pole filter.
 
-Sources: https://en.wikipedia.org/wiki/Oberheim_OB-Xa, /Users/noxvitae/Desktop/ResearchFacility/docs/12b_playlist_tracks.md
+Sources: https://en.wikipedia.org/wiki/Oberheim_OB-Xa, ~/Desktop/ResearchFacility/docs/12b_playlist_tracks.md
 
 #### Korg PS-3300: every key fully polyphonic, plus a three-peak voltage-controlled resonator (verified)
 
@@ -548,7 +548,7 @@ The Solina uses 'twelve discrete tone generators with octave divide-down' (inher
 
 How to recreate here: Post stage 'ensemble3' built from bbd_line: three taps centred near 5 ms, a slow LFO at 0.6 Hz (1.5 ms depth) plus a fast one at 6 Hz (0.25 ms) at 0/120/240 degrees (inferred). L = tap1 + tap2, R = tap2 + tap3, additive with the dry signal. Alternatively port string-machine's BBD under BSL-1.0 and keep its notice.
 
-Sources: https://en.wikipedia.org/wiki/ARP_String_Ensemble, https://github.com/jpcima/string-machine, /Users/noxvitae/Desktop/ResearchFacility/docs/16_ultra_quality_delta.md
+Sources: https://en.wikipedia.org/wiki/ARP_String_Ensemble, https://github.com/jpcima/string-machine, ~/Desktop/ResearchFacility/docs/16_ultra_quality_delta.md
 
 #### BBD circuit model (Raffel and Smith, DAFx-10): delay law, filters, insertion loss, nonlinearity and compander (verified)
 
@@ -580,7 +580,7 @@ US 4,658,691 (Masanori Ishibashi, Casio; filed 1985, Japanese priority 1982, gra
 
 How to recreate here: Gen 'phase_dist'. Saw type: knee d = 0.5 - 0.48*dcw(t); phase' = 0.5*ph/d when ph < d, else 0.5 + 0.5*(ph - d)/(1 - d); out = -cos(2*pi*phase'). Resonance type: (1 - cos(2*pi*frac(ph*ratio))) * window(ph), with ratio = 1 + 11*dcw(t). DCW is an 8-stage list of (time, level) in gp. In the prototype, harmonics 2-5 rise about 22 dB as dcw goes from 0 to 1.
 
-Sources: https://patents.google.com/patent/US4658691A/en, https://en.wikipedia.org/wiki/Phase_distortion_synthesis, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/lane_moog/proto_va.py
+Sources: https://patents.google.com/patent/US4658691A/en, https://en.wikipedia.org/wiki/Phase_distortion_synthesis, <scratchpad>/wf_mystic/lane_moog/proto_va.py
 
 #### EMS VCS3: a ring modulator, pin matrix, spring reverb and joystick (filter DSP unverified) (inferred)
 
@@ -596,7 +596,7 @@ EarLevel (Nigel Redmon): analog-like ADSR segments are exponentials that aim pas
 
 How to recreate here: New env_rc(n, a, d, s, ratio_a=0.3, ratio_dr=0.001); the 0.3 attack ratio is inferred, chosen to look like an analog charging curve. Use it for amp and filter contours in all new generators. For the CS-80, build the IL/AL/A/D/R shape from the same segment primitive.
 
-Sources: https://www.earlevel.com/main/2013/06/02/envelope-generators-adsr-part-2/, /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py
+Sources: https://www.earlevel.com/main/2013/06/02/envelope-generators-adsr-part-2/, ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py
 
 #### Multisampling freezes the analog: shared drift, shared start phase and brightness steps at zone boundaries (inferred)
 
@@ -604,7 +604,7 @@ Every key in a zone plays the same render, resampled. Chord notes in one zone th
 
 How to recreate here: For the analog families: render every 1-2 semitones with 3 round-robin seeds (different drift and phase each). Set SampleStartMod in the sample maps and add a Random modulator to the sample-start chain for 0-30 ms of free-running-phase illusion. Keep the DRIFT knob's static per-note offset.
 
-Sources: https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_sampler/sampler/ModulatorSampler.h, /Users/noxvitae/Desktop/ResearchFacility/scripts/build_signature_bank.py, https://www.soundonsound.com/reviews/sequential-prophet-5-prophet-10
+Sources: https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_sampler/sampler/ModulatorSampler.h, ~/Desktop/ResearchFacility/scripts/build_signature_bank.py, https://www.soundonsound.com/reviews/sequential-prophet-5-prophet-10
 
 #### Oscillator and modulation gaps against the classic machines (offline and live) (verified)
 
@@ -612,7 +612,7 @@ In supersaw, each voice's pulse width is a static random 0.3-0.5 (sigbank_dsp.py
 
 How to recreate here: Change _pulse_blep to take a per-sample pulse-width array. Add supersaw gp keys: 'pwm': (rate_hz, depth, env_amt); 'sub_wave': 'square' or 'sine'; 'wave': 'tri' or 'shark'; 'sync_ratio' plus an envelope; and 'xmod'. Live: WaveSynth HardSync and Osc2PitchChain envelopes for sync sweeps. Print PWM offline.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py, https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_modules/synthesisers/synths/WaveSynth.h, https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_modules/effects/fx/FilterHelpers.h
+Sources: ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py, https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_modules/synthesisers/synths/WaveSynth.h, https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_modules/effects/fx/FilterHelpers.h
 
 #### Reusable ladder code and licences (verified)
 
@@ -654,7 +654,7 @@ Sources: https://github.com/ddiakopoulos/MoogLadders
 - **CONFIRMED**: Holters and Parker DAFx-18: fixed-length delay at a variable clock with no interpolation; I/O filters as partial fractions evaluated at fractional instants; names JC-120, Dimension-D and Juno-60. PDF pp. DAFx-11 to 13: 'A Combined Model for a Bucket Brigade Device and its Input and Output Filters' by M. Holters (HSU Hamburg) and J. D. Parker (Native Instruments). The introduction names the JC-120 chorus, the Dimension-D and the Juno-60 chorus. Eq 2-11 are the input partial fractions and recursion; eq 14-24 the output step-response formulation. The abstract says it avoids 'the need for the interpolation'.
 - **CONFIRMED**: Buchla 259 (Esqueda, Pontynen, Valimaki, Parker, DAFx-17): five folding cells, exact constants, output sum, 1.33 kHz one-pole, BLAMP with 8x oversampling. PDF p. DAFX-195, eq 13-18, matches the lane digit for digit. V1 0.8333/0.5000/>0.6000; V2 0.3768/1.1281/>2.9940; V3 0.2829/1.5446/>5.4600; V4 0.5743/1.0338/>1.8000; V5 0.2673/1.0907/>4.0800. V'out = -12.000V1 - 27.777V2 - 21.428V3 + 17.647V4 + 36.363V5 + 5.000Vin. Eq 20 gives fc about 1.33 kHz and eq 21 the bilinear one-pole. The abstract states BLAMP 'with eight times oversampling', and the introduction mentions the vactrol lowpass gate. CA3160 rail saturation is on p.194.
 - **CONFIRMED**: US 4,658,691 (Casio, Masanori Ishibashi): filed 1985, JP priority 1982, granted 21 Apr 1987; saw, rectangular and impulse-like waves; resonance-like effect. Google Patents: assignee Casio Computer Co., filed 17 Oct 1985, priorities 17 Dec 1982 (JP57221266) and 22 Dec 1982, granted 21 Apr 1987. The description generates 'a sawtooth wave, a rectangular wave and an impulse-like wave' with 'an effect similar to the resonance effect of a voltage control filter VCF'. Wikipedia's Phase distortion page describes resonance as a sine at the resonant frequency hard-synced to a window (sawtooth or triangle) that ends at zero, citing US4658691 and US4479411.
-- **REFUTED**: Stinchcombe 2006 MS-10/MS-20: Korg35 Sallen-Key vs later LM13600 OTA; diodes in the resonance feedback make it ring at zero-crossings (Fig 27); HP 6 dB not 12 (Sec 7); 1% resistor moves the peak from about 20 to about 32 (Fig 26). Topology and Section 7 are confirmed: the Korg35 is resin-sealed Sallen-Key, the later LM13600 version is 'two cascaded, buffered first-order sections', and Section 7 is titled 'The High-Pass Filter Variants are 6dB, not 12!'. But Stinchcombe states that 'the non-linearity-producing diodes in the early filter is in the forward path, whilst in the OTA version they are in the feedback loop'. Fig 27 is not an MS-20. It is a contrived 'standard four-pole filter consisting of four buffered RC sections (such as the Moog ladder...)' with back-to-back diodes, used to debunk 'Myth 2'. Fig 26 is a generic Sallen-Key Q-sensitivity example (Section 8, 'Myth 1'), where a 1% drop in R1 takes Q from 20 to 33. Correction: The zero-crossing ringing comes from back-to-back diodes wherever they sit in the loop gain; it is not a property of Sallen-Key. For a Korg35 (early MS-20) model, put the diode clip in the FORWARD path of a Sallen-Key LP. For the OTA (later MS-20) model, use two buffered one-poles with the diode clip in the FEEDBACK loop. The 'sk35' recipe (Sallen-Key with diodes in the feedback) is a hybrid of the two and should be renamed or split. Fig 26 should read Q 20 to 33, from a generic Sallen-Key example. Text: /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/factcheck_analog/stinch.txt lines 131-133, 1462-1537
+- **REFUTED**: Stinchcombe 2006 MS-10/MS-20: Korg35 Sallen-Key vs later LM13600 OTA; diodes in the resonance feedback make it ring at zero-crossings (Fig 27); HP 6 dB not 12 (Sec 7); 1% resistor moves the peak from about 20 to about 32 (Fig 26). Topology and Section 7 are confirmed: the Korg35 is resin-sealed Sallen-Key, the later LM13600 version is 'two cascaded, buffered first-order sections', and Section 7 is titled 'The High-Pass Filter Variants are 6dB, not 12!'. But Stinchcombe states that 'the non-linearity-producing diodes in the early filter is in the forward path, whilst in the OTA version they are in the feedback loop'. Fig 27 is not an MS-20. It is a contrived 'standard four-pole filter consisting of four buffered RC sections (such as the Moog ladder...)' with back-to-back diodes, used to debunk 'Myth 2'. Fig 26 is a generic Sallen-Key Q-sensitivity example (Section 8, 'Myth 1'), where a 1% drop in R1 takes Q from 20 to 33. Correction: The zero-crossing ringing comes from back-to-back diodes wherever they sit in the loop gain; it is not a property of Sallen-Key. For a Korg35 (early MS-20) model, put the diode clip in the FORWARD path of a Sallen-Key LP. For the OTA (later MS-20) model, use two buffered one-poles with the diode clip in the FEEDBACK loop. The 'sk35' recipe (Sallen-Key with diodes in the feedback) is a hybrid of the two and should be renamed or split. Fig 26 should read Q 20 to 33, from a generic Sallen-Key example. Text: <scratchpad>/wf_mystic/factcheck_analog/stinch.txt lines 131-133, 1462-1537
 - **UNCERTAIN**: Juno-60 chorus: two identical circuits (MN3009 + MN3101), buttons at 0.4 and 0.6 Hz (E&MM July 1982), both buttons stronger; recipe I+II = both LFOs summed. Wikipedia confirms 'slow modulation rates of 0.4 Hz and 0.6 Hz' (Jenkins and Beecher, E&MM, July 1982, pp. 12-14) and 'two identical circuits incorporating two ICs (MN3009 and MN3101)'. 'An even stronger chorus' when both are pressed is cited to a Roland software page. The I+II 'summed LFOs' recipe has no source. The repo's own doc 13 (lines 235, 281, 381) records I+II as about 9 Hz shallow (Tylman page, 8 to 10 Hz table, marked inferred) and TC JUNE-60 V2 defaults of 0.5 and 0.833 Hz. Correction: Keep 0.4/0.6 Hz (E&MM 1982) and 0.5/0.833 Hz (TC) as competing sources. Model I+II as a single fast, shallow LFO of about 8-10 Hz (inferred, per doc 13), not as the sum of the I and II LFOs, until a service-manual measurement is found. That the two circuits drive L and R in antiphase is also inferred; Wikipedia does not say so.
 - **CONFIRMED**: Minimoog Model D (SOS, Gordon Reid, Aug 2016): Osc 3 swaps shark's tooth for saw, detaches as a modulator, emphasis self-oscillates near 9 (original) vs 8 (reissue), external-input feedback 'mild overdrive... mayhem' replicated internally, 'Keyboard tuning error' option. All five points are quoted in the SOS review: 'Osc 3 offers the same set but with the shark's tooth replaced by a sawtooth wave'; 'detach Osc 3 from the keyboard'; oscillation at 'a setting of 9 or thereabouts' vs 'around 8'; 'mild overdrive, to complete screaming, uncontrollable mayhem'; 'an internal signal path that replicates this when nothing is inserted'; the Keyboard tuning error power-on option.
 - **CONFIRMED**: Yamaha CS-80 (SOS Arturia CS80V review, Reid and Magnus, Apr 2005): two voices per note with own oscillator and filters, IL/AL/A/D/R contour, one ring mod with speed swept by an AD envelope, poly aftertouch, snap-back ribbon, post-filter sine, one sine LFO per section. Quoted: 'two complete synth voices, each boasting a dedicated oscillator, dual filters'; 'only one modulator and one envelope for the whole instrument'; faders for speed and amount, with speed varied 'by a dedicated Attack/Decay envelope'; poly aftertouch; on release the ribbon 'reverts immediately'; a post-filter sine fader; 'just one waveform LFO per eight-voice section' and all pulse waves 'sweep in synchronisation'.
@@ -669,7 +669,7 @@ Sources: https://github.com/ddiakopoulos/MoogLadders
 
 ## Rare and peculiar keyboards
 
-Lane audit: rare keyboards. I measured all 1,038 rendered keys, bells and plucks files in my lane (scripts and data in /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/: analyse_keys.py, mono_check.py, harm_time.py, fix_checks.py, proto_tine_pickup.py, proto_reed_es.py, keys_analysis.json) and read the generators in scripts/sigbank_dsp.py.
+Lane audit: rare keyboards. I measured all 1,038 rendered keys, bells and plucks files in my lane (scripts and data in <scratchpad>/wf_mystic/: analyse_keys.py, mono_check.py, harm_time.py, fix_checks.py, proto_tine_pickup.py, proto_reed_es.py, keys_analysis.json) and read the generators in scripts/sigbank_dsp.py.
 
 Five defects are verified by measurement:
 (1) The Karplus loop ignores the phase delay of its damp filter. Every damped string plays sharp: funk_pick_clav +13.5 cents at note 84, glint_harp +19.2 at 96. A one-line fix brings both to 0.0 cents.
@@ -705,7 +705,7 @@ A prototype with period = SR/f0 - (0.5 - 0.5*damp) measured 0.0 cents at notes 8
 
 How to recreate here: In scripts/sigbank_dsp.py gen_karplus, replace `period = SR / f0 - 0.5` with `period = SR / f0 - (0.5 - 0.5 * p.get("damp", 0.15))`. Optionally replace the linear-interpolation read with a first-order Thiran allpass so high notes do not lose brightness. Re-render the karplus presets only (build_signature_bank.py --only <id>).
 
-Sources: https://www.dsprelated.com/freebooks/pasp/Karplus_Strong_Algorithms.html, https://doi.org/10.2307/3680063, /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py (lines 122-155, 471-498), /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/fix_checks.py
+Sources: https://www.dsprelated.com/freebooks/pasp/Karplus_Strong_Algorithms.html, https://doi.org/10.2307/3680063, ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py (lines 122-155, 471-498), <scratchpad>/wf_mystic/fix_checks.py
 
 #### BUG: gen_modal gives each stereo side an independent random phase, so bells, celesta and toy piano cancel in mono (verified)
 
@@ -719,7 +719,7 @@ Physically, a struck mode starts from zero displacement with an initial velocity
 
 How to recreate here: In gen_modal and gen_glass_pad: draw one phase per mode (0 for struck sounds) and use it on both sides. Make the beat mono-safe: compute m_lo = mode at -beat cents and m_hi = mode at +beat cents, then L = 0.7*m_lo + 0.3*m_hi and R = 0.3*m_lo + 0.7*m_hi. The beat is then audible in mono, as on a real double-string or two-plate instrument. Then re-render all modal and fm_bell keys and bells. Add a release check that fails any render whose 0 to 300 ms mono-sum loss is below -4 dB.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py (gen_modal lines 501-541), /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/mono_check.py, https://ccrma.stanford.edu/~jos/pasp05/Commuted_Piano_Synthesis.html
+Sources: ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py (gen_modal lines 501-541), <scratchpad>/wf_mystic/mono_check.py, https://ccrma.stanford.edu/~jos/pasp05/Commuted_Piano_Synthesis.html
 
 #### BUG: held notes chopped at sample end on non-looped pianos, tines and pixel_bell (verified)
 
@@ -741,7 +741,7 @@ How to recreate here: Option A: per-zone duration, e.g. dur(note) = clip(t60_eff
 Option B (smaller): SA-style hybrid. Render the first 1.5 s, then loop a 300 to 600 ms late-decay window with LoopXFade, and let the HISE Amp Env decay to -100 dB over the generator's remaining t60.
 In both cases also set AmpDecKnob and AmpSusKnob per preset in d{} so that releases match.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/scripts/build_signature_bank.py (render_preset fade, write_preset_audio loop attrs), /Users/noxvitae/Desktop/ResearchFacility/scripts/deep_params.json (AmpSusKnob default 0), /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/keys_analysis.json
+Sources: ~/Desktop/ResearchFacility/scripts/build_signature_bank.py (render_preset fade, write_preset_audio loop attrs), ~/Desktop/ResearchFacility/scripts/deep_params.json (AmpSusKnob default 0), <scratchpad>/wf_mystic/keys_analysis.json
 
 #### Rhodes sustain: measured Q values say our tines die about 1.5x to 3.4x too fast in bass and mid (verified)
 
@@ -779,7 +779,7 @@ How to recreate here: NEW generator tine_pickup(note, n, p, rng):
 - Then a 30 Hz HP; output mono.
 Render with vl=3 so bark tracks velocity.
 
-Sources: https://www.mat.ucsb.edu/Masters/GregShearMasters2011_12_5.pdf, https://doi.org/10.1121/1.4899833, https://dafx.de/paper-archive/details/W0D0fMDJBUxiacAi_398wg, https://g-haine.github.io/phraise/passive-simulation-of-the-nonlinear-port-hamiltonian-modeling-of-a-rhodes-piano, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/proto_tine_pickup.py
+Sources: https://www.mat.ucsb.edu/Masters/GregShearMasters2011_12_5.pdf, https://doi.org/10.1121/1.4899833, https://dafx.de/paper-archive/details/W0D0fMDJBUxiacAi_398wg, https://g-haine.github.io/phraise/passive-simulation-of-the-nonlinear-port-hamiltonian-modeling-of-a-rhodes-piano, <scratchpad>/wf_mystic/proto_tine_pickup.py
 
 #### Rhodes service-manual voicing numbers: pickup gap, timbre screw, striking line (verified)
 
@@ -819,7 +819,7 @@ This wastes headroom in chords, pumps compressors and sidechains, and moves spea
 
 How to recreate here: In gen_reed_ep use a zero-mean pulse, pulse(fr, pw) - (2*pw - 1), before the envelope, and add hp(x, 25.0) at the end, as gen_tine_ep already does. Better: replace the generator with reed_es (next finding), which has no such term.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py (gen_reed_ep lines 369-383), /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/harm_time.py
+Sources: ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py (gen_reed_ep lines 369-383), <scratchpad>/wf_mystic/harm_time.py
 
 #### Wurlitzer 200A: electrostatic pickup physics gives amplitude-dependent bark, but our reed timbre is static (verified)
 
@@ -842,7 +842,7 @@ How to recreate here: NEW generator reed_es(note, n, p, rng):
 - tau from t60 3 to 4 s in the bass, falling to 0.8 s in the treble (inferred; no measured table found).
 Use vl=3.
 
-Sources: https://static1.squarespace.com/static/581b462f5016e14ae76bd275/t/5ebb550ed544905f3db1d03a/1589335321798/wurlitzer-200-200a-service-manual.pdf, https://en.wikipedia.org/wiki/Wurlitzer_electronic_piano, https://en.wikipedia.org/wiki/Electrostatic_pickup, https://github.com/hal0zer0/openwurli, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/proto_reed_es.py
+Sources: https://static1.squarespace.com/static/581b462f5016e14ae76bd275/t/5ebb550ed544905f3db1d03a/1589335321798/wurlitzer-200-200a-service-manual.pdf, https://en.wikipedia.org/wiki/Wurlitzer_electronic_piano, https://en.wikipedia.org/wiki/Electrostatic_pickup, https://github.com/hal0zer0/openwurli, <scratchpad>/wf_mystic/proto_reed_es.py
 
 #### Felt piano velocity: on soft-hammer presets the soft layer is not darker; hammer physics says it must be (verified)
 
@@ -868,7 +868,7 @@ Measured share of energy above 3 kHz in the first 100 ms (hard layer):
 
 How to recreate here: Cap partials by frequency, not count: k_max = floor(min(12000, 0.45*SR)/f0), vectorised as one 2-D numpy outer product per unison string. Alternatively use a noise-plus-waveguide bass (karplus with dispersion allpass) below C3. Also make the thump band track hardness: BP centre = 900 + 4000*hardness Hz.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py (gen_felt_piano lines 316-366), /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/keys_analysis.json
+Sources: ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py (gen_felt_piano lines 316-366), <scratchpad>/wf_mystic/keys_analysis.json
 
 #### Struck-sound attacks are smeared by random partial phases (felt_piano, prepared, modal) (inferred)
 
@@ -878,7 +878,7 @@ Random phases spread the attack energy over the first period. This lowers crest 
 
 How to recreate here: Start partials at sin phase 0, with a small per-partial onset delay for stiff-string dispersion: delay_k = (L/c)*(1 - 1/sqrt(1 + B k^2)), capped at 2 ms. Keep a tiny random phase jitter (+/-0.2 rad) on the unison strings only, for life.
 
-Sources: https://web.phys.ntnu.no/~stovneng/TFY4160_2007/oving8/numerical_simulations_of_pianostrings_I.pdf, https://ccrma.stanford.edu/~jos/pasp05/Commuted_Piano_Synthesis.html, /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py
+Sources: https://web.phys.ntnu.no/~stovneng/TFY4160_2007/oving8/numerical_simulations_of_pianostrings_I.pdf, https://ccrma.stanford.edu/~jos/pasp05/Commuted_Piano_Synthesis.html, ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py
 
 #### Toy piano: clamped-rod physics (6.267, 17.55, 34.39) versus our marimba-like 3.92 and 9.58 (verified)
 
@@ -917,7 +917,7 @@ New gp 'resonator' = (q 30, gain 0.6): add svf(x, f0, 30, 1)*0.6 and its own 1.6
 Damper-pedal variant: t60 x2.5.
 Zones (48, 108, 3), dur 5, vl 3.
 
-Sources: https://en.wikipedia.org/wiki/Celesta, https://www.pas.rochester.edu/~sybenzvi/courses/phy103/2015f/phy103_bars_and_bells.pdf, /Users/noxvitae/Desktop/ResearchFacility/docs/12_playlist_sound_dna.md
+Sources: https://en.wikipedia.org/wiki/Celesta, https://www.pas.rochester.edu/~sybenzvi/courses/phy103/2015f/phy103_bars_and_bells.pdf, ~/Desktop/ResearchFacility/docs/12_playlist_sound_dna.md
 
 #### Music box and kalimba combs are clamped tongues; music_box_memory uses 2.0, 5.4 and 9.2 (inferred)
 
@@ -1026,7 +1026,7 @@ How to recreate here: For tape-strip presets render z step 1 over a 35-note span
 Per note: random gain +/-1 dB, tuning +/-4 cents, lp +/-15% and an independent wow phase (deterministic seeds; ranges inferred).
 Map the existing global 'Aftertouch' MidiController to Voice A gain (+3 dB) and Voice Filter (+1.5 kHz) for those presets.
 
-Sources: https://www.soundonsound.com/sound-advice/q-did-mellotrons-use-tape-loops-or-not, https://www.gforcesoftware.com/blog/the-8-second-rule/, https://en.wikipedia.org/wiki/Mellotron, https://www.outofphase.fr/en/operation-mellotron/, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/XmlPresetBackups/ResearchFacility.xml (Aftertouch MidiController)
+Sources: https://www.soundonsound.com/sound-advice/q-did-mellotrons-use-tape-loops-or-not, https://www.gforcesoftware.com/blog/the-8-second-rule/, https://en.wikipedia.org/wiki/Mellotron, https://www.outofphase.fr/en/operation-mellotron/, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/XmlPresetBackups/ResearchFacility.xml (Aftertouch MidiController)
 
 #### Chamberlin: the original tape-replay keyboard and its 3-track tape frames (verified)
 
@@ -1143,7 +1143,7 @@ How to recreate here: Add a post stage 'bits': y = round(x*2^(b-1))/2^(b-1), wit
 SK recipe: any SIG render, then decimate(9380, drive 0.1), then bits 8, then loop window 0.2 to 1.4 s with xfade 20 ms. Limit polyphony to 4.
 The charm comes from sampling the user's own voice or room sounds (personal, fine) and playing them chromatically.
 
-Sources: https://en.wikipedia.org/wiki/Casio_SK-1, https://www.muzines.co.uk/articles/casio-sk-1/11198, /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py (decimate lines 236-247)
+Sources: https://en.wikipedia.org/wiki/Casio_SK-1, https://www.muzines.co.uk/articles/casio-sk-1/11198, ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py (decimate lines 236-247)
 
 #### DX7 FM electric piano: 6 operators and 32 algorithms; our fm_bell is a 2-operator approximation (inferred)
 
@@ -1214,7 +1214,7 @@ How to recreate here: Synthesize original IRs offline (no third-party IRs in the
 - Suitcase cabinet: 2 to 4 resonances at 90 to 300 Hz plus a cone-breakup lowpass at 5 kHz.
 Use them either at render time (convolve the excitation, the commuted way) or as Convolution presets per category.
 
-Sources: https://ccrma.stanford.edu/~jos/pasp05/Commuted_Piano_Synthesis.html, https://ccrma.stanford.edu/~jos/pdf/vds95.pdf, https://github.com/christophhart/HISE/tree/4.1.0/hi_core/hi_modules/effects/fx, /Users/noxvitae/Desktop/ResearchFacility/docs/13_personal_quality_bar.md
+Sources: https://ccrma.stanford.edu/~jos/pasp05/Commuted_Piano_Synthesis.html, https://ccrma.stanford.edu/~jos/pdf/vds95.pdf, https://github.com/christophhart/HISE/tree/4.1.0/hi_core/hi_modules/effects/fx, ~/Desktop/ResearchFacility/docs/13_personal_quality_bar.md
 
 #### Velocity layering: nine keys presets in this lane have a single layer (verified)
 
@@ -1223,7 +1223,7 @@ On the Wurlitzer, the soft-versus-bark change comes from the instrument itself. 
 
 How to recreate here: With tine_pickup, reed_es and felt contact-time models, render vl=3 or 4 (vel 0.3, 0.55, 0.8, 1.0). For keys, add 2 round-robin seeds per layer, using different rng for clang phase, thump noise and micro-detune of +/-1 cent. Map with RRGroup in the sample map. Size cost: about 2.7x on keys only.
 
-Sources: https://www.mat.ucsb.edu/Masters/GregShearMasters2011_12_5.pdf, https://en.wikipedia.org/wiki/Wurlitzer_electronic_piano, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/sig_presets.json
+Sources: https://www.mat.ucsb.edu/Masters/GregShearMasters2011_12_5.pdf, https://en.wikipedia.org/wiki/Wurlitzer_electronic_piano, <scratchpad>/wf_mystic/sig_presets.json
 
 #### Calibration references, kept personal: how to check the new models against real instruments (inferred)
 
@@ -1234,7 +1234,7 @@ Freesound recordings used by OpenWurli are a public-licence alternative, but the
 How to recreate here: Write scripts/calibrate_keys.py (local, git-ignored): load a reference WAV, then run the same measurements as analyse_keys.py (t60 per partial, H2/H1 at 50 ms and 1 s, partial ratios, mono-sum loss). Emit a JSON of targets, never audio.
 Compare generator renders against the targets and fit tine_pickup voicing/depth and reed_es depth/rc_hz per register.
 
-Sources: https://github.com/hal0zer0/openwurli, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/analyse_keys.py
+Sources: https://github.com/hal0zer0/openwurli, <scratchpad>/wf_mystic/analyse_keys.py
 
 ### Sound ideas from this lane
 
@@ -1356,7 +1356,7 @@ Rendered as a loop-lane 'drone' in the 15_loops design so it follows the project
 
 ## Mystic texture, a world, a feeling
 
-I audited the rendered audio and the DSP code for texture and "feel", then researched why sounds feel mysterious, haunted or intimate. All scripts and results are in /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/ (texture_audit.py/.json, mono_all.py, mono_and_loops.py, sil_list.py, loop_seams.py/.json, proto.py, proto_bubbles.wav). I did not touch the repo.
+I audited the rendered audio and the DSP code for texture and "feel", then researched why sounds feel mysterious, haunted or intimate. All scripts and results are in <scratchpad>/wf_mystic/ (texture_audit.py/.json, mono_all.py, mono_and_loops.py, sil_list.py, loop_seams.py/.json, proto.py, proto_bubbles.wav). I did not touch the repo.
 
 Main problems found, all measured on the rendered files:
 (1) 20 of the 147 SIG presets lose 12 to 32 dB when played in mono, so they pump on phones, club systems and Live's Utility mono. These are mostly bells and plucks. The cause: gen_modal, gen_fm_bell and gen_glass_pad put the down-detuned copy of each partial only in the left channel and the up-detuned copy only in the right.
@@ -1392,7 +1392,7 @@ mono_all.py folds L+R to mono over 50 ms frames. 20 of 147 SIG presets dip deepe
 
 How to recreate here: Replace the L/R split with a physical doublet model in a new gen_doublet_bell (or a fix in gen_modal/gen_fm_bell/gen_glass_pad). Each mode becomes two members split by a constant df in Hz (0.3-1.6 Hz, inferred). Member weights are cos(m*theta) and sin(m*theta) for strike angle theta; each output channel is a virtual mic at its own angle (L 0.0 rad, R 0.5 rad), and both channels contain both members. Prototype proto.py: mono dip -25.1 dB to -4.3 dB, corr -0.20 to 0.53. For gen_voice choirs keep one centre singer undetuned at full level and pan only the detuned singers. Add a build assert: mono fold-down dip > -6 dB on every zone.
 
-Sources: /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/mono_all.py, https://www.hibberts.co.uk/doublets-or-warble-in-bells/, https://acoustics.org/pressroom/httpdocs/147th/Rossing_AsianBells2.htm, https://arxiv.org/pdf/1004.0491
+Sources: <scratchpad>/wf_mystic/mono_all.py, https://www.hibberts.co.uk/doublets-or-warble-in-bells/, https://acoustics.org/pressroom/httpdocs/147th/Rossing_AsianBells2.htm, https://arxiv.org/pdf/1004.0491
 
 #### AUDIT: 48 presets are bit-mono, including the default preset (verified)
 
@@ -1408,7 +1408,7 @@ render_voice() runs dsp.tape_age() and each generator's wow() per zone, with an 
 
 How to recreate here: Offline loops: in build_loop_lines.render_loop, apply a Cassette Transport post stage (see sound ideas) to the summed loop, so there is one wow curve per take. Ideally sum all four lanes through one shared curve (same seed per kit). SIG keys: remove baked hiss from melodic zones. Do wow live with one shared pitch modulator (a time-variant global modulator in the existing 'Mod Sources' GlobalModulatorContainer routed to Voice A pitch) plus a separate constant-level texture bed. Keep baked wow only where the instrument itself wobbles (Mellotron-style strips, where per-key tape is physically correct).
 
-Sources: https://dafx.de/paper-archive/2019/DAFx2019_paper_3.pdf, https://danhancox.substack.com/p/burials-last-interview, /Users/noxvitae/Desktop/ResearchFacility/scripts/build_signature_bank.py
+Sources: https://dafx.de/paper-archive/2019/DAFx2019_paper_3.pdf, https://danhancox.substack.com/p/burials-last-interview, ~/Desktop/ResearchFacility/scripts/build_signature_bank.py
 
 #### AUDIT: looped pads swell and breathe at the loop seam (verified)
 
@@ -1416,7 +1416,7 @@ loop_seams.py compares stereo RMS over 100 ms windows at LoopEnd and LoopStart o
 
 How to recreate here: (1) All modulation inside the loop region must be loop-periodic. The vowel trajectory goes u->o->u and returns to its start value at LoopEnd. Drift and wow use periodic 1/f noise (next finding). (2) Texture pads loop for 8 s or more, or use a random sample-start offset (SampleStartMod is already an attribute in every SIG map). (3) Add a build gate: |level jump| < 1 dB and |pitch jump| < 2 cents at every seam, using the loop_seams.py method.
 
-Sources: /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/loop_seams.py, https://pure.qub.ac.uk/en/publications/rapid-formation-of-robust-auditory-memories-insights-from-noise/, https://hal.archives-ouvertes.fr/hal-00488683, https://ccrma.stanford.edu/~dattorro/EffectDesignPart1.pdf
+Sources: <scratchpad>/wf_mystic/loop_seams.py, https://pure.qub.ac.uk/en/publications/rapid-formation-of-robust-auditory-memories-insights-from-noise/, https://hal.archives-ouvertes.fr/hal-00488683, https://ccrma.stanford.edu/~dattorro/EffectDesignPart1.pdf
 
 #### AUDIT: drift, wow and flutter are pure sinusoids; natural fluctuation is 1/f (verified)
 
@@ -1432,7 +1432,7 @@ Every SIG sample map has RRGroupAmount='1.0' and every Sampler in the module tre
 
 How to recreate here: SIG: render 3 round-robin takes per zone for plucks, keys and bells (rng seed ^ rr). Write RRGroup 1..3 in the map and RRGroupAmount 3 on Voice A. Sampler.enableRoundRobin and setActiveGroup exist in the HISE scripting API; confirm behaviour at 4.1.0 before relying on it. Loops: seed per event index (seed_for(pid, note) ^ event_idx). Use soften(gen, gp) for vel < 85. Add per-event random detune of +-3 cents and level of +-0.7 dB (inferred).
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/scripts/build_loop_lines.py, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/XmlPresetBackups/ResearchFacility.xml, /Users/noxvitae/HISE_source/hi_scripting/scripting/api/ScriptingApi.h
+Sources: ~/Desktop/ResearchFacility/scripts/build_loop_lines.py, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/XmlPresetBackups/ResearchFacility.xml, ~/HISE_source/hi_scripting/scripting/api/ScriptingApi.h
 
 #### AUDIT: 159 of 1,024 loop takes sit in digital black (verified)
 
@@ -1440,7 +1440,7 @@ sil_list.py found 159 takes where more than 30% of 50 ms frames are below -80 dB
 
 How to recreate here: Render one ROOM bed per kit, not per lane (4 lanes of bed would stack about +6 dB). Make it loop-periodic and in the kit key, around -54 dBFS RMS (inferred). Options are the bubble rain, Velvet Air or tape floor recipes below. Map it as an optional fifth row or mix it into the AIR lane at low level, so the plucks never fall into digital black.
 
-Sources: /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/sil_list.py, https://www.thecanadianencyclopedia.ca/article/world-soundscape-project-emc, https://danhancox.substack.com/p/burials-last-interview
+Sources: <scratchpad>/wf_mystic/sil_list.py, https://www.thecanadianencyclopedia.ca/article/world-soundscape-project-emc, https://danhancox.substack.com/p/burials-last-interview
 
 #### AUDIT: master reverb is unmodulated Freeverb; few eigentones sound periodic (verified)
 
@@ -1448,7 +1448,7 @@ The module tree's 'Master Reverb' is a SimpleReverb. In HISE source (local check
 
 How to recreate here: For texture beds and pads, print offline Dattorro or velvet tails into the samples (see Halo Tank) instead of relying on Freeverb. Live: keep Master Reverb wet lower and put Chorus before it. If doc 13's ConvolutionReverb route is built, load a printed Dattorro IR.
 
-Sources: /Users/noxvitae/HISE_source/hi_core/hi_modules/effects/fx/SimpleReverb.h, /Users/noxvitae/HISE_source/JUCE/modules/juce_audio_basics/utilities/juce_Reverb.h, https://ccrma.stanford.edu/~dattorro/EffectDesignPart1.pdf
+Sources: ~/HISE_source/hi_core/hi_modules/effects/fx/SimpleReverb.h, ~/HISE_source/JUCE/modules/juce_audio_basics/utilities/juce_Reverb.h, https://ccrma.stanford.edu/~dattorro/EffectDesignPart1.pdf
 
 #### Tape playback loss is not a low-pass: spacing, thickness and gap loss (verified)
 
@@ -1686,9 +1686,9 @@ Sources: https://pmc.ncbi.nlm.nih.gov/articles/PMC2677316/table/t3, https://isip
 - **CONFIRMED**: Velvet-noise decorrelator (Alary, Politis, Valimaki DAFx-17): Td = fs/rho, s = 2 round(r1)-1, k = round(m Td + r2 (Td-1)), alpha = -ln(10^(-LdB/20))/M, 1000 impulses/s, 30 ms, 4-segment staircase. PDF text (https://dafx.de/paper-archive/2017/papers/DAFx17_paper_96.pdf) eqs.(1),(3),(4),(6),(7) match; 'a density of a 1000 impulses per second, which has been found sufficient for decorrelation'; filter 'of length 30 ms'; 'a small number of segments can sound satisfying, e.g., I = 4'. 48 kHz numbers (Td 48, 1440 samples, M 30) re-computed.
 - **CONFIRMED**: Rossing ASA press page: Korean bell doublets split less than Chinese, giving 'a slow-beating sound, which is highly cherished'; King Songdok bell (771, Silla) 3.66 m; almond-shaped Chinese bells give two tones depending on strike point. https://acoustics.org/pressroom/httpdocs/147th/Rossing_AsianBells2.htm contains all three statements, including 'cast during the Silla dynasty (771), which stands 3.66 meters high' and 'two entirely different tones, depending upon where it is struck'.
 - **REFUTED**: Bell doublets: 'mode 5.4 of a C6 note beats at 9.8 Hz, in the 4-15 Hz band bell founders call unpleasant warble'; 'bell founders strike on a nodal line of one mode to suppress the beating, but cannot do so for all pairs at once' (cited to hibberts.co.uk). The 9.8 Hz arithmetic is right (1046.5*5.4 Hz with +-1.5 c split). But the cited Hibberts page (https://www.hibberts.co.uk/doublets-or-warble-in-bells/) makes no statement about any objectionable beat-rate band, never gives 4-15 Hz, and uses 'warble' only in its title. On strike point it says only that a bell can be positioned on its headstock 'to minimise doublets' by choosing clapper strike points; it says nothing about all pairs at once. Correction: Drop the '4-15 Hz band bell founders call unpleasant' claim, or re-source it (the 4 Hz figure is Fastl/Zwicker fluctuation-strength peak, not bell-founder lore). Rephrase strike point as: hanging the bell so the clapper strikes favourable points can minimise doublets (Hibberts); 'not all pairs at once' is inferred from mode geometry.
-- **CONFIRMED**: Audit: gen_modal, gen_fm_bell, gen_glass_pad put the down-detuned copy only in L and the up-detuned copy only in R; 20 presets dip below -12 dB in mono (night_marimba -31.7, celeste_mist -31.4, music_box_memory -28.8...). Code read in /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py lines 501-570 and 711-735: side 0 (L) gets -beat, side 1 (R) gets +beat. Independent re-measurement (factcheck/monochk.py, 50 ms frames over all zones) reproduced night_marimba -31.7 dB, celeste_mist -31.4 dB, music_box_memory -28.8 dB exactly; night_marimba L/R correlation reaches -0.88.
+- **CONFIRMED**: Audit: gen_modal, gen_fm_bell, gen_glass_pad put the down-detuned copy only in L and the up-detuned copy only in R; 20 presets dip below -12 dB in mono (night_marimba -31.7, celeste_mist -31.4, music_box_memory -28.8...). Code read in ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py lines 501-570 and 711-735: side 0 (L) gets -beat, side 1 (R) gets +beat. Independent re-measurement (factcheck/monochk.py, 50 ms frames over all zones) reproduced night_marimba -31.7 dB, celeste_mist -31.4 dB, music_box_memory -28.8 dB exactly; night_marimba L/R correlation reaches -0.88.
 - **CONFIRMED**: Audit: drowned_tines (default) is bit-mono; no round robins (RRGroupAmount 1 everywhere); loop cache reuses identical renders; vowel morph across whole render vs loop start 1.0-1.6 s causes seam swell; tape dicts '4 in build_signature_bank.py, 14 in assets/packs/instruments/*.json'. drowned_tines: L/R correlation 1.000 on all 22 zones (monochk.py). RRGroupAmount="1.0" in 264 sample maps and "1" on 5 module-tree samplers. build_loop_lines.py lines 168-183: cache keyed per note/length, seed_for(pid+'_loop', note), gain (vel/127)^1.4. _formant_filter interpolates vowels linearly over the whole render; loop_points sets ls = max(attack+0.6, 1.0) s (angel_stretch_cloud 1.3 s, frozen_halo 1.5 s). build_signature_bank.py has 4 tape=dict recipes.
-- **CONFIRMED**: HISE Master Reverb = SimpleReverb wrapping juce::Reverb 'based on the technique and tunings used in FreeVerb'; local HISE checkout is v4.9.2; Sampler.enableRoundRobin and setActiveGroup exist. /Users/noxvitae/HISE_source/hi_core/hi_modules/effects/fx/SimpleReverb.h line 177 'Reverb reverb;'; juce_Reverb.h line 30 has the FreeVerb sentence; HISE Standalone.jucer version="4.9.2"; ScriptingApi.h lines 899-905 declare enableRoundRobin, setActiveGroup, setActiveGroupForEventId.
+- **CONFIRMED**: HISE Master Reverb = SimpleReverb wrapping juce::Reverb 'based on the technique and tunings used in FreeVerb'; local HISE checkout is v4.9.2; Sampler.enableRoundRobin and setActiveGroup exist. ~/HISE_source/hi_core/hi_modules/effects/fx/SimpleReverb.h line 177 'Reverb reverb;'; juce_Reverb.h line 30 has the FreeVerb sentence; HISE Standalone.jucer version="4.9.2"; ScriptingApi.h lines 899-905 declare enableRoundRobin, setActiveGroup, setActiveGroupForEventId.
 - **CONFIRMED**: Moss et al. / van den Doel bubbles: Minnaert f0 r0 ~ 3 m/s; audible radii 0.15 mm to 15 cm; p(t)=A0 sin(2 pi f(t) t) e^(-beta0 t), beta0 = pi f0 delta_tot, delta_rad = sqrt(3 gamma p0/(rho c^2)); f(t)=f0(1+xi beta0 t), xi ~ 0.1 from van den Doel's user study. PDF text (https://gamma.cs.unc.edu/SoundingLiquids/soundingliquids.pdf) eqs.(1)-(3) and 'f0 r0 ~ 3m/s', 'radii, 0.15 mm to 15 cm', 'van den Doel [2005] conducted a user study and determined xi ~ 0.1'. Re-computed with gamma 1.4, p0 101325, rho 998, c 1481: f0 r0 = 3.29 m/s, delta_rad = 0.0139.
 - **CONFIRMED**: Voss and Clarke: loudness and pitch fluctuations in music (and loudness in speech) have 1/f spectra down to 5e-4 Hz; white-noise music 'too random', 1/f^2 'too correlated'. The cited escholarship PDF (https://escholarship.org/content/qt6xh4x10x/qt6xh4x10x.pdf) is the Aug 1975 LBL-4117 preprint by Voss and Clarke: 'the loudness and pitch fluctuations in common types of music also have a power spectrum that varies as 1/f'; '1/f-like down to the lowest frequency measured, 5x10^-4 Hz'; '1/f music was judged by most listeners to be far more interesting than either the white music (which was "too random") or the scale-like 1/f^2 music (which was "too correlated")'. Nature 258:317 page itself was login-walled.
 - **CONFIRMED**: Zahorik / PMC3563070: reverberant level falls only ~1 dB per doubling of distance in Zahorik's small auditorium, direct sound 6 dB per doubling; DRR is a distance cue. https://pmc.ncbi.nlm.nih.gov/articles/PMC3563070: 'it decreased at 1 dB per doubling of distance' (combined reverberant level), direct sound 'always changes at a rate of 6 dB per doubling of distance', and the direct/reverberant relationship 'is a second cue to distance'.
@@ -1730,7 +1730,7 @@ The 14 sound ideas each build one world without copying any song:
 
 Third-party recordings (Splice horns, Imogen Heap, the user's own Keyscape or Omnisphere, artist audio) must never enter the public repo. Self-recordings marked personal-only stay out of it too. Nothing in the repo was changed.
 
-Scratch files: /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/analyse_sig.py, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/sig_texture_summary.json, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/sig_report.txt, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/analyse_ll.py, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/tr808.txt, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/gigi_pt.txt.
+Scratch files: <scratchpad>/wf_mystic/analyse_sig.py, <scratchpad>/wf_mystic/sig_texture_summary.json, <scratchpad>/wf_mystic/sig_report.txt, <scratchpad>/wf_mystic/analyse_ll.py, <scratchpad>/wf_mystic/tr808.txt, <scratchpad>/wf_mystic/gigi_pt.txt.
 
 ### Findings
 
@@ -1740,7 +1740,7 @@ Measured over all 2,752 SIG_*.wav files (48 kHz/24-bit). 45 presets are bit-iden
 
 How to recreate here: Add a 'decorrelate' post stage in build_signature_bank.render_voice, applied when gen is not in (808, sub, reese) and the source came back mono. Render a second take x_b with seed+1, so drift, wow and chorus phases differ. Then output mid = x_a and side = 0.22 * AP4(HP250(x_b)), where AP4 is four first-order allpasses with coefficients (0.31, 0.47, 0.59, 0.71) on L and (0.27, 0.43, 0.63, 0.69) on R. Return (mid+side, mid-side). Keep everything below 120 Hz mono, matching backlog idea 12. Draw dither independently per channel in write_wav24/write_wav16. Re-render the 29 presets and re-measure; target L/R correlation 0.6 to 0.85 for keys.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py, /Users/noxvitae/Desktop/ResearchFacility/scripts/build_signature_bank.py, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/sig_report.txt, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/sig_texture_summary.json
+Sources: ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py, ~/Desktop/ResearchFacility/scripts/build_signature_bank.py, <scratchpad>/wf_mystic/sig_report.txt, <scratchpad>/wf_mystic/sig_texture_summary.json
 
 #### AUDIT: renders carry no noise floor, room or mechanical layer (sterile, not a world) (verified)
 
@@ -1748,7 +1748,7 @@ Measured spectral flatness (50 Hz to 16 kHz, first 1.5 s after onset) has a medi
 
 How to recreate here: Do not bake noise into every zone: it would sum with polyphony, about +9 dB at 8 voices. Add a separate 'World Floor' streaming layer (see the sound idea) on its own sampler, gated by any held note with a 2 s release and scaled by SPACE. Separately, give each family a mechanical layer per backlog R22: key thunk, damper and pedal for felt_piano and tine_ep, reed buzz release for reed_ep, fret and finger squeak for karplus, valve and wind for organs.
 
-Sources: /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/analyse_sig.py, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/sig_texture_summary.json, /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py
+Sources: <scratchpad>/wf_mystic/analyse_sig.py, <scratchpad>/wf_mystic/sig_texture_summary.json, ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py
 
 #### AUDIT: loop takes inherit the mono and dead-air problems (verified)
 
@@ -1756,7 +1756,7 @@ Measured over all 1,024 LL_*.wav takes (64 kits x 4 lanes x 4 takes, 48 kHz/16-b
 
 How to recreate here: Fix it at the preset level (decorrelate stage), then re-render the loops. In build_loop_lines.py, mix the kit's World Floor bed (its own field or room take, or a synthesized one) into the AIR lane at -48 to -56 dBFS so the gaps breathe. Render a ROOM sub-lane, or reuse AIR take 4, as pure ambience.
 
-Sources: /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/analyse_ll.py, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/LoopBank.js
+Sources: <scratchpad>/wf_mystic/analyse_ll.py, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/LoopBank.js
 
 #### AUDIT: there are no drums or percussion anywhere in the plugin (verified)
 
@@ -1764,7 +1764,7 @@ FACTORY_CATS = keys, chords, pads, guitar, plucks, leads, bells, vox, bass, arch
 
 How to recreate here: Add a 'drums' category built from synthesized one-shots (no samples) using two new generators, membrane and metal808 (see sound ideas), plus gen_808 for kicks. Add a 5th loop lane PULSE on notes 76-79 (LOOP_FIRST_NOTE stays 60, lane = (note-60)/4 still works). Render PULSE takes for each kit from new 'patterns.PULSE' arrays in assets/packs/loop_kits/*.json.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/FactoryBank.js, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/LoopBank.js, /Users/noxvitae/Desktop/ResearchFacility/docs/19_legends_bank.md
+Sources: ~/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/FactoryBank.js, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/LoopBank.js, ~/Desktop/ResearchFacility/docs/19_legends_bank.md
 
 #### AUDIT: loop kits reuse the same few lane presets, so the worlds blur together (verified)
 
@@ -1772,7 +1772,7 @@ Across the 61 kit recipes in assets/packs/loop_kits, wood_bass_pluck is the BASS
 
 How to recreate here: Give each world its own bass and bed. Use the new instruments below (Manivela, Membrana, Sixty Hertz Bounce, Lo-Fi 4400 Sawbass, Ensemble Divide-Down) and cap any one preset at 4 kits in a check added to build_loop_lines.py.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/assets/packs/loop_kits/, /Users/noxvitae/Desktop/ResearchFacility/scripts/build_loop_lines.py
+Sources: ~/Desktop/ResearchFacility/assets/packs/loop_kits/, ~/Desktop/ResearchFacility/scripts/build_loop_lines.py
 
 #### AUDIT: the kit tempo map misses the playlist's club pocket (verified)
 
@@ -1780,7 +1780,7 @@ Kit BPMs (61 recipes): 60-69 has 11 kits, 70-79 has 12, 80-89 has 5, 90-99 has 9
 
 How to recreate here: Add the kits Manivela 138 and Tamborzao de Quintal 130 (sound ideas), and use the half-time-aware audition (backlog item 10) so they also serve the 67-73 felt tempos.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/assets/packs/loop_kits/, /Users/noxvitae/Desktop/ResearchFacility/docs/12b_playlist_tracks.md, https://songbpm.com/@latin-mafia/patadas-de-ahogado-eO_sx_B0Uh
+Sources: ~/Desktop/ResearchFacility/assets/packs/loop_kits/, ~/Desktop/ResearchFacility/docs/12b_playlist_tracks.md, https://songbpm.com/@latin-mafia/patadas-de-ahogado-eO_sx_B0Uh
 
 #### AUDIT: the FX chain has one algorithmic reverb and no convolution, flanger or stereo tool (verified)
 
@@ -1788,7 +1788,7 @@ The module tree (XmlPresetBackups/ResearchFacility.xml) holds one SynthChain wit
 
 How to recreate here: Insert a Convolution Reverb after Air EQ as a 'WORLD' slot, with IRs from the user's own captures (personal-only unless self-recorded and released by the user) or synthesized IRs. Swap them per preset via setFile in Interface.js. Insert Phase FX (flanger/phaser) before Space Delay as a MOTION alternative (Parker world). Insert Stereo FX after Chorus so WIDTH also widens the dry signal for the decorrelated renders.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/XmlPresetBackups/ResearchFacility.xml, https://docs.hise.audio/hise-modules/effects/list/index.html, https://docs.hise.audio/hise-modules/effects/list/convolution.html
+Sources: ~/Desktop/ResearchFacility/hise_project/ResearchFacility/XmlPresetBackups/ResearchFacility.xml, https://docs.hise.audio/hise-modules/effects/list/index.html, https://docs.hise.audio/hise-modules/effects/list/convolution.html
 
 #### OVO / 40: muddy keys and bass come from sample-rate reduction and amp sims, not just low-pass filters (verified)
 
@@ -1844,7 +1844,7 @@ Song Exploder transcript, read in full via pdftotext: she was learning Ableton d
 
 How to recreate here: Pelican Call reed instrument (sound idea): a synthesized reed with a bird-like scoop and ping-pong echo. NEVER bundle the Splice audio (licence terms are per Splice, not ours) and never recreate those phrases. For the L/C/R stack, add a 'Triple Take' render option that writes three seeds of any karplus or voice preset panned -1/0/+1, with take 2 detuned +4 c and take 3 -3 c, each with its own timing offset at play time (Performer humanize).
 
-Sources: https://songexploder.net/wp-content/uploads/2025/07/Song-Exploder-Gigi-Perez-Transcript.pdf, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/gigi_pt.txt
+Sources: https://songexploder.net/wp-content/uploads/2025/07/Song-Exploder-Gigi-Perez-Transcript.pdf, <scratchpad>/wf_mystic/gigi_pt.txt
 
 #### SALES: bedroom records where the lake, lawnmowers, A/C and crickets are part of the track (verified)
 
@@ -1900,7 +1900,7 @@ Ideal circular membrane mode ratios relative to (0,1), from Bessel zeros (Wikipe
 
 How to recreate here: Immediate version with the existing gen_modal: modes=[(1.0,1,1),(1.593,0.55,0.55),(2.136,0.35,0.4),(2.295,0.3,0.35),(2.653,0.2,0.3),(2.917,0.16,0.25)], t60=0.8, strike=0.35, lp=1800, beat_c=0.5 for a bombo zone at notes 36-43. Rim: modes=[(1,1,1),(2.757,0.5,0.5),(5.404,0.25,0.3)], t60=0.08, strike=0.5.
 
-Sources: https://en.wikipedia.org/wiki/Vibrations_of_a_circular_membrane, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/
+Sources: https://en.wikipedia.org/wiki/Vibrations_of_a_circular_membrane, <scratchpad>/wf_mystic/
 
 #### Brazilian funk: tamborzao = Afro-Brazilian ritual and game drums laid over the 8 Volt Mix 808 (verified)
 
@@ -1916,7 +1916,7 @@ The LA Times (via AOL) says 'Siento que merezco mas' uses a distorted sample of 
 
 How to recreate here: The Manivela barrel-organ generator and the Manivela 138 kit (sound ideas), then swap organillo_roto's AIR lane to Manivela.
 
-Sources: https://www.aol.com/news/latin-mafia-always-trusted-gut-204213062.html, https://mexiconewsdaily.com/mexicolife/though-its-not-exactly-profitable-cdmx-organ-grinders-keep-the-faith, https://matadornetwork.com/abroad/the-slow-demise-of-mexico-citys-organilleros, /Users/noxvitae/Desktop/ResearchFacility/assets/packs/loop_kits/organillo_roto.json
+Sources: https://www.aol.com/news/latin-mafia-always-trusted-gut-204213062.html, https://mexiconewsdaily.com/mexicolife/though-its-not-exactly-profitable-cdmx-organ-grinders-keep-the-faith, https://matadornetwork.com/abroad/the-slow-demise-of-mexico-citys-organilleros, ~/Desktop/ResearchFacility/assets/packs/loop_kits/organillo_roto.json
 
 #### Clams Casino: mouse-drawn Sony Acid production; the I'm God texture came from an uncleared vocal sample (verified)
 
@@ -1940,7 +1940,7 @@ Wikipedia dates DJ Screw's chopped-and-screwed style to around 1990 in Houston. 
 
 How to recreate here: A 'Screw' render mode for loop kits: render at gp slow=0.8 (the existing tape-varispeed path), then every 4 bars repeat beat 4 twice (a phrase stutter) with a 10 ms crossfade. Add a dark 4-6 s tail on the AIR lane.
 
-Sources: https://en.wikipedia.org/wiki/Chopped_and_screwed, https://knowyourmeme.com/memes/cultures/slowed-reverb, /Users/noxvitae/Desktop/ResearchFacility/docs/12b_playlist_tracks.md
+Sources: https://en.wikipedia.org/wiki/Chopped_and_screwed, https://knowyourmeme.com/memes/cultures/slowed-reverb, ~/Desktop/ResearchFacility/docs/12b_playlist_tracks.md
 
 #### GoldLink 'future bounce': nostalgic uptempo bounce rooted in DC go-go (inferred)
 
@@ -1972,7 +1972,7 @@ Werner, Abel and Smith (CCRMA), 'The TR-808 Cymbal: a Physically-Informed, Circu
 
 How to recreate here: New generator gen_metal808 (see the Six Square Metals idea).
 
-Sources: https://speech.di.uoa.gr/ICMC-SMC-2014/images/VOL_2/1453.pdf, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/tr808.txt
+Sources: https://speech.di.uoa.gr/ICMC-SMC-2014/images/VOL_2/1453.pdf, <scratchpad>/wf_mystic/tr808.txt
 
 #### Tape that behaves like tape: hysteresis rather than tanh (verified)
 
@@ -2135,12 +2135,12 @@ Re-render 'spring_surf_strum' with dict(t60=1.6, bright=6500, damp=0.35, pos=0.1
 - **CONFIRMED**: Ralphie Choo, SUPERNOVA (FADER): mostly built by Choo and DRUMMIE, iPhone-recorded instrumentals, straw-and-water-bottle flute, own voice pitched/layered/Auto-Tuned, assembled remotely over Discord, 'not a flamenco album', breakbeats and 808s with Arabic scales; also tagged 'rusia-idk, with rusowsky on Dolores'. https://www.thefader.com/2023/10/23/ralphie-choo-supernova-gen-f-interview-2023: DRUMMIE 'best friend and co-producer', 'recorded many of SUPERNOVA's instrumentals directly into his iPhone', 'a straw and bottle of water meant to sound like a flute', voice 'pitching it up, layering it, and Auto-Tuning it', 'assembled the final versions of these songs over Discord', not a 'flamenco album', breakbeats on 'NHF' and 'the 808s and Arabic scales' of 'WHIPCREAM'. The FADER does not call the Discord work 'remote' and does not mention rusia-idk or rusowsky.
 - **CONFIRMED**: Milo J, La Vida Era Mas Corta (Remezcla): 'Solifican12' with charango, pan flutes, bombo leguero; Santiago del Estero roots; zambas and chacareras with electronic production; Santiago Alvarado (Carlos Carabajal, Diego Torres); mostly recorded at Estudio Unisono, Cerati's studio. https://remezcla.com/features/music/interview-milo-j-never-promised-a-hip-hop-career-now-hes-exploring-argentine-folk-on-new-album: 'charango, pan flutes, and bombo legüero', 'his family's roots in the northern province of Santiago del Estero', 'melding percussive zambas and chacareras with immersive electronic production', Alvarado 'playing with Carlos Carabajal and Diego Torres', 'Estudio Unisono, which is Gustavo Cerati's studio'.
 - **CONFIRMED**: Bombo leguero (Wikipedia): hollowed trunk, goat/cow/sheep hides, fur left on gives a deep dark sound, hoops and leather thongs, from European military drums, central to zamba and chacarera, played with two soft-headed mallets. https://en.wikipedia.org/wiki/Bombo_leg%C3%BCero confirms trunk, hides (also guanaco), 'the bombo's sound is deep and dark', 'hoops and leather thongs', 'derives from the old European military drums', zamba and chacarera. On playing it says the player holds 'a soft-headed mallet and a stick', striking the drumhead and the wooden rim in turn.
-- **CONFIRMED**: Membrane mode ratios 1.000, 1.593, 2.136, 2.295, 2.653, 2.917, 3.500, 3.598 and free-free bar ratios 1, 2.757, 5.404, 8.933. Recomputed with scipy jn_zeros and brentq on cos(x)cosh(x)=1 (script run in /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/). Each listed value is correct, but the sorted series is 1.000 (0,1), 1.593 (1,1), 2.136 (2,1), 2.295 (0,2), 2.653 (3,1), 2.917 (1,2), 3.155 (4,1), 3.500 (2,2), 3.598 (0,3), 3.647 (5,1). The list skips the (4,1) mode at 3.155. Bar ratios 1, 2.757, 5.404, 8.933 confirmed exactly. https://en.wikipedia.org/wiki/Vibrations_of_a_circular_membrane lists Bessel roots, not a ratio table.
+- **CONFIRMED**: Membrane mode ratios 1.000, 1.593, 2.136, 2.295, 2.653, 2.917, 3.500, 3.598 and free-free bar ratios 1, 2.757, 5.404, 8.933. Recomputed with scipy jn_zeros and brentq on cos(x)cosh(x)=1 (script run in <scratchpad>/wf_mystic/). Each listed value is correct, but the sorted series is 1.000 (0,1), 1.593 (1,1), 2.136 (2,1), 2.295 (0,2), 2.653 (3,1), 2.917 (1,2), 3.155 (4,1), 3.500 (2,2), 3.598 (0,3), 3.647 (5,1). The list skips the (4,1) mode at 3.155. Bar ratios 1, 2.757, 5.404, 8.933 confirmed exactly. https://en.wikipedia.org/wiki/Vibrations_of_a_circular_membrane lists Bessel roots, not a ratio table.
 - **UNCERTAIN**: Tamborzao (RBMA): in 1998 DJ Luciano added capoeira, candomble and maculele drum samples to the 808 bass of DJ Battery Brain's '8 Volt Mix', the defining funk carioca sound; proibidao later moved to beatboxers. https://daily.redbullmusicacademy.com/2017/04/what-is-funk-proibidao does say 'in 1998 DJ Luciano added capoeira, candomblé and maculelê drum samples to the 808 bass and called the rhythm "tamborzão"' (word 'definitive', not 'defining'), names '8 Volt Mix' and Battery Brain in a separate sentence, and credits Palombini for the beatbox shift. But the primary interview in Caceres, Ferrari and Palombini (https://www.redalyc.org/pdf/4056/405641280009.pdf, pp. 186-195) has DJ Luciano saying the tamborzao was created on a Roland R-8 around 2 a.m., in the lineage of the funk 'atabaque' (which he describes as 'uma batida feita de conga'), with re-pitched percussion. The paper names the sounds as the R-8 MK-II ambient kick, attack toms 2 and 1 (ROM card), and slap high conga plus open low conga; 'Tamborzão com Volt Mix' and 'sem Volt Mix' both exist. The abstract says the beat retreated from the high end of the spectrum in the 2000s. Correction: Rebuild the Tamborzao de Quintal recipe on the documented timbres: a short ambient-room kick, two low toms and slap/open congas (Membrana with fur 0), optional 808 Volt layer. Drop the bright Six Square Metals cowbell from this kit, since the documented tamborzao era vacated the high end. Keep the pattern original; Luciano's skeleton 'tum pa-pá pum pá' is documented and must not be transcribed from records.
 - **CONFIRMED**: Caceres, Ferrari and Palombini periodise funk carioca into Volt Mix (1990s), Tamborzao (2000s), Beatbox (2010 on). https://www.redalyc.org/pdf/4056/405641280009.pdf, 'A Era Lula/Tamborzão: política e sonoridade', Revista do Instituto de Estudos Brasileiros n. 58, June 2014, pp. 157-207. English abstract: 'Volt Mix (1990s), Tamborzão (the years 2000-2009) and Beatbox (from 2010 onwards)'.
 - **CONFIRMED**: LATIN MAFIA (LA Times via AOL): 'Siento que merezco mas' uses a distorted sample of Mexico City street organs; 'nunca he sido honesto' is a piano-backed trap beat; happy accidents; chasing what sounds good while Mike drums. https://www.aol.com/news/latin-mafia-always-trusted-gut-204213062.html (Cerys Davies, Los Angeles Times, 5 Feb 2025): 'a distorted sample of the city's street organs', 'piano-backed trap beat on "Nunca he sido honesto"', Mike credits 'happy accidents', Milton: 'if it sounds good, we chase it', Mike tries different drums while the twins react.
 - **CONFIRMED**: Mexico City organillos (Mexico News Daily): from Germany early 1880s, pinned cylinder trips levers that open valves to pipes, crank speed sets and must hold the tempo, about eight tunes, 30 kg, now mostly from Guatemala or Chile, 'piercing'. https://mexiconewsdaily.com/mexicolife/though-its-not-exactly-profitable-cdmx-organ-grinders-keep-the-faith: 'first brought to Mexico from Germany sometime in the early 1880s', cylinders 'covered by tiny metal spikes' striking levers that open valves to the pipes, 'Each organillo typically has eight tunes', 'weighs 30 kilograms', 'most barrel organs in Mexico come from Guatemala or Chile', 'the piercing music'. On tempo it says the organillero 'has to adjust how fast he or she turns the handle' because 'Songs have different tempos'. Matador (https://matadornetwork.com/abroad/the-slow-demise-of-mexico-citys-organilleros) confirms 'horribly out of tune' and gives 'Europe in the late 1800s' with a German-gift legend.
-- **CONFIRMED**: TR-808 metal bank (Werner, Abel, Smith, ICMC-SMC 2014): six HD14584 Schmitt-trigger oscillators at 205.3, 369.6, 304.4, 522.7 Hz plus trimpot-tuned 800 and 540 Hz (cowbell), duty 47.98%, cymbal BPs near 3440 and 7100 Hz; Trim macro 0.7 to 1.4. https://speech.di.uoa.gr/ICMC-SMC-2014/images/VOL_2/1453.pdf (text in /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/tr808.txt lines 103-118, 226-230, 278-281): shared bank of six oscillators on 'a single HD14584 hex Schmitt trigger inverter chip'; 'nominal frequencies (or ranges) of 205.3, 369.6, 304.4, 522.7, 359.4-1149.9, and 254.3-627.2 Hz'; #5-6 factory-tuned 'to specific frequencies (800 and 540 Hz, respectively)'; 'D = 47.98%' at 5 V; BP #1 'around 3440 Hz', BP #2 'around 7100 Hz'.
+- **CONFIRMED**: TR-808 metal bank (Werner, Abel, Smith, ICMC-SMC 2014): six HD14584 Schmitt-trigger oscillators at 205.3, 369.6, 304.4, 522.7 Hz plus trimpot-tuned 800 and 540 Hz (cowbell), duty 47.98%, cymbal BPs near 3440 and 7100 Hz; Trim macro 0.7 to 1.4. https://speech.di.uoa.gr/ICMC-SMC-2014/images/VOL_2/1453.pdf (text in <scratchpad>/wf_mystic/tr808.txt lines 103-118, 226-230, 278-281): shared bank of six oscillators on 'a single HD14584 hex Schmitt trigger inverter chip'; 'nominal frequencies (or ranges) of 205.3, 369.6, 304.4, 522.7, 359.4-1149.9, and 254.3-627.2 Hz'; #5-6 factory-tuned 'to specific frequencies (800 and 540 Hz, respectively)'; 'D = 47.98%' at 5 V; BP #1 'around 3440 Hz', BP #2 'around 7100 Hz'.
 - **CONFIRMED**: Tape hysteresis (Chowdhury DAFx 2019, ChowTape manual): Sony TC-260 modelled, Jiles-Atherton hysteresis 'largely' responsible for warm tape distortion, widening loop = underbias, RK2 solver, ChowTape GPLv3; recipe params drive, sat, width. https://dafx.de/paper-archive/details/Z5Ow_E5YHVxvndTAyeEuzA: 'a physical model of a Sony TC-260 tape machine' (DAFx 2019). ChowTape manual (https://ccrma.stanford.edu/~jatin/chowdsp/Products/ChowTapeManual.pdf, via pdftotext): 'Jiles-Atherton model of magnetic hysteresis. Magnetic hysteresis is largely responsible for the "warm" sound', 'At lower bias levels, the hysteresis curve becomes "wider" ... associated with underbiased tape', solver modes RK2, RK4, NR4, NR8, STN, V1. https://github.com/jatinchowdhury18/AnalogTapeModel: 'licensed under the GNU General Public License (GPLv3)'.
 - **UNCERTAIN**: Spring reverb (Valimaki, Parker, Abel, JAES 58(7/8) pp. 547-562, July 2010): spectral delay filter (long allpass cascade) in a feedback loop with a delay line, adjustable delay, chirp and decay. Bibliographic data confirmed at https://research.aalto.fi/en/publications/parametric-spring-reverberation-effect: Valimaki, Parker, Abel, JAES vol. 58, issue 7/8, pp. 547-562, 2010. Both AES pages cited (https://www.aes.org/journal/online/JAES_V58/7_8/ and the aes2.org e-library) returned HTTP 403, and the Aalto page has no abstract, so the model description (spectral delay filter, allpass cascade, feedback delay) and the month were not verified here. The 2011 EURASIP claim was not checked. Correction: Keep the citation. Mark the structural description 'inferred from the paper title and secondary knowledge' until the abstract or PDF is read; read the paper before writing the Spring stage parameters.
 - **REFUTED**: Paulstretch (Csound manual): STFT overlap-add, Hann window, very large windows in seconds, scrambled phase, avoids phasiness, smears transients; PaulXStretch is a GPLv2 plugin. https://csound.com/docs/manual/paulstretch.html confirms: 'overlap-add with a hanning window', 'scrambled phase and very large window sizes (specified in seconds)', stretching 'by very large amounts', mono source, algorithm by Nasca Octavian Paul, opcode by Paul Batchelor (2016). It says nothing about phasiness or transients. https://github.com/essej/paulxstretch states 'Released under GNU General Public License v.3 license with App Store license exception', so GPLv2 is wrong. Correction: PaulXStretch is GPLv3 (with an App Store exception). Remove 'no phasiness' and 'transients get smeared' from the sourced sentence or mark them inferred. The offline recipe (Hann, random phase, OLA) matches the Csound description.
@@ -2158,7 +2158,7 @@ Re-render 'spring_surf_strum' with dict(t60=1.6, bright=6500, damp=0.35, pos=0.1
 
 ## Authentic, unique, rare look and feel
 
-LANE: authentic, unique, rare look and feel. Repo read-only; scratch scripts in /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/ (measure_desc.py, fingerprint.py, analyse_fp.py, dupe_recipes.py, fp.json).
+LANE: authentic, unique, rare look and feel. Repo read-only; scratch scripts in <scratchpad>/wf_mystic/ (measure_desc.py, fingerprint.py, analyse_fp.py, dupe_recipes.py, fp.json).
 
 MAIN DIAGNOSIS: Sweet Melody already has a world. The logo is a 3D specimen vial, the archive is called 'lab specimens', the loop kits are named after places (Cathedral Smog, Tidepool Vigil, Seance Tape) and docs/19 holds 47 sourced Legend stories. Almost none of this reaches the player. What the player sees: one functional sentence per preset, and 39 of 197 of those are cut off with an ellipsis. 50 archive presets share one generic line, 10 of which say 'basse'. The same festival stage draws for every sound (LAB look on 63 of 197 presets). The LCD falls back to Oxygen. There are zero round robins across 3,829 samples. 3 preset pairs are identical recipes. 3 'Ladder' presets are not ladders. 28% of the bank uses one supersaw generator. Only 10% of presets use tape aging. 49 of 147 presets are mono at the source. VARIATION and Voice Drift are white noise. Rare, authentic products do the opposite: specific provenance (Felt, Keyscape, Spitfire LABS, AudioThing Wires), controlled instability sold as history (Prophet-5 Rev4 Vintage knob, Diva trimmers, Pianoteq Condition, BA-1 battery), randomness with locks (Playbox, Portal), and themed worlds (Arcade Lines, OP-1 tape, Ableton Inspired by Nature). Research backs this: listeners prefer long-range correlated fluctuation (Hennig 2011), music has 1/f fluctuation (Voss and Clarke 1975), wear makes history visible (Hill 1992), shorter labels get read (Serrell), and producers in the user's sphere avoid stock patches (SOS on Metro Boomin).
 
@@ -2185,7 +2185,7 @@ Interface.js line 2107 draws p.desc with g.drawAlignedText into [210,238,460,16]
 
 How to recreate here: Use g.drawFittedText(text, [210,234,460,30], 'left', 2, 0.9). It exists at the 4.1.0 tag. Give the lower third the 30 px height that docs/18b already budgets. Add a build check to build_signature_bank.py that measures each desc with PIL and oxygen.regular.ttf and fails the build if it needs more than 2 lines. Long term, move the full story to the Specimen Card.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/ScriptProcessors/ResearchFacility/Interface.js, /Users/noxvitae/HISE_source/JUCE/modules/juce_graphics/contexts/juce_GraphicsContext.h, https://raw.githubusercontent.com/christophhart/HISE/4.1.0/hi_scripting/scripting/api/ScriptingGraphics.cpp, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/measure_desc.py
+Sources: ~/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/ScriptProcessors/ResearchFacility/Interface.js, ~/HISE_source/JUCE/modules/juce_graphics/contexts/juce_GraphicsContext.h, https://raw.githubusercontent.com/christophhart/HISE/4.1.0/hi_scripting/scripting/api/ScriptingGraphics.cpp, <scratchpad>/wf_mystic/measure_desc.py
 
 #### AUDIT BUG: the ARCHIVE (50 presets, 25% of the bank) shares one generic sentence, and 10 say 'basse' (verified)
 
@@ -2193,7 +2193,7 @@ legacy_presets() in build_signature_bank.py builds the desc as 'Original Researc
 
 How to recreate here: Replace [:-1] with a dict {Basses: bass, Leads: lead, Pads: pad, Plucks: pluck, Textures: texture}. Present ARCHIVE as 'The Vault: first collection' with catalogue numbers RF-0001..0050. Generate draft cards from _catalog.json: spectrum centroid gives a luminance word, decay gives a mass word, and mood and tags carry over. Then hand-write one honest line each.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/scripts/build_signature_bank.py, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/Samples/_catalog.json, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/FactoryBank.js
+Sources: ~/Desktop/ResearchFacility/scripts/build_signature_bank.py, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/Samples/_catalog.json, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/FactoryBank.js
 
 #### AUDIT: the lore is already researched but never reaches the instrument (verified)
 
@@ -2201,7 +2201,7 @@ docs/19_legends_bank.md has 47 'Legend' entries, each with a source: gear and te
 
 How to recreate here: Extend P() with four fields. story: lineage, max 40 words, gear and technique only, with no artist names in shipped strings, matching the rule in the build_signature_bank.py header. prep: how it was printed, e.g. 'tine model, 0.85x tape, 11 kHz sampler'. world: a place. cat_no: a catalogue number. Emit them into FactoryBank.js and show them on the Specimen Card.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/docs/19_legends_bank.md, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/FactoryBank.js
+Sources: ~/Desktop/ResearchFacility/docs/19_legends_bank.md, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/FactoryBank.js
 
 #### AUDIT: three preset pairs are the same recipe, and more are near-duplicates (verified)
 
@@ -2209,7 +2209,7 @@ I imported build_signature_bank.PRESETS and compared recipes. Three pairs have i
 
 How to recreate here: Merge each identical pair. Rename or re-voice the near-duplicates, for example push Velvet Tines toward a clean Suitcase character and Syrup Tine toward driven bark. Fill the freed slots with the rare specimens in sound_ideas. Add the fingerprint as a build gate: warn when the nearest-neighbour distance is below 1.2 unless the pair is whitelisted.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/scripts/build_signature_bank.py, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/dupe_recipes.py, /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/analyse_fp.py
+Sources: ~/Desktop/ResearchFacility/scripts/build_signature_bank.py, <scratchpad>/wf_mystic/dupe_recipes.py, <scratchpad>/wf_mystic/analyse_fp.py
 
 #### AUDIT: zero round robins across 3,829 samples, so every repeated note is bit-identical (verified)
 
@@ -2217,7 +2217,7 @@ Every row in SampleMaps/*.xml has RRGroup='1', and every map has RRGroupAmount='
 
 How to recreate here: See the sound idea 'Living Round Robins'. Sampler.enableRoundRobin and Sampler.setActiveGroup both exist at the HISE 4.1.0 tag.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/SampleMaps/SIG_drowned_tines.xml, https://musicradar.com/tuition/tech/how-to-avoid-the-machine-gun-effect-using-round-robin-sampling-632302, https://raw.githubusercontent.com/christophhart/HISE/4.1.0/hi_scripting/scripting/api/ScriptingApi.cpp
+Sources: ~/Desktop/ResearchFacility/hise_project/ResearchFacility/SampleMaps/SIG_drowned_tines.xml, https://musicradar.com/tuition/tech/how-to-avoid-the-machine-gun-effect-using-round-robin-sampling-632302, https://raw.githubusercontent.com/christophhart/HISE/4.1.0/hi_scripting/scripting/api/ScriptingApi.cpp
 
 #### AUDIT: the 'Ladder' presets are printed through a linear SVF, not a ladder (verified)
 
@@ -2225,7 +2225,7 @@ Ladder Mono Bass and Ladder Lead (build_signature_bank.py lines 346-357) and Low
 
 How to recreate here: See the sound idea 'True Ladder Mono'.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/DeepParams.js, https://dafx.de/paper-archive/2004/P_061.PDF, /Users/noxvitae/HISE_source/hi_core/hi_modules/effects/fx/FilterHelpers.h
+Sources: ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/DeepParams.js, https://dafx.de/paper-archive/2004/P_061.PDF, ~/HISE_source/hi_core/hi_modules/effects/fx/FilterHelpers.h
 
 #### AUDIT: one generator dominates, and tape aging is rare (verified)
 
@@ -2233,7 +2233,7 @@ Across the 147 synthesized presets, 41 (28%) use the supersaw generator, coverin
 
 How to recreate here: Add three generators: friction_modal, divide_down and subharmonic (see sound_ideas). Give tape_age to at least 30% of keys and pads via world defaults.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/scripts/build_signature_bank.py, /Users/noxvitae/Desktop/ResearchFacility/docs/12_playlist_sound_dna.md
+Sources: ~/Desktop/ResearchFacility/scripts/build_signature_bank.py, ~/Desktop/ResearchFacility/docs/12_playlist_sound_dna.md
 
 #### AUDIT: a third of the bank is mono at the sample level (verified)
 
@@ -2241,7 +2241,7 @@ Sources: /Users/noxvitae/Desktop/ResearchFacility/scripts/build_signature_bank.p
 
 How to recreate here: Print decorrelated stereo at the source: separate noise seeds left and right for hammer, breath and strike, about 1.5 cents of left/right offset on unison strings, and small left/right Q differences in modal banks. Alternatively print close and room channels per world (see World Air).
 
-Sources: /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/fp.json, /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py
+Sources: <scratchpad>/wf_mystic/fp.json, ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py
 
 #### AUDIT: the red LCD is drawn in Oxygen, not a segment font (verified)
 
@@ -2249,7 +2249,7 @@ T.MONO is set to 'Oxygen' (Interface.js line 122), with a comment that SM Mono w
 
 How to recreate here: Bundle DSEG14 Classic or Classic-Mini (alphanumeric) in fonts/ with its OFL text. Register it with Engine.loadFontAs('{PROJECT_FOLDER}fonts/DSEG14Classic-Regular.ttf', 'SM Mono'), which exists at 4.1.0. Under the lit text, draw an all-segments-on string in T.lcdOff to get the ghost-segment look. Keep DSEG7 for BPM and ROOT.
 
-Sources: https://github.com/keshikan/DSEG, https://fontsource.org/fonts/dseg7-classic/about, https://raw.githubusercontent.com/christophhart/HISE/4.1.0/hi_scripting/scripting/api/ScriptingApi.cpp, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/ScriptProcessors/ResearchFacility/Interface.js
+Sources: https://github.com/keshikan/DSEG, https://fontsource.org/fonts/dseg7-classic/about, https://raw.githubusercontent.com/christophhart/HISE/4.1.0/hi_scripting/scripting/api/ScriptingApi.cpp, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/ScriptProcessors/ResearchFacility/Interface.js
 
 #### AUDIT: the brand plate shows a git hash, and the version label lags the design (verified)
 
@@ -2257,7 +2257,7 @@ Interface.js line 913 draws 'BY RESEARCH FACILITY  V0.2  ' + BUILD_SHA under the
 
 How to recreate here: Replace it with an engraved serial plate such as 'SWEET MELODY  No. 0147', derived from the install seed (see VINTAGE). Move the SHA to the settings popup and the tooltip. Draw it in the buffered top bar with a 1 px light emboss under dark text.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/ScriptProcessors/ResearchFacility/Interface.js, /Users/noxvitae/Desktop/ResearchFacility/docs/17_ui_aesthetic.md
+Sources: ~/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/ScriptProcessors/ResearchFacility/Interface.js, ~/Desktop/ResearchFacility/docs/17_ui_aesthetic.md
 
 #### AUDIT: one festival rig for every sound, and a third of the bank gets the generic LAB look (verified)
 
@@ -2265,7 +2265,7 @@ I replicated buildVD over FactoryBank. LAB resolves for 63 of 197 presets (32%; 
 
 How to recreate here: Group the 64 kits and the scenes into 6-8 Worlds, each with its own Blender backdrop plate behind the multiplane STAGE layers (Visualiser.loadImage per world, loaded only on preset change) and a matching World Air IR. The Blender skill rule applies: confirm the render plan with the user first.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/docs/18b_concert_stage_visual.md, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/LoopBank.js, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/ScriptProcessors/ResearchFacility/Interface.js
+Sources: ~/Desktop/ResearchFacility/docs/18b_concert_stage_visual.md, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/LoopBank.js, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/ScriptProcessors/ResearchFacility/Interface.js
 
 #### AUDIT: VARIATION is uniform white noise with no locks and no undo (verified)
 
@@ -2273,7 +2273,7 @@ variation() (Interface.js line 2604) multiplies TONE by 2^U(-0.6,0.6) and moves 
 
 How to recreate here: Make it a DICE: per-macro lock LEDs on the macro pads (right-click to lock), successive rolls correlated (a 1/f walk instead of an independent jump), and an undo ring of the last 8 states. Add a ROLL A SPECIMEN action that loads a preset the user has never played (see read-wear).
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/ScriptProcessors/ResearchFacility/Interface.js, https://docs.native-instruments.com/online-guides/playbox-manual/en/samples-page
+Sources: ~/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/ScriptProcessors/ResearchFacility/Interface.js, https://docs.native-instruments.com/online-guides/playbox-manual/en/samples-page
 
 #### AUDIT: 'Voice Drift' is per-note white randomness (verified)
 
@@ -2281,7 +2281,7 @@ Sources: /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/
 
 How to recreate here: Drive per-note detune from a script-side 1/f sequence instead; see the sound idea 'Serial No. / VINTAGE'.
 
-Sources: /Users/noxvitae/HISE_source/hi_core/hi_modules/modulators/mods/RandomModulator.h, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/XmlPresetBackups/ResearchFacility.xml, https://pmc.ncbi.nlm.nih.gov/articles/PMC3202537
+Sources: ~/HISE_source/hi_core/hi_modules/modulators/mods/RandomModulator.h, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/XmlPresetBackups/ResearchFacility.xml, https://pmc.ncbi.nlm.nih.gov/articles/PMC3202537
 
 #### RESEARCH: Prophet-5 Rev4 'Vintage' knob, instability sold as history (verified)
 
@@ -2321,7 +2321,7 @@ Spectrasonics restored its rare keyboards before sampling and kept their quirks.
 
 How to recreate here: For tine, reed, clav and felt presets, print a small set of key-up thunks and damper sounds: a noise burst through BP 600-2000 Hz, about 30 ms, rendered per zone with 3 seeds. Trigger them on note-off from a second sampler, the release-sample plan already written in docs/13 and docs/14. A NOISE macro or deep parameter sets the level. Synthesized only, never sampled from Keyscape.
 
-Sources: https://www.musicradar.com/reviews/tech/spectrasonics-keyscape-643857, https://www.musictech.com/reviews/spectrasonics-keyscape-review/, /Users/noxvitae/Desktop/ResearchFacility/docs/14_ideas_backlog.md
+Sources: https://www.musicradar.com/reviews/tech/spectrasonics-keyscape-643857, https://www.musictech.com/reviews/spectrasonics-keyscape-review/, ~/Desktop/ResearchFacility/docs/14_ideas_backlog.md
 
 #### RESEARCH: Pianoteq 'Condition', wear as one slider with a seed (verified)
 
@@ -2417,7 +2417,7 @@ Hill, Hollan, Wroblewski and McCandless introduced computational wear, showing w
 
 How to recreate here: Read-wear in the LIBRARY. Keep play counts in AppData/wear.json beside the existing favourites.json (FileSystem.getFolder(AppData) and File.writeObject are already used), saving on a 60 s idle timer. Rows show subtle patina: the label edge darkens with use, capped at 3 steps so contrast holds. Never-played presets get a small SEALED tag and an UNOPENED filter chip.
 
-Sources: https://bibtex.github.io/CHI-1992-HillHWM.html, https://acawiki.org/Edit_wear_and_read_wear, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/ScriptProcessors/ResearchFacility/Interface.js
+Sources: https://bibtex.github.io/CHI-1992-HillHWM.html, https://acawiki.org/Edit_wear_and_read_wear, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/ScriptProcessors/ResearchFacility/Interface.js
 
 #### RESEARCH: timbre vocabulary that people share (Zacharakis, Pastiadis and Reiss 2014) (verified)
 
@@ -2457,7 +2457,7 @@ André et al. (ACM Creativity and Cognition 2009) argue that serendipity has two
 
 How to recreate here: ROLL A SPECIMEN (unplayed preset) must audition inside the user's song: next bar, in the KEY parameter, at host tempo. docs/14 idea 7 already specifies this; the DICE should call it. Add a one-click KEEP that favourites the find and writes a field note.
 
-Sources: https://www.microsoft.com/en-us/research/?p=158909, https://eprints.soton.ac.uk/267710/1/fp392-andre.pdf, /Users/noxvitae/Desktop/ResearchFacility/docs/14_ideas_backlog.md
+Sources: https://www.microsoft.com/en-us/research/?p=158909, https://eprints.soton.ac.uk/267710/1/fp392-andre.pdf, ~/Desktop/ResearchFacility/docs/14_ideas_backlog.md
 
 #### RESEARCH: the IKEA effect, personal labour raises attachment (verified)
 
@@ -2481,7 +2481,7 @@ Sources: https://www.soundonsound.com/techniques/inside-track-metro-boomin-heroe
 
 How to recreate here: felt_piano already models stiffness (B = 0.00008 x 2^((note-60)/18)). Add a stiffness term to tine_ep (ratio set 1, 2.0+δ) and to modal keys, and expose it on cards as a 'string stiffness' prep note. That is an authentic detail the user can hear.
 
-Sources: https://physics.byu.edu/docs/publication/1504, /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py
+Sources: https://physics.byu.edu/docs/publication/1504, ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py
 
 #### FEASIBILITY: HISE 4.1.0 APIs these ideas need are present (verified)
 
@@ -2489,7 +2489,7 @@ I checked the 4.1.0 tag source on GitHub and the local HISE_source develop check
 
 How to recreate here: Specimen Card, glyphs, DSEG font, porcelain grain (addNoise once in the buffered Chrome panel, never on a timer, per the docs/17 performance rule), VINTAGE script, round robins and World IRs are all buildable without C++.
 
-Sources: https://raw.githubusercontent.com/christophhart/HISE/4.1.0/hi_scripting/scripting/api/ScriptingGraphics.cpp, https://raw.githubusercontent.com/christophhart/HISE/4.1.0/hi_scripting/scripting/api/ScriptingApi.cpp, https://raw.githubusercontent.com/christophhart/HISE/4.1.0/hi_core/hi_modules/effects/fx/Convolution.h, /Users/noxvitae/HISE_source/hi_core/hi_modules/synthesisers/synths/NoiseSynth.h
+Sources: https://raw.githubusercontent.com/christophhart/HISE/4.1.0/hi_scripting/scripting/api/ScriptingGraphics.cpp, https://raw.githubusercontent.com/christophhart/HISE/4.1.0/hi_scripting/scripting/api/ScriptingApi.cpp, https://raw.githubusercontent.com/christophhart/HISE/4.1.0/hi_core/hi_modules/effects/fx/Convolution.h, ~/HISE_source/hi_core/hi_modules/synthesisers/synths/NoiseSynth.h
 
 #### RESEARCH: a shortlist of rare instruments with documented provenance (Novachord, Trautonium/Subharmonicon, Cristal Baschet, Waterphone, Daxophone) (verified)
 
@@ -2513,7 +2513,7 @@ Library of Congress research describes sticky-shed as hydrolysis of the binder t
 
 How to recreate here: Loop kit 'Oxide Vespers' (sound_ideas). Its 4 takes per lane are 4 generations of the same phrase, reusing the GENERATIONS spec already drafted in docs/19.
 
-Sources: https://webarchive.library.unt.edu/eot2008/20081129083226/http:/www.loc.gov/preserv/rt/projects/sticky_shed.html, https://resources.culturalheritage.org/emg-review/?p=89, /Users/noxvitae/Desktop/ResearchFacility/docs/19_legends_bank.md
+Sources: https://webarchive.library.unt.edu/eot2008/20081129083226/http:/www.loc.gov/preserv/rt/projects/sticky_shed.html, https://resources.culturalheritage.org/emg-review/?p=89, ~/Desktop/ResearchFacility/docs/19_legends_bank.md
 
 ### Sound ideas from this lane
 
@@ -2563,17 +2563,17 @@ Sources: https://webarchive.library.unt.edu/eot2008/20081129083226/http:/www.loc
 - **CONFIRMED**: Andre, schraefel, Teevan and Dumais 2009 (Creativity and Cognition): serendipity needs chance encounter plus insight. Microsoft Research page: 'Discovery Is Never by Chance: Designing for (Un)Serendipity', Proceedings of Creativity and Cognition 2009. The abstract says 'for serendipity to be valuable chance encounters must be synthesized into insight.' Source: https://www.microsoft.com/en-us/research/?p=158909
 - **CONFIRMED**: Sticky-shed syndrome: binder hydrolysis in 1970-1990 polyester-urethane tapes; baking allows playback but does not stabilise, so finite lifespan. The AIC EMG review says 'PEU binders are known to degrade via hydrolysis' and 'Tapes produced during the 1970-1990s often contain polyester-urethane (PEU) binders'. The current LoC page says heat 'can successfully enable the playback of many tapes', that research continues on 'how and why sticky residues return to a tape after thermal treatment', and that 'unanswered questions remain regarding the causes'. The cited UNT web-archive URL returned empty content. Sources: https://resources.culturalheritage.org/emg-review/?p=89, https://www.loc.gov/preservation/scientists/projects/sticky_shed.html
 - **CONFIRMED**: DSEG font: OFL 1.1, Reserved Font Name 'DSEG', cannot be sold by itself, includes alphabet glyphs, current release v0.46. The DSEG-LICENSE.txt copyright line reads: 'Copyright (c) 2020, keshikan ... with Reserved Font Name "DSEG"'. Condition 1 says the font 'may [not] be sold by itself'. The README states OFL 1.1 and 'Includes the roman-alphabet and symbol glyphs'. The changelog lists v0.46 (2020-03-15) as the latest stable release, but v0.50beta is listed above it. Sources: https://github.com/keshikan/DSEG, https://raw.githubusercontent.com/keshikan/DSEG/master/DSEG-LICENSE.txt, https://fontsource.org/fonts/dseg7-classic/about
-- **CONFIRMED**: Desc truncation bug: drawAlignedText becomes JUCE drawText with useEllipsesIfTooBig defaulting to true; drawFittedText(text, area, align, maxLines, scale) exists at 4.1.0. Interface.js draws p.desc with g.drawAlignedText into [210,238,460,16] at T.FONT 11. In HISE 4.1.0, ScriptingGraphics.cpp queues ScriptedDrawActions::drawText(text, r, just) with no ellipsis argument. The local HISE_source ScriptDrawActions.cpp line 516 performs g.drawText(text, area, j), and juce_GraphicsContext.h lines 164/178/192 default useEllipsesIfTooBig = true. drawFittedText(String text, var area, String alignment, int maxLines, float scale) is defined at 4.1.0. Sources: /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/ScriptProcessors/ResearchFacility/Interface.js, /Users/noxvitae/HISE_source/hi_scripting/scripting/api/ScriptDrawActions.cpp, https://raw.githubusercontent.com/christophhart/HISE/4.1.0/hi_scripting/scripting/api/ScriptingGraphics.cpp
+- **CONFIRMED**: Desc truncation bug: drawAlignedText becomes JUCE drawText with useEllipsesIfTooBig defaulting to true; drawFittedText(text, area, align, maxLines, scale) exists at 4.1.0. Interface.js draws p.desc with g.drawAlignedText into [210,238,460,16] at T.FONT 11. In HISE 4.1.0, ScriptingGraphics.cpp queues ScriptedDrawActions::drawText(text, r, just) with no ellipsis argument. The local HISE_source ScriptDrawActions.cpp line 516 performs g.drawText(text, area, j), and juce_GraphicsContext.h lines 164/178/192 default useEllipsesIfTooBig = true. drawFittedText(String text, var area, String alignment, int maxLines, float scale) is defined at 4.1.0. Sources: ~/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/ScriptProcessors/ResearchFacility/Interface.js, ~/HISE_source/hi_scripting/scripting/api/ScriptDrawActions.cpp, https://raw.githubusercontent.com/christophhart/HISE/4.1.0/hi_scripting/scripting/api/ScriptingGraphics.cpp
 - **CONFIRMED**: HISE 4.1.0 APIs for VINTAGE, round robins and World Air: Message.setFineDetune(int cents), setStartOffset, Sampler.enableRoundRobin, setActiveGroup, Engine.loadFontAs, Convolution parameter list. Local HISE_source ScriptingApi.h: setFineDetune(int cents) at line 157 and setStartOffset(int) at line 172. enableRoundRobin(bool) is at line 899. setActiveGroup(int) at line 902 is documented as 'one-based. Works only with samplers and enableRoundRobin(false)', and setActiveGroupForEventId follows at line 904. loadFontAs is at line 254. Convolution.h registers 'Convolution'/'Convolution Reverb' with parameters DryGain, WetGain, Latency, ImpulseLength, ProcessInput, UseBackgroundThread, Predelay, HiCut, Damping and FFTType, matching the audit. Note: this checkout is develop 6446c4a, not the 4.1.0 tag.
-- **CONFIRMED**: 'Ladder' presets are printed through lp24 = two cascaded linear SVFs; the live engine's LADDER LP = HISE LadderFourPoleLP and WARM LP = MoogLP. sigbank_dsp.py line 162: lp24 returns svf(svf(x, fc, 0.5412, 0), fc, q2, 0), two linear SVFs. ladder_mono_bass and ladder_lead are defined at build_signature_bank.py lines 346 and 352. DeepParams.js maps 'LADDER LP' to 15 and 'WARM LP' to 8. HISE FilterHelpers.h FilterMode enum: 8 = MoogLP, 15 = LadderFourPoleLP. Sources: /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/DeepParams.js, /Users/noxvitae/HISE_source/hi_core/hi_modules/effects/fx/FilterHelpers.h
+- **CONFIRMED**: 'Ladder' presets are printed through lp24 = two cascaded linear SVFs; the live engine's LADDER LP = HISE LadderFourPoleLP and WARM LP = MoogLP. sigbank_dsp.py line 162: lp24 returns svf(svf(x, fc, 0.5412, 0), fc, q2, 0), two linear SVFs. ladder_mono_bass and ladder_lead are defined at build_signature_bank.py lines 346 and 352. DeepParams.js maps 'LADDER LP' to 15 and 'WARM LP' to 8. HISE FilterHelpers.h FilterMode enum: 8 = MoogLP, 15 = LadderFourPoleLP. Sources: ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/DeepParams.js, ~/HISE_source/hi_core/hi_modules/effects/fx/FilterHelpers.h
 - **CONFIRMED**: Mode ratios used in the friction recipes: free-free bar 2.757 and 5.404 (cos x cosh x = 1); clamped-free cantilever 6.267 and 17.547 (cos x cosh x = -1). I computed them with scipy brentq. The free-free roots 4.7300, 7.8532 and 10.9956 give ratios 1, 2.7565 and 5.4039. The clamped-free roots 1.8751, 4.6941 and 7.8548 give ratios 1, 6.2669 and 17.5475. These are Euler-Bernoulli beam values.
-- **CONFIRMED**: Archive 'basse' desc bug and git hash on the brand plate. build_signature_bank.py line 1064 builds desc as f"Original Research Facility lab specimen ({f.parent.name.lower()[:-1]}).", so 'Basses' becomes 'basse'. Interface.js draws 'BY RESEARCH FACILITY  V0.2  ' + BUILD_SHA under the SWEET MELODY wordmark at [54,28,240,12]. Sources: /Users/noxvitae/Desktop/ResearchFacility/scripts/build_signature_bank.py, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/ScriptProcessors/ResearchFacility/Interface.js
+- **CONFIRMED**: Archive 'basse' desc bug and git hash on the brand plate. build_signature_bank.py line 1064 builds desc as f"Original Research Facility lab specimen ({f.parent.name.lower()[:-1]}).", so 'Basses' becomes 'basse'. Interface.js draws 'BY RESEARCH FACILITY  V0.2  ' + BUILD_SHA under the SWEET MELODY wordmark at [54,28,240,12]. Sources: ~/Desktop/ResearchFacility/scripts/build_signature_bank.py, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/Scripts/ScriptProcessors/ResearchFacility/Interface.js
 - **CONFIRMED**: Keyscape: restored rare keyboards before sampling; mechanical, pedal and release noise controls; noises deliberately kept. The MusicTech review confirms the 'sourcing and restoring' of the instruments ('dusted off, polished up and restored'), a Rhodes control for 'the mechanical noise the piano makes as you hit the tines', and pedal-noise 'character' controls. It also says Spectrasonics understood that 'creaks, knocks and clunks make an instrument characterful' while giving control to tame them. It does not mention a release-noise control. The MusicRadar review body did not load. Source: https://www.musictech.com/reviews/spectrasonics-keyscape-review/
 - **UNCERTAIN**: Spence 2011 crossmodal correspondences (APP 73(4):971-995) and Norton, Mochon and Ariely 2012 IKEA effect (JCP 22(3):453-460); MusicRadar 'machine gun' round-robin tutorial. The Oxford page returned 403, the Harvard DASH page returned 429 and SSRN returned 403, so I could not open them. The MusicRadar round-robin article body did not load, only navigation. My web search budget for this turn was exhausted, so I could not find mirrors. Correction: Re-verify these citations before shipping any card text that quotes them. None of the recipes depends on their exact numbers. The round-robin recommendation stands on the repo measurement (RRGroup=1 everywhere) whatever the tutorial says.
 
 ## Tools and sources (with licences)
 
-Tools-and-sources lane, 38 findings (32 verified, 6 inferred or partly inferred) and 14 sound recipes. Main points: (1) Sweet Melody's "world" is thin at the source. 48 of 147 rendered SIG presets are dual-mono (L/R correlation > 0.9999), including the default drowned_tines and most tine and reed EPs. The offline renderer adds no space at all. Runtime space comes only from HISE SimpleReverb, which HISE describes as Freeverb-based. The fix is cheap: an offline stereo-IR stage using scipy, plus HISE 4.1.0's Convolution module, fed by our own pyroomacoustics IRs or CC0 IRs. (2) Generators are homogeneous. Supersaw drives 41 of 147 presets, and lp24 is two linear SVFs, so there is no Moog-ladder character offline. Add a Huovilainen DAFx04 tanh ladder in numba, or Faust ve.moogLadder or ve.diodeLadder. (3) For HISE 4.1.0, Faust is off by default (HISE_INCLUDE_FAUST and HISE_INCLUDE_FAUST_JIT both 0). Using it needs a self-built HISE with libfaust. The release HISE.app shows no libfaust link. The practical runtime route is HISE's Third-Party C++ node folder plus the `compile_networks -c:Release` CLI, which exists in the 4.1.0 binary, so it can run in the cloud CI before export. Into that route go Faust-generated C++ (LGPL-with-exception, plus re.valhallaSupermassive MIT, which is on master only and not yet in a Faust release), Mutable Instruments Plaits and Rings (MIT; Plaits engine2 includes six-op FM and a string machine), Airwindows (MIT) and STK (MIT-style). (4) Offline hosts DawDreamer (GPL-3, 39.7 MB wheel, Faust built in), pedalboard (GPL-3, 4.8 MB, already used in scripts/autosample) and surgepy (GPL-3, build from source; surge-xt-cli is realtime only) are compatible with the repo's GPL-3 licence. CI currently installs only numpy, scipy and numba, so each new dependency must be added and kept deterministic. (5) Licence audit against repo docs. docs/09 calls Pianobook "mostly CC0", but its FAQ forbids redistribution. docs/09 Tier 4 calls Splice and Output packs fine for the plugin, but Splice forbids use as source material for other samples and Output forbids inclusion in other instruments. scripts/freesound_harvest.py uses an API that is free only for non-commercial use. Keyscape and Omnisphere allow private custom sampling only (personal-only, never in the public repo). Voxengo IRs may be used, including commercially, but redistribution is only free, complete and unaltered, so bake them into renders and do not embed them in a paid build. EchoThief, Fokke van Saane and Studio Nord Bremen have no verified licence, so treat them as personal-only. Safe public sources: VCSL and VSCO-2-CE (CC0), Salamander (CC BY 3.0), and our own pyroomacoustics IRs. Installed Vital 1.0.7 and Omnisphere 2.8.5c are x86_64-only. Web search budget ran out late in the run, so these were not re-checked: the MIT IR Survey licence, the spring-reverb paper, the Iowa MIS primary wording and the OpenAIR per-item licences (the site certificate had expired). Scratch work: /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/stereo_scan.py and stereo_scan.json.
+Tools-and-sources lane, 38 findings (32 verified, 6 inferred or partly inferred) and 14 sound recipes. Main points: (1) Sweet Melody's "world" is thin at the source. 48 of 147 rendered SIG presets are dual-mono (L/R correlation > 0.9999), including the default drowned_tines and most tine and reed EPs. The offline renderer adds no space at all. Runtime space comes only from HISE SimpleReverb, which HISE describes as Freeverb-based. The fix is cheap: an offline stereo-IR stage using scipy, plus HISE 4.1.0's Convolution module, fed by our own pyroomacoustics IRs or CC0 IRs. (2) Generators are homogeneous. Supersaw drives 41 of 147 presets, and lp24 is two linear SVFs, so there is no Moog-ladder character offline. Add a Huovilainen DAFx04 tanh ladder in numba, or Faust ve.moogLadder or ve.diodeLadder. (3) For HISE 4.1.0, Faust is off by default (HISE_INCLUDE_FAUST and HISE_INCLUDE_FAUST_JIT both 0). Using it needs a self-built HISE with libfaust. The release HISE.app shows no libfaust link. The practical runtime route is HISE's Third-Party C++ node folder plus the `compile_networks -c:Release` CLI, which exists in the 4.1.0 binary, so it can run in the cloud CI before export. Into that route go Faust-generated C++ (LGPL-with-exception, plus re.valhallaSupermassive MIT, which is on master only and not yet in a Faust release), Mutable Instruments Plaits and Rings (MIT; Plaits engine2 includes six-op FM and a string machine), Airwindows (MIT) and STK (MIT-style). (4) Offline hosts DawDreamer (GPL-3, 39.7 MB wheel, Faust built in), pedalboard (GPL-3, 4.8 MB, already used in scripts/autosample) and surgepy (GPL-3, build from source; surge-xt-cli is realtime only) are compatible with the repo's GPL-3 licence. CI currently installs only numpy, scipy and numba, so each new dependency must be added and kept deterministic. (5) Licence audit against repo docs. docs/09 calls Pianobook "mostly CC0", but its FAQ forbids redistribution. docs/09 Tier 4 calls Splice and Output packs fine for the plugin, but Splice forbids use as source material for other samples and Output forbids inclusion in other instruments. scripts/freesound_harvest.py uses an API that is free only for non-commercial use. Keyscape and Omnisphere allow private custom sampling only (personal-only, never in the public repo). Voxengo IRs may be used, including commercially, but redistribution is only free, complete and unaltered, so bake them into renders and do not embed them in a paid build. EchoThief, Fokke van Saane and Studio Nord Bremen have no verified licence, so treat them as personal-only. Safe public sources: VCSL and VSCO-2-CE (CC0), Salamander (CC BY 3.0), and our own pyroomacoustics IRs. Installed Vital 1.0.7 and Omnisphere 2.8.5c are x86_64-only. Web search budget ran out late in the run, so these were not re-checked: the MIT IR Survey licence, the spring-reverb paper, the Iowa MIS primary wording and the OpenAIR per-item licences (the site certificate had expired). Scratch work: <scratchpad>/wf_mystic/stereo_scan.py and stereo_scan.json.
 
 ### Findings
 
@@ -2583,7 +2583,7 @@ Measured on the installed renders (one mid-zone file per preset, 147 SIG presets
 
 How to recreate here: Add a post stage 'space_ir' in build_signature_bank.render_voice: load a committed stereo 48 kHz IR from assets/irs/<name>.wav and run scipy.signal.fftconvolve per channel (scipy is already in the CI venv). Params: ir, ir_mix (0..1), ir_pre_ms, ir_er_ms. For loop=True presets, truncate the IR to the first ~80-100 ms (early reflections only) with a 10 ms fade so sustain loops stay seamless. Non-loop presets get the full tail and dur is extended by the IR length. This decorrelates L/R per zone without touching HISE.
 
-Sources: /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/stereo_scan.py, /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py, https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.fftconvolve.html
+Sources: <scratchpad>/wf_mystic/stereo_scan.py, ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py, https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.fftconvolve.html
 
 #### Generator homogeneity and no ladder nonlinearity offline (verified)
 
@@ -2591,7 +2591,7 @@ Of 147 synthesised presets, supersaw drives 41 (28%), then voice 18, modal 14, k
 
 How to recreate here: Add a numba kernel _ladder(x, fc, res, drive) (see the Huovilainen finding) and an 'ladder' option in gp (filter='ladder' in gen_supersaw and a new gen_ladder_mono). Keep lp24 for presets that already sound right, so their renders stay stable.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/scripts/sigbank_dsp.py, /Users/noxvitae/Desktop/ResearchFacility/scripts/build_signature_bank.py
+Sources: ~/Desktop/ResearchFacility/scripts/sigbank_dsp.py, ~/Desktop/ResearchFacility/scripts/build_signature_bank.py
 
 #### Huovilainen nonlinear Moog ladder (DAFx 2004) as the offline ladder model (verified)
 
@@ -2615,7 +2615,7 @@ XmlPresetBackups/ResearchFacility.xml has Master Reverb = SimpleReverb, which HI
 
 How to recreate here: Add a Convolution module to the master chain (parallel send, or replacing SimpleReverb). SPACE macro maps to WetGain and a script-selected IR from AudioFiles. Keep IRs at 2-4 s stereo. Size is computed as SR x channels x bytes x seconds: 48 kHz x 2 ch x 3 bytes x 3 s is about 0.86 MB each. Only ship CC0 or self-generated IRs (see the IR findings).
 
-Sources: https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_modules/effects/fx/SimpleReverb.h, https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_modules/effects/fx/Convolution.h, https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_modules/effects/fx/FilterHelpers.h, /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility/XmlPresetBackups/ResearchFacility.xml
+Sources: https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_modules/effects/fx/SimpleReverb.h, https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_modules/effects/fx/Convolution.h, https://github.com/christophhart/HISE/blob/4.1.0/hi_core/hi_modules/effects/fx/FilterHelpers.h, ~/Desktop/ResearchFacility/hise_project/ResearchFacility/XmlPresetBackups/ResearchFacility.xml
 
 #### Faust in HISE 4.1.0: off by default, needs a self-built HISE (verified)
 
@@ -2679,7 +2679,7 @@ build-plugin.yml makes a venv and pip installs only numpy, scipy and numba, rend
 
 How to recreate here: Commit generated assets (IRs, Faust C output) rather than running nondeterministic generators in CI. pyroomacoustics ray tracing uses random rays, so its determinism is not established; generate IRs once locally and commit them. If DawDreamer is adopted, pin dawdreamer==0.9.0 in the pip line.
 
-Sources: /Users/noxvitae/Desktop/ResearchFacility/.github/workflows/build-plugin.yml
+Sources: ~/Desktop/ResearchFacility/.github/workflows/build-plugin.yml
 
 #### DawDreamer: Python render engine with Faust and VST hosting (GPL-3) (verified)
 
@@ -2695,7 +2695,7 @@ GPLv3; bundled JUCE (GPL-3 option), Rubber Band (GPLv2+) and LAME. Built-ins: Ch
 
 How to recreate here: Use it for personal-only resampling of installed synths into a private folder outside the repo, and for a quick offline Convolution(ir, mix) stage while prototyping. For the shipped bank, prefer scipy fftconvolve so CI does not need pedalboard.
 
-Sources: https://github.com/spotify/pedalboard, https://pypi.org/project/pedalboard/, /Users/noxvitae/Desktop/ResearchFacility/scripts/autosample/probe.py
+Sources: https://github.com/spotify/pedalboard, https://pypi.org/project/pedalboard/, ~/Desktop/ResearchFacility/scripts/autosample/probe.py
 
 #### Installed synths: Vital and Omnisphere are Intel-only binaries (inferred)
 
@@ -2839,7 +2839,7 @@ Pianobook FAQ: packs may be used in compositions, but selling or redistributing 
 
 How to recreate here: Reclassify Pianobook as personal-only, never in the public repo. Fix docs/09 and docs/10. If a specific pack is truly CC0, record that pack's own licence page in its .meta.json.
 
-Sources: https://pianobook.co.uk/faq, /Users/noxvitae/Desktop/ResearchFacility/docs/09_sample_sourcing_plan.md
+Sources: https://pianobook.co.uk/faq, ~/Desktop/ResearchFacility/docs/09_sample_sourcing_plan.md
 
 #### Audit: docs/09 Tier 4 (Splice and Output packs in the plug-in) conflicts with their licences (verified)
 
@@ -2847,7 +2847,7 @@ Splice licensing FAQ: users may not 'Sublicense sounds in isolation as sound eff
 
 How to recreate here: Remove Tier 4 vendor packs from the factory-content plan. The existing check_licence_boundary.py already blocks Splice paths; extend it with Output and Arcade paths.
 
-Sources: https://intercom.help/splice-b7a2d5b83f2e/en/articles/8652642-splice-sounds-licensing-faq, https://output.com/legal/eula, /Users/noxvitae/Desktop/ResearchFacility/docs/09_sample_sourcing_plan.md, /Users/noxvitae/Desktop/ResearchFacility/scripts/ci/check_licence_boundary.py
+Sources: https://intercom.help/splice-b7a2d5b83f2e/en/articles/8652642-splice-sounds-licensing-faq, https://output.com/legal/eula, ~/Desktop/ResearchFacility/docs/09_sample_sourcing_plan.md, ~/Desktop/ResearchFacility/scripts/ci/check_licence_boundary.py
 
 #### Audit: Freesound API is non-commercial only; freesound_harvest.py feeds a sold product (verified)
 
@@ -2855,7 +2855,7 @@ The API terms say 'You can use the Freesound API for free only for non-commercia
 
 How to recreate here: Either request a commercial API agreement, or pick CC0 sounds through the website and record the URLs in .meta.json, with harvest used only for non-commercial research. The CC0 sound licence itself is fine for sale.
 
-Sources: https://freesound.org/docs/api/terms_of_use.html, /Users/noxvitae/Desktop/ResearchFacility/scripts/freesound_harvest.py
+Sources: https://freesound.org/docs/api/terms_of_use.html, ~/Desktop/ResearchFacility/scripts/freesound_harvest.py
 
 #### Keyscape and Omnisphere: private custom sampling allowed, nothing beyond (verified)
 
@@ -2900,7 +2900,7 @@ Sources: https://ccrma.stanford.edu/~dattorro/EffectDesignPart1.pdf, https://git
 
 ### Fact-check (41 items checked by an adversarial verifier)
 
-- **CONFIRMED**: Rendered bank dual-mono: 48 of 147 SIG presets have L/R corr > 0.9999, 51 have side/mid below -20 dB; default drowned_tines and the named tine/reed EPs are dual-mono; no reverb or IR stage in sigbank_dsp.py or build_signature_bank.py. I measured it myself with /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/factcheck_tools/fc_stereo.py: 147 presets, 2,752 files, all 48 kHz. Results: 48 dual-mono and 51 below -20 dB side. All 9 named presets measured corr = 1.0. A grep for reverb, convol or room in both renderer scripts finds only tags and description strings. gen_tine_ep, gen_reed_ep and gen_808 return (x, x.copy()) (sigbank_dsp.py lines 313, 383, 665).
+- **CONFIRMED**: Rendered bank dual-mono: 48 of 147 SIG presets have L/R corr > 0.9999, 51 have side/mid below -20 dB; default drowned_tines and the named tine/reed EPs are dual-mono; no reverb or IR stage in sigbank_dsp.py or build_signature_bank.py. I measured it myself with <scratchpad>/wf_mystic/factcheck_tools/fc_stereo.py: 147 presets, 2,752 files, all 48 kHz. Results: 48 dual-mono and 51 below -20 dB side. All 9 named presets measured corr = 1.0. A grep for reverb, convol or room in both renderer scripts finds only tags and description strings. gen_tine_ep, gen_reed_ep and gen_808 return (x, x.copy()) (sigbank_dsp.py lines 313, 383, 665).
 - **CONFIRMED**: Generator homogeneity (supersaw 41, voice 18, modal 14, karplus 12, tine_ep 11 ...) and lp24 = two linear TPT SVFs with Q 0.5412 and 1.3066 + 3*reso. I imported build_signature_bank.PRESETS: 147 presets, with Counter supersaw 41, voice 18, modal 14, karplus 12, tine_ep 11, felt_piano 9, 808 7, sub 6, fm_bell 5, reese/organ/reed_ep/glass_pad 4, breath/flute 3, prepared 2. sigbank_dsp.py line 162-165: lp24 returns svf(svf(x, fc, 0.5412, 0), fc, 1.3066 + 3.0*reso, 0). Saturation is a separate soft_clip.
 - **CONFIRMED**: Huovilainen DAFx04 nonlinear Moog ladder: eq. 10 per-stage tanh ODE, Euler discretisation, oversampling required, structure modified to improve tuning. I read the PDF (https://dafx.de/paper-archive/2004/P_061.PDF). Eq. 10 is dVc/dt = Ictl/C (tanh(Vin/2Vt) - tanh(Vc/2Vt)). Section 4.1 says 'The easiest way is to use Euler's method' and 'oversampling must be used'. Eq. 13 feeds back x(n) - 4 r y_d(n-1) with 0 < r <= 1.
 - **CONFIRMED**: HISE 4.1.0 runtime FX: SimpleReverb is Freeverb, Master Filter Mode=8 is MoogLP, LadderFourPoleLP/HP exist, ConvolutionEffect params, EmbedAudioFiles=Yes. SimpleReverb.h@4.1.0: SET_PROCESSOR_NAME("SimpleReverb","Simple Reverb","a algorithmic reverb based on Freeverb."). In the FilterHelpers.h@4.1.0 enum, MoogLP is index 8, LadderFourPoleLP 15 and LadderFourPoleHP 16. In the local XML, Master Filter has Mode="8". Convolution.h@4.1.0 has the name 'Convolution Reverb' and params DryGain, WetGain, Latency, ImpulseLength, ProcessInput, UseBackgroundThread, Predelay, HiCut, Damping, FFTType. project_info.xml line 9 has EmbedAudioFiles=Yes.

@@ -7,7 +7,7 @@ The Research Facility HISE project. **Scaffolded with branded UI shell — ready
 1. **Open HISE** (already running, or `open -a HISE`)
 2. **File menu → Open Project** → navigate to and select this folder:
    ```
-   /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility
+   ~/Desktop/ResearchFacility/hise_project/ResearchFacility
    ```
    HISE will load the project metadata.
 3. **File menu → Load Preset** (or "Load Patch") → choose:

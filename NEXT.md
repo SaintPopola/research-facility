@@ -24,7 +24,7 @@ This is the single blocker right now. I can't open HISE for you.
 
 ```
 1. HISE is already running (or `open -a HISE`)
-2. File → Open Project → /Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility
+2. File → Open Project → ~/Desktop/ResearchFacility/hise_project/ResearchFacility
 3. File → Load Preset → XmlPresetBackups/ResearchFacility.xml
 ```
 

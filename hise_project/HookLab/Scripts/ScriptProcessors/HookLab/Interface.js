@@ -29,7 +29,10 @@ Engine.loadFontAs("{PROJECT_FOLDER}fonts/DSEG7Classic-Bold.ttf", "VM Digits");
 Engine.loadFontAs("{PROJECT_FOLDER}fonts/DSEG14Classic-Bold.ttf", "VM Alpha");
 
 const var HOOKLAB_URL = "http://127.0.0.1:7972";
-const var HOOKLAB_APP = "/Users/noxvitae/Desktop/Sweet Melody Vocal/Hook Lab.app";
+// Hook Lab.app sits in "Sweet Melody Vocal" on this user's Desktop (resolved per user, no
+// hard-coded home folder). Anywhere else, `open -a "Hook Lab"` lets Launch Services find it.
+const var HOOKLAB_APP_FILE = FileSystem.getFolder(FileSystem.Desktop).getChildFile("Sweet Melody Vocal/Hook Lab.app");
+const var HOOKLAB_APP = HOOKLAB_APP_FILE.isDirectory() ? HOOKLAB_APP_FILE.toString(0) : "Hook Lab";
 const var CW = 768;            // compact size
 const var CH = 464;
 const var FW = 1200;           // expanded size

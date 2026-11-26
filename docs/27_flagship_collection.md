@@ -39,7 +39,7 @@ Every number in the specs is tagged verified (with a source) or inferred/design.
 
 Input and verification status:
 - I applied the moog and pianos verifier verdicts: refuted items dropped, corrections used.
-- The verdict lists for the synths, sources and mystic lanes, and the whole quality lane, were cut off from my input. I read the three lane files in full (/private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_rare/lane_synths.json, lane_sources.json, lane_mystic.json) and spot-checked their stage-1-critical claims (see quality_bar).
+- The verdict lists for the synths, sources and mystic lanes, and the whole quality lane, were cut off from my input. I read the three lane files in full (<scratchpad>/wf_rare/lane_synths.json, lane_sources.json, lane_mystic.json) and spot-checked their stage-1-critical claims (see quality_bar).
 - I fixed one arithmetic error in the mystic lane: spring loop gains for T60 3.3 s are 0.9255 and 0.9178, not 0.9032 and 0.8973.
 
 ## Quality bar

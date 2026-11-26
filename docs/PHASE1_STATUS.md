@@ -94,7 +94,7 @@ Open in HISE (File → Open Project → `~/Desktop/ResearchFacility/hise_project
 ## How to open the plugin in HISE
 
 1. HISE is already running (or `open -a HISE`)
-2. **File menu → Open Project** → select `/Users/noxvitae/Desktop/ResearchFacility/hise_project/ResearchFacility`
+2. **File menu → Open Project** → select `~/Desktop/ResearchFacility/hise_project/ResearchFacility`
 3. **File menu → Load Preset** → choose `XmlPresetBackups/ResearchFacility.xml`
 4. The Research Facility interface appears with LAB section active by default
 5. Click the keyboard at the bottom of HISE's window → hear a note

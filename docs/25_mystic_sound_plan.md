@@ -4,7 +4,7 @@ From the lead sound designer, built only on verified audit and research (docs 23
 
 ## Summary and order of work
 
-Plan below; I changed nothing in the repo. Scripts and evidence are in /private/tmp/claude-501/-Users-noxvitae/0e6ab598-c428-4549-a613-b529408ad567/scratchpad/wf_mystic/ (paper texts are under factcheck/ and spring.txt, bbd.txt, shear.txt, bars.txt).
+Plan below; I changed nothing in the repo. Scripts and evidence are in <scratchpad>/wf_mystic/ (paper texts are under factcheck/ and spring.txt, bbd.txt, shear.txt, bars.txt).
 
 In short: the bank is too clean, too static, too mono and too samey. I dropped or corrected every audit claim the verifiers refuted:
 - vl soft values that the format cannot express
