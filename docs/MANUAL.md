@@ -357,7 +357,9 @@ sends one request at a time: it checks the app every 2 seconds and a running job
    Live bridge), HOST TEMPO (this plugin tells the app Live's tempo) or MANUAL (no project known). MATCH DAW
    also sends the project tempo; with both unlit, or no project tempo known, the job sends no BPM and the
    genre preset's own BPM is used. With the Live bridge and Live's Scale Mode on, SYNC LIVE also sets KEY
-   to your Set's root and SCALE to MAJ or MIN.
+   to your Set's root and SCALE to MAJ or MIN. The caption over the BPM display says which one is in charge (PROJECT, MATCH DAW
+   or PRESET). While MATCH DAW is lit the switch reads **SYNC KEY**: the tempo is already the project's, so
+   it only sets KEY and SCALE.
 4. **INTENSE** makes the hook harder and more dynamic. **MATCH DAW** (lit by default) asks the app to
    stretch and transpose every finished stem to your project's tempo and key.
 5. Press **RENDER**. The LCD shows the app's own stages (QUEUED, MEM WAIT, SKETCH 42%, FIX L2 ... DONE

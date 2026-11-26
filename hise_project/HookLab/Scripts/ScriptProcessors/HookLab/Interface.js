@@ -498,8 +498,8 @@ inline function engineText()
     return S.starting ? "STARTING" : "OFFLINE";
 }
 
-// the BPM the job sends: the DAW project (SYNC LIVE), else the host, else the genre's own
-// the project's tempo when SYNC LIVE or MATCH DAW asks for it, else -1 (the preset's own BPM)
+// the BPM the job sends: the project's tempo (Live bridge or post, else the host) when SYNC LIVE
+// or MATCH DAW asks for it, else -1 (the preset's own BPM)
 inline function syncedBpm()
 {
     local hb = Engine.getHostBpm();
@@ -586,10 +586,12 @@ Core.setPaintRoutine(function(g)
     // groove strip
     g.setColour(T.txt);
     g.setFontWithSpacing(T.FONT, 9, 0.08);
-    g.drawAlignedText("BPM", [400, 42, 120, 10], "left");
+    // where the sent BPM comes from: MATCH DAW already sends the project tempo, so while it is
+    // lit SYNC LIVE only adopts the Set's key and reads SYNC KEY
+    g.drawAlignedText(syncedBpm() > 0 ? (S.syncLive ? "BPM  PROJECT" : "BPM  MATCH DAW") : "BPM  PRESET", [400, 42, 120, 10], "left");
     var gn = curGenre();
     drawLed(g, [400, 54, 120, 26], Engine.doubleToString(jobBpm(), 1), T.DIGITS, 14);
-    drawLit(g, [400, 88, 56, 30], "SYNC LIVE", S.syncLive, hv == "sync");
+    drawLit(g, [400, 88, 56, 30], S.match ? "SYNC KEY" : "SYNC LIVE", S.syncLive, hv == "sync");
     drawLamp(g, 466, 95, 12, S.projSrc == "live_bridge", T.lampAmber, T.lampAmberGlow);
     g.setColour(T.txt);
     g.drawAlignedText(projText(), [482, 93, 60, 16], "left");
