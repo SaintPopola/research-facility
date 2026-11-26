@@ -64,7 +64,7 @@ const var S = {
     "projSrc": "none", "projBpm": 0.0, "projKey": "", "projMode": "", "projKeySet": false, "posted": -1.0,
     "conformId": "", "confState": "", "confText": "", "confFor": "",
     "gateText": "", "memGb": -1, "genresFromServer": false, "scoreText": "",
-    "act": "", "actBody": {}, "postBody": {}, "confTarget": {}, "needStems": false, "needConform": false, "needGenres": false, "postedKey": ""
+    "act": "", "actBody": {}, "postBody": {}, "confTarget": {}, "hint": {}, "dawHint": "", "bar1": true, "confBpm": {}, "needStems": false, "needConform": false, "needGenres": false, "postedKey": ""
 };
 const var KEYS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 const var BARS = [4, 8, 12, 16];
@@ -648,18 +648,27 @@ Core.setPaintRoutine(function(g)
     {
         var sr = tileRect(k);
         var ok = tilePaths(TILES[k][0]).length > 0;
+        var hint = ok ? tileHint(TILES[k][0]) : "";
+        var top = hint != "" ? 13 : sr[3];         // with a DAW line the label takes the top row
         if (!ok) g.setOpacity(0.4);
         drawCard(g, sr);
         g.setColour(T.cardInk);
         g.setFont(T.TYPEB, 11);
-        g.drawAlignedText(TILES[k][1], [sr[0] + 8, sr[1], 96, sr[3]], "left");
+        g.drawAlignedText(TILES[k][1], [sr[0] + 8, sr[1] + (hint != "" ? 1 : 0), 96, top], "left");
         g.setOpacity(1.0);
         if (ok && !S.exportOk && NOT_STEM_SAFE.indexOf(TILES[k][0]) >= 0)
         {
-            drawLamp(g, sr[0] + 60, sr[1] + 9, 6, true, T.lampRed, T.lampRedGlow);
+            drawLamp(g, sr[0] + 60, sr[1] + (hint != "" ? 4 : 9), 6, true, T.lampRed, T.lampRedGlow);
             g.setColour(T.cardRed);
             g.setFont(T.FONT, 7);
-            g.drawAlignedText("NOT FOR STEM EXPORT", [sr[0] + 68, sr[1], 44, sr[3]], "left");
+            g.drawAlignedText("NOT FOR STEM EXPORT", [sr[0] + 68, sr[1] + (hint != "" ? 1 : 0), 44, top], "left");
+        }
+        if (hint != "")
+        {
+            // Live 12 ignores the ACID tempo the WAVs carry: this is the BPM to type in (red: move 1.1.1 by ear)
+            g.setColour(hint.indexOf("APPROX") >= 0 ? T.cardRed : T.cardDim);
+            g.setFont(T.FONT, 7);
+            g.drawFittedText(hint, [sr[0] + 8, sr[1] + 13, 104, 10], "left", 1, 0.7);
         }
         drawKey(g, [sr[0] + 114, sr[1] + 3, 52, 18], S.playing == TILES[k][0] ? "STOP" : "PLAY", hv == "play" + k, ok);
         // DAW audit 5: Live lays several dropped files end to end on one track; holding CMD while
@@ -1277,7 +1286,11 @@ inline function applyStems(r)
 {
     local i = 0;
     local j = 0;
+    local st = isDefined(r.stem_tempo) ? r.stem_tempo : {};
     S.orig = {};
+    S.hint = {};
+    S.dawHint = isDefined(r.daw_hint) ? "" + r.daw_hint : "";
+    S.bar1 = !(isDefined(r.bar1_exact) && r.bar1_exact == false);
     for (i = 0; i < TILES.length; i++)
     {
         for (j = 0; j < TILES[i][2].length; j++)
@@ -1287,7 +1300,10 @@ inline function applyStems(r)
             if (("" + p) != "")
             {
                 local parts = key.split(".");
-                S.orig[parts[parts.length - 1]] = "" + p;
+                local nm = parts[parts.length - 1];
+                S.orig[nm] = "" + p;
+                if (isDefined(st[nm]) && isDefined(st[nm].daw_hint))
+                    S.hint[nm] = {"t": "" + st[nm].daw_hint, "x": st[nm].bar1_exact != false};
             }
         }
     }
@@ -1336,6 +1352,37 @@ inline function isMatched(key)
         }
     }
     return false;
+}
+
+inline function bpmText(b)
+{
+    return Math.abs(b - Math.round(b)) < 0.05 ? "" + Math.round(b) : Engine.doubleToString(b, 1);
+}
+
+// the tile's DAW line (API.md /stems/ daw_hint): the BPM to type in Live, which reads no ACID tempo.
+// A matched copy plays at its target tempo, so it gets the same line with that BPM. "" when the
+// app sent no hint (jobs from before 2026-11-25) or the tile has no file.
+inline function tileHint(key)
+{
+    local i = 0;
+    local j = 0;
+    for (i = 0; i < TILES.length; i++)
+    {
+        if (TILES[i][0] != key) continue;
+        for (j = 0; j < TILES[i][2].length; j++)
+        {
+            local parts = TILES[i][2][j].split(".");
+            local nm = parts[parts.length - 1];
+            if (!isDefined(S.orig[nm])) continue;
+            local h = isDefined(S.hint[nm]) ? S.hint[nm] : {"t": S.dawHint, "x": S.bar1};
+            if (h.t == "") return "";
+            if (!isDefined(S.conf[nm])) return h.t;
+            local b = isDefined(S.confBpm[nm]) ? S.confBpm[nm] : (isDefined(S.confTarget.bpm) ? S.confTarget.bpm : 0);
+            if (b <= 0) return h.t;
+            return "WARP ON: " + bpmText(b) + " BPM, " + (h.x ? "drop at 1.1.1" : "BAR 1 APPROX");
+        }
+    }
+    return "";
 }
 
 inline function takePath(i)
@@ -1484,6 +1531,7 @@ inline function applyConform(c)
     local i = 0;
     local j = 0;
     S.conf = {};
+    S.confBpm = {};
     for (i = 0; i < TILES.length; i++)
     {
         for (j = 0; j < TILES[i][2].length; j++)
@@ -1492,6 +1540,8 @@ inline function applyConform(c)
             local nm = parts[parts.length - 1];
             if (isDefined(c.paths) && isDefined(c.paths[nm])) S.conf[nm] = "" + c.paths[nm];
             else if (isDefined(c.stems) && isDefined(c.stems[nm]) && isDefined(c.stems[nm].path)) S.conf[nm] = "" + c.stems[nm].path;
+            if (isDefined(c.stems) && isDefined(c.stems[nm]) && isDefined(c.stems[nm].acid) && isDefined(c.stems[nm].acid.tempo))
+                S.confBpm[nm] = c.stems[nm].acid.tempo;
         }
     }
     S.confText = "MATCHED " + Math.round(S.projBpm) + " BPM" + (S.projKeySet ? " " + S.projKey + " " + S.projMode : "") + ": drag gives the matched copy";
@@ -1701,6 +1751,19 @@ inline function selfTest()
     if (tilePaths("dbl").length != 2 || tilePaths("lead")[0] != "/tmp/x/lead.wav" || tilePaths("harm").length != 0 || takePath(0) != "/tmp/x/takes/seed203_dry.wav") { ok = false; Console.print("HL selftest tiles"); }
     applyConform({"paths": {"lead": "/tmp/x/lead_128bpm_Dm.wav"}});
     if (tilePaths("lead")[0] != "/tmp/x/lead_128bpm_Dm.wav" || !isMatched("lead") || isMatched("dbl")) { ok = false; Console.print("HL selftest conform paths"); }
+    if (tileHint("lead") != "" || tileHint("dbl") != "") { ok = false; Console.print("HL selftest no DAW line from an old job"); }
+    applyStems({"ready": true, "folder": "/tmp/x", "files": {"lead": "/tmp/x/lead.wav", "lead_dry": "/tmp/x/lead_dry.wav", "sketch_instrumental": "/tmp/x/bed.wav"},
+                "stems": {"dbl_L": "/tmp/x/dbl_L.wav", "dbl_R": "/tmp/x/dbl_R.wav", "vocal_bus": "/tmp/x/vocal_bus.wav"},
+                "takes": {"202": "/tmp/x/takes/seed202_dry.wav", "203": "/tmp/x/takes/seed203_dry.wav"}, "stem_export_ok": false,
+                "bar1_exact": true, "daw_hint": "WARP ON: 140 BPM, drop at 1.1.1",
+                "stem_tempo": {"lead": {"bpm": 140, "bars": 18, "bar1_exact": true, "daw_hint": "WARP ON: 140 BPM, drop at 1.1.1", "acid": true},
+                               "dbl_L": {"bpm": 64, "bars": 8, "bar1_exact": false, "daw_hint": "WARP ON: 64 BPM, BAR 1 APPROX", "acid": true}}});
+    if (tileHint("lead") != "WARP ON: 140 BPM, drop at 1.1.1" || tileHint("dbl") != "WARP ON: 64 BPM, BAR 1 APPROX" || tileHint("bed") != "WARP ON: 140 BPM, drop at 1.1.1" || tileHint("harm") != "") { ok = false; Console.print("HL selftest DAW line"); }
+    applyConform({"stems": {"lead": {"path": "/tmp/x/lead_128bpm_Dm.wav", "acid": {"tempo": 128, "beats": 72, "meter": "4/4", "root": 62}}, "dbl_L": {"path": "/tmp/x/dbl_L_98bpm_Dm.wav", "acid": null}}});
+    S.confTarget = {"bpm": 98.5};
+    if (tileHint("lead") != "WARP ON: 128 BPM, drop at 1.1.1" || tileHint("dbl") != "WARP ON: 98.5 BPM, BAR 1 APPROX" || tileHint("bed") != "WARP ON: 140 BPM, drop at 1.1.1") { ok = false; Console.print("HL selftest matched DAW line " + tileHint("lead") + " / " + tileHint("dbl")); }
+    S.confTarget = {};
+    applyConform({"paths": {"lead": "/tmp/x/lead_128bpm_Dm.wav"}});
     applyStatus({"state": "running", "stage": "memory", "pct": 1, "lcd": "MEM WAIT 1%", "message": "waiting for memory: close heavy apps"});
     S.online = true;
     if (S.lcd != "MEM WAIT 1%" || engineText() != "MEM WAIT" || S.msg.indexOf("heavy apps") < 0) { ok = false; Console.print("HL selftest MEM WAIT"); }

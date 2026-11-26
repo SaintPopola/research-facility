@@ -372,6 +372,13 @@ sends one request at a time: it checks the app every 2 seconds and a running job
 - Stem tiles: **LEAD, DRY, BED, DOUBLES, HARMS, AD-LIBS, ANSWER, ALL VOCALS**. Each has **PLAY / STOP**,
   **DRAG TO DAW** (reads **DRAG (MATCHED)** when MATCH DAW made a matched copy) and **SAVE** (copy the file
   to a folder you pick; it remembers the folder).
+- DOUBLES and HARMS hold several files and read **CMD+DROP n FILES**: hold CMD while dropping in Live so
+  each file gets its own track (without it Live lays them end to end on one track).
+- The small line under a tile's name is the tempo to give the clip in Live, for example
+  `WARP ON: 98 BPM, drop at 1.1.1`. The WAVs carry that tempo in an ACID chunk (REAPER and Cubase read it),
+  but Live 12 guesses the tempo from the audio, so check the clip's BPM and type it in if it differs. A red
+  `BAR 1 APPROX` (drumless presets) means: set 1.1.1 by ear before warping. On a matched copy the line
+  shows the project tempo it was stretched to.
 - A red **NOT FOR STEM EXPORT** lamp on LEAD and ALL VOCALS means the lead contains printed library breaths:
   keep those files in your own songs.
 - Files land in `~/Music/SweetMelody/Hooks/<date>_<first-words>_<style><bpm>/`.
