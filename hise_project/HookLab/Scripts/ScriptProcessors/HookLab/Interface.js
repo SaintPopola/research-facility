@@ -530,6 +530,16 @@ inline function projText()
     return "MANUAL";
 }
 
+// A sung line, read the way buildJob reads lyrics: an [en] / [es] / [pt] prefix is a
+// language tag on a sung line; a row that is still "[...]" after it ([Chorus]) is a tag row.
+inline function isSungRow(row)
+{
+    local r = row.trim();
+    local pre = r.substring(0, 4).toLowerCase();
+    if (pre == "[en]" || pre == "[es]" || pre == "[pt]") r = r.substring(4, r.length).trim();
+    return r != "" && r.substring(0, 1) != "[";
+}
+
 Core.setPaintRoutine(function(g)
 {
     PushCur = Core;
@@ -567,7 +577,7 @@ Core.setPaintRoutine(function(g)
     g.setFont(T.TYPE, 10);
     var nl = 0;
     var rows = Lyrics.get("text").split("\n");
-    for (k = 0; k < rows.length; k++) if (rows[k].trim() != "" && rows[k].trim().substring(0, 1) != "[") nl = nl + 1;
+    for (k = 0; k < rows.length; k++) if (isSungRow(rows[k])) nl = nl + 1;
     g.setColour(nl > 8 ? T.cardRed : T.cardDim);
     g.drawAlignedText(nl + " / 8 SUNG LINES", [18, 220, 300, 12], "left");
     g.setColour(T.cardDim);
@@ -1671,6 +1681,7 @@ inline function selfTest()
     RMC.perf.setValue(0);
     RBC.ArcBtn.setValue(0);
     SeedsKnob.setValue(8);
+    if (isSungRow("[Chorus]") || isSungRow("[es]") || !isSungRow("[en] I said") || !isSungRow("[ES] dime") || !isSungRow("plain line") || isSungRow("   ")) { ok = false; Console.print("HL selftest sung-line count"); }
     if (buildJob().n_seeds != 4) { ok = false; Console.print("HL selftest seed cap"); }
     selectGenreById("rnb_soul", "soul_night");
     if (curGenre()[0] != "soul_night" || buildJob().n_seeds != 8 || GenSelOk() != "rnb_soul|soul_night") { ok = false; Console.print("HL selftest R&B seeds / genre by id"); }
