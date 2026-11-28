@@ -64,7 +64,7 @@ const var S = {
     "projSrc": "none", "projBpm": 0.0, "projKey": "", "projMode": "", "projKeySet": false, "posted": -1.0,
     "conformId": "", "confState": "", "confText": "", "confFor": "",
     "gateText": "", "memGb": -1, "genresFromServer": false, "scoreText": "",
-    "act": "", "actBody": {}, "postBody": {}, "confTarget": {}, "hint": {}, "dawHint": "", "bar1": true, "confBpm": {}, "needStems": false, "needConform": false, "needGenres": false, "postedKey": ""
+    "act": "", "actBody": {}, "postBody": {}, "confTarget": {}, "hint": {}, "dawHint": "", "bar1": true, "confBpm": {}, "stemKind": "", "polishOk": false, "polishWhy": "", "ab": {}, "abSide": "b", "needStems": false, "needConform": false, "needGenres": false, "postedKey": ""
 };
 const var KEYS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 const var BARS = [4, 8, 12, 16];
@@ -485,8 +485,14 @@ inline function tileRect(i)
 
 inline function takeRect(i)
 {
-    return [10 + i * 182, 300, 176, 30];
+    return [10 + i * 142, 300, 136, 30];
 }
+
+// POLISH / A/B card at the end of the take row (API.md section 8, 2026-11-27)
+const var AB_CARD = [578, 300, 154, 30];
+const var AB_KEY_A = [584, 309, 26, 18];
+const var AB_KEY_B = [614, 309, 26, 18];
+const var POLISH_KEY = [584, 305, 60, 20];
 
 inline function engineText()
 {
@@ -632,17 +638,45 @@ Core.setPaintRoutine(function(g)
         drawCard(g, r);
         g.setColour(T.cardInk);
         g.setFont(T.TYPEB, 11);
-        g.drawAlignedText("TAKE " + "ABCD".substring(k, k + 1), [r[0] + 8, r[1], 70, r[3]], "left");
+        g.drawAlignedText("TAKE " + "ABCD".substring(k, k + 1), [r[0] + 8, r[1], 50, r[3]], "left");
         if (has)
         {
             var tk = S.takes[k];
             g.setColour(tk.ler > 0.30 ? T.cardRed : T.cardDim);
             g.setFont(T.TYPE, 10);
-            g.drawAlignedText(tk.ler >= 0 ? "LER " + Math.round(tk.ler * 100) + "%" : "--", [r[0] + 70, r[1], 70, r[3]], "left");
+            g.drawAlignedText(tk.ler >= 0 ? "LER " + Math.round(tk.ler * 100) + "%" : "--", [r[0] + 58, r[1], 54, r[3]], "left");
             drawLamp(g, r[0] + r[2] - 18, r[1] + 10, 10, tk.kept || S.playing == "take" + k, S.playing == "take" + k ? T.lampGreen : T.lampAmber, S.playing == "take" + k ? T.lampGreenGlow : T.lampAmberGlow);
         }
         g.setOpacity(1.0);
     }
+    // POLISH / A/B card: A/B once a polished take exists, else POLISH (render and lock jobs only)
+    var hasAB = isDefined(S.ab.a);
+    if (!hasAB && !polishShown()) g.setOpacity(0.4);
+    drawCard(g, AB_CARD);
+    if (hasAB)
+    {
+        var abOn = S.playing == "ab";
+        drawKey(g, AB_KEY_A, "A", hv == "abA", true);
+        drawKey(g, AB_KEY_B, "B", hv == "abB", true);
+        drawLamp(g, AB_KEY_A[0] + 10, 302, 5, abOn && S.abSide == "a", T.lampGreen, T.lampGreenGlow);
+        drawLamp(g, AB_KEY_B[0] + 10, 302, 5, abOn && S.abSide == "b", T.lampGreen, T.lampGreenGlow);
+        g.setFont(T.TYPE, 9);
+        g.setColour(abOn && S.abSide == "a" ? T.cardInk : T.cardDim);
+        g.drawFittedText("A TURBO " + lerText(S.ab.aLer) + " E " + (S.ab.aE >= 0 ? Engine.doubleToString(S.ab.aE, 2) : "--"), [646, 302, 84, 13], "left", 1, 0.7);
+        g.setColour(abOn && S.abSide == "b" ? T.cardInk : T.cardDim);
+        g.drawFittedText("B POLISH " + lerText(S.ab.bLer) + " E " + (S.ab.bE >= 0 ? Engine.doubleToString(S.ab.bE, 2) : "--"), [646, 315, 84, 13], "left", 1, 0.7);
+    }
+    else
+    {
+        drawKey(g, POLISH_KEY, "POLISH", hv == "polish", canPolish());
+        g.setOpacity(polishShown() ? 1.0 : 0.4);      // drawKey resets the opacity
+        g.setColour(polishShown() && !S.polishOk && S.polishWhy != "" ? T.cardRed : T.cardDim);
+        g.setFont(T.FONT, 7);
+        var ptxt = polishShown() ? (S.polishOk ? "SFT re-sing of the kept take, 2-4 min" : (S.polishWhy != "" ? S.polishWhy : "not available")) : "after a render or LOCK";
+        g.drawFittedText(ptxt, [650, 302, 80, 26], "left", 2, 0.7);
+    }
+    g.setOpacity(1.0);
+
     // stem tiles (PLAY / STOP, drag into the DAW, SAVE); NO STEM EXP when stem_export_ok is false
     for (k = 0; k < TILES.length; k++)
     {
@@ -691,6 +725,12 @@ inline function hitCore(x, y)
     if (x >= 8 && x < 44 && y >= 250 && y < 286) return "render";
     for (k = 0; k < 4; k++)
         if (hitIn(takeRect(k), x, y)) return "take" + k;
+    if (isDefined(S.ab.a))
+    {
+        if (hitIn(AB_KEY_A, x, y)) return "abA";
+        if (hitIn(AB_KEY_B, x, y)) return "abB";
+    }
+    else if (hitIn(POLISH_KEY, x, y)) return "polish";
     for (k = 0; k < TILES.length; k++)
     {
         local sr = tileRect(k);
@@ -718,6 +758,9 @@ Core.setMouseCallback(function(event)
             else submitRender();
         }
         else if (h.indexOf("take") == 0) toggleTake(parseInt(h.substring(4, 5)));
+        else if (h == "abA") playAB("a");
+        else if (h == "abB") playAB("b");
+        else if (h == "polish" && canPolish()) polishJob();
         else if (h.indexOf("play") == 0) togglePlay(TILES[parseInt(h.substring(4, 5))][0]);
         else if (h.indexOf("save") == 0) saveTile(TILES[parseInt(h.substring(4, 5))][0]);
     }
@@ -729,6 +772,8 @@ Core.setMouseCallback(function(event)
             var dp = tilePaths(TILES[parseInt(dh.substring(4, 5))][0]);
             if (dp.length > 0) this.startExternalFileDrag(dp, false, function() {});
         }
+        else if ((dh == "abA" || dh == "abB") && isDefined(S.ab.a))
+            this.startExternalFileDrag(dh == "abA" ? S.ab.a : S.ab.b, false, function() {});
         else if (dh.indexOf("take") == 0)
         {
             var tp = takePath(parseInt(dh.substring(4, 5)));
@@ -737,6 +782,8 @@ Core.setMouseCallback(function(event)
     }
     if (h != S.hover)
     {
+        // POLISH greyed out: the app's reason as the tooltip (polish_ok.why)
+        this.set("tooltip", h == "polish" && !canPolish() && S.polishWhy != "" ? S.polishWhy : "");
         S.hover = h;
         this.repaint();
     }
@@ -879,7 +926,7 @@ Lower.setPaintRoutine(function(g)
 // TAKES / LINES / FIX desk
 const var Qa = Content.addPanel("Qa", 588, CH + 8);
 Content.setPropertiesFromJSON("Qa", {"width": 592, "height": 312, "allowCallbacks": "Clicks & Hover", "saveInPreset": false, "visible": false});
-const var QA_ACT = [["lock", "LOCK", 12], ["counter", "COUNTER", 98], ["score", "SCORE", 184], ["release", "RELEASE ENGINE", 270], ["cancel", "CANCEL", 392]];
+const var QA_ACT = [["lock", "LOCK", 12], ["counter", "COUNTER", 98], ["score", "SCORE", 184], ["release", "RELEASE ENGINE", 270], ["cancel", "CANCEL", 392], ["polish", "POLISH", 478]];
 
 inline function fixRect(i)
 {
@@ -912,18 +959,17 @@ Qa.setPaintRoutine(function(g)
         g.setColour(ln.fix ? T.cardRed : T.cardInk);
         g.drawAlignedText((i + 1) + "  " + ln.heard, [308, 41 + i * 18, 186, 14], "left");
         g.drawAlignedText(ln.ler >= 0 ? Math.round(ln.ler * 100) + "%" : "--", [494, 41 + i * 18, 40, 14], "left");
-        drawKey(g, fixRect(i), "FIX", hv == "fix" + i, S.online && !jobBusy() && S.stemJob != "");
+        drawKey(g, fixRect(i), "FIX", hv == "fix" + i, canRework());
     }
     if (S.lines.length == 0)
     {
         g.setColour(T.cardDim);
         g.drawFittedText("Lines appear when a hook is done. Red = above the FIX trigger (30% of the words misheard). FIX repaints one line into a new folder; the source is never touched.", [308, 44, 264, 140], "topLeft", 8, 1.0);
     }
-    var done = S.stemJob != "";
     for (i = 0; i < QA_ACT.length; i++)
     {
         var qa = QA_ACT[i];
-        var en = qa[0] == "cancel" ? jobBusy() : (qa[0] == "release" ? S.online && !jobBusy() : S.online && done && !jobBusy());
+        var en = qa[0] == "cancel" ? jobBusy() : (qa[0] == "release" ? S.online && !jobBusy() : (qa[0] == "polish" ? canPolish() : canRework()));
         drawKey(g, [qa[2], 202, qa[0] == "release" ? 114 : 78, 20], qa[1], hv == qa[0], en);
     }
     drawCard(g, [12, 230, 568, 74]);
@@ -951,11 +997,11 @@ Qa.setMouseCallback(function(event)
     var h = hitQa(event.x, event.y);
     if (event.clicked)
     {
-        var done = S.stemJob != "";
-        if (h.indexOf("fix") == 0 && S.online && done && !jobBusy()) fixLine(parseInt(h.substring(3, 4)) + 1);
-        else if (h == "lock" && S.online && done && !jobBusy()) lockJob(false);
-        else if (h == "counter" && S.online && done && !jobBusy()) lockJob(true);
-        else if (h == "score" && S.online && done && !jobBusy()) scoreJob();
+        if (h.indexOf("fix") == 0 && canRework()) fixLine(parseInt(h.substring(3, 4)) + 1);
+        else if (h == "lock" && canRework()) lockJob(false);
+        else if (h == "counter" && canRework()) lockJob(true);
+        else if (h == "score" && canRework()) scoreJob();
+        else if (h == "polish" && canPolish()) polishJob();
         else if (h == "release" && S.online && !jobBusy()) releaseEngine();
         else if (h == "cancel" && jobBusy()) cancelJob();
     }
@@ -985,6 +1031,12 @@ Server.setBaseURL(HOOKLAB_URL);
 Server.setEnforceTrailingSlash(false);
 Server.setHttpHeader("Content-Type: application/json");
 const var Player = Synth.getAudioSampleProcessor("Hook Player");
+// POLISH A/B: a second player runs the other take in sync; each player's Simple Gain (50 ms smoothing)
+// picks the side you hear, so switching never restarts or clicks. B is bypassed outside an A/B.
+const var PlayerB = Synth.getAudioSampleProcessor("Hook Player B");
+const var HookB = Synth.getChildSynth("Hook Player B");
+const var AbGainA = Synth.getEffect("AB Gain A");
+const var AbGainB = Synth.getEffect("AB Gain B");
 const var HlTask = Engine.createBackgroundTask("Hook Lab start");
 Globals.hlPlay = false;
 Globals.hlPlayEpoch = 0;
@@ -1083,12 +1135,20 @@ inline function buildJob()
     return job;
 }
 
+inline function abOff()
+{
+    AbGainA.setAttribute(0, 0.0);
+    AbGainB.setAttribute(0, -100.0);
+    HookB.setBypassed(true);
+}
+
 inline function stopPlay()
 {
     if (S.playing == "") return;
     S.playing = "";
     Globals.hlPlay = false;
     Globals.hlPlayEpoch = Globals.hlPlayEpoch + 1;
+    abOff();
 }
 
 inline function clearResults()
@@ -1109,9 +1169,13 @@ inline function clearResults()
     S.worst = -1;
     S.E = -1;
     S.timing = "";
+    S.stemKind = "";
+    S.polishOk = false;
+    S.polishWhy = "";
+    S.ab = {};
 }
 
-// a new job id from /render/, /fix_line/ or /lock/: polled the same way
+// a new job id from /render/, /fix_line/, /lock/ or /polish/: polled the same way
 inline function startedJob(status, response, kind)
 {
     if (status == 200 && isDefined(response.id))
@@ -1187,6 +1251,28 @@ inline function lockJob(counter)
     queueAct("lock", {"job": S.stemJob, "counter": counter});
 }
 
+// POLISH and the other reworks are never offered on a POLISH job (API.md section 8)
+inline function canRework()
+{
+    return S.online && S.stemJob != "" && !jobBusy() && S.stemKind != "polish";
+}
+
+inline function polishShown()
+{
+    return S.stemJob != "" && (S.stemKind == "render" || S.stemKind == "lock");
+}
+
+inline function canPolish()
+{
+    return polishShown() && S.polishOk && canRework();
+}
+
+inline function polishJob()
+{
+    S.lcd = "SENDING";
+    queueAct("polish", {"job": S.stemJob});
+}
+
 inline function cancelJob()
 {
     if (S.job == "") return;
@@ -1217,6 +1303,8 @@ inline function doAct()
         Server.callWithPOST("/fix_line/", JSON.stringify(S.actBody), function(status, response) { land(); startedJob(status, response, "fix"); });
     else if (a == "lock")
         Server.callWithPOST("/lock/", JSON.stringify(S.actBody), function(status, response) { land(); startedJob(status, response, "lock"); });
+    else if (a == "polish")
+        Server.callWithPOST("/polish/" + S.actBody.job, "{}", function(status, response) { land(); startedJob(status, response, "polish"); });
     else if (a == "cancel")
     {
         Server.callWithPOST("/cancel/" + S.job, "{}", function(status, response)
@@ -1282,6 +1370,17 @@ inline function applyQa(q)
     if (isDefined(q.stem_export_ok)) S.exportOk = q.stem_export_ok == true;
 }
 
+// the A/B pair of a POLISH block: A = the turbo take's lead, B = the polished lead, with both LER and E
+inline function abFrom(pb)
+{
+    if (!isDefined(pb) || !isDefined(pb.turbo) || !isDefined(pb.polish) || !isDefined(pb.turbo.lead)) return {};
+    local b = isDefined(pb.files) && isDefined(pb.files.lead) ? "" + pb.files.lead : (isDefined(pb.polish.lead) ? "" + pb.polish.lead : "");
+    if (b == "") return {};
+    return {"a": "" + pb.turbo.lead, "b": b,
+            "aLer": isDefined(pb.turbo.ler) ? pb.turbo.ler : -1, "aE": isDefined(pb.turbo.E) ? pb.turbo.E : -1,
+            "bLer": isDefined(pb.polish.ler) ? pb.polish.ler : -1, "bE": isDefined(pb.polish.E) ? pb.polish.E : -1};
+}
+
 inline function applyStems(r)
 {
     local i = 0;
@@ -1312,6 +1411,12 @@ inline function applyStems(r)
     if (isDefined(r.stem_export_ok)) S.exportOk = r.stem_export_ok == true;
     if (isDefined(r.disclosure)) S.disclosure = "" + r.disclosure;
     S.outTier = isDefined(r.out_tier) ? "" + r.out_tier : "";
+    S.stemKind = isDefined(r.kind) ? "" + r.kind : "";
+    S.polishOk = isDefined(r.polish_ok) && r.polish_ok.ok == true;
+    S.polishWhy = isDefined(r.polish_ok) && isDefined(r.polish_ok.why) ? "" + r.polish_ok.why : "";
+    if (S.playing == "ab") stopPlay();
+    S.ab = abFrom(r.polish);
+    if (!isDefined(S.ab.a) && isDefined(r.polish_takes) && r.polish_takes.length > 0) S.ab = abFrom(r.polish_takes[r.polish_takes.length - 1]);
     S.stemsFor = S.job;
     S.stemJob = S.job;
     S.conf = {};
@@ -1420,11 +1525,49 @@ inline function playPath(tag, p)
 {
     if (p == "") return;
     if (S.playing == tag) { stopPlay(); Core.repaint(); return; }
+    if (S.playing == "ab") stopPlay();
+    abOff();
     Player.setFile(p);
     S.playing = tag;
     Globals.hlPlay = true;
     Globals.hlPlayEpoch = Globals.hlPlayEpoch + 1;      // the Trigger script starts the note
     Core.repaint();
+}
+
+inline function abGains()
+{
+    AbGainA.setAttribute(0, S.abSide == "a" ? 0.0 : -100.0);
+    AbGainB.setAttribute(0, S.abSide == "b" ? 0.0 : -100.0);
+}
+
+// click A or B: start both takes in sync with that side audible; the other side switches over;
+// the side you are hearing stops it
+inline function playAB(side)
+{
+    if (!isDefined(S.ab.a)) return;
+    if (S.playing == "ab")
+    {
+        if (S.abSide == side) { stopPlay(); Core.repaint(); return; }
+        S.abSide = side;
+        abGains();
+        Core.repaint();
+        return;
+    }
+    stopPlay();
+    Player.setFile(S.ab.a);
+    PlayerB.setFile(S.ab.b);
+    HookB.setBypassed(false);
+    S.abSide = side;
+    abGains();
+    S.playing = "ab";
+    Globals.hlPlay = true;
+    Globals.hlPlayEpoch = Globals.hlPlayEpoch + 1;      // one note starts both players
+    Core.repaint();
+}
+
+inline function lerText(v)
+{
+    return v >= 0 ? Math.round(v * 100) + "%" : "--";
 }
 
 inline function togglePlay(key)
@@ -1764,6 +1907,37 @@ inline function selfTest()
     if (tileHint("lead") != "WARP ON: 128 BPM, drop at 1.1.1" || tileHint("dbl") != "WARP ON: 98.5 BPM, BAR 1 APPROX" || tileHint("bed") != "WARP ON: 140 BPM, drop at 1.1.1") { ok = false; Console.print("HL selftest matched DAW line " + tileHint("lead") + " / " + tileHint("dbl")); }
     S.confTarget = {};
     applyConform({"paths": {"lead": "/tmp/x/lead_128bpm_Dm.wav"}});
+    // POLISH (API.md section 8): shown on render / lock jobs, refused with the app's reason, the A/B
+    // pair from polish_takes or a polish job, and nothing reworked on a polish job
+    S.online = true;
+    S.jstate = "done";
+    S.job = "srcjob";
+    applyStems({"ready": true, "kind": "render", "files": {"lead": "/tmp/x/lead.wav"}, "stems": {}, "polish": null, "polish_takes": [],
+                "polish_ok": {"ok": false, "why": "the SFT model is not on disk", "model": "acestep-v15-sft"}});
+    if (!polishShown() || canPolish() || S.polishWhy.indexOf("SFT") < 0 || isDefined(S.ab.a) || hitCore(600, 315) != "polish") { ok = false; Console.print("HL selftest POLISH refused"); }
+    applyStems({"ready": true, "kind": "lock", "files": {"lead": "/tmp/x/lead.wav"}, "stems": {}, "polish": null, "polish_ok": {"ok": true, "why": null},
+                "polish_takes": [{"ran": true, "turbo": {"lead": "/tmp/x/lead.wav", "ler": 0.2, "E": 0.6}, "polish": {"lead": "/tmp/x/lead_polish.wav", "ler": 0.1, "E": 0.7},
+                                  "files": {"lead": "/tmp/x/lead_polish.wav"}}]});
+    if (!canPolish() || S.ab.b != "/tmp/x/lead_polish.wav" || hitCore(590, 315) != "abA" || hitCore(620, 315) != "abB" || hitCore(600, 330) != "") { ok = false; Console.print("HL selftest POLISH pair from polish_takes"); }
+    S.job = "poljob";
+    applyStems({"ready": true, "kind": "polish", "files": {"lead": "/tmp/x/lead_polish2.wav"}, "stems": {}, "polish_ok": {"ok": false, "why": "the job is itself a POLISH job"},
+                "polish": {"ran": true, "turbo": {"lead": "/tmp/x/lead.wav", "ler": 0.2, "E": 0.6}, "polish": {"lead": "/tmp/x/lead_polish2.wav", "ler": 0.08, "E": 0.71},
+                           "files": {"lead": "/tmp/x/lead_polish2.wav"}}, "polish_takes": []});
+    if (polishShown() || canRework() || canPolish() || S.ab.a != "/tmp/x/lead.wav" || S.ab.b != "/tmp/x/lead_polish2.wav" || S.ab.bLer != 0.08 || tilePaths("lead")[0] != "/tmp/x/lead_polish2.wav") { ok = false; Console.print("HL selftest POLISH job"); }
+    // switching sides keeps the one note running (gains only); the side you hear stops it and bypasses B
+    S.playing = "ab";
+    S.abSide = "b";
+    HookB.setBypassed(false);
+    local ep = Globals.hlPlayEpoch;
+    playAB("a");
+    if (S.playing != "ab" || S.abSide != "a" || Globals.hlPlayEpoch != ep || AbGainA.getAttribute(0) < -1.0 || AbGainB.getAttribute(0) > -99.0) { ok = false; Console.print("HL selftest A/B switch"); }
+    playAB("a");
+    if (S.playing != "" || !HookB.isBypassed() || AbGainA.getAttribute(0) < -1.0) { ok = false; Console.print("HL selftest A/B stop"); }
+    clearResults();
+    if (isDefined(S.ab.a) || S.stemKind != "" || S.polishOk) { ok = false; Console.print("HL selftest POLISH reset"); }
+    S.online = false;
+    S.jstate = "";
+    S.job = "testjob";        // the job the MEM WAIT check below polls
     applyStatus({"state": "running", "stage": "memory", "pct": 1, "lcd": "MEM WAIT 1%", "message": "waiting for memory: close heavy apps"});
     S.online = true;
     if (S.lcd != "MEM WAIT 1%" || engineText() != "MEM WAIT" || S.msg.indexOf("heavy apps") < 0) { ok = false; Console.print("HL selftest MEM WAIT"); }

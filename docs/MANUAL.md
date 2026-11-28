@@ -369,6 +369,14 @@ sends one request at a time: it checks the app every 2 seconds and a running job
 
 - **TAKE A** to **TAKE D:** the kept take first (lamp lit) with its lyric error rate (LER, red above 30%).
   Click to play its dry take, drag to drop it into Live.
+- **POLISH** (the card after TAKE D, on a render or LOCK job): the app sings the kept take again with
+  its slower SFT model (same melody, lyrics and settings, about 2 to 4 minutes) and prints it next to the
+  turbo take, which stays as it is. The LCD shows LOAD SFT, POLISH, POLISH POST, then DONE. Greyed out
+  when the app cannot run it now; the reason is on the card and in the tooltip. When it is done the card
+  becomes an **A / B** pair: A is the turbo take, B the polished one, each with its LER and E. Click A or B
+  to play both in sync and hear that side; click the other to switch without a restart, the same one
+  again to stop. Drag A or B to drop that take; the LEAD tile now drags the polished lead. FIX, LOCK,
+  COUNTER, SCORE and POLISH are not offered on a polished job: run them on the original.
 - Stem tiles: **LEAD, DRY, BED, DOUBLES, HARMS, AD-LIBS, ANSWER, ALL VOCALS**. Each has **PLAY / STOP**,
   **DRAG TO DAW** (reads **DRAG (MATCHED)** when MATCH DAW made a matched copy) and **SAVE** (copy the file
   to a folder you pick; it remembers the folder).
@@ -387,8 +395,8 @@ sends one request at a time: it checks the app every 2 seconds and a running job
 PERFORMANCE and BED each have a **MANUAL** key: unlit, the genre preset decides those values; lit, your
 knob values are sent. OUTPUT / ENGINE is always sent. The TAKES / LINES / FIX desk lists every take and
 line (red above 30% misheard) with FIX per line, plus LOCK (same melody, new takes), COUNTER (the other
-voice), SCORE, RELEASE ENGINE (free the engine's memory now) and CANCEL. FIX and LOCK write new folders;
-the source folder is never touched.
+voice), SCORE, RELEASE ENGINE (free the engine's memory now), CANCEL and POLISH. FIX and LOCK write new
+folders; POLISH writes `_polish` files into the same folder; the turbo files are never touched.
 
 **Live bridge (optional).** The Hook Lab app ships a Live 12 control surface, SweetMelodyBridge, that
 tells it the Set's tempo and key: pick it in Live's Settings, Link, Tempo & MIDI, in a free Control
@@ -601,7 +609,7 @@ LOOP FX knobs: "LOOPS ONLY", "SAVED WITH YOUR SET"; double-click resets one knob
 | BED | BED (OFF, GENTLE, HEAVY), OPEN ON HOOK, SUB 60 (0 to 3 dB), DUCK (0 to 3 dB), TRIM (-3 to 0 dB) |
 | OUTPUT / ENGINE | OUT TIER (REF -16 LUFS, LOUD -14 LUFS, PRO STEM -18 LUFS), SMALL SPEAKER, TIGHTEN (OFF, 10 MS, 15 MS: onsets to the 1/16 grid), DCW (DEFAULT, OFF, THINK), CAPTION (PRESET, CLEAN, RAW), LANG WORDS (AUTO, ON, OFF) |
 | Each rack but OUTPUT | MANUAL (lit: send these values; unlit: preset values) |
-| TAKES / LINES / FIX | FIX (per line), LOCK, COUNTER, SCORE, RELEASE ENGINE, CANCEL |
+| TAKES / LINES / FIX | FIX (per line), LOCK, COUNTER, SCORE, RELEASE ENGINE, CANCEL, POLISH |
 
 ## Not verified (internal note)
 
